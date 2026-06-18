@@ -59,7 +59,8 @@ Grid cluster (cross-site).**
   restarts**.
 - Flush via kcadm: `clear-realm-cache` / `clear-user-cache` / `clear-keys-cache`.
 - Cache wording is stable 26.0→26.6; cross-DC blueprint detail varies by version
-  (`rhbk_kb.py show caching-`, or `--guide high_availability_guide`).
+  (search the High-Availability-guide chapters in `reference/keycloak/` — QUERY op
+  in [`CLAUDE.md`](../CLAUDE.md)).
 
 For the external-cache deployment mechanics (Operator, Cross-DC, remote-store CR
 options) see [[external-data-grid-operator]]. For making the cache the source of

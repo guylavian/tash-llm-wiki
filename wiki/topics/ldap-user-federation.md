@@ -43,8 +43,8 @@ to the provider (each is a candidate [[ldap-mappers]] entity page).
 
 ## Contradictions / caveats
 - The **Import Users** toggle and storage-mode wording is stable across RHBK
-  26.0 → 26.6, but always confirm the version with
-  `rhbk_kb.py search "..." --version 26.6`.
+  26.0 → 26.6, but always confirm the version against `reference/keycloak/` (the
+  notes carry `version:`; QUERY op in [`CLAUDE.md`](../CLAUDE.md)).
 - Truststore wiring differs between bare-metal (`kc.sh`) and the
   [[rhbk-operator]] — don't assume the console-page CA upload applies on OpenShift.
 - Performance: importing+syncing large directories has real cost; read-only

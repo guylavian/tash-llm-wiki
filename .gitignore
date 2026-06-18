@@ -16,4 +16,4 @@ __pycache__/
 # Redundant local backups — the corpus is canonical in wiki/reference/ (tracked here)
 .corpora.bak/
 corpora/
-wiki.zip
+*.zip

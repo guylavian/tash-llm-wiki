@@ -80,6 +80,10 @@ gated = os.path.join(refdir, "_gated-kb-index.md")
 gok = os.path.exists(gated) and open(gated, encoding="utf-8").read().count("\n## ") > 0
 check("gated KB index present + non-empty", gok)
 
+# 9. reference-tier integrity (FIX 2): no drift vs _meta/reference.lock.json
+rc, out = run("corpus_to_vault.py", "--verify")
+check("reference tier matches integrity lock (no hand-edits)", rc == 0, out.strip()[-400:])
+
 failed = [n for n, ok, _ in checks if not ok]
 print(f"\n{len(checks) - len(failed)}/{len(checks)} checks passed")
 sys.exit(1 if failed else 0)

@@ -33,7 +33,9 @@ public-fix entity pages and pointing at the gated KB solutions.**
 > NOT present here. Gated items below are pointers only (symptom + URL). Items
 > marked *gated — resolution requires Red Hat login* must be opened on
 > [access.redhat.com](https://access.redhat.com) with a subscription.
-> Full offline search: `python3 kb/rhbk_kb.py search "<terms>" --gated`.
+> Full offline search: see the QUERY op in [`CLAUDE.md`](../CLAUDE.md) — grep
+> `reference/keycloak/`, or `kb.py --domain keycloak search "<terms>" --gated` to
+> include gated pointers.
 
 ## Database & JDBC
 Public fixes exist for Oracle TCPS failover and PostgreSQL session-row buildup.

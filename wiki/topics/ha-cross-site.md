@@ -60,8 +60,8 @@ decision and sizing, see [[rhbk-ha-architectures]].
 - **Two sites only** — more than two sites is explicitly unsupported (latency and
   failure probability amplify). Some failure/switchover scenarios incur up to
   5 min downtime and may require manual re-sync.
-- Steps are version-sensitive — verify with
-  `rhbk_kb.py search "..." --guide high_availability_guide`.
+- Steps are version-sensitive — verify against the High-Availability-guide chapters
+  in `reference/keycloak/` (QUERY op in [`CLAUDE.md`](../CLAUDE.md)).
 
 ## See also
 - [[rhbk-ha-architectures]]

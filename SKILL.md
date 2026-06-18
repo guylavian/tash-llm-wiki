@@ -1,6 +1,6 @@
 ---
 name: keycloak-admin
-description: Keycloak and Red Hat build of Keycloak (RHBK) administration — realm management, client/OAuth2/OIDC & SAML setup, user & credential management, roles & groups, identity brokering & federation (LDAP/AD), tokens & sessions, themes, fine-grained authorization, server configuration/operator/OpenShift deployment, HA, and RH-SSO→RHBK migration. Activate for Keycloak/RHBK Admin REST API / kcadm.sh operations, authentication setup, identity-provider configuration, and RHBK platform/support questions. Includes an OFFLINE reference distilled from the official Keycloak 26 docs and Red Hat RHBK 26.6 docs/KB, plus a bundled, searchable local knowledge base (1,840 RHBK/RH-SSO records, 800 full doc/solution bodies) queried with `kb/rhbk_kb.py` — no internet required.
+description: Keycloak and Red Hat build of Keycloak (RHBK) administration — realm management, client/OAuth2/OIDC & SAML setup, user & credential management, roles & groups, identity brokering & federation (LDAP/AD), tokens & sessions, themes, fine-grained authorization, server configuration/operator/OpenShift deployment, HA, and RH-SSO→RHBK migration. Activate for Keycloak/RHBK Admin REST API / kcadm.sh operations, authentication setup, identity-provider configuration, and RHBK platform/support questions. Includes an OFFLINE reference distilled from the official Keycloak 26 docs and Red Hat RHBK 26.6 docs/KB, plus a bundled, searchable local knowledge base (1,840 RHBK/RH-SSO records, 800 full doc/solution bodies) queried with `wiki/_meta/bin/kb.py` (or grep) — no internet required.
 allowed-tools:
   - Bash
   - Read
@@ -101,8 +101,7 @@ when a question needs the *exact* wording, a specific version, or a long-tail to
 distilled references don't cover.
 
 - **Query tool:** `python3 wiki/_meta/bin/kb.py --domain keycloak …` (Python 3 stdlib only,
-  air-gapped). The legacy `python3 kb/rhbk_kb.py …` still works — it's a back-compat shim that
-  forwards to `kb.py`.
+  air-gapped) — or plain `grep wiki/reference/keycloak/`.
 - **Corpus (now folded into the vault):** `wiki/reference/keycloak/` — one Markdown note per
   source (741 RHBK/RH-SSO doc chapters across **26.0/26.2/26.4/26.6**, 40 solutions, 14 articles,
   5 discussions = 800 bodies) + `_gated-kb-index.md`. `kb.py` reads these notes; plain
@@ -118,7 +117,6 @@ python3 wiki/_meta/bin/kb.py --domain keycloak search "disconnected mirror image
 python3 wiki/_meta/bin/kb.py --domain keycloak search "cross-site infinispan" --guide high_availability_guide --full
 python3 wiki/_meta/bin/kb.py --domain keycloak show 7032207            # full body (or URL if gated)
 python3 wiki/_meta/bin/kb.py --domain keycloak guides ; python3 wiki/_meta/bin/kb.py --domain keycloak stats
-# python3 kb/rhbk_kb.py search "…"   # still works via the shim
 ```
 
 **When answering RHBK questions, prefer grounding in the vault reference tier over memory** —
@@ -138,7 +136,7 @@ session. The raw layer stays immutable; the wiki is regenerable downstream of it
   convention, and the operations: **INGEST** (fold a source/answer into pages,
   consulting the delta manifest so only new/changed sources are processed),
   **QUERY** (tiered: read titles + summaries first, open bodies only when needed;
-  fall back to `rhbk_kb.py`; file the answer back), **LINT**, and **STATUS** (audit).
+  fall back to grep / `kb.py`; file the answer back), **LINT**, and **STATUS** (audit).
 - **Tooling** lives in `wiki/_meta/bin/` (stdlib only, air-gapped):
   - `python3 wiki/_meta/bin/lint.py [--status]` — broken/wanted links, orphans,
     missing summary/sources/provenance, provenance drift, auto-seeded summaries,

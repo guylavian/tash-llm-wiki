@@ -23,14 +23,18 @@ Usage:
     python3 wiki/_meta/bin/corpus_to_vault.py --domain keycloak --apply    # write the notes
 """
 import argparse
+import hashlib
 import json
 import os
 import re
+import sys
 
 BIN = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(BIN)))   # wiki/_meta/bin -> root
 CORPORA = os.path.join(ROOT, "corpora")
 WIKI = os.path.dirname(os.path.dirname(BIN))                    # wiki/
+REF = os.path.join(WIKI, "reference")
+LOCK = os.path.join(WIKI, "_meta", "reference.lock.json")
 
 
 def corpus_records(domain):
@@ -138,11 +142,104 @@ def plan(domain):
     return {"recs": recs, "fetched": assigned, "gated": gated}
 
 
+# ---------- integrity lock (FIX 2) ----------
+# "Immutable" reference notes are only a convention now that they're editable Markdown.
+# The lock stores a sha256 per *managed* reference note (the body notes + the gated index
+# this tool writes) so a bare hand-edit in Obsidian is detectable; the regenerated
+# `_ref-*` group/hub indexes (index.py's) are excluded — they legitimately change.
+
+def _sha256(path):
+    with open(path, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def reference_domains():
+    if not os.path.isdir(REF):
+        return []
+    return sorted(d for d in os.listdir(REF) if os.path.isdir(os.path.join(REF, d)))
+
+
+def managed_notes(domain):
+    """Corpus-managed reference notes: body notes + `_gated-kb-index.md`; excludes the
+    `_ref-*` indexes that index.py regenerates."""
+    d = os.path.join(REF, domain)
+    if not os.path.isdir(d):
+        return []
+    return sorted(fn for fn in os.listdir(d) if fn.endswith(".md") and not fn.startswith("_ref-"))
+
+
+def _load_lock():
+    if os.path.isfile(LOCK):
+        with open(LOCK, encoding="utf-8") as fh:
+            return json.load(fh)
+    return {"algo": "sha256", "notes": {}}
+
+
+def write_lock(domain):
+    lock = _load_lock()
+    d = os.path.join(REF, domain)
+    lock.setdefault("notes", {})[domain] = {fn: _sha256(os.path.join(d, fn))
+                                            for fn in managed_notes(domain)}
+    with open(LOCK, "w", encoding="utf-8") as fh:
+        json.dump(lock, fh, indent=2, sort_keys=True)
+        fh.write("\n")
+    return len(lock["notes"][domain])
+
+
+def cmd_lock():
+    doms = reference_domains()
+    total = 0
+    for dom in doms:
+        n = write_lock(dom)
+        total += n
+        print(f"locked {dom}: {n} reference notes")
+    print(f"baseline -> {os.path.relpath(LOCK, ROOT)} ({total} notes, {len(doms)} domain(s))")
+
+
+def cmd_verify():
+    """Read-only. Recompute hashes, report added/removed/modified. Returns True on drift.
+    Never writes a reference note (or the lock)."""
+    if not os.path.isfile(LOCK):
+        print("reference.lock.json not found — run `corpus_to_vault.py --lock` to baseline (skipping)")
+        return False
+    locked = _load_lock().get("notes", {})
+    drift = False
+    for dom in sorted(set(locked) | set(reference_domains())):
+        want = locked.get(dom, {})
+        d = os.path.join(REF, dom)
+        have = {fn: _sha256(os.path.join(d, fn)) for fn in managed_notes(dom)}
+        modified = sorted(fn for fn in want if fn in have and have[fn] != want[fn])
+        removed = sorted(fn for fn in want if fn not in have)
+        added = sorted(fn for fn in have if fn not in want)
+        if modified or removed or added:
+            drift = True
+            print(f"DRIFT reference/{dom}/:")
+            for fn in modified:
+                print(f"  modified: {fn}")
+            for fn in removed:
+                print(f"  removed:  {fn}")
+            for fn in added:
+                print(f"  added:    {fn}")
+    if not drift:
+        print(f"reference tier intact — {sum(len(v) for v in locked.values())} notes match the lock")
+    return drift
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--domain", default="keycloak")
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--lock", action="store_true",
+                    help="(re)baseline _meta/reference.lock.json from the current reference notes")
+    ap.add_argument("--verify", action="store_true",
+                    help="read-only: report reference-tier drift (added/removed/modified); exit 1 on drift")
     args = ap.parse_args()
+
+    if args.verify:
+        sys.exit(1 if cmd_verify() else 0)
+    if args.lock:
+        cmd_lock()
+        return
 
     p = plan(args.domain)
     if p is None:
@@ -171,8 +268,10 @@ def main():
     if p["gated"]:
         with open(os.path.join(outdir, "_gated-kb-index.md"), "w", encoding="utf-8") as fh:
             fh.write(render_gated_index(args.domain, p["gated"]))
+    n = write_lock(args.domain)
     print(f"\nWROTE {len(p['fetched'])} reference notes + "
-          f"{'1 gated index' if p['gated'] else 'no gated index'} to {rel}/")
+          f"{'1 gated index' if p['gated'] else 'no gated index'} to {rel}/ "
+          f"(integrity lock refreshed: {n} notes)")
 
 
 if __name__ == "__main__":

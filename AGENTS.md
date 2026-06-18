@@ -18,9 +18,9 @@ guessing or going to the internet.
 1. Search `wiki/` first — read `wiki/index.md`, then the matching topic/entity page,
    and follow `[[links]]`.
 2. If the synthesized pages are thin, search the in-vault reference tier: grep
-   `wiki/reference/keycloak/`, or `python3 kb/rhbk_kb.py search "<terms>"` (a shim →
-   `wiki/_meta/bin/kb.py`, which reads that reference tier; add `--primary` /
-   `--guide <slug>` to narrow, `--gated` for Red Hat login-only pointers).
+   `wiki/reference/keycloak/`, or `python3 wiki/_meta/bin/kb.py --domain keycloak
+   search "<terms>"` (add `--primary` / `--guide <slug>` to narrow, `--gated` for
+   Red Hat login-only pointers).
 3. Synthesize the answer and cite the source (`kb:<id>`, `guide:<slug>`,
    `ref:<file>`).
 4. Optionally file the answer back per `wiki/CLAUDE.md` (QUERY operation) so the
@@ -43,5 +43,5 @@ The wiki's maintenance ops are packaged so they run in OpenCode (and Claude Code
 Ingest/query operations may create or edit pages in the **synthesis layer**
 (`wiki/{topics,entities,questions}/`) only. Never edit the immutable raw tiers
 (`wiki/reference/`, `references/`) — regenerable ground truth. Offline only: no
-network, no `webfetch`; retrieval is grep over the vault (or the `kb/rhbk_kb.py`
-shim → `wiki/_meta/bin/kb.py`).
+network, no `webfetch`; retrieval is grep over the vault (or
+`python3 wiki/_meta/bin/kb.py --domain <d> search`).

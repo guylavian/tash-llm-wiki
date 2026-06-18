@@ -14,7 +14,7 @@ Source tiers and how they are tracked (see wiki/CLAUDE.md):
   - web:<url ...>  presence-tracked only (external/upstream)          hash=null
 
 This script reads ../references/ READ-ONLY for hashing and never writes outside
-wiki/_meta/. It never touches ../kb/ or ../references/.
+wiki/_meta/. It never touches ../references/ or the in-vault reference/ tier.
 
 Adapted from the delta-manifest idea in the obsidian-wiki framework
 (github.com/Ar9av/obsidian-wiki), reworked for this skill's immutable two-tier
