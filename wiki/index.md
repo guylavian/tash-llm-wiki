@@ -12,8 +12,9 @@ Per-domain routing indexes are in `index.<domain>.md` (below).
 ## Domains
 _Per-domain routing indexes (generated). A QUERY routes here first, then opens the relevant index below to stay inside the model's context window._
 
-- [active-directory](index.active-directory.md) — 3 pages · review lens [[active-directory-implementation-review]]
-- [keycloak](index.keycloak.md) — 157 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
+- [active-directory](index.active-directory.md) — 68 pages · [[_ref-active-directory|221 reference notes]] · review lens [[active-directory-implementation-review]]
+- [cisco-ios-xe](index.cisco-ios-xe.md) — 13 pages · review lens [[cisco-ios-xe-implementation-review]]
+- [keycloak](index.keycloak.md) — 159 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
 <!-- index.py:domains:end -->
 
 ## Topics
@@ -185,6 +186,11 @@ _Per-domain routing indexes (generated). A QUERY routes here first, then opens t
 - [questions/rhsso-to-rhbk-custom-providers-spis.md](./questions/rhsso-to-rhbk-custom-providers-spis.md)
 - [questions/angular-spa-oidc-best-practice.md](./questions/angular-spa-oidc-best-practice.md)
 - [questions/spa-resource-server-implementation-review.md](./questions/spa-resource-server-implementation-review.md)
+- [questions/windows-server-identity-coverage-gaps.md](./questions/windows-server-identity-coverage-gaps.md)
+- [questions/kerberos-rbcd-s4u-delegation-detailed.md](./questions/kerberos-rbcd-s4u-delegation-detailed.md)
+- [questions/token-exchange-rhbk-detailed.md](./questions/token-exchange-rhbk-detailed.md)
+- [questions/logout-session-lifecycle-active-passive.md](./questions/logout-session-lifecycle-active-passive.md)
+- [questions/fsmo-transfer-vs-seize-dead-dc-twist.md](./questions/fsmo-transfer-vs-seize-dead-dc-twist.md)
 
 ---
 _Seeded 2026-06-16. Grow it via the INGEST / QUERY operations in `CLAUDE.md`.

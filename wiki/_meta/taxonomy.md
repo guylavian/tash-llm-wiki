@@ -40,6 +40,12 @@ tags: [federation, concept, v26.6]
 - `sites-topology` — sites, subnets, site links, DC locator, replication topology
 - `ad-certificate-services` — AD CS / PKI: CA roles, templates, enrollment, autoenrollment
 - `ad-authn` — Kerberos & NTLM authentication, SPNs, delegation, tickets
+<!-- cisco-ios-xe areas (notes-first domain) -->
+- `routing-protocols` — dynamic IP routing: OSPF, BGP, EIGRP, IS-IS, RIP — adjacencies, metrics, path selection, authentication
+- `ip-routing` — protocol-independent forwarding: static routes, RIB/FIB, administrative distance, route maps, PBR, redistribution, BFD
+- `lan-switching` — VLANs, VTP, 802.1Q trunking, inter-VLAN routing, access/trunk ports
+- `spanning-tree` — STP/RSTP/MST, root-bridge election, PortFast, BPDU guard/filter, loop prevention
+- `etherchannel` — Layer-2/3 link aggregation, LACP/PAgP, load balancing, bundle consistency
 
 ## Kinds
 - `concept` — broad synthesis / how-something-works (usually topics/)
@@ -78,9 +84,16 @@ domain that needs a *new* area, add it to `## Areas` too (areas are a flat union
 ### active-directory
 - domain: active-directory
 - areas: [directory-services, replication, group-policy, ad-dns, fsmo, trusts, sites-topology, ad-certificate-services, ad-authn, users, security, troubleshooting, migration]
-- shape: notes-first
-- sources: [_sources/active-directory/]
+- shape: corpus-backed
+- sources: [reference/active-directory/, corpora/active-directory/, _sources/active-directory/]
 - review-moc: active-directory-implementation-review
+
+### cisco-ios-xe
+- domain: cisco-ios-xe
+- areas: [routing-protocols, ip-routing, lan-switching, spanning-tree, etherchannel, security, troubleshooting]
+- shape: notes-first
+- sources: [_sources/cisco-ios-xe/]
+- review-moc: cisco-ios-xe-implementation-review
 
 <!-- Template — copy per new technology (placeholders are ignored by lint/index):
 ### <domain>

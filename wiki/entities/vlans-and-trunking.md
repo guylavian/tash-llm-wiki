@@ -1,0 +1,36 @@
+---
+title: VLANs & Trunking (IOS XE)
+type: entity
+domain: cisco-ios-xe
+slug: vlans-and-trunking
+summary: "802.1Q vs ISL VLAN encapsulation on router subinterfaces for inter-VLAN routing, and the native-VLAN/PVID rule whose mismatch silently merges traffic."
+sources:
+  - note:_sources/cisco-ios-xe/lan-switching.md
+provenance:
+  extracted: 6
+  inferred: 1
+  ambiguous: 0
+tags: [lan-switching, concept]
+status: reviewed
+updated: 2026-06-18
+---
+
+# VLANs & Trunking (IOS XE)
+
+**Segmenting a Layer-2 broadcast domain into VLANs and carrying multiple VLANs over one link by tagging frames — on this router-side guide, configured on subinterfaces.**
+
+## Encapsulation on subinterfaces
+Inter-VLAN routing is done by carving a physical interface into subinterfaces, one VLAN each: `interface fa slot/port.sub` + `encapsulation dot1q vlan-id` (or `encapsulation isl vlan-id`) + `ip address`. (This is router/EtherSwitch syntax — *not* `switchport trunk`.)
+
+- **802.1Q** — open standard: a 4-byte tag after the source MAC (TPID 0x8100, 3 priority bits + CFI + a **12-bit VLAN ID → 4096 VLANs**). Supported only on Fast/Gigabit Ethernet (not plain Ethernet).
+- **ISL** — Cisco-proprietary: a 26-byte wrapper, 10-bit VLAN ID (≤1000 VLANs), Fast Ethernet only.
+- ISL and 802.1Q cannot be mixed on the same trunk.
+
+## Native VLAN / PVID
+Every 802.1Q port has a **Port VLAN ID (PVID) = its native VLAN (default VLAN 1)**. Untagged ingress frames are placed in the native VLAN, and native-VLAN egress frames are sent **untagged** so VLAN-aware and VLAN-unaware devices can share the link. A **native-VLAN mismatch between the two ends silently merges traffic** between different VLANs — a classic, hard-to-spot fault.
+
+## See also
+- [[spanning-tree-protocol]]
+- [[etherchannel]]
+- [[cisco-ios-xe-overview]]
+- [[cisco-ios-xe-implementation-review]]

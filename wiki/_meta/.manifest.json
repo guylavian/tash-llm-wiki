@@ -886,6 +886,47 @@
         "ldap-user-federation"
       ]
     },
+    "note:_sources/cisco-ios-xe/bgp-routing.md": {
+      "first_ingested": "2026-06-18",
+      "hash": null,
+      "last_seen": "2026-06-18",
+      "pages": [
+        "bgp",
+        "bgp-path-attributes",
+        "bgp-route-reflector"
+      ]
+    },
+    "note:_sources/cisco-ios-xe/lan-switching.md": {
+      "first_ingested": "2026-06-18",
+      "hash": null,
+      "last_seen": "2026-06-18",
+      "pages": [
+        "etherchannel",
+        "spanning-tree-protocol",
+        "vlans-and-trunking"
+      ]
+    },
+    "note:_sources/cisco-ios-xe/ospf-routing.md": {
+      "first_ingested": "2026-06-18",
+      "hash": null,
+      "last_seen": "2026-06-18",
+      "pages": [
+        "cisco-ios-xe-implementation-review",
+        "cisco-ios-xe-overview",
+        "ospf"
+      ]
+    },
+    "note:_sources/cisco-ios-xe/protocol-independent-routing.md": {
+      "first_ingested": "2026-06-18",
+      "hash": null,
+      "last_seen": "2026-06-18",
+      "pages": [
+        "cisco-administrative-distance",
+        "policy-based-routing",
+        "route-redistribution-and-route-maps",
+        "static-and-default-routes"
+      ]
+    },
     "ref:high-availability.md": {
       "first_ingested": "2026-06-17",
       "hash": "sha256:5daaf752888506c9",

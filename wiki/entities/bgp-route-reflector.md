@@ -1,0 +1,39 @@
+---
+title: BGP Route Reflector
+type: entity
+domain: cisco-ios-xe
+slug: bgp-route-reflector
+summary: "Route reflectors scale iBGP without a full mesh by reflecting iBGP-learned routes, using Originator-ID and Cluster-list for loop avoidance — and they honor only set ip next-hop on reflected routes."
+sources:
+  - note:_sources/cisco-ios-xe/bgp-routing.md
+provenance:
+  extracted: 6
+  inferred: 1
+  ambiguous: 0
+tags: [routing-protocols, concept]
+status: reviewed
+updated: 2026-06-18
+---
+
+# BGP Route Reflector
+
+**A route reflector (RR) is an iBGP speaker allowed to re-advertise routes learned from one iBGP peer to another, removing the iBGP full-mesh requirement.**
+
+## Why it exists
+Plain iBGP will not re-advertise an iBGP-learned route to another iBGP peer, which forces an n² full mesh. An RR and its clients form a **cluster**; non-client iBGP peers must still be meshed. Reflection rules: a route from an eBGP speaker goes to all clients and non-clients; from a non-client to all clients; from a client to all clients and non-clients.
+
+## Loop avoidance
+Two optional non-transitive attributes:
+- **Originator-ID** — the router-id of the route's originator; if it loops back, the originator ignores it.
+- **Cluster-list** — sequence of cluster IDs; an RR that sees its own cluster ID drops the update.
+
+Single-RR clusters are identified by the RR's router-id; **multiple RRs per cluster need a shared `bgp cluster-id`**.
+
+## Gotchas
+- On **reflected** routes an RR honors **only `set ip next-hop`** — most other outbound route-map `set` clauses are intentionally ignored to avoid loops. Do not use `next-hop-self` to rewrite next hop on an RR; use an outbound route-map `set ip next-hop`.
+- If clients are already fully meshed, `no bgp client-to-client reflection` cuts duplicate updates.
+
+## See also
+- [[bgp]]
+- [[bgp-path-attributes]]
+- [[cisco-ios-xe-overview]]
