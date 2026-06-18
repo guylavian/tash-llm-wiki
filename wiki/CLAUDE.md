@@ -55,6 +55,7 @@ regenerable from a harvest; the synthesis is downstream of it.
             ├── corpus_to_vault.py  #   fold a harvested corpus into reference/<domain>/ notes
             ├── crosslink.py    #   link synthesized pages → their reference notes (## Sources) for the graph
             ├── route.py        #   cheap query→domain router (skip the global index on a confident route)
+            ├── expand.py       #   graph-expand seed pages → 1-hop reference-note candidates (no new search)
             └── eval/           #   retrieval scoreboard: eval.py (recall@k + context-cost) over eval/cases.jsonl
 ```
 
@@ -299,16 +300,29 @@ Goal: answer a question, and leave the wiki richer than you found it.
    answer. (The router is conservative by design: a *confident* route is never wrong, so
    skipping the global index never costs recall — verify with `route.py --eval` and the
    `_meta/eval/` scoreboard.)
-2. If the synthesized pages are thin, fall back to the **raw reference tier — which
-   also lives in the vault** (RETRIEVAL fallback, cheap-first): grep
-   `reference/<domain>/` (the full doc bodies, one Markdown note per source) for a
+2. **Graph-expand the seed pages before reading raw (use the link graph you built).**
+   The candidate pages from step 1 are *seeds*: each carries a generated `## Sources`
+   block (`[[reference-note]]` links written by `crosslink.py`) and `[[page]]` wikilinks
+   to neighbors. `python3 _meta/bin/expand.py --domain <d> "<query>"` returns that 1-hop
+   neighborhood **with no new search** — the **seed-source notes** (the seeds' own
+   `## Sources`; tight, high-precision) plus the looser **1-hop closure** (neighbor
+   pages' sources). Open those cited reference notes *directly* instead of re-searching:
+   on a paraphrased/multi-hop query whose answer note shares little surface vocabulary
+   (so lexical ranks it deep), the query still matches a *page that cites it*, and the
+   graph hands you the note — recall up at near-zero added cost. This is a multi-hop
+   *entry-point* fix; it does **not** help where the synthesized graph is thin (e.g. a
+   notes-first domain whose pages cite `note:`/`web:` tokens `crosslink.py` can't resolve
+   to a reference note) — that gap is the dense/embedding layer's job.
+3. If the pages and their graph neighborhood are still thin, fall back to the **raw
+   reference tier — which also lives in the vault** (RETRIEVAL fallback, cheap-first):
+   grep `reference/<domain>/` (the full doc bodies, one Markdown note per source) for a
    corpus-backed domain, or `_sources/<domain>/` for a notes-first domain. **There
    is no separate corpus query tool** — Obsidian/the vault holds all the data, so
    ripgrep/grep over Markdown + reading the matched notes *is* the search (the gated
    pointers are in `reference/<domain>/_gated-kb-index.md` — cite the URL). This
-   governs *when to read more*; it is independent of the citation contract in step 3,
+   governs *when to read more*; it is independent of the citation contract in step 4,
    which applies to **every** answer even when the synthesized pages alone sufficed.
-3. **Synthesize, and cite each claim to the tier it came from.** Every answer
+4. **Synthesize, and cite each claim to the tier it came from.** Every answer
    MUST end with a **References** section in two separate groups:
    - **RH ground-truth (`kb:` / `guide:` / `ref:`)** — for each wiki page you
      used, resolve its frontmatter `sources:` back to the underlying kb/guide/ref
@@ -325,7 +339,7 @@ Goal: answer a question, and leave the wiki richer than you found it.
    > PROVENANCE (what to cite) is mandatory in the output.** Keep them distinct:
    > the cheap-first read path is unchanged, but the answer's provenance always
    > surfaces both tiers.
-4. **File the answer back**: create `questions/<slug>.md` with the question, the
+5. **File the answer back**: create `questions/<slug>.md` with the question, the
    answer (**including the two-group References section**), and links into
    supporting pages. If answering surfaced a reusable fact, also run a
    mini-INGEST to capture it as an entity/topic.

@@ -45,18 +45,12 @@ sys.dont_write_bytecode = True          # keep _meta/bin/ free of __pycache__
 sys.path.insert(0, BIN)
 import kb                               # faithful: reuse the real loader + ranker
 import route                            # Phase-1 router (cheap domain pick)
+import expand                           # Phase-2 graph expansion (the real tool, imported)
 
 CHARS_PER_TOKEN = 4                     # air-gap-safe heuristic (matches lint.py); no tiktoken
 SNIPPET_CHARS = 260                     # matches kb.snippet() width — a skimmed candidate line
-PAGE_DIRS = ("topics", "entities", "questions")
-FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
-PAGELINK_RE = re.compile(r"\[\[([a-z0-9][a-z0-9-]*)\]\]")            # [[page-slug]] (no pipe)
-SOURCES_BLOCK_RE = re.compile(r"## Sources\n<!-- crosslink:begin.*?-->(.*?)<!-- crosslink:end -->",
-                              re.DOTALL)
-SOURCES_NOTE_RE = re.compile(r"\[\[([^\]|#]+)")                     # [[note-slug|Title]] inside it
 
 _recs_cache = {}
-_pages_cache = None
 
 
 # ---------- reference tier (the retrieval target) -------------------------------------
@@ -86,73 +80,8 @@ def rank(domain, query):
     return [(r.get("id"), len(bt)) for _, r, bt in scored]
 
 
-# ---------- synthesized-page graph (the Phase-2 ceiling, measured read-only) ----------
-
-def load_pages():
-    """slug -> {domain, title, summary, body, note_sources:set, page_links:set}."""
-    global _pages_cache
-    if _pages_cache is not None:
-        return _pages_cache
-    G = {}
-    for d in PAGE_DIRS:
-        full = os.path.join(WIKI, d)
-        if not os.path.isdir(full):
-            continue
-        for fn in sorted(os.listdir(full)):
-            if not fn.endswith(".md") or fn == "README.md":
-                continue
-            text = open(os.path.join(full, fn), encoding="utf-8").read()
-            m = FM_RE.match(text)
-            fm = {}
-            if m:
-                for line in m.group(1).splitlines():
-                    if line and not line[0].isspace() and ":" in line and not line.startswith(("-", "#")):
-                        k, _, v = line.partition(":")
-                        fm[k.strip()] = v.strip().strip('"\'')
-            sb = SOURCES_BLOCK_RE.search(text)
-            note_sources = set(SOURCES_NOTE_RE.findall(sb.group(1))) if sb else set()
-            body_wo_sources = SOURCES_BLOCK_RE.sub("", text)
-            page_links = set(PAGELINK_RE.findall(body_wo_sources))
-            G[fn[:-3]] = {
-                "domain": fm.get("domain"), "title": fm.get("title") or fn[:-3],
-                "summary": fm.get("summary") or "", "body": body_wo_sources,
-                "note_sources": note_sources, "page_links": page_links,
-            }
-    _pages_cache = G
-    return G
-
-
-def rank_pages(domain, query):
-    """Lexical rank of synthesized pages in this domain (reusing kb.score). Returns slugs."""
-    terms = kb.toks(query)
-    G = load_pages()
-    scored = []
-    for slug, p in G.items():
-        if p["domain"] != domain:
-            continue
-        pseudo = {"title": p["title"], "abstract": p["summary"], "body_status": "fetched",
-                  "primary": False, "family": None, "version": None}
-        sc = kb.score(pseudo, terms, p["body"])
-        if sc > 0:
-            scored.append((sc, slug))
-    scored.sort(key=lambda x: -x[0])
-    return [slug for _, slug in scored]
-
-
-def graph_notes(domain, query, k):
-    """Reference notes reachable 1-hop from the top-k synthesized pages: their own
-    ## Sources notes + their [[linked]] same-domain pages' ## Sources notes."""
-    G = load_pages()
-    out = set()
-    for slug in rank_pages(domain, query)[:k]:
-        p = G[slug]
-        out |= p["note_sources"]
-        for lp in p["page_links"]:
-            q = G.get(lp)
-            if q and q["domain"] == domain:
-                out |= q["note_sources"]
-    return out
-
+# Phase-2 graph expansion lives in expand.py (imported above); the eval measures the
+# real tool, exactly as it imports kb.py for the lexical ranking.
 
 # ---------- cost + recall -------------------------------------------------------------
 
@@ -175,7 +104,14 @@ def first_hit(ranked_ids, expected):
     return None
 
 
-def evaluate(cases, kmax, use_route, miss_opens):
+def note_len(domain, nid):
+    for r in records(domain):
+        if r.get("id") == nid:
+            return len(kb.body_text(r))
+    return 0
+
+
+def evaluate(cases, kmax, use_route, miss_opens, use_graph):
     rows = []
     for c in cases:
         domain = c.get("domain")
@@ -191,28 +127,41 @@ def evaluate(cases, kmax, use_route, miss_opens):
         ranked = rank(domain, c["query"])
         ids = [rid for rid, _ in ranked]
         lens = [ln for _, ln in ranked]
-        hit = first_hit(ids, expected)                       # 1-based rank or None
-        found = hit is not None and hit <= kmax              # found within the window?
+        hit = first_hit(ids, expected)                       # 1-based lexical rank or None
+        found = hit is not None and hit <= kmax              # lexical found within the window?
 
-        gnotes = graph_notes(domain, c["query"], kmax)
-        graph_hit = found or bool(expected & (set(ids[:kmax]) | gnotes))
+        # Phase-2 graph expansion: seed-source notes (primary, high-precision) vs 1-hop closure
+        gseed = expand.graph_notes(domain, c["query"], kmax, closure=False)
+        gclose = expand.graph_notes(domain, c["query"], kmax, closure=True)
+        lex_topk = set(ids[:kmax])
+        graph_hit = found or bool(expected & (lex_topk | gseed))            # operative (primary)
+        graph_hit_closure = found or bool(expected & (lex_topk | gclose))   # ceiling
+        rescued = use_graph and (not found) and bool(expected & gseed)
 
-        # context-token proxy: index + snippets skimmed + full bodies actually opened
+        # context-token proxy: index + snippets skimmed + full bodies actually opened.
+        # Graph mode turns a lexical miss that the graph rescues into ONE correct open
+        # (the cited note) instead of `miss_opens` wasted opens -> recall up, cost down.
         if found:
             scanned = hit                                    # stop skimming at the hit
-            opened = [hit - 1]                               # open the one true source
+            opened_bodies = [lens[hit - 1]]                  # open the one true source
+        elif rescued:
+            scanned = min(kmax, len(ids))
+            rnote = next(iter(expected & gseed))             # the note the graph handed us
+            opened_bodies = [note_len(domain, rnote)]
         else:
             scanned = min(kmax, len(ids))
-            opened = list(range(min(miss_opens, len(ids))))  # open a few plausible, fail
+            opened_bodies = [lens[i] for i in range(min(miss_opens, len(ids)))]  # open a few, fail
         idx_t = index_bytes(domain, skip_global) / CHARS_PER_TOKEN
         snip_t = (SNIPPET_CHARS / CHARS_PER_TOKEN) * scanned
-        body_t = sum(lens[i] for i in opened) / CHARS_PER_TOKEN
+        body_t = sum(opened_bodies) / CHARS_PER_TOKEN
         rows.append({
             "query": c["query"], "domain": domain, "kind": c.get("kind", "?"),
             "pair": c.get("pair"), "variant": c.get("variant"),
-            "expected": sorted(expected), "hit_rank": hit, "found": found,
-            "graph_hit": graph_hit, "graph_only": graph_hit and not found,
-            "scanned": scanned, "opened": len(opened),
+            "expected": sorted(expected), "hit_rank": hit,
+            "found": found, "found_eff": found or rescued,
+            "graph_hit": graph_hit, "graph_hit_closure": graph_hit_closure,
+            "graph_only": graph_hit and not found, "rescued": rescued,
+            "scanned": scanned, "opened": len(opened_bodies),
             "confident": confident, "skip_global": skip_global,
             "idx_t": idx_t, "snip_t": snip_t, "body_t": body_t,
             "ctx_t": idx_t + snip_t + body_t, "top5": ids[:5],
@@ -252,27 +201,32 @@ def report(rows, ks, kmax, verbose):
                 print("        top5 lex: %s" % (", ".join(r["top5"]) or "(none)"))
 
     def rec(rowset, k, key):
-        h = sum(1 for r in rowset if (r[key] if key == "graph_hit" else (r["hit_rank"] and r["hit_rank"] <= k)))
+        if key == "lex":
+            h = sum(1 for r in rowset if r["hit_rank"] and r["hit_rank"] <= k)
+        else:  # boolean recall flag (graph_hit / graph_hit_closure)
+            h = sum(1 for r in rowset if r[key])
         return h, len(rowset)
 
-    print("\nRECALL  (lexical vs lexical+graph)")
+    print("\nRECALL  (lexical -> +graph seed-sources -> +graph 1-hop closure)")
     for k in ks:
         hl, d = rec(rows, k, "lex")
-        hg, _ = rec(rows, k, "graph_hit") if k == kmax else (None, d)
         if k == kmax:
-            print("  @%-2d  lexical %2d/%-2d (%3.0f%%)   +graph %2d/%-2d (%3.0f%%)   graph-rescued: %d"
-                  % (k, hl, d, pct(hl, d), hg, d, pct(hg, d), hg - hl))
+            hg, _ = rec(rows, k, "graph_hit")
+            hc, _ = rec(rows, k, "graph_hit_closure")
+            print("  @%-2d  lexical %2d/%-2d (%3.0f%%)  ->  +graph %2d/%-2d (%3.0f%%)  ->  +closure %2d/%-2d (%3.0f%%)"
+                  % (k, hl, d, pct(hl, d), hg, d, pct(hg, d), hc, d, pct(hc, d)))
+            print("       graph-rescued (primary): %d   |   closure adds: %d" % (hg - hl, hc - hg))
         else:
             print("  @%-2d  lexical %2d/%-2d (%3.0f%%)" % (k, hl, d, pct(hl, d)))
 
-    print("\n  by domain (lexical r@%d / +graph):" % kmax)
+    print("\n  by domain (lexical r@%d -> +graph):" % kmax)
     for dom in sorted({r["domain"] for r in rows}):
         sub = [r for r in rows if r["domain"] == dom]
         hl, d = rec(sub, kmax, "lex")
         hg, _ = rec(sub, kmax, "graph_hit")
         print("    %-18s  %d/%d  ->  %d/%d" % (dom, hl, d, hg, d))
 
-    print("\n  by kind (lexical r@%d / +graph):" % kmax)
+    print("\n  by kind (lexical r@%d -> +graph):" % kmax)
     for kind in sorted({r["kind"] for r in rows}):
         sub = [r for r in rows if r["kind"] == kind]
         hl, d = rec(sub, kmax, "lex")
@@ -303,6 +257,12 @@ def report(rows, ks, kmax, verbose):
     print("  mean opened-body tok : %6d  (%.2f full notes opened/case)" % (mb, mo))
     print("  mean TOTAL ctx tokens: %6d   <-- Phase 1 cuts index; Phase 2/3 cut opened-body" % (mi + ms + mb))
 
+    rescued_rows = [r for r in rows if r["rescued"]]
+    if rescued_rows:
+        print("\nGRAPH RESCUE (Phase 2: lexical misses the graph turns into 1 correct open)")
+        print("  cases rescued in-proxy : %d  (each replaces wasted miss-opens with the cited note)"
+              % len(rescued_rows))
+
     skipped = [r for r in rows if r["skip_global"]]
     if skipped or any(r["confident"] for r in rows):
         print("\nROUTING (Phase 1: skip global index.md on a confident route)")
@@ -326,7 +286,8 @@ def main():
     ap.add_argument("--k", default="5,10", help="comma-separated recall cutoffs (default 5,10)")
     ap.add_argument("--kmax", type=int, default=10, help="recall window + max notes skimmed (default 10)")
     ap.add_argument("--miss-opens", type=int, default=2, help="full notes opened on a miss (default 2)")
-    ap.add_argument("--route", action="store_true", help="Phase-1 accounting: skip global index.md")
+    ap.add_argument("--route", action="store_true", help="Phase-1: skip global index.md on a confident route")
+    ap.add_argument("--graph", action="store_true", help="Phase-2: graph-expand to rescue lexical misses")
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args()
 
@@ -360,7 +321,7 @@ def main():
     if args.kmax not in ks:
         ks.append(args.kmax)
     ks = sorted(set(ks))
-    rows = evaluate(cases, args.kmax, args.route, args.miss_opens)
+    rows = evaluate(cases, args.kmax, args.route, args.miss_opens, args.graph)
     report(rows, ks, args.kmax, args.verbose)
     sys.exit(0)
 
