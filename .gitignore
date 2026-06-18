@@ -1,0 +1,19 @@
+# OS / editor cruft
+.DS_Store
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Obsidian per-machine session state (app.json/core-plugins/graph are kept)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian.bak/
+
+# Claude Code project-local session state
+.claude/
+
+# Redundant local backups — the corpus is canonical in wiki/reference/ (tracked here)
+.corpora.bak/
+corpora/
+wiki.zip

@@ -1,0 +1,216 @@
+{
+  "main": {
+    "id": "7d50f3787a90a575",
+    "type": "split",
+    "children": [
+      {
+        "id": "4dfc20debeb96052",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f00a4e190c44715e",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "5fe7744aa3defb52",
+    "type": "split",
+    "children": [
+      {
+        "id": "346e71c8e770d347",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ed9d00202f522b5c",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "3fff806d66a2a54c",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "ae512f02a2aff756",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "8cc96c8ba77621a1",
+    "type": "split",
+    "children": [
+      {
+        "id": "8d330fbc2715b017",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "da32e8c29f5e9e5d",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "f04cb18ef2046477",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "aeedda277e52c653",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "bfdcdb238798abb1",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "b95f870cd86f8a0a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "f00a4e190c44715e",
+  "lastOpenFiles": [
+    "reference/keycloak/_ref-keycloak.md",
+    "reference/keycloak/_ref-keycloak-server_installation_and_configuration_guide.md",
+    "reference/keycloak/_ref-keycloak-observability_guide.md",
+    "reference/keycloak/_ref-keycloak-release_notes.md",
+    "reference/keycloak/_ref-keycloak-migration_guide.md",
+    "reference/keycloak/_ref-keycloak-upgrading_guide.md",
+    "reference/keycloak/_ref-keycloak-getting_started_guide.md",
+    "reference/keycloak/_ref-keycloak-high_availability_guide.md",
+    "reference/keycloak/_ref-keycloak-authorization_services_guide.md",
+    "reference/keycloak/_ref-keycloak-api_documentation.md",
+    "reference/keycloak/_ref-keycloak-server_configuration_guide.md",
+    "reference/keycloak/_ref-keycloak-operator_guide.md",
+    "reference/keycloak/_ref-keycloak-server_developer_guide.md",
+    "reference/keycloak/_ref-keycloak-securing_applications_and_services_guide.md",
+    "reference/keycloak/_ref-keycloak-server_administration_guide.md",
+    "reference/keycloak/_ref-keycloak-streams_for_apache_kafka_api_reference.md",
+    "reference/keycloak/_ref-keycloak-using_dynamic_plugins_in_red_hat_developer_hub.md",
+    "reference/keycloak/_ref-keycloak-documentation.md",
+    "reference/keycloak/_ref-keycloak-keycloak_authorization.md",
+    "reference/keycloak/_ref-keycloak-access_control_and_user_management.md",
+    "reference/keycloak/_ref-keycloak-configuring_authentication_for_red_hat_satellite_users.md",
+    "reference/keycloak/_ref-keycloak-deployment_guide.md",
+    "reference/keycloak/_ref-keycloak-installing_and_configuring_central_authentication_for_the_ansible_automation_platform.md",
+    "reference/keycloak/_ref-keycloak-centralize_authorization_with_keycloak_and_oidc.md",
+    "reference/keycloak/_ref-keycloak-integrating_openstack_identity_with_external_user_management_services.md",
+    "reference/keycloak/_ref-keycloak-configuring_dynamic_plugins.md",
+    "_meta/bin/__pycache__/crosslink.cpython-314.pyc",
+    "_meta/bin/__pycache__",
+    "_meta/bin/crosslink.py",
+    "_meta/bin/index.py",
+    "_meta/bin/kb.py",
+    "_meta/bin/__pycache__/tags.cpython-314.pyc",
+    "Untitled.canvas",
+    "_sources"
+  ]
+}

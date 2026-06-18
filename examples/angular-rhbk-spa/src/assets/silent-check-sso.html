@@ -1,0 +1,13 @@
+<!--
+  Silent SSO helper page used by keycloak-js `check-sso`.
+  It runs inside a hidden iframe and just forwards the auth result back to the
+  app window. Must be served from the app origin and registered as a valid
+  redirect URI on the client. Do not add any other logic here.
+-->
+<html>
+  <body>
+    <script>
+      parent.postMessage(location.href, location.origin);
+    </script>
+  </body>
+</html>

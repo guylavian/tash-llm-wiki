@@ -1,0 +1,1049 @@
+---
+title: "Chapter 6. User Storage SPI - Red Hat Single Sign-On 7.2 Server Developer Guide"
+type: reference
+domain: keycloak
+slug: rhsso-7-2-user-storage-spi
+tier: reference
+source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.2/html/server_developer_guide/user-storage-spi
+guide: server_developer_guide
+version: 7.2
+family: rhsso
+documentKind: "Documentation"
+---
+
+# Chapter 6. User Storage SPI - Red Hat Single Sign-On 7.2 Server Developer Guide
+
+Chapter 6. User Storage SPI
+You can use the User Storage SPI to write extensions to Red Hat Single Sign-On to connect to external user databases and credential stores. The built-in LDAP and ActiveDirectory support is an implementation of this SPI in action. Out of the box, Red Hat Single Sign-On uses its local database to create, update, and look up users and validation credentials. Often though, organizations have existing external proprietary user databases that they cannot migrate to Red Hat Single Sign-On’s data model. For those situations, application developers can write implementations of the User Storage SPI to bridge the external user store and the internal user object model that Red Hat Single Sign-On uses to log in users and manage them.
+When the Red Hat Single Sign-On runtime needs to look up a user, such as when a user is logging in, it performs a number of steps to locate the user. It first looks to see if the user is in the user cache; if the user is found it uses that in-memory representation. Then it looks for the user within the Red Hat Single Sign-On local database. If the user is not found, it then loops through User Storage SPI provider implementations to perform the user query until one of them returns the user the runtime is looking for. The provider queries the external user store for the user and maps the external data representation of the user to Red Hat Single Sign-On’s user metamodel.
+User Storage SPI provider implementations can also perform complex criteria queries, perform CRUD operations on users, validate and manage credentials, or perform bulk updates of many users at once. It depends on the capabilities of the external store.
+User Storage SPI provider implementations are packaged and deployed similarly to (and often are) Java EE components. They are not enabled by default, but instead must be enabled and configured per realm under the User Federation
+tab in the administration console.
+6.1. Provider Interfaces
+When building an implementation of the User Storage SPI you have to define a provider class and a provider factory. Provider class instances are created per transaction by provider factories. Provider classes do all the heavy lifting of user lookup and other user operations. They must implement the org.keycloak.storage.UserStorageProvider
+interface.
+package org.keycloak.storage;
+public interface UserStorageProvider extends Provider {
+/**
+* Callback when a realm is removed. Implement this if, for example, you want to do some
+* cleanup in your user storage when a realm is removed
+*
+* @param realm
+*/
+default
+void preRemove(RealmModel realm) {
+}
+/**
+* Callback when a group is removed. Allows you to do things like remove a user
+* group mapping in your external store if appropriate
+*
+* @param realm
+* @param group
+*/
+default
+void preRemove(RealmModel realm, GroupModel group) {
+}
+/**
+* Callback when a role is removed. Allows you to do things like remove a user
+* role mapping in your external store if appropriate
+* @param realm
+* @param role
+*/
+default
+void preRemove(RealmModel realm, RoleModel role) {
+}
+}
+You may be thinking that the UserStorageProvider
+interface is pretty sparse? You’ll see later in this chapter that there are other mix-in interfaces your provider class may implement to support the meat of user integration.
+UserStorageProvider
+instances are created once per transaction. When the transaction is complete, the UserStorageProvider.close()
+method is invoked and the instance is then garbage collected. Instances are created by provider factories. Provider factories implement the org.keycloak.storage.UserStorageProviderFactory
+interface.
+package org.keycloak.storage;
+/**
+* @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
+* @version $Revision: 1 $
+*/
+public interface UserStorageProviderFactory<T extends UserStorageProvider> extends ComponentFactory<T, UserStorageProvider> {
+/**
+* This is the name of the provider and will be showed in the admin console as an option.
+*
+* @return
+*/
+@Override
+String getId();
+/**
+* called per Keycloak transaction.
+*
+* @param session
+* @param model
+* @return
+*/
+T create(KeycloakSession session, ComponentModel model);
+...
+}
+Provider factory classses must specify the concrete provider class as a template parameter when implementing the UserStorageProviderFactory
+. This is a must as the runtime will introspect this class to scan for its capabilities (the other interfaces it implements). So for example, if your provider class is named FileProvider
+, then the factory class should look like this:
+public class FileProviderFactory implements UserStorageProviderFactory<FileProvider> {
+public String getId() { return "file-provider"; }
+public FileProvider create(KeycloakSession session, ComponentModel model) {
+...
+}
+The getId()
+method returns the name of the User Storage provider. This id will be displayed in the admin console’s UserFederation
+page when you want to enable the provider for a specific realm.
+The create()
+method is responsible for allocating an instance of the provider class. It takes a org.keycloak.models.KeycloakSession
+parameter. This object can be used to lookup other information and metadata as well as provide access to various other components within the runtime. The ComponentModel
+parameter represents how the provider was enabled and configured within a specific realm. It contains the instance id of the enabled provider as well as any configuration you may have specified for it when you enabled through the admin console.
+The UserStorageProviderFactory
+has other capabilities as well which we will go over later in this chapter.
+6.2. Provider Capability Interfaces
+If you have examined the UserStorageProvider
+interface closely you might notice that it does not define any methods for locating or managing users. These methods are actually defined in other capability interfaces depending on what scope of capabilities your external user store can provide and execute on. For example, some external stores are read-only and can only do simple queries and credential validation. You will only be required to implement the capability interfaces for the features you are able to. You can implement these interfaces:
+| SPI | Description |
+|---|---|
+|
+| This interface is required if you want to be able to log in with users from this external store. Most (all?) providers implement this interface. |
+|
+| Defines complex queries that are used to locate one or more users. You must implement this interface if you want to view and manage users from the administration console. |
+|
+| Implement this interface if your provider supports adding and removing users. |
+|
+| Implement this interface if your provider supports bulk update of a set of users. |
+|
+| Implement this interface if your provider can validate one or more different credential types (for example, if your provider can validate a password). |
+|
+| Implement this interface if your provider supports updating one or more different credential types. |
+6.3. Model Interfaces
+Most of the methods defined in the capability interfaces either return or are passed in representations of a user. These representations are defined by the org.keycloak.models.UserModel
+interface. App developers are required to implement this interface. It provides a mapping between the external user store and the user metamodel that Red Hat Single Sign-On uses.
+package org.keycloak.models;
+public interface UserModel extends RoleMapperModel {
+String getId();
+String getUsername();
+void setUsername(String username);
+String getFirstName();
+void setFirstName(String firstName);
+String getLastName();
+void setLastName(String lastName);
+String getEmail();
+void setEmail(String email);
+...
+}
+UserModel
+implementations provide access to read and update metadata about the user including things like username, name, email, role and group mappings, as well as other arbitrary attributes.
+There are other model classes within the org.keycloak.models
+package that represent other parts of the Red Hat Single Sign-On metamodel: RealmModel
+, RoleModel
+, GroupModel
+, and ClientModel
+.
+6.3.1. Storage Ids
+One important method of UserModel
+is the getId()
+method. When implementing UserModel
+developers must be aware of the user id format. The format must be:
+"f:" + component id + ":" + external id
+The Red Hat Single Sign-On runtime often has to look up users by their user id. The user id contains enough information so that the runtime does not have to query every single UserStorageProvider
+in the system to find the user.
+The component id is the id returned from ComponentModel.getId()
+. The ComponentModel
+is passed in as a parameter when creating the provider class so you can get it from there. The external id is information your provider class needs to find the user in the external store. This is often a username or a uid. For example, it might look something like this:
+f:332a234e31234:wburke
+When the runtime does a lookup by id, the id is parsed to obtain the component id. The component id is used to locate the UserStorageProvider
+that was originally used to load the user. That provider is then passed the id. The provider again parses the id to obtain the external id it will use to locate the user in external user storage.
+6.4. Packaging and Deployment
+User Storage providers are packaged in a JAR and deployed or undeployed to the Red Hat Single Sign-On runtime in the same way you would deploy something in the JBoss EAP application server. You can either copy the JAR directly to the deploy/
+directory of the server, or use the JBoss CLI to execute the deployment.
+In order for Red Hat Single Sign-On to recognize the provider, you need to add a file to the JAR: META-INF/services/org.keycloak.storage.UserStorageProviderFactory
+. This file must contain a line-separated list of fully qualified classnames of the UserStorageProviderFactory
+implementations:
+org.keycloak.examples.federation.properties.ClasspathPropertiesStorageFactory
+org.keycloak.examples.federation.properties.FilePropertiesStorageFactory
+Red Hat Single Sign-On supports hot deployment of these provider JARs. You’ll also see later in this chapter that you can package it within and as Java EE components.
+6.5. Simple Read-Only, Lookup Example
+To illustrate the basics of implementing the User Storage SPI let’s walk through a simple example. In this chapter you’ll see the implementation of a simple UserStorageProvider
+that looks up users in a simple property file. The property file contains username and password definitions and is hardcoded to a specific location on the classpath. The provider will be able to look up the user by ID and username and also be able to validate passwords. Users that originate from this provider will be read-only.
+6.5.1. Provider Class
+The first thing we will walk through is the UserStorageProvider
+class.
+public class PropertyFileUserStorageProvider implements
+UserStorageProvider,
+UserLookupProvider,
+CredentialInputValidator,
+CredentialInputUpdater
+{
+...
+}
+Our provider class, PropertyFileUserStorageProvider
+, implements many interfaces. It implements the UserStorageProvider
+as that is a base requirement of the SPI. It implements the UserLookupProvider
+interface because we want to be able to log in with users stored by this provider. It implements the CredentialInputValidator
+interface because we want to be able to validate passwords entered in using the login screen. Our property file is read-only. We implement the CredentialInputUpdater
+because we want to post an error condition when the user attempts to update his password.
+protected KeycloakSession session;
+protected Properties properties;
+protected ComponentModel model;
+// map of loaded users in this transaction
+protected Map<String, UserModel> loadedUsers = new HashMap<>();
+public PropertyFileUserStorageProvider(KeycloakSession session, ComponentModel model, Properties properties) {
+this.session = session;
+this.model = model;
+this.properties = properties;
+}
+The constructor for this provider class is going to store the reference to the KeycloakSession
+, ComponentModel
+, and property file. We’ll use all of these later. Also notice that there is a map of loaded users. Whenever we find a user we will store it in this map so that we avoid re-creating it again within the same transaction. This is a good practice to follow as many providers will need to do this (that is, any provider that integrates with JPA). Remember also that provider class instances are created once per transaction and are closed after the transaction completes.
+6.5.1.1. UserLookupProvider Implementation
+@Override
+public UserModel getUserByUsername(String username, RealmModel realm) {
+UserModel adapter = loadedUsers.get(username);
+if (adapter == null) {
+String password = properties.getProperty(username);
+if (password != null) {
+adapter = createAdapter(realm, username);
+loadedUsers.put(username, adapter);
+}
+}
+return adapter;
+}
+protected UserModel createAdapter(RealmModel realm, String username) {
+return new AbstractUserAdapter(session, realm, model) {
+@Override
+public String getUsername() {
+return username;
+}
+};
+}
+@Override
+public UserModel getUserById(String id, RealmModel realm) {
+StorageId storageId = new StorageId(id);
+String username = storageId.getExternalId();
+return getUserByUsername(username, realm);
+}
+@Override
+public UserModel getUserByEmail(String email, RealmModel realm) {
+return null;
+}
+The getUserByUsername()
+method is invoked by the Red Hat Single Sign-On login page when a user logs in. In our implementation we first check the loadedUsers
+map to see if the user has already been loaded within this transaction. If it hasn’t been loaded we look in the property file for the username. If it exists we create an implementation of UserModel
+, store it in loadedUsers
+for future reference, and return this instance.
+The createAdapter()
+method uses the helper class org.keycloak.storage.adapter.AbstractUserAdapter
+. This provides a base implementation for UserModel
+. It automatically generates a user id based on the required storage id format using the username of the user as the external id.
+"f:" + component id + ":" + username
+Every get method of AbstractUserAdapter
+either returns null or empty collections. However, methods that return role and group mappings will return the default roles and groups configured for the realm for every user. Every set method of AbstractUserAdapter
+will throw a org.keycloak.storage.ReadOnlyException
+. So if you attempt to modify the user in the admininstration console, you will get an error.
+The getUserById()
+method parses the id
+parameter using the org.keycloak.storage.StorageId' helper class. The `StorageId.getExternalId()
+method is invoked to obtain the username embeded in the id
+parameter. The method then delegates to getUserByUsername()
+.
+Emails are not stored, so the getUserByEmail()
+method returns null.
+6.5.1.2. CredentialInputValidator Implementation
+Next let’s look at the method implementations for CredentialInputValidator
+.
+@Override
+public boolean isConfiguredFor(RealmModel realm, UserModel user, String credentialType) {
+String password = properties.getProperty(user.getUsername());
+return credentialType.equals(CredentialModel.PASSWORD) && password != null;
+}
+@Override
+public boolean supportsCredentialType(String credentialType) {
+return credentialType.equals(CredentialModel.PASSWORD);
+}
+@Override
+public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
+if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) return false;
+UserCredentialModel cred = (UserCredentialModel)input;
+String password = properties.getProperty(user.getUsername());
+if (password == null) return false;
+return password.equals(cred.getValue());
+}
+The isConfiguredFor()
+method is called by the runtime to determine if a specific credential type is configured for the user. This method checks to see that the password is set for the user.
+The supportsCredentialType()
+method returns whether validation is supported for a specific credential type. We check to see if the credential type is password
+.
+The isValid()
+method is responsible for validating passwords. The CredentialInput
+parameter is really just an abstract interface for all credential types. We make sure that we support the credential type and also that it is an instance of UserCredentialModel
+. When a user logs in through the login page, the plain text of the password input is put into an instance of UserCredentialModel
+. The isValid()
+method checks this value against the plain text password stored in the properties file. A return value of true
+means the password is valid.
+6.5.1.3. CredentialInputUpdater Implementation
+As noted before, the only reason we implement the CredentialInputUpdater
+interface in this example is to forbid modifications of user passwords. The reason we have to do this is because otherwise the runtime would allow the password to be overriden in Red Hat Single Sign-On local storage. We’ll talk more about this later in this chapter.
+@Override
+public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
+if (input.getType().equals(CredentialModel.PASSWORD)) throw new ReadOnlyException("user is read only for this update");
+return false;
+}
+@Override
+public void disableCredentialType(RealmModel realm, UserModel user, String credentialType) {
+}
+@Override
+public Set<String> getDisableableCredentialTypes(RealmModel realm, UserModel user) {
+return Collections.EMPTY_SET;
+}
+The updateCredential()
+method just checks to see if the credential type is password. If it is, a ReadOnlyException
+is thrown.
+6.5.2. Provider Factory Implementation
+Now that the provider class is complete, we now turn our attention to the provider factory class.
+public class PropertyFileUserStorageProviderFactory
+implements UserStorageProviderFactory<PropertyFileUserStorageProvider> {
+public static final String PROVIDER_NAME = "readonly-property-file";
+@Override
+public String getId() {
+return PROVIDER_NAME;
+}
+First thing to notice is that when implementing the UserStorageProviderFactory
+class, you must pass in the concrete provider class implementation as a template parameter. Here we specify the provider class we defined before: PropertyFileUserStorageProvider
+.
+If you do not specify the template parameter, your provider will not function. The runtime does class introspection to determine the capability interfaces that the provider implements.
+The getId()
+method identifies the factory in the runtime and will also be the string shown in the admin console when you want to enable a user storage provider for the realm.
+6.5.2.1. Initialization
+private static final Logger logger = Logger.getLogger(PropertyFileUserStorageProviderFactory.class);
+protected Properties properties = new Properties();
+@Override
+public void init(Config.Scope config) {
+InputStream is = getClass().getClassLoader().getResourceAsStream("/users.properties");
+if (is == null) {
+logger.warn("Could not find users.properties in classpath");
+} else {
+try {
+properties.load(is);
+} catch (IOException ex) {
+logger.error("Failed to load users.properties file", ex);
+}
+}
+}
+@Override
+public PropertyFileUserStorageProvider create(KeycloakSession session, ComponentModel model) {
+return new PropertyFileUserStorageProvider(session, model, properties);
+}
+The UserStorageProviderFactory
+interface has an optional init()
+method you can implement. When Red Hat Single Sign-On boots up, only one instance of each provider factory is created. Also at boot time, the init()
+method is called on each of these factory instances. There’s also a postInit()
+method you can implement as well. After each factory’s init()
+method is invoked, their postInit()
+methods are called.
+In our init()
+method implementation, we find the property file containing our user declarations from the classpath. We then load the properties
+field with the username and password combinations stored there.
+The Config.Scope
+parameter is factory configuration that can be set up within standalone.xml
+, standalone-ha.xml
+, or domain.xml
+. For more information on where the standalone.xml
+, standalone-ha.xml
+, or domain.xml
+file resides see the Server Installation and Configuration Guide.
+For example, by adding the following to standalone.xml
+:
+<spi name="storage">
+<provider name="readonly-property-file" enabled="true">
+<properties>
+<property name="path" value="/other-users.properties"/>
+</properties>
+</provider>
+</spi>
+We can specify the classpath of the user property file instead of hardcoding it. Then you can retrieve the configuration in the PropertyFileUserStorageProviderFactory.init()
+:
+public void init(Config.Scope config) {
+String path = config.get("path");
+InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+...
+}
+6.5.2.2. Create Method
+Our last step in creating the provider factory is the create()
+method.
+@Override
+public PropertyFileUserStorageProvider create(KeycloakSession session, ComponentModel model) {
+return new PropertyFileUserStorageProvider(session, model, properties);
+}
+We simply allocate the PropertyFileUserStorageProvider
+class. This create method will be called once per transaction.
+6.5.3. Packaging and Deployment
+The class files for our provider implementation should be placed in a jar. You also have to declare the provider factory class within the META-INF/services/org.keycloak.storage.UserStorageProviderFactory
+file.
+org.keycloak.examples.federation.properties.FilePropertiesStorageFactory
+Once you create the jar you can deploy it using regular JBoss EAP means: copy the jar into the deploy/
+directory or using the JBoss CLI.
+6.5.4. Enabling the Provider in the Administration Console
+You enable user storage providers per realm within the User Federation
+page in the administration console.
+Select the provider we just created from the list: readonly-property-file
+. It brings you to the configuration page for our provider. We do not have anything to configure, so click Save.
+When you go back to the main User Federation
+page, you now see your provider listed.
+You will now be able to log in with a user declared in the users.properties
+file. This user will only be able to view the account page after logging in.
+6.6. Configuration Techniques
+Our PropertyFileUserStorageProvider
+example is bit contrived. It is hardcoded to a property file that is embedded in the jar of the provider. Not very useful at all. We might want to make the location of this file configurable per instance of the provider. In other words, we might want to reuse this provider mulitple times in multiple different realms and point to completely different user property files. We’ll also want to perform this configuration within the administration console UI.
+The UserStorageProviderFactory
+has additional methods you can implement that handle provider configuration. You describe the variables you want to configure per provider and the administration console automatically renders a generic input page to gather this configuration. When implemented, callback methods also validate the configuration before it is saved, when a provider is created for the first time, and when it is updated. UserStorageProviderFactory
+inherits these methods from the org.keycloak.component.ComponentFactory
+interface.
+List<ProviderConfigProperty> getConfigProperties();
+default
+void validateConfiguration(KeycloakSession session, RealmModel realm, ComponentModel model)
+throws ComponentValidationException
+{
+}
+default
+void onCreate(KeycloakSession session, RealmModel realm, ComponentModel model) {
+}
+default
+void onUpdate(KeycloakSession session, RealmModel realm, ComponentModel model) {
+}
+The ComponentFactory.getConfigProperties()
+method returns a list of org.keycloak.provider.ProviderConfigProperty
+instances. These instances declare metadata that is needed to render and store each configuration variable of the provider.
+6.6.1. Configuration Example
+Let’s expand our PropertyFileUserStorageProviderFactory
+example to allow you to point a provider instance to a specific file on disk.
+PropertyFileUserStorageProviderFactory
+public class PropertyFileUserStorageProviderFactory
+implements UserStorageProviderFactory<PropertyFileUserStorageProvider> {
+protected static final List<ProviderConfigProperty> configMetadata;
+static {
+configMetadata = ProviderConfigurationBuilder.create()
+.property().name("path")
+.type(ProviderConfigProperty.STRING_TYPE)
+.label("Path")
+.defaultValue("${jboss.server.config.dir}/example-users.properties")
+.helpText("File path to properties file")
+.add().build();
+}
+@Override
+public List<ProviderConfigProperty> getConfigProperties() {
+return configMetadata;
+}
+The ProviderConfigurationBuilder
+class is a great helper class to create a list of configuration properties. Here we specify a variable named path
+that is a String type. On the administration console configuration page for this provider, this configuration variable is labeled as Path
+and has a default value of ${jboss.server.config.dir}/example-users.properties
+. When you hover over the tooltip of this configuration option, it displays the help text, File path to properties file
+.
+The next thing we want to do is to verify that this file exists on disk. We do not want to enable an instance of this provider in the realm unless it points to a valid user property file. To do this, we implement the validateConfiguration()
+method.
+@Override
+public void validateConfiguration(KeycloakSession session, RealmModel realm, ComponentModel config)
+throws ComponentValidationException {
+String fp = config.getConfig().getFirst("path");
+if (fp == null) throw new ComponentValidationException("user property file does not exist");
+fp = EnvUtil.replace(fp);
+File file = new File(fp);
+if (!file.exists()) {
+throw new ComponentValidationException("user property file does not exist");
+}
+}
+In the validateConfiguration()
+method we get the configuration variable from the ComponentModel
+and we check to see if that file exists on disk. Notice that we use the org.keycloak.common.util.EnvUtil.replace()
+method. With this method any string that has ${}
+within it will replace that with a system property value. The ${jboss.server.config.dir}
+string corresponds to the configuration/
+directory of our server and is really useful for this example.
+Next thing we have to do is remove the old init()
+method. We do this because user property files are going to be unique per provider instance. We move this logic to the create()
+method.
+@Override
+public PropertyFileUserStorageProvider create(KeycloakSession session, ComponentModel model) {
+String path = model.getConfig().getFirst("path");
+Properties props = new Properties();
+try {
+InputStream is = new FileInputStream(path);
+props.load(is);
+is.close();
+} catch (IOException e) {
+throw new RuntimeException(e);
+}
+return new PropertyFileUserStorageProvider(session, model, props);
+}
+This logic is, of course, inefficient as every transaction reads the entire user property file from disk, but hopefully this illustrates, in a simple way, how to hook in configuration variables.
+6.6.2. Configuring the Provider in the Administration Console
+Now that the configuration is enabled, you can set the path
+variable when you configure the provider in the administration console.
+6.7. Add/Remove User and Query Capability interfaces
+One thing we have not done with our example is allow it to add and remove users or change passwords. Users defined in our example are also not queryable or viewable in the administration console. To add these enhancements, our example provider must implement the UserQueryProvider
+and UserRegistrationProvider
+interfaces.
+6.7.1. Implementing UserRegistrationProvider
+To implement adding and removing users from this particular store, we first have to be able to save our properties file to disk.
+PropertyFileUserStorageProvider
+public void save() {
+String path = model.getConfig().getFirst("path");
+path = EnvUtil.replace(path);
+try {
+FileOutputStream fos = new FileOutputStream(path);
+properties.store(fos, "");
+fos.close();
+} catch (IOException e) {
+throw new RuntimeException(e);
+}
+}
+Then, the implementation of the addUser()
+and removeUser()
+methods becomes simple.
+PropertyFileUserStorageProvider
+public static final String UNSET_PASSWORD="#$!-UNSET-PASSWORD";
+@Override
+public UserModel addUser(RealmModel realm, String username) {
+synchronized (properties) {
+properties.setProperty(username, UNSET_PASSWORD);
+save();
+}
+return createAdapter(realm, username);
+}
+@Override
+public boolean removeUser(RealmModel realm, UserModel user) {
+synchronized (properties) {
+if (properties.remove(user.getUsername()) == null) return false;
+save();
+return true;
+}
+}
+Notice that when adding a user we set the password value of the property map to be UNSET_PASSWORD
+. We do this as we can’t have null values for a property in the property value. We also have to modify the CredentialInputValidator
+methods to reflect this.
+addUser()
+will be called if the provider implements the UserRegistrationProvider
+interface. If your provider has a configuration switch to turn of adding a user, returning null
+from this method will skip the provider and call the next one.
+PropertyFileUserStorageProvider
+@Override
+public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
+if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) return false;
+UserCredentialModel cred = (UserCredentialModel)input;
+String password = properties.getProperty(user.getUsername());
+if (password == null || UNSET_PASSWORD.equals(password)) return false;
+return password.equals(cred.getValue());
+}
+Since we can now save our property file, it also makes sense to allow password updates.
+PropertyFileUserStorageProvider
+@Override
+public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
+if (!(input instanceof UserCredentialModel)) return false;
+if (!input.getType().equals(CredentialModel.PASSWORD)) return false;
+UserCredentialModel cred = (UserCredentialModel)input;
+synchronized (properties) {
+properties.setProperty(user.getUsername(), cred.getValue());
+save();
+}
+return true;
+}
+We can now also implement disabling a password too.
+PropertyFileUserStorageProvider
+@Override
+public void disableCredentialType(RealmModel realm, UserModel user, String credentialType) {
+if (!credentialType.equals(CredentialModel.PASSWORD)) return;
+synchronized (properties) {
+properties.setProperty(user.getUsername(), UNSET_PASSWORD);
+save();
+}
+}
+private static final Set<String> disableableTypes = new HashSet<>();
+static {
+disableableTypes.add(CredentialModel.PASSWORD);
+}
+@Override
+public Set<String> getDisableableCredentialTypes(RealmModel realm, UserModel user) {
+return disableableTypes;
+}
+With these methods implemented, you’ll now be able to change and disable the password for the user in the administration console.
+6.7.2. Implementing UserQueryProvider
+Without implementing UserQueryProvider
+the administration console would not be able to view and manage users that were loaded by our example provider. Let’s look at implementing this interface.
+PropertyFileUserStorageProvider
+@Override
+public int getUsersCount(RealmModel realm) {
+return properties.size();
+}
+@Override
+public List<UserModel> getUsers(RealmModel realm) {
+return getUsers(realm, 0, Integer.MAX_VALUE);
+}
+@Override
+public List<UserModel> getUsers(RealmModel realm, int firstResult, int maxResults) {
+List<UserModel> users = new LinkedList<>();
+int i = 0;
+for (Object obj : properties.keySet()) {
+if (i++ < firstResult) continue;
+String username = (String)obj;
+UserModel user = getUserByUsername(username, realm);
+users.add(user);
+if (users.size() >= maxResults) break;
+}
+return users;
+}
+The getUser()
+method iterates over the key set of the property file, delegating to getUserByUsername()
+to load a user. Notice that we are indexing this call based on the firstResult
+and maxResults
+parameter. If your external store does not support pagination, you will have to do similar logic.
+PropertyFileUserStorageProvider
+@Override
+public List<UserModel> searchForUser(String search, RealmModel realm) {
+return searchForUser(search, realm, 0, Integer.MAX_VALUE);
+}
+@Override
+public List<UserModel> searchForUser(String search, RealmModel realm, int firstResult, int maxResults) {
+List<UserModel> users = new LinkedList<>();
+int i = 0;
+for (Object obj : properties.keySet()) {
+String username = (String)obj;
+if (!username.contains(search)) continue;
+if (i++ < firstResult) continue;
+UserModel user = getUserByUsername(username, realm);
+users.add(user);
+if (users.size() >= maxResults) break;
+}
+return users;
+}
+The first declaration of searchForUser()
+takes a string parameter. This is supposed to be a string that you use to search username and email attributes to find the user. This string can be a substring, which is why we use the String.contains()
+method when doing our search.
+PropertyFileUserStorageProvider
+@Override
+public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm) {
+return searchForUser(params, realm, 0, Integer.MAX_VALUE);
+}
+@Override
+public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm, int firstResult, int maxResults) {
+// only support searching by username
+String usernameSearchString = params.get("username");
+if (usernameSearchString == null) return Collections.EMPTY_LIST;
+return searchForUser(usernameSearchString, realm, firstResult, maxResults);
+}
+The searchForUser()
+method that takes a Map
+parameter can search for a user based on first, last name, username, and email. We only store usernames, so we only search based on usernames. We delegate to searchForUser()
+for this.
+PropertyFileUserStorageProvider
+@Override
+public List<UserModel> getGroupMembers(RealmModel realm, GroupModel group, int firstResult, int maxResults) {
+return Collections.EMPTY_LIST;
+}
+@Override
+public List<UserModel> getGroupMembers(RealmModel realm, GroupModel group) {
+return Collections.EMPTY_LIST;
+}
+@Override
+public List<UserModel> searchForUserByUserAttribute(String attrName, String attrValue, RealmModel realm) {
+return Collections.EMPTY_LIST;
+}
+We do not store groups or attributes, so the other methods return an empty list.
+6.8. Augmenting External Storage
+The PropertyProfileUserStorageProvider
+example is really limited. While we will be able to login with users stored in a property file, we won’t be able to do much else. If users loaded by this provider need special role or group mappings to fully access particular applications there is no way for us to add additional role mappings to these users. You also can’t modify or add additional important attributes like email, first and last name.
+For these types of situations, Red Hat Single Sign-On allows you to augment your external store by storing extra information in Red Hat Single Sign-On’s database. This is called federated user storage and is encapsulated within the org.keycloak.storage.federated.UserFederatedStorageProvider
+class.
+UserFederatedStorageProvider
+package org.keycloak.storage.federated;
+public interface UserFederatedStorageProvider extends Provider {
+Set<GroupModel> getGroups(RealmModel realm, String userId);
+void joinGroup(RealmModel realm, String userId, GroupModel group);
+void leaveGroup(RealmModel realm, String userId, GroupModel group);
+List<String> getMembership(RealmModel realm, GroupModel group, int firstResult, int max);
+...
+The UserFederatedStorageProvider
+instance is available on the KeycloakSession.userFederatedStorage()
+method. It has all different kinds of methods for storing attributes, group and role mappings, different credential types, and required actions. If your external store’s datamodel cannot support the full Red Hat Single Sign-On feature set, then this service can fill in the gaps.
+Red Hat Single Sign-On comes with a helper class org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage
+that will delegate every single UserModel
+method except get/set of username to user federated storage. Override the methods you need to override to delegate to your external storage representations. It is strongly suggested you read the javadoc of this class as it has smaller protected methods you may want to override. Specifically surrounding group membership and role mappings.
+6.8.1. Augmentation Example
+In our PropertyFileUserStorageProvider
+example, we just need a simple change to our provider to use the AbstractUserAdapterFederatedStorage
+.
+PropertyFileUserStorageProvider
+protected UserModel createAdapter(RealmModel realm, String username) {
+return new AbstractUserAdapterFederatedStorage(session, realm, model) {
+@Override
+public String getUsername() {
+return username;
+}
+@Override
+public void setUsername(String username) {
+String pw = (String)properties.remove(username);
+if (pw != null) {
+properties.put(username, pw);
+save();
+}
+}
+};
+}
+We instead define an anonymous class implementation of AbstractUserAdapterFederatedStorage
+. The setUsername()
+method makes changes to the properties file and saves it.
+6.9. Import Implementation Strategy
+When implementing a user storage provider, there’s another strategy you can take. Instead of using user federated storage, you can create a user locally in the Red Hat Single Sign-On built-in user database and copy attributes from your external store into this local copy. There are many advantages to this approach.
+- Red Hat Single Sign-On basically becomes a persistence user cache for your external store. Once the user is imported you’ll no longer hit the external store thus taking load off of it.
+- If you are moving to Red Hat Single Sign-On as your official user store and deprecating the old external store, you can slowly migrate applications to use Red Hat Single Sign-On. When all applications have been migrated, unlink the imported user, and retire the old legacy external store.
+There are some obvious disadvantages though to using an import strategy:
+- Looking up a user for the first time will require multiple updates to Red Hat Single Sign-On database. This can be a big performance loss under load and put a lot of strain on the Red Hat Single Sign-On database. The user federated storage approach will only store extra data as needed and may never be used depending on the capabilities of your external store.
+- With the import approach, you have to keep local keycloak storage and external storage in sync. The User Storage SPI has capability interfaces that you can implement to support synchronization, but this can quickly become painful and messy.
+To implement the import strategy you simply check to see first if the user has been imported locally. If so return the local user, if not create the user locally and import data from the external store. You can also proxy the local user so that most changes are automatically synchronized.
+This will be a bit contrived, but we can extend our PropertyFileUserStorageProvider
+to take this approach. We begin first by modifying the createAdapter()
+method.
+PropertyFileUserStorageProvider
+protected UserModel createAdapter(RealmModel realm, String username) {
+UserModel local = session.userLocalStorage().getUserByUsername(username, realm);
+if (local == null) {
+local = session.userLocalStorage().addUser(realm, username);
+local.setFederationLink(model.getId());
+}
+return new UserModelDelegate(local) {
+@Override
+public void setUsername(String username) {
+String pw = (String)properties.remove(username);
+if (pw != null) {
+properties.put(username, pw);
+save();
+}
+super.setUsername(username);
+}
+};
+}
+In this method we call the KeycloakSession.userLocalStorage()
+method to obtain a reference to local Red Hat Single Sign-On user storage. We see if the user is stored locally, if not, we add it locally. Do not set the id
+of the local user. Let Red Hat Single Sign-On set auto generate the id
+. Also note that we call UserModel.setFederationLink()
+and pass in the ID of the ComponentModel
+of our provider. This sets a link between the provider and the imported user.
+When a user storage provider is removed, any user imported by it will also be removed. This is one of the purposes of calling UserModel.setFederationLink()
+.
+Another thing to note is that if a local user is linked, your storage provider will still be delegated to for methods that it implements from the CredentialInputValidator
+and CredentialInputUpdater
+interfaces. Returning false
+from a validation or update will just result in Red Hat Single Sign-On seeing if it can validate or update using local storage.
+Also notice that we are proxying the local user using the org.keycloak.models.utils.UserModelDelegate' class. This class is an implementation of `UserModel
+. Every method just delegates to the UserModel
+it was instantiated with. We override the setUsername()
+method of this delegate class to synchronize automatically with the property file. For your providers, you can use this to intercept other methods on the local UserModel
+to perform synchronization with your external store. For example, get methods could make sure that the local store is in sync. Set methods keep the external store in sync with the local one. One thing to note is that the getId()
+method should always return the id that was auto generated when you created the user locally. You should not return a federated id as shown in the other non-import examples.
+If your provider is implementing the UserRegistrationProvider
+interface, your removeUser()
+method does not need to remove the user from local storage. The runtime will automatically perform this operation. Also note that removeUser()
+will be invoked before it is removed from local storage.
+6.9.1. ImportedUserValidation Interface
+If you remember earlier in this chapter, we discussed how querying for a user worked. Local storage is queried first, if the user is found there, then the query ends. This is a problem for our above implementation as we want to proxy the local UserModel
+so that we can keep usernames in sync. The User Storage SPI has a callback for whenever a linked local user is loaded from the local database.
+package org.keycloak.storage.user;
+public interface ImportedUserValidation {
+/**
+* If this method returns null, then the user in local storage will be removed
+*
+* @param realm
+* @param user
+* @return null if user no longer valid
+*/
+UserModel validate(RealmModel realm, UserModel user);
+}
+Whenever a linked local user is loaded, if the user storage provider class implements this interface, then the validate()
+method is called. Here you can proxy the local user passed in as a parameter and return it. That new UserModel
+will be used. You can also optionally do a check to see if the user still exists in the external store. If validate()
+returns null
+, then the local user will be removed from the database.
+6.9.2. ImportSynchronization Interface
+With the import strategy you can see that it is possible for the local user copy to get out of sync with external storage. For example, maybe a user has been removed from the external store. The User Storage SPI has an additional interface you can implement to deal with this, org.keycloak.storage.user.ImportSynchronization
+:
+package org.keycloak.storage.user;
+public interface ImportSynchronization {
+SynchronizationResult sync(KeycloakSessionFactory sessionFactory, String realmId, UserStorageProviderModel model);
+SynchronizationResult syncSince(Date lastSync, KeycloakSessionFactory sessionFactory, String realmId, UserStorageProviderModel model);
+}
+This interface is implemented by the provider factory. Once this interface is implemented by the provider factory, the administration console management page for the provider shows additional options. You can manually force a synchronization by clicking a button. This invokes the ImportSynchronization.sync()
+method. Also, additional configuration options are displayed that allow you to automatically schedule a synchronization. Automatic synchronizations invoke the syncSince()
+method.
+6.10. User Caches
+When a user is loaded by ID, username, or email queries it is cached. When a user is cached, it iterates through the entire UserModel
+interface and pulls this information to a local in-memory-only cache. In a cluster, this cache is still local, but it becomes an invalidation cache. When a user is modified, it is evicted. This eviction event is propagated to the entire cluster so that the other nodes' user cache is also invalidated.
+6.10.1. Managing the user cache
+You can access the user cache by calling KeycloakSession.userCache()
+.
+/**
+* All these methods effect an entire cluster of Keycloak instances.
+*
+* @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
+* @version $Revision: 1 $
+*/
+public interface UserCache extends UserProvider {
+/**
+* Evict user from cache.
+*
+* @param user
+*/
+void evict(RealmModel realm, UserModel user);
+/**
+* Evict users of a specific realm
+*
+* @param realm
+*/
+void evict(RealmModel realm);
+/**
+* Clear cache entirely.
+*
+*/
+void clear();
+}
+There are methods for evicting specific users, users contained in a specific realm, or the entire cache.
+6.10.2. OnUserCache Callback Interface
+You might want to cache additional information that is specific to your provider implementation. The User Storage SPI has a callback whenever a user is cached: org.keycloak.models.cache.OnUserCache
+.
+public interface OnUserCache {
+void onCache(RealmModel realm, CachedUserModel user, UserModel delegate);
+}
+Your provider class should implement this interface if it wants this callback. The UserModel
+delegate parameter is the UserModel
+instance returned by your provider. The CachedUserModel
+is an expanded UserModel
+interface. This is the instance that is cached locally in local storage.
+public interface CachedUserModel extends UserModel {
+/**
+* Invalidates the cache for this user and returns a delegate that represents the actual data provider
+*
+* @return
+*/
+UserModel getDelegateForUpdate();
+boolean isMarkedForEviction();
+/**
+* Invalidate the cache for this model
+*
+*/
+void invalidate();
+/**
+* When was the model was loaded from database.
+*
+* @return
+*/
+long getCacheTimestamp();
+/**
+* Returns a map that contains custom things that are cached along with this model. You can write to this map.
+*
+* @return
+*/
+ConcurrentHashMap getCachedWith();
+}
+This CachedUserModel
+interface allows you to evict the user from the cache and get the provider UserModel
+instance. The getCachedWith()
+method returns a map that allows you to cache additional information pertaining to the user. For example, credentials are not part of the UserModel
+interface. If you wanted to cache credentials in memory, you would implement OnUserCache
+and cache your user’s credentials using the getCachedWith()
+method.
+6.10.3. Cache Policies
+On the administration console management page for your user storage provider, you can specify a unique cache policy.
+6.11. Leveraging Java EE
+The user storage providers can be packaged within any Java EE component if you set up the META-INF/services
+file correctly to point to your providers. For example, if your provider needs to use third-party libraries, you can package up your provider within an EAR and store these third-party libraries in the lib/
+directory of the EAR. Also note that provider JARs can make use of the jboss-deployment-structure.xml
+file that EJBs, WARS, and EARs can use in a JBoss EAP environment. For more details on this file, see the JBoss EAP documentation. It allows you to pull in external dependencies among other fine-grained actions.
+Implementations of UserStorageProviderFactory
+are required to be plain java objects. But we also currently support implementing UserStorageProvider
+classes as Stateful EJBs. This is especially useful if you want to use JPA to connect to a relational store. This is how you would do it:
+@Stateful
+@Local(EjbExampleUserStorageProvider.class)
+public class EjbExampleUserStorageProvider implements UserStorageProvider,
+UserLookupProvider,
+UserRegistrationProvider,
+UserQueryProvider,
+CredentialInputUpdater,
+CredentialInputValidator,
+OnUserCache
+{
+@PersistenceContext
+protected EntityManager em;
+protected ComponentModel model;
+protected KeycloakSession session;
+public void setModel(ComponentModel model) {
+this.model = model;
+}
+public void setSession(KeycloakSession session) {
+this.session = session;
+}
+@Remove
+@Override
+public void close() {
+}
+...
+}
+You have to define the @Local
+annotation and specify your provider class there. If you do not do this, EJB will not proxy the user correctly and your provider won’t work.
+You must put the @Remove
+annotation on the close()
+method of your provider. If you do not, the stateful bean will never be cleaned up and you might eventually see error messages.
+Implementations of UserStorageProviderFactory
+are required to be plain java objects. Your factory class would perform a JNDI lookup of the Stateful EJB in its create() method.
+public class EjbExampleUserStorageProviderFactory
+implements UserStorageProviderFactory<EjbExampleUserStorageProvider> {
+@Override
+public EjbExampleUserStorageProvider create(KeycloakSession session, ComponentModel model) {
+try {
+InitialContext ctx = new InitialContext();
+EjbExampleUserStorageProvider provider = (EjbExampleUserStorageProvider)ctx.lookup(
+"java:global/user-storage-jpa-example/" + EjbExampleUserStorageProvider.class.getSimpleName());
+provider.setModel(model);
+provider.setSession(session);
+return provider;
+} catch (Exception e) {
+throw new RuntimeException(e);
+}
+}
+This example also assumes that you have defined a JPA deployment in the same JAR as the provider. This means a persistence.xml
+file as well as any JPA @Entity
+classes.
+When using JPA any additional datasource must be an XA datasource. The Red Hat Single Sign-On datasource is not an XA datasource. If you interact with two or more non-XA datasources in the same transaction, the server returns an error message. Only one non-XA resource is permitted in a single transaction.
+See the JBoss EAP manual for more details on deploying an XA datasource.
+CDI is not supported.
+6.12. REST Management API
+You can create, remove, and update your user storage provider deployments through the administrator REST API. The User Storage SPI is built on top of a generic component interface so you will be using that generic API to manage your providers.
+The REST Component API lives under your realm admin resource.
+/admin/realms/{realm-name}/components
+We will only show this REST API interaction with the Java client. Hopefully you can extract how to do this from curl
+from this API.
+public interface ComponentsResource {
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+public List<ComponentRepresentation> query();
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+public List<ComponentRepresentation> query(@QueryParam("parent") String parent);
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+public List<ComponentRepresentation> query(@QueryParam("parent") String parent, @QueryParam("type") String type);
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+public List<ComponentRepresentation> query(@QueryParam("parent") String parent,
+@QueryParam("type") String type,
+@QueryParam("name") String name);
+@POST
+@Consumes(MediaType.APPLICATION_JSON)
+Response add(ComponentRepresentation rep);
+@Path("{id}")
+ComponentResource component(@PathParam("id") String id);
+}
+public interface ComponentResource {
+@GET
+public ComponentRepresentation toRepresentation();
+@PUT
+@Consumes(MediaType.APPLICATION_JSON)
+public void update(ComponentRepresentation rep);
+@DELETE
+public void remove();
+}
+To create a user storage provider, you must specify the provider id, a provider type of the string org.keycloak.storage.UserStorageProvider
+, as well as the configuration.
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.RealmRepresentation;
+...
+Keycloak keycloak = Keycloak.getInstance(
+"http://localhost:8080/auth",
+"master",
+"admin",
+"password",
+"admin-cli");
+RealmResource realmResource = keycloak.realm("master");
+RealmRepresentation realm = realmResource.toRepresentation();
+ComponentRepresentation component = new ComponentRepresentation();
+component.setName("home");
+component.setProviderId("readonly-property-file");
+component.setProviderType("org.keycloak.storage.UserStorageProvider");
+component.setParentId(realm.getId());
+component.setConfig(new MultivaluedHashMap());
+component.getConfig().putSingle("path", "~/users.properties");
+realmResource.components().add(component);
+// retrieve a component
+List<ComponentRepresentation> components = realmResource.components().query(realm.getId(),
+"org.keycloak.storage.UserStorageProvider",
+"home");
+component = components.get(0);
+// Update a component
+component.getConfig().putSingle("path", "~/my-users.properties");
+realmResource.components().component(component.getId()).update(component);
+// Remove a component
+realmREsource.components().component(component.getId()).remove();
+6.13. Migrating from an Earlier User Federation SPI
+This chapter is only applicable if you have implemented a provider using the earlier (and now removed) User Federation SPI.
+In Keycloak version 2.4.0 and earlier there was a User Federation SPI. Red Hat Single Sign-On version 7.0, although unsupported, also had this earlier SPI available as well. This earlier User Federation SPI has been removed from Keycloak version 2.5.0 and Red Hat Single Sign-On version 7.1. However, if you have written a provider with this earlier SPI, this chapter discusses some strategies you can use to port it.
+6.13.1. Import vs. Non-Import
+The earlier User Federation SPI required you to create a local copy of a user in the Red Hat Single Sign-On’s database and import information from your external store to the local copy. However, this is no longer a requirement. You can still port your earlier provider as-is, but you should consider whether a non-import strategy might be a better approach.
+Advantages of the import strategy:
+- Red Hat Single Sign-On basically becomes a persistence user cache for your external store. Once the user is imported you’ll no longer hit the external store, thus taking load off of it.
+- If you are moving to Red Hat Single Sign-On as your official user store and deprecating the earlier external store, you can slowly migrate applications to use Red Hat Single Sign-On. When all applications have been migrated, unlink the imported user, and retire the earlier legacy external store.
+There are some obvious disadvantages though to using an import strategy:
+- Looking up a user for the first time will require multiple updates to Red Hat Single Sign-On database. This can be a big performance loss under load and put a lot of strain on the Red Hat Single Sign-On database. The user federated storage approach will only store extra data as needed and might never be used depending on the capabilities of your external store.
+- With the import approach, you have to keep local keycloak storage and external storage in sync. The User Storage SPI has capability interfaces that you can implement to support synchronization, but this can quickly become painful and messy.
+6.13.2. UserFederationProvider vs. UserStorageProvider
+The first thing to notice is that UserFederationProvider
+was a complete interface. You implemented every method in this interface. However, UserStorageProvider
+has instead broken up this interface into multiple capability interfaces that you implement as needed.
+UserFederationProvider.getUserByUsername()
+and getUserByEmail()
+have exact equivalents in the new SPI. The difference between the two is how you import. If you are going to continue with an import strategy, you no longer call KeycloakSession.userStorage().addUser()
+to create the user locally. Instead you call KeycloakSession.userLocalStorage().addUser()
+. The userStorage()
+method no longer exists.
+The UserFederationProvider.validateAndProxy()
+method has been moved to an optional capability interface, ImportedUserValidation
+. You want to implement this interface if you are porting your earlier provider as-is. Also note that in the earlier SPI, this method was called every time the user was accessed, even if the local user is in the cache. In the later SPI, this method is only called when the local user is loaded from local storage. If the local user is cached, then the ImportedUserValidation.validate()
+method is not called at all.
+The UserFederationProvider.isValid()
+method no longer exists in the later model.
+The UserFederationProvider
+methods synchronizeRegistrations()
+, registerUser()
+, and removeUser()
+have been moved to the UserRegistrationProvider
+capability interface. This new interface is optional to implement so if your provider does not support creating and removing users, you don’t have to implement it. If your earlier provider had switch to toggle support for registering new users, this is supported in the new SPI, returning null
+from UserRegistrationProvider.addUser()
+if the provider doesn’t support adding users.
+The earlier UserFederationProvider
+methods centered around credentials are now encapsulated in the CredentialInputValidator
+and CredentialInputUpdater
+interfaces, which are also optional to implement depending on if you support validating or updating credentials. Credential management used to exist in UserModel
+methods. These also have been moved to the CredentialInputValidator
+and CredentialInputUpdater
+interfaces. One thing to note that if you do not implement the CredentialInputUpdater
+interface, then any credentials provided by your provider can be overridden locally in Red Hat Single Sign-On storage. So if you want your credentials to be read-only, implement the CredentialInputUpdater.updateCredential()
+method and return a ReadOnlyException
+.
+The UserFederationProvider
+query methods such as searchByAttributes()
+and getGroupMembers()
+are now encapsulated in an optional interface UserQueryProvider
+. If you do not implement this interface, then users will not be viewable in the admin console. You’ll still be able to login though.
+6.13.3. UserFederationProviderFactory vs. UserStorageProviderFactory
+The synchronization methods in the earlier SPI are now encapsulated within an optional ImportSynchronization
+interface. If you have implemented synchronization logic, then have your new UserStorageProviderFactory
+implement the ImportSynchronization
+interface.
+6.13.4. Upgrading to a New Model
+The User Storage SPI instances are stored in a different set of relational tables. Red Hat Single Sign-On automatically runs a migration script. If any earlier User Federation providers are deployed for a realm, they are converted to the later storage model as is, including the id
+of the data. This migration will only happen if a User Storage provider exists with the same provider ID (i.e., "ldap", "kerberos") as the earlier User Federation provider.
+So, knowing this there are different approaches you can take.
+- You can remove the earlier provider in your earlier Red Hat Single Sign-On deployment. This will remove all local linked copies of imported users. Then, when you upgrade Red Hat Single Sign-On, just deploy and configure your new provider for your realm.
+-
+The second option is to write your new provider making sure it has the same provider ID:
+UserStorageProviderFactory.getId()
+. Make sure this provider is in thedeploy/
+directory of the new Red Hat Single Sign-On installation. Boot the server, and have the built-in migration script convert from the earlier data model to the later data model. In this case all your earlier linked imported users will work and be the same.
+If you have decided to get rid of the import strategy and rewrite your User Storage provider, we suggest that you remove the earlier provider before upgrading Red Hat Single Sign-On. This will remove linked local imported copies of any user you imported.

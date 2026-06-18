@@ -1,0 +1,28 @@
+---
+title: "Authorization Services Guide - Red Hat build of Keycloak 26.4 Authorization Services Guide"
+type: reference
+domain: keycloak
+slug: rhbk-26-4-authorization-services-guide
+tier: reference
+source: https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.4/html/authorization_services_guide/
+guide: authorization_services_guide
+version: 26.4
+family: rhbk
+documentKind: "Documentation"
+---
+
+# Authorization Services Guide - Red Hat build of Keycloak 26.4 Authorization Services Guide
+
+Authorization Services Guide
+Red Hat build of Keycloak 26.4
+Abstract
+This guide consists of information for authorization services for Red Hat build of Keycloak 26.4.
+Red Hat build of Keycloak 26.4
+Abstract
+This guide consists of information for authorization services for Red Hat build of Keycloak 26.4.
+- Developer resources
+- Cloud learning hub
+- Interactive labs
+- Training and certification
+- Customer support
+- See all documentation

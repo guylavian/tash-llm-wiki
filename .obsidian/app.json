@@ -1,0 +1,14 @@
+{
+  "userIgnoreFilters": [
+    "corpora.bak/",
+    "references/",
+    "examples/",
+    "kb/",
+    "wiki/_meta/",
+    "wiki/_sources/",
+    "AGENTS.md",
+    "SKILL.md",
+    "wiki.zip",
+    "Untitled.canvas"
+  ]
+}
