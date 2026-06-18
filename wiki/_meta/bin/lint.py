@@ -183,17 +183,31 @@ def main():
             if bd and unquote(summary).strip().rstrip(".") == bd:
                 seeded.append(f"{rel}: summary auto-seeded from bold definition — wants a human summary")
 
-        # provenance checks
+        # provenance checks — and the PROVENANCE GATE (Phase 4): a `status: reviewed`
+        # page MUST carry real per-claim provenance — no `needs-review`/`unknown`, and
+        # not inferred>=extracted. For reviewed pages these are ERRORS (so `--strict`
+        # fails and lists them); for draft/stub pages they remain warnings. The gate only
+        # FLAGS — fixing a flagged page is a separate human/LLM content pass, never an
+        # auto-edit.
         prov = fm.get("_provenance")
+        reviewed = fm.get("status") == "reviewed"
         if prov is None:
             warnings.append(f"{rel}: no `provenance:` block")
         elif isinstance(prov, str):
             if prov in ("needs-review", "unknown"):
-                warnings.append(f"{rel}: provenance: {prov} (assign real per-claim provenance)")
+                if reviewed:
+                    errors.append(f"{rel}: provenance gate — status: reviewed but provenance: {prov} "
+                                  f"(assign real per-claim provenance or lower status)")
+                else:
+                    warnings.append(f"{rel}: provenance: {prov} (assign real per-claim provenance)")
         elif isinstance(prov, dict):
             ext, inf = prov.get("extracted", 0), prov.get("inferred", 0)
             if inf >= ext and (ext or inf):
-                warnings.append(f"{rel}: provenance drifts inferred>=extracted ({inf}>={ext}) — verify vs raw layer")
+                if reviewed:
+                    errors.append(f"{rel}: provenance gate — status: reviewed but inferred>=extracted "
+                                  f"({inf}>={ext}); verify vs raw layer or lower status")
+                else:
+                    warnings.append(f"{rel}: provenance drifts inferred>=extracted ({inf}>={ext}) — verify vs raw layer")
 
         # tag checks (Pass 2 — validated against _meta/taxonomy.md)
         if tagmod is not None:

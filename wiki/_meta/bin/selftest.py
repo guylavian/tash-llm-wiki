@@ -89,6 +89,25 @@ check("reference tier matches integrity lock (no hand-edits)", rc == 0, out.stri
 rc, out = run("kb.py", "--domain", "keycloak", "search", "dpop sender constrained", "--hybrid", "--limit", "2")
 check("kb.py --hybrid degrades to lexical (no model)", rc == 0 and "hit(s)" in out, out[:160])
 
+# 11. Phase-4 provenance gate: no `status: reviewed` page carries needs-review provenance
+# or drifts inferred>=extracted (the lint --strict rule, checked directly here too).
+sys.path.insert(0, BIN)
+import lint as _lint
+gate = []
+for _d, _slug, _path in _lint.page_files():
+    _fm = _lint.parse_frontmatter(open(_path, encoding="utf-8").read())
+    if not _fm or _fm.get("status") != "reviewed":
+        continue
+    _p = _fm.get("_provenance")
+    if isinstance(_p, str) and _p in ("needs-review", "unknown"):
+        gate.append(f"{_slug}:{_p}")
+    elif isinstance(_p, dict):
+        _e, _i = _p.get("extracted", 0), _p.get("inferred", 0)
+        if _i >= _e and (_e or _i):
+            gate.append(f"{_slug}:inferred>=extracted({_i}>={_e})")
+check("provenance gate: reviewed pages carry real provenance", not gate,
+      f"{len(gate)} offender(s): " + ", ".join(gate[:5]))
+
 failed = [n for n, ok, _ in checks if not ok]
 print(f"\n{len(checks) - len(failed)}/{len(checks)} checks passed")
 sys.exit(1 if failed else 0)
