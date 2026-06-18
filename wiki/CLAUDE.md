@@ -53,7 +53,9 @@ regenerable from a harvest; the synthesis is downstream of it.
             ├── tags.py         #   tag taxonomy validate / normalize / backfill
             ├── backfill.py     #   one-time frontmatter backfill (summary / provenance / domain)
             ├── corpus_to_vault.py  #   fold a harvested corpus into reference/<domain>/ notes
-            └── crosslink.py    #   link synthesized pages → their reference notes (## Sources) for the graph
+            ├── crosslink.py    #   link synthesized pages → their reference notes (## Sources) for the graph
+            ├── route.py        #   cheap query→domain router (skip the global index on a confident route)
+            └── eval/           #   retrieval scoreboard: eval.py (recall@k + context-cost) over eval/cases.jsonl
 ```
 
 - **topics/** — broad, multi-source syntheses. "How LDAP federation works end to end."
@@ -192,10 +194,12 @@ is **not** a synthesized page tier: `lint.py` doesn't scan it for page disciplin
 
 ### Per-domain routing index
 `index.md` is the **global router**; each domain also gets an `index.<domain>.md`
-holding only that domain's page **titles + one-line summaries**. A QUERY reads
-`index.md` → opens the relevant `index.<domain>.md` → page summaries → bodies only
-when needed. This keeps each query inside a local model's context window (the
-binding constraint for ~27B Ollama-class models) as the wiki grows to many domains.
+holding only that domain's page **titles + one-line summaries**. A QUERY **routes
+first** (`route.py`): on a confident single-domain route it opens just that
+`index.<domain>.md` → page summaries → bodies only when needed, **skipping the global
+`index.md`**; only when the router abstains does it read `index.md` to disambiguate.
+This keeps each query inside a local model's context window (the binding constraint
+for ~27B Ollama-class models) as the wiki grows to many domains.
 Regenerate indexes with `python3 _meta/bin/index.py`; never hand-edit the generated
 `index.<domain>.md`. `lint.py` warns when an index is stale or oversized.
 
@@ -282,12 +286,19 @@ Goal: fold a raw source (or a query result) into the wiki without duplicating it
 
 Goal: answer a question, and leave the wiki richer than you found it.
 
-1. **Cheap pass first (tiered, domain-routed query).** Read the global `index.md`,
-   route to the relevant **domain(s)**, then read `index.<domain>.md` plus the
-   `title:` + `summary:` (+ `tags:`) of candidate pages. Loading one domain's
-   summary-level index (not the whole multi-domain wiki) keeps query cost flat and
-   fits a local model's context window. Only **open page bodies** when the cheap
-   pass can't answer.
+1. **Cheap pass first (route → tiered read).** Route the query to its **domain(s)**
+   with `python3 _meta/bin/route.py "<query>"` (keyword match against the per-domain
+   `areas:` vocabulary in `taxonomy.md`). On a **confident single-domain** route, read
+   **only** that `index.<domain>.md` and **skip the global `index.md`** — it saves the
+   ~4.3k-token cross-domain router on most queries. When the router **abstains**
+   (ambiguous / no signal, e.g. cross-domain or shared-vocabulary queries), fall back to
+   reading the global `index.md` first, then the per-domain index. Either way, then read
+   the `title:` + `summary:` (+ `tags:`) of candidate pages; loading one domain's
+   summary-level index (not the whole multi-domain wiki) keeps query cost flat and fits a
+   local model's context window. Only **open page bodies** when the cheap pass can't
+   answer. (The router is conservative by design: a *confident* route is never wrong, so
+   skipping the global index never costs recall — verify with `route.py --eval` and the
+   `_meta/eval/` scoreboard.)
 2. If the synthesized pages are thin, fall back to the **raw reference tier — which
    also lives in the vault** (RETRIEVAL fallback, cheap-first): grep
    `reference/<domain>/` (the full doc bodies, one Markdown note per source) for a

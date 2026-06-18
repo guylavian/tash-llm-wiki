@@ -44,6 +44,7 @@ WIKI = os.path.dirname(os.path.dirname(BIN))
 sys.dont_write_bytecode = True          # keep _meta/bin/ free of __pycache__
 sys.path.insert(0, BIN)
 import kb                               # faithful: reuse the real loader + ranker
+import route                            # Phase-1 router (cheap domain pick)
 
 CHARS_PER_TOKEN = 4                     # air-gap-safe heuristic (matches lint.py); no tiktoken
 SNIPPET_CHARS = 260                     # matches kb.snippet() width — a skimmed candidate line
@@ -174,11 +175,19 @@ def first_hit(ranked_ids, expected):
     return None
 
 
-def evaluate(cases, kmax, route, miss_opens):
+def evaluate(cases, kmax, use_route, miss_opens):
     rows = []
     for c in cases:
         domain = c.get("domain")
         expected = set(c["expect_any_of"])
+        # Phase-1 routing: skip the global index.md ONLY when the router is confident.
+        # Search the labeled domain regardless, so recall is unchanged by construction;
+        # router precision (confident-never-wrong) is verified separately by route.py --eval.
+        if use_route:
+            pred, confident = route.route(c["query"])
+            skip_global = confident and pred and pred[0] == domain
+        else:
+            confident, skip_global = False, False
         ranked = rank(domain, c["query"])
         ids = [rid for rid, _ in ranked]
         lens = [ln for _, ln in ranked]
@@ -195,7 +204,7 @@ def evaluate(cases, kmax, route, miss_opens):
         else:
             scanned = min(kmax, len(ids))
             opened = list(range(min(miss_opens, len(ids))))  # open a few plausible, fail
-        idx_t = index_bytes(domain, route) / CHARS_PER_TOKEN
+        idx_t = index_bytes(domain, skip_global) / CHARS_PER_TOKEN
         snip_t = (SNIPPET_CHARS / CHARS_PER_TOKEN) * scanned
         body_t = sum(lens[i] for i in opened) / CHARS_PER_TOKEN
         rows.append({
@@ -204,6 +213,7 @@ def evaluate(cases, kmax, route, miss_opens):
             "expected": sorted(expected), "hit_rank": hit, "found": found,
             "graph_hit": graph_hit, "graph_only": graph_hit and not found,
             "scanned": scanned, "opened": len(opened),
+            "confident": confident, "skip_global": skip_global,
             "idx_t": idx_t, "snip_t": snip_t, "body_t": body_t,
             "ctx_t": idx_t + snip_t + body_t, "top5": ids[:5],
         })
@@ -292,6 +302,13 @@ def report(rows, ks, kmax, verbose):
     print("  mean snippet  tokens : %6d  (%.1f candidates skimmed/case)" % (ms, ms / (SNIPPET_CHARS / CHARS_PER_TOKEN)))
     print("  mean opened-body tok : %6d  (%.2f full notes opened/case)" % (mb, mo))
     print("  mean TOTAL ctx tokens: %6d   <-- Phase 1 cuts index; Phase 2/3 cut opened-body" % (mi + ms + mb))
+
+    skipped = [r for r in rows if r["skip_global"]]
+    if skipped or any(r["confident"] for r in rows):
+        print("\nROUTING (Phase 1: skip global index.md on a confident route)")
+        print("  confident skips      : %d/%d cases read only index.<domain>.md" % (len(skipped), n))
+        print("  index tokens skipped : %6d total over the run (the Phase-1 saving)"
+              % sum(int(os.path.getsize(os.path.join(WIKI, "index.md")) / CHARS_PER_TOKEN) for _ in skipped))
 
     misses = [r for r in rows if not r["found"]]
     still = [r for r in misses if not r["graph_hit"]]
