@@ -84,6 +84,11 @@ check("gated KB index present + non-empty", gok)
 rc, out = run("corpus_to_vault.py", "--verify")
 check("reference tier matches integrity lock (no hand-edits)", rc == 0, out.strip()[-400:])
 
+# 10. Phase-3 dense layer is OPTIONAL: kb.py --hybrid must still return hits when the
+# embedding library / vendored model / index is absent (graceful degradation, no hard dep)
+rc, out = run("kb.py", "--domain", "keycloak", "search", "dpop sender constrained", "--hybrid", "--limit", "2")
+check("kb.py --hybrid degrades to lexical (no model)", rc == 0 and "hit(s)" in out, out[:160])
+
 failed = [n for n, ok, _ in checks if not ok]
 print(f"\n{len(checks) - len(failed)}/{len(checks)} checks passed")
 sys.exit(1 if failed else 0)

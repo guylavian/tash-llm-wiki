@@ -46,6 +46,7 @@ sys.path.insert(0, BIN)
 import kb                               # faithful: reuse the real loader + ranker
 import route                            # Phase-1 router (cheap domain pick)
 import expand                           # Phase-2 graph expansion (the real tool, imported)
+import embed                            # Phase-3 dense layer (lazy heavy imports inside)
 
 CHARS_PER_TOKEN = 4                     # air-gap-safe heuristic (matches lint.py); no tiktoken
 SNIPPET_CHARS = 260                     # matches kb.snippet() width — a skimmed candidate line
@@ -111,7 +112,24 @@ def note_len(domain, nid):
     return 0
 
 
-def evaluate(cases, kmax, use_route, miss_opens, use_graph):
+def hybrid_rank(domain, query):
+    """Phase-3: fuse lexical with dense (RRF). Returns ([(id, body_len), ...], active).
+    `active` is False — and the result is plain lexical — when the dense library / vendored
+    model / index is absent (graceful degradation, the air-gap invariant)."""
+    lex = rank(domain, query)
+    try:
+        dense = embed.dense_rank(domain, query)
+    except Exception:
+        dense = None
+    if not dense:
+        return lex, False
+    lenmap = {i: ln for i, ln in lex}
+    fused = [(sid, lenmap.get(sid) if sid in lenmap else note_len(domain, sid))
+             for sid in embed.rrf_fuse([i for i, _ in lex], dense)]
+    return fused, True
+
+
+def evaluate(cases, kmax, use_route, miss_opens, use_graph, use_hybrid=False):
     rows = []
     for c in cases:
         domain = c.get("domain")
@@ -124,7 +142,10 @@ def evaluate(cases, kmax, use_route, miss_opens, use_graph):
             skip_global = confident and pred and pred[0] == domain
         else:
             confident, skip_global = False, False
-        ranked = rank(domain, c["query"])
+        if use_hybrid:
+            ranked, hybrid_active = hybrid_rank(domain, c["query"])
+        else:
+            ranked, hybrid_active = rank(domain, c["query"]), False
         ids = [rid for rid, _ in ranked]
         lens = [ln for _, ln in ranked]
         hit = first_hit(ids, expected)                       # 1-based lexical rank or None
@@ -162,7 +183,7 @@ def evaluate(cases, kmax, use_route, miss_opens, use_graph):
             "graph_hit": graph_hit, "graph_hit_closure": graph_hit_closure,
             "graph_only": graph_hit and not found, "rescued": rescued,
             "scanned": scanned, "opened": len(opened_bodies),
-            "confident": confident, "skip_global": skip_global,
+            "confident": confident, "skip_global": skip_global, "hybrid_active": hybrid_active,
             "idx_t": idx_t, "snip_t": snip_t, "body_t": body_t,
             "ctx_t": idx_t + snip_t + body_t, "top5": ids[:5],
         })
@@ -288,6 +309,7 @@ def main():
     ap.add_argument("--miss-opens", type=int, default=2, help="full notes opened on a miss (default 2)")
     ap.add_argument("--route", action="store_true", help="Phase-1: skip global index.md on a confident route")
     ap.add_argument("--graph", action="store_true", help="Phase-2: graph-expand to rescue lexical misses")
+    ap.add_argument("--hybrid", action="store_true", help="Phase-3: fuse dense embeddings (RRF); lexical fallback if absent")
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args()
 
@@ -321,7 +343,11 @@ def main():
     if args.kmax not in ks:
         ks.append(args.kmax)
     ks = sorted(set(ks))
-    rows = evaluate(cases, args.kmax, args.route, args.miss_opens, args.graph)
+    if args.hybrid:
+        active = any(r["hybrid_active"] for r in evaluate(cases[:1], args.kmax, False, args.miss_opens, False, True))
+        print("Phase-3 dense: %s  -> hybrid %s\n"
+              % (embed.status_str(), "ACTIVE" if active else "INACTIVE (lexical fallback)"))
+    rows = evaluate(cases, args.kmax, args.route, args.miss_opens, args.graph, args.hybrid)
     report(rows, ks, args.kmax, args.verbose)
     sys.exit(0)
 

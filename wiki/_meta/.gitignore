@@ -1,0 +1,7 @@
+# Derived, regenerable Phase-3 artifacts — never source of truth, never committed.
+# Rebuild from the immutable reference tier with: embed.py --domain <d> --build
+embeddings/
+# Vendored embedding model(s) — large binaries transferred per the offline step in
+# models/README.md. Keep the README; ignore the model directories themselves.
+models/*
+!models/README.md

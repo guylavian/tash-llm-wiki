@@ -224,6 +224,34 @@ def cmd_search(recs, a):
         if sc > 0:
             scored.append((sc, r, bt))
     scored.sort(key=lambda x: (-x[0], -vkey(x[1].get("version"))[0] if x[1].get("version") else 0))
+
+    # --hybrid: fuse the lexical ranking with the dense (embedding) ranking via RRF.
+    # The dense path lives in embed.py (the one place a local model dep is allowed) and is
+    # imported lazily + guarded, so kb.py stays stdlib-only and DEGRADES TO LEXICAL when the
+    # library / vendored model / index is absent (the air-gap invariant).
+    if getattr(a, "hybrid", False) and not a.all_domains and a.domain:
+        embed = dense = None
+        try:
+            import embed
+            dense = embed.dense_rank(a.domain, " ".join(a.query))
+        except Exception:
+            dense = None
+        if dense:
+            lex_ids = [r.get("id") for _, r, _ in scored]
+            by_id = {r.get("id"): (sc, r, bt) for sc, r, bt in scored}
+            rec_by_id = {r.get("id"): r for r in pool}
+            fused = []
+            for sid in embed.rrf_fuse(lex_ids, dense):
+                if sid in by_id:
+                    fused.append(by_id[sid])
+                elif sid in rec_by_id:                 # dense-only note (lexical score 0)
+                    r = rec_by_id[sid]
+                    fused.append((0.0, r, body_text(r)))
+            scored = fused
+        else:
+            why = embed.status_str() if embed is not None else "embed.py import failed"
+            print("(hybrid unavailable — %s; lexical only)" % why, file=sys.stderr)
+
     if not scored:
         print("No matches. Try fewer terms, or --gated to include subscriber-only pointers.")
         return
@@ -310,6 +338,8 @@ def main():
     s.add_argument("--kind"); s.add_argument("--guide"); s.add_argument("--version")
     s.add_argument("--family"); s.add_argument("--gated", action="store_true")
     s.add_argument("--primary", action="store_true")
+    s.add_argument("--hybrid", action="store_true",
+                   help="fuse lexical with dense embeddings (RRF); needs embed.py index — falls back to lexical")
     s.add_argument("--limit", type=int, default=10); s.add_argument("--full", action="store_true")
     s.set_defaults(fn=cmd_search)
     sh = sub.add_parser("show"); sh.add_argument("target"); sh.set_defaults(fn=cmd_show)

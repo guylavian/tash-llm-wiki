@@ -56,6 +56,7 @@ regenerable from a harvest; the synthesis is downstream of it.
             ├── crosslink.py    #   link synthesized pages → their reference notes (## Sources) for the graph
             ├── route.py        #   cheap query→domain router (skip the global index on a confident route)
             ├── expand.py       #   graph-expand seed pages → 1-hop reference-note candidates (no new search)
+            ├── embed.py        #   OPTIONAL offline dense layer: build/query embeddings (kb.py --hybrid; lexical fallback)
             └── eval/           #   retrieval scoreboard: eval.py (recall@k + context-cost) over eval/cases.jsonl
 ```
 
@@ -319,9 +320,15 @@ Goal: answer a question, and leave the wiki richer than you found it.
    corpus-backed domain, or `_sources/<domain>/` for a notes-first domain. **There
    is no separate corpus query tool** — Obsidian/the vault holds all the data, so
    ripgrep/grep over Markdown + reading the matched notes *is* the search (the gated
-   pointers are in `reference/<domain>/_gated-kb-index.md` — cite the URL). This
-   governs *when to read more*; it is independent of the citation contract in step 4,
-   which applies to **every** answer even when the synthesized pages alone sufficed.
+   pointers are in `reference/<domain>/_gated-kb-index.md` — cite the URL). **Optional
+   dense accelerator:** when a query is a *paraphrase* whose answer note shares little
+   surface vocabulary (lexical ranks it deep, the graph didn't cite it), and an embedding
+   index has been built, `python3 _meta/bin/kb.py --domain <d> search "…" --hybrid` fuses
+   the lexical and dense rankings (RRF) to surface it. The dense layer is **optional and
+   offline** (`embed.py` + a vendored model — see `_meta/models/README.md`); absent it,
+   `--hybrid` silently falls back to lexical. This governs *when to read more*; it is
+   independent of the citation contract in step 4, which applies to **every** answer even
+   when the synthesized pages alone sufficed.
 4. **Synthesize, and cite each claim to the tier it came from.** Every answer
    MUST end with a **References** section in two separate groups:
    - **RH ground-truth (`kb:` / `guide:` / `ref:`)** — for each wiki page you
