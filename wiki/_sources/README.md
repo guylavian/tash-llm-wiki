@@ -1,23 +1,31 @@
-# `_sources/` — raw harvest staging (NOT wiki content)
+# `_sources/` — per-domain raw staging (NOT wiki content)
 
-Raw harvest notes for upstream **`web:` tier** standards (IETF RFCs & drafts,
-OpenID Foundation specs, OWASP, reputable practitioner docs), fetched on the
-networked **build plane** and consumed downstream by the air-gapped OpenCode
-runtime.
+Raw, pre-synthesis material, **namespaced one folder per domain** to match the
+`domain:` partition of the vault. Nothing here is a synthesized page: `lint.py`,
+`index.py`, and `crosslink.py` scan only `topics/ entities/ questions/`, so files
+under `_sources/` are never linted, linked, or counted — same discipline as `_meta/`.
 
-- **Excluded from the content scanners.** `lint.py` scans only
-  `topics/ entities/ questions/` (`PAGE_DIRS`); `crosslink.py`/`tags.py` follow the
-  same convention. Files here are never linted, linked, or counted as pages —
-  same discipline as `kb/` and `_meta/`.
-- **Not ground truth.** This is upstream/community material, distinct from the
-  immutable RHBK corpus in `../../kb/` and `../../references/`. Never write RHBK
-  ground-truth here, and never write harvested upstream text into `kb/`.
-- **Provenance, not transcripts.** Each `<id>.md` records the source URL, fetch
-  date, spec status/revision, the load-bearing requirements (paraphrased — no long
-  verbatim excerpts, copyright), and which wiki concept pages it feeds. The full
-  text stays at its URL.
-- **Delta-friendly.** The `_meta/.manifest.json` records each source so re-runs
-  only re-distill genuinely new/changed material.
+```
+_sources/
+├── keycloak/          # upstream web: tier — IETF RFCs, OIDF, OWASP, practitioner docs
+│                      #   (corpus-backed domain; RH ground truth lives in reference/keycloak/)
+└── active-directory/  # notes-first ground truth + _raw/ harvest drop zone
+    └── _raw/          #   bulk docs harvest staging, pre-fold-in (see its README)
+```
 
-One file per harvested source (or tightly-related cluster). Grow via the wiki
-INGEST op in `../CLAUDE.md`.
+Two kinds of raw tier land here, depending on the domain's `shape:` (see
+`_meta/taxonomy.md`):
+
+- **Corpus-backed domain (keycloak):** the authoritative raw tier is the immutable
+  `reference/<domain>/` notes folded in from a harvest. `_sources/<domain>/` then
+  holds only the **upstream `web:` tier** — standards/best-practice notes that enrich
+  the synthesis but are *not* product support statements. Cited in pages via `web:`.
+- **Notes-first domain (active-directory):** there is no harvested corpus, so the
+  Markdown you author in `_sources/<domain>/` **is** the immutable ground truth.
+  Cited in pages via `note:_sources/<domain>/<file>.md`. A `_raw/` subfolder may hold
+  a bulk docs harvest awaiting fold-in (which can promote the domain to
+  corpus-backed — see `_meta/ADD-DOMAIN.md`).
+
+In all cases: provenance, not transcripts — record each source's URL + fetch date and
+the load-bearing facts (paraphrased, no long verbatim). Grow via the wiki **INGEST**
+op in `../CLAUDE.md`; onboard a new domain via **Operation: ADD DOMAIN**.

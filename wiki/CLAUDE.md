@@ -208,6 +208,48 @@ cause page; pair it with the `symptoms:` frontmatter field.
 
 ---
 
+## Operation: ADD DOMAIN
+
+Goal: stand up a **new technology "brain"** (a new `domain:`) in the vault so it can
+be queried, ingested, and linted exactly like `keycloak`. This is the one-time
+bootstrap per technology; afterwards you grow it with INGEST / QUERY. Worked
+walkthrough: `_meta/ADD-DOMAIN.md`.
+
+1. **Pick the shape.** *Notes-first* (you hand-author the raw tier — Active
+   Directory, Windows Server, SCCM) or *corpus-backed* (a harvested doc corpus is
+   folded in as immutable `reference/<domain>/` notes). Notes-first is the default
+   when there is no offline corpus to harvest.
+2. **Register the domain in `_meta/taxonomy.md`** — copy the `<!-- Template -->`
+   block under `## Domains` and fill `- domain:`, `- areas:`, `- shape:`,
+   `- sources:`, `- review-moc:`. **This is the load-bearing step**: `lint.py`
+   validates every page's `domain:` against these `- domain:` lines, and `index.py`
+   builds `index.<domain>.md` only for declared domains. The slug must be kebab-case
+   (the parser skips `<placeholder>` tokens, so the template stays inert).
+3. **Add any new `areas:` to `## Areas`** in the same file. Areas are a **flat
+   union** shared across domains, and a domain's `areas:` must be a subset of it —
+   so a genuinely new technology usually contributes several new area tokens (e.g.
+   AD added `directory-services`, `replication`, `group-policy`, `fsmo`, …).
+4. **Create the raw tier.** *Notes-first:* `mkdir _sources/<domain>/` and drop a
+   `README.md` (it's the immutable ground truth — see `_sources/active-directory/`).
+   *Corpus-backed:* harvest, then `python3 _meta/bin/corpus_to_vault.py --domain
+   <d> --apply` to write `reference/<domain>/` notes.
+5. **Seed the synthesis.** Write at least: one **overview topic** (the spine), the
+   first **entity** it links, and the **`<domain>-implementation-review` MOC** named
+   in step 2 (rule→anti-pattern→symptom + symptom→cause reverse index; copy the
+   shape from `sso-implementation-review`). Every page carries the full frontmatter
+   contract — `domain:`, `summary:`, `sources:` (`note:`/`web:` for notes-first),
+   `provenance:`. Cross-link with `[[slug]]`; slugs stay globally unique across
+   `topics/` + `entities/`.
+6. **Generate + lint.** `python3 _meta/bin/index.py` (writes `index.<domain>.md` and
+   adds the domain to the global router) then `python3 _meta/bin/lint.py`. A new
+   brain is healthy when its pages aren't orphaned, the only findings are intentional
+   `[[wanted]]` TODO markers, and the review-MOC's inferred-heavy drift warning (it's
+   synthesis) is the lone provenance note — mirroring `sso-implementation-review`.
+7. **Record it** in the manifest as you ingest real sources:
+   `python3 _meta/bin/manifest.py record <source> --pages <slug,...>`.
+
+---
+
 ## Operation: INGEST
 
 Goal: fold a raw source (or a query result) into the wiki without duplicating it.

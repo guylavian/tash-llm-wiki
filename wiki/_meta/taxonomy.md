@@ -30,6 +30,16 @@ tags: [federation, concept, v26.6]
 - `iac` — Infrastructure-as-Code, the keycloak/keycloak Terraform provider
 - `security` — hardening, FAPI/OAuth2.1, threat mitigation, production checklist
 - `troubleshooting` — symptom→cause→fix pages, gated-KB pointers
+<!-- active-directory areas (notes-first domain) -->
+- `directory-services` — AD DS: forests, domains, trees, OUs, schema, the directory database (NTDS)
+- `replication` — multi-master replication, the KCC, replication topology/latency, USN/tombstones
+- `group-policy` — GPO processing, ADMX/ADML, GPO scope/precedence (LSDOU), loopback
+- `ad-dns` — AD-integrated DNS, SRV/`_msdcs` records, locator process, scavenging
+- `fsmo` — the five operations-master roles (Schema, Domain Naming, RID, PDC, Infrastructure)
+- `trusts` — domain & forest trusts, trust direction/transitivity, SID filtering
+- `sites-topology` — sites, subnets, site links, DC locator, replication topology
+- `ad-certificate-services` — AD CS / PKI: CA roles, templates, enrollment, autoenrollment
+- `ad-authn` — Kerberos & NTLM authentication, SPNs, delegation, tickets
 
 ## Kinds
 - `concept` — broad synthesis / how-something-works (usually topics/)
@@ -64,6 +74,13 @@ domain that needs a *new* area, add it to `## Areas` too (areas are a flat union
 - shape: corpus-backed
 - sources: [corpora/keycloak/, _sources/keycloak/]
 - review-moc: sso-implementation-review
+
+### active-directory
+- domain: active-directory
+- areas: [directory-services, replication, group-policy, ad-dns, fsmo, trusts, sites-topology, ad-certificate-services, ad-authn, users, security, troubleshooting, migration]
+- shape: notes-first
+- sources: [_sources/active-directory/]
+- review-moc: active-directory-implementation-review
 
 <!-- Template — copy per new technology (placeholders are ignored by lint/index):
 ### <domain>

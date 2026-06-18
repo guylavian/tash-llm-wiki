@@ -12,6 +12,7 @@ Per-domain routing indexes are in `index.<domain>.md` (below).
 ## Domains
 _Per-domain routing indexes (generated). A QUERY routes here first, then opens the relevant index below to stay inside the model's context window._
 
+- [active-directory](index.active-directory.md) — 3 pages · review lens [[active-directory-implementation-review]]
 - [keycloak](index.keycloak.md) — 157 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
 <!-- index.py:domains:end -->
 
