@@ -8,6 +8,7 @@ source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.5/html
 version: 7.5
 family: rhsso
 documentKind: "Documentation"
+abstract: "This chapter describes advanced procedures, such as setting up keystores and a truststore for the Red Hat Single Sign-On server, creating an administrator account, as well as an overview of available Red Hat Single Sign-On client registration methods, and guidance on configuring clustering. 3.1. Deploying passthrough TLS termination templates You can deploy using these templates. They require HTTP…"
 ---
 
 # Chapter 3. Performing advanced procedures - Red Hat Single Sign-On 7.5 Red Hat Single Sign-On for OpenShift

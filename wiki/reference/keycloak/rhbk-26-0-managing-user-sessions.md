@@ -10,6 +10,7 @@ version: 26.0
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "When users log into realms, Red Hat build of Keycloak maintains a user session for each user and remembers each client visited by the user within the session. Realm administrators can perform multiple actions on each user session: View login statistics for the realm. View active users and where they logged in. Log a user out of their session. Revoke tokens. Set up token timeouts. Set up session ti…"
 ---
 
 # Chapter 6. Managing user sessions - Red Hat build of Keycloak 26.0 Server Administration Guide

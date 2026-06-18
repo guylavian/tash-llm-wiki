@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "To adapt to the revamped server configuration, the Red Hat build of Keycloak Operator was completely recreated. The Operator provides full integration with Red Hat build of Keycloak, but it is not backward compatible with the Red Hat Single Sign-On 7.6 Operator. Additional resources Basic Keycloak deployment Advanced configuration 3.1. Performing the migration Using the new Operator requires creat…"
 ---
 
 # Chapter 3. Migrating Operator deployments on Openshift - Red Hat build of Keycloak 26.6 Migration Guide

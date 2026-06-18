@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 7.2
 family: rhsso
 documentKind: "Documentation"
+abstract: "Red Hat Single Sign-On (RH-SSO) 7.2 is based on the Keycloak project and provides security for your web applications by providing Web single sign-on capabilities based on popular standards such as SAML 2.0, OpenID Connect, and OAuth 2.0. The Red Hat Single Sign-On Server can act as a SAML or OpenID Connect-based identity provider, mediating with your enterprise user directory or third-party SSO pr…"
 ---
 
 # Chapter 1. Introduction - Red Hat Single Sign-On 7.2 Upgrading Guide

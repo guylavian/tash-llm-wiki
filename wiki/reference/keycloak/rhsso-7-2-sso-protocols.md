@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 7.2
 family: rhsso
 documentKind: "Documentation"
+abstract: "The chapter gives a brief overview of the authentication protocols and how the Red Hat Single Sign-On authentication server and the applications it secures interact with these protocols. 7.1. OpenID Connect OpenID Connect (OIDC) is an authentication protocol that is an extension of OAuth 2.0. While OAuth 2.0 is only a framework for building authorization protocols and is mainly incomplete, OIDC is…"
 ---
 
 # Chapter 7. SSO Protocols - Red Hat Single Sign-On 7.2 Server Administration Guide

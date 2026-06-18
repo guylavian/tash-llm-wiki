@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Understand multi-site deployment with synchronous replication. This topic describes a highly available multi-site setup and the behavior to expect. It outlines the requirements of the high availability architecture and describes the benefits and tradeoffs. 2.1. When to use this setup Use this setup to provide Red Hat build of Keycloak deployments that are able to tolerate site failures, reducing t…"
 ---
 
 # Chapter 2. Concepts for multi-site deployments - Red Hat build of Keycloak 26.2 High Availability Guide

@@ -9,6 +9,7 @@ guide: release_notes
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Each release includes fixed issues: Red Hat build of Keycloak 26.2.15 SP1 fixed issues Red Hat build of Keycloak 26.2.15 fixed issues Red Hat build of Keycloak 26.2.14 fixed issues Red Hat build of Keycloak 26.2.13 fixed issues Red Hat build of Keycloak 26.2.12 fixed issues Red Hat build of Keycloak 26.2.11 fixed issues Red Hat build of Keycloak 26.2.10 fixed issues Red Hat build of Keycloak 26.2.…"
 ---
 
 # Chapter 19. Fixed issues - Red Hat build of Keycloak 26.2 Release Notes

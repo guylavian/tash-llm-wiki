@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_developer_hub/1.8/html/configuring_dynamic_plugins/assembly-enabling-configuring-the-nexus-plugin_assembly-installing-configuring-keycloak
 guide: configuring_dynamic_plugins
 documentKind: "Documentation"
+abstract: "The Nexus Repository Manager plugin displays the information about your build artifacts in your Developer Hub application. The build artifacts are available in the Nexus Repository Manager. Important The Nexus Repository Manager plugin is a Technology Preview feature only. Technology Preview features are not supported with Red Hat production service level agreements (SLAs), might not be functional…"
 ---
 
 # Chapter 5. Enabling and configuring the Nexus Repository Manager plugin - Red Hat Developer Hub 1.8 Configuring dynamic plugins

@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure the frontend and backchannel endpoints exposed by Red Hat build of Keycloak. 7.1. The importance of setting the hostname option By default, Red Hat build of Keycloak mandates the configuration of the hostname option and does not dynamically resolve URLs. This is a security measure. Red Hat build of Keycloak freely discloses its own URLs, for instance through the OIDC Discovery endpoint, …"
 ---
 
 # Chapter 7. Configuring the hostname (v2) - Red Hat build of Keycloak 26.4 Server Configuration Guide

@@ -6,6 +6,7 @@ slug: doc-secure-proc-gw-config-keycloak-settings
 tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/secure-proc_gw_config_keycloak_settings
 documentKind: "Documentation"
+abstract: "You can configure Ansible Automation Platform to integrate Keycloak to manage user authentication. Configure keycloak authentication You can configure Ansible Automation Platform to integrate Keycloak to manage user authentication. About this task Note: When using this authenticator some specific setup in your Keycloak instance is required. Refer to the Python Keycloak reference for more details. …"
 ---
 
 # Configure keycloak authentication - Red Hat Ansible Automation Platform 2.6

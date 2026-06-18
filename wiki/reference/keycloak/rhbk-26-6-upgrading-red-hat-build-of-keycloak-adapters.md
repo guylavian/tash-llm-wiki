@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "After upgrading the Red Hat build of Keycloak server, you upgrade the adapters. Versions of adapters and Red Hat build of Keycloak are now decoupled, meaning that they are released on different schedules. Therefore, use these rules to determine which adapters you upgrade: Earlier versions of an adapter might work with later versions of the Red Hat build of Keycloak server. Earlier versions of the …"
 ---
 
 # Chapter 4. Upgrading Red Hat build of Keycloak adapters - Red Hat build of Keycloak 26.6 Upgrading Guide

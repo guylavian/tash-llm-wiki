@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 7.1
 family: rhsso
 documentKind: "Documentation"
+abstract: "As mentioned previously, policies define the conditions that must be satisfied before granting access to an object. You can view all policies associated with a resource server by clicking the Policy tab when editing a resource server. Policies On this tab, you can view the list of previously created policies as well as create and edit a policy. To create a new policy, in the upper right corner of …"
 ---
 
 # Chapter 5. Managing Policies - Red Hat Single Sign-On 7.1 Authorization Services Guide

@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Javadocs for Red Hat build of Keycloak 26.4. Red Hat build of Keycloak 26.4 Red Hat Customer Content Services Legal Notice Abstract Javadocs for Red Hat build of Keycloak 26.4. Chapter 1. Red Hat build of Keycloak API Documentation 1.1. JavaDocs Documentation JavaDocs Documentation 1.2. Admin REST API Documentation Administration REST API Legal Notice Copyright © 2026 Red Hat, Inc. Licensed under …"
 ---
 
 # API Documentation - Red Hat build of Keycloak 26.4 API Documentation

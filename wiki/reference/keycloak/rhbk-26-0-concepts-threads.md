@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "This section is intended when you want to understand the considerations and best practices on how to configure thread pools connection pools for Red Hat build of Keycloak. For a configuration where this is applied, visit Deploy Red Hat build of Keycloak for HA with the Red Hat build of Keycloak Operator. 5.1. Concepts 5.1.1. Quarkus executor pool Red Hat build of Keycloak requests, as well as bloc…"
 ---
 
 # Chapter 5. Concepts for configuring thread pools - Red Hat build of Keycloak 26.0 High Availability Guide

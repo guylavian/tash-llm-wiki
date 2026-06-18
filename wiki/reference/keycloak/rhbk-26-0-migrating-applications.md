@@ -9,6 +9,7 @@ guide: migration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak introduces key changes to how applications are using some of the Red Hat Single Sign-On 7.6 Client Adapters. In addition to no longer releasing some client adapters, Red Hat build of Keycloak also introduces fixes and improvements that impact how client applications use OpenID Connect and SAML protocols. In this chapter, you will find the instructions to address these cha…"
 ---
 
 # Chapter 5. Migrating applications secured by Red Hat Single Sign-On 7.6 - Red Hat build of Keycloak 26.0 Migration Guide

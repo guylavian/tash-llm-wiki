@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "This guide consists of recommended practices for administrators to configure and use the Red Hat build of Keycloak 26.4 in high availability deployments / architectures. Red Hat build of Keycloak 26.4 Red Hat Customer Content Services Legal Notice Abstract This guide consists of recommended practices for administrators to configure and use the Red Hat build of Keycloak 26.4 in high availability de…"
 ---
 
 # High Availability Guide - Red Hat build of Keycloak 26.4 High Availability Guide

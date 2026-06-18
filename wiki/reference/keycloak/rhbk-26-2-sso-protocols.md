@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "This section discusses authentication protocols, the Red Hat build of Keycloak authentication server and how applications, secured by the Red Hat build of Keycloak authentication server, interact with these protocols. 10.1. OpenID Connect OpenID Connect (OIDC) is an authentication protocol that is an extension of OAuth 2.0. OAuth 2.0 is a framework for building authorization protocols and is incom…"
 ---
 
 # Chapter 10. SSO protocols - Red Hat build of Keycloak 26.2 Server Administration Guide

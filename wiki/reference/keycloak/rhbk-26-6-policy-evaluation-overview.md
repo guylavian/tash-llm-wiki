@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "When designing your policies, you can simulate authorization requests to test how your policies are being evaluated. You can access the Policy Evaluation Tool by clicking the Evaluate tab when editing a resource server. There you can specify different inputs to simulate real authorization requests and test the effect of your policies. Policy evaluation tool 7.1. Providing identity information The …"
 ---
 
 # Chapter 7. Evaluating and testing policies - Red Hat build of Keycloak 26.6 Authorization Services Guide

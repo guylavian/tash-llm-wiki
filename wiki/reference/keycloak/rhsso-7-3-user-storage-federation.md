@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 7.3
 family: rhsso
 documentKind: "Documentation"
+abstract: "Many companies have existing user databases that hold information about users and their passwords or other credentials. In many cases, it is just not possible to migrate off of those existing stores to a pure Red Hat Single Sign-On deployment. Red Hat Single Sign-On can federate existing external user databases. Out of the box we have support for LDAP and Active Directory. You can also code your o…"
 ---
 
 # Chapter 14. User Storage Federation - Red Hat Single Sign-On 7.3 Server Administration Guide

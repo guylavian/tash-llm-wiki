@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure providers for Red Hat build of Keycloak. The server is built with extensibility in mind and for that it provides a number of Service Provider Interfaces or SPIs, each one responsible for providing a specific capability to the server. In this chapter, you are going to understand the core concepts around the configuration of SPIs and their respective providers. After reading this chapter, …"
 ---
 
 # Chapter 15. Configuring providers - Red Hat build of Keycloak 26.4 Server Configuration Guide

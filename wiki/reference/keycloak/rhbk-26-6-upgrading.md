@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "You upgrade the server before you upgrade the adapters. 3.1. Preparing for an upgrade Starting with Red Hat build of Keycloak 26.6.0 rolling updates of patch releases are supported. See the Rolling Updates Guide to determine if a rolling update is possible. Perform the following steps before you upgrade the server. Procedure Shut down Red Hat build of Keycloak if no rolling update is supported, fo…"
 ---
 
 # Chapter 3. Upgrading the Red Hat build of Keycloak server - Red Hat build of Keycloak 26.6 Upgrading Guide

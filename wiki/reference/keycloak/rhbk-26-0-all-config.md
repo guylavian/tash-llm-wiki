@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "24.1. Cache Value cache Defines the cache mechanism for high-availability. By default in production mode, a ispn cache is used to create a cluster between multiple server nodes. By default in development mode, a local cache disables clustering and is intended for development and testing purposes. CLI: --cache Env: KC_CACHE ispn (default), local cache-config-file Defines the file from which cache c…"
 ---
 
 # Chapter 24. All configuration - Red Hat build of Keycloak 26.0 Server Configuration Guide

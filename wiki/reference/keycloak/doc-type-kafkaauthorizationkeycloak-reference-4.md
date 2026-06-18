@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_streams_for_apache_kafka/2.8/html/streams_for_apache_kafka_api_reference/type-kafkaauthorizationkeycloak-reference
 guide: streams_for_apache_kafka_api_reference
 documentKind: "Documentation"
+abstract: "Used in: KafkaClusterSpec The type property is a discriminator that distinguishes use of the KafkaAuthorizationKeycloak type from KafkaAuthorizationSimple, KafkaAuthorizationOpa, KafkaAuthorizationCustom. It must have the value keycloak for the type KafkaAuthorizationKeycloak. Property Property type Description type string Must be keycloak. clientId string OAuth Client ID which the Kafka client ca…"
 ---
 
 # Chapter 23. KafkaAuthorizationKeycloak schema reference - Red Hat Streams for Apache Kafka 2.8 Streams for Apache Kafka API Reference

@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues and changes related to upgrading. For details, see the Upgrading Guide. 2.1. CVE fixes The following advisory lists the fixed CVEs for this release of Red Hat build of Keycloak. RHSA-2026:19596"
 ---
 
 # Chapter 2. Updates for 26.4.12 - Red Hat build of Keycloak 26.4 Release Notes

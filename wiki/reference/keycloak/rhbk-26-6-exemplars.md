@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Use exemplars to connect a metric to a recorded trace to analyze the root cause of errors or latencies. Metrics are aggregations over several events, and show you if your system is operating within defined bounds. They are great to monitor error rates or tail latencies and to set up alerting or drive performance optimizations. Still, the aggregation makes it difficult to find root causes for laten…"
 ---
 
 # Chapter 9. Analyzing outliers and errors with exemplars - Red Hat build of Keycloak 26.6 Observability Guide

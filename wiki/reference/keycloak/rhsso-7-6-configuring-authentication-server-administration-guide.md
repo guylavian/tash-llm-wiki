@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "This chapter covers several authentication topics. These topics include: Enforcing strict password and One Time Password (OTP) policies. Managing different credential types. Logging in with Kerberos. Disabling and enabling built-in credential types. 8.1. Password policies When Red Hat Single Sign-On creates a realm, it does not associate password policies with the realm. You can set a simple passw…"
 ---
 
 # Chapter 8. Configuring authentication - Red Hat Single Sign-On 7.6 Server Administration Guide

@@ -9,6 +9,7 @@ guide: release_notes
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "For the list of supported component versions for Red Hat build of Keycloak 26.4, see Component details."
 ---
 
 # Chapter 19. Component details - Red Hat build of Keycloak 26.4 Release Notes

@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "The admin console and account console are based on React. To fully customize these you can use the React based npm packages. There are two packages: @keycloak/keycloak-admin-ui: This is the base theme for the admin console. @keycloak/keycloak-account-ui: This is the base theme for the account console. Both packages are available on npm. 4.1. Installing the packages To install the packages, run the…"
 ---
 
 # Chapter 4. Themes based on React - Red Hat build of Keycloak 26.2 Server Developer Guide

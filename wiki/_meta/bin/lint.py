@@ -262,6 +262,35 @@ def main():
             warnings.append(f"{fn}: ~{est_tokens} tokens (> 25% of --ctx-window {args.ctx_window}) "
                             "— split the domain or trim summaries to protect the routing context")
 
+    # reference-tier validation (the folded-in corpus). Light checks (warnings, not errors):
+    # these are raw imported notes, not synthesized pages, but a malformed one silently
+    # breaks retrieval (e.g. an empty gated index drops every gated pointer).
+    ref_root = os.path.join(WIKI, "reference")
+    if os.path.isdir(ref_root):
+        for dom in sorted(os.listdir(ref_root)):
+            dd = os.path.join(ref_root, dom)
+            if not os.path.isdir(dd):
+                continue
+            bodies = 0
+            for fn in sorted(os.listdir(dd)):
+                if not fn.endswith(".md") or fn.startswith("_"):
+                    continue
+                bodies += 1
+                with open(os.path.join(dd, fn), encoding="utf-8") as fh:
+                    rfm = parse_frontmatter(fh.read())
+                rrel = f"reference/{dom}/{fn}"
+                if rfm is None:
+                    warnings.append(f"{rrel}: reference note missing frontmatter")
+                elif not rfm.get("source"):
+                    warnings.append(f"{rrel}: reference note has no `source:`")
+            gated = os.path.join(dd, "_gated-kb-index.md")
+            if os.path.exists(gated):
+                gtext = open(gated, encoding="utf-8").read()
+                if gtext.count("\n## ") == 0:
+                    warnings.append(f"reference/{dom}/_gated-kb-index.md: present but no pointers parsed (malformed?)")
+            if bodies == 0:
+                notes.append(f"reference/{dom}/: no body notes (corpus not folded in?)")
+
     def section(label, items):
         if items:
             print(f"\n{label} ({len(items)})")

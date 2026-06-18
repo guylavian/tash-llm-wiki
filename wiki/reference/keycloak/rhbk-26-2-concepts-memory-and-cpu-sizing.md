@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Understand concepts for avoiding resource exhaustion and congestion. Use this as a starting point to size a product environment. Adjust the values for your environment as needed based on your load tests. 6.1. Performance recommendations Warning Performance will be lowered when scaling to more Pods (due to additional overhead) and using a cross-datacenter setup (due to additional traffic and operat…"
 ---
 
 # Chapter 6. Concepts for sizing CPU and memory resources - Red Hat build of Keycloak 26.2 High Availability Guide

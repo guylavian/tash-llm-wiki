@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_satellite/6.17/html/configuring_authentication_for_red_hat_satellite_users/configuring-sso-and-2fa-with-keycloak-wildfly-in-project_keycloak-wildfly
 guide: configuring_authentication_for_red_hat_satellite_users
 documentKind: "Documentation"
+abstract: "Important Configuring Satellite with Red Hat Single Sign-On is a deprecated feature. Deprecated functionality is still included in Satellite and continues to be supported. However, it will be removed in a future release of this product and is not recommended for new deployments. For the most recent list of major functionality that has been deprecated or removed within Satellite, refer to the Depre…"
 ---
 
 # Chapter 4. Configuring SSO and 2FA with Red Hat Single Sign-On in Satellite - Red Hat Satellite 6.17 Configuring authentication for Red Hat Satellite users

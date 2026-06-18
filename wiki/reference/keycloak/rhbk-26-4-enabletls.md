@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure Red Hat build of Keycloak’s https certificates for ingoing and outgoing requests. Transport Layer Security (short: TLS) is crucial to exchange data over a secured channel. For production environments, you should never expose Red Hat build of Keycloak endpoints through HTTP, as sensitive data is at the core of what Red Hat build of Keycloak exchanges with other applications. In this chapt…"
 ---
 
 # Chapter 6. Configuring TLS - Red Hat build of Keycloak 26.4 Server Configuration Guide

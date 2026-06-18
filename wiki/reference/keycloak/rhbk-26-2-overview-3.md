@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak supports fine-grained authorization policies and is able to combine different access control mechanisms such as: Attribute-based access control (ABAC) Role-based access control (RBAC) User-based access control (UBAC) Context-based access control (CBAC) Rule-based access control Using JavaScript Time-based access control Support for custom access control mechanisms (ACMs) …"
 ---
 
 # Chapter 1. Authorization services overview - Red Hat build of Keycloak 26.2 Authorization Services Guide

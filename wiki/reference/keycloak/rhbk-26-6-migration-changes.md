@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "2.1. Breaking changes Breaking changes are identified as those that might require changes for existing users to their configurations or applications. In minor or patch releases, Red Hat build of Keycloak will only introduce breaking changes to fix bugs. 2.1.1. JavaScript-based policies can now only be deployed if the scripts feature is enabled In this version, JavaScript-based policies can only be…"
 ---
 
 # Chapter 2. Release-specific changes - Red Hat build of Keycloak 26.6 Upgrading Guide

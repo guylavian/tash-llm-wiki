@@ -86,7 +86,7 @@ Open the matching file in `references/` for depth. Each is distilled from the Ke
 | `references/high-availability.md` | Clustering & HA: embedded vs external Infinispan, cache roles, session persistence, Active/Passive multi-site, load balancer & failover, known constraints (supported vs preview) |
 | `references/server-development.md` | SPIs & extensions: provider/factory model, JAR deployment + `kc.sh build`, key SPIs, a minimal OIDC ProtocolMapper skeleton (computed claim), the scripts-must-be-a-JAR constraint |
 | `references/rhbk-platform-support.md` | **RHBK-specific:** version/cadence, supported-config matrix (OCP/OS/JVM/DB/RHDG), lifecycle & subscriptions, container images & Operator (channels/install modes/CRDs), sizing, errata/RHSA→CVE map, feature status (Supported/TP/DP/Deprecated), RHBK-vs-upstream, RH-SSO→RHBK migration |
-| `references/rhbk-troubleshooting-kb.md` | **RHBK-specific:** **28 distilled public KB fixes** (symptom→cause→fix, verbatim commands) from the harvest's public-body solutions, plus the **1,030-solution index by area** (40 public / 990 gated) and how to query the rest offline via `kb/rhbk_kb.py` + `kb/solutions_by_area.md`. Gated resolution bodies are subscriber-only (pointers). |
+| `references/rhbk-troubleshooting-kb.md` | **RHBK-specific:** **28 distilled public KB fixes** (symptom→cause→fix, verbatim commands) from the harvest's public-body solutions, plus the **1,030-solution index by area** (40 public / 990 gated) and how to query the rest offline via `kb.py` over `wiki/reference/keycloak/` (gated pointers in `_gated-kb-index.md`). Gated resolution bodies are subscriber-only (pointers). |
 | `references/rhbk-operator.md` | **RHBK-specific (grounded in RHBK 26.6 Operator Guide):** OLM install (disconnected note), the `Keycloak` CR for a basic deploy (hostname/DB/TLS/ingress), `KeycloakRealmImport`, advanced CR tuning (additionalOptions, truststores, podTemplate, scheduling, secrets), rolling updates, and custom pre-optimized images for air-gapped registries |
 | `references/observability.md` | **RHBK-specific (grounded in RHBK 26.6 Observability Guide):** OpenTelemetry centralization (`telemetry-*`), health endpoints/probes on the management port, metrics (`/metrics`, families), event metrics, SLIs, tracing (OTLP exporter/sampling), dashboards/exemplars — with air-gap notes on repointing/disabling external collectors |
 | `references/migration-upgrading.md` | **RHBK-specific (grounded in RHBK 26.6 Migration + Upgrading Guides):** RH-SSO 7.6→RHBK (server, Operator, Templates, apps/adapters, custom providers/themes, upstream→RHBK) and RHBK version upgrades (procedure, DB auto-migration, release-specific changes, adapters) — offline-staged |
@@ -100,30 +100,34 @@ official RHBK/RH-SSO documentation and Red Hat KB — usable with **no internet*
 when a question needs the *exact* wording, a specific version, or a long-tail topic the
 distilled references don't cover.
 
-- **Query tool:** `kb/rhbk_kb.py` (Python 3 standard library only — runs on any air-gapped host).
-- **Corpus:** `kb/index.jsonl` (1,840 records) + `kb/bodies/<sha1>.md` (800 full bodies:
-  741 RHBK/RH-SSO doc chapters across **26.0/26.2/26.4/26.6**, 40 solutions, 14 articles, 5 discussions).
+- **Query tool:** `python3 wiki/_meta/bin/kb.py --domain keycloak …` (Python 3 stdlib only,
+  air-gapped). The legacy `python3 kb/rhbk_kb.py …` still works — it's a back-compat shim that
+  forwards to `kb.py`.
+- **Corpus (now folded into the vault):** `wiki/reference/keycloak/` — one Markdown note per
+  source (741 RHBK/RH-SSO doc chapters across **26.0/26.2/26.4/26.6**, 40 solutions, 14 articles,
+  5 discussions = 800 bodies) + `_gated-kb-index.md`. `kb.py` reads these notes; plain
+  `grep wiki/reference/keycloak/` works too. (`kb/index.jsonl` + `kb/bodies/` no longer exist.)
 - **Gated KBs:** 1,040 Red Hat **Solutions/Articles are subscriber-gated** — bundled as
-  *pointers* (title + abstract + URL), body absent. Excluded from search unless you pass `--gated`.
+  *pointers* (title + abstract + URL) in `_gated-kb-index.md`, body absent. Excluded from search
+  unless you pass `--gated`.
 
 ```bash
-cd kb
-python3 rhbk_kb.py search "ldap truststore operator"        # ranked hits + body snippets
-python3 rhbk_kb.py search "fips bcfips strict" --kind doc --primary   # newest-version docs only
-python3 rhbk_kb.py search "disconnected mirror image" --gated         # include gated KB pointers
-python3 rhbk_kb.py search "cross-site infinispan" --guide high_availability_guide --full
-python3 rhbk_kb.py show 7032207            # print a record's full body (or its URL if gated)
-python3 rhbk_kb.py guides ; python3 rhbk_kb.py stats
+python3 wiki/_meta/bin/kb.py --domain keycloak search "ldap truststore operator"   # ranked hits + snippets
+python3 wiki/_meta/bin/kb.py --domain keycloak search "fips bcfips strict" --kind doc --primary
+python3 wiki/_meta/bin/kb.py --domain keycloak search "disconnected mirror image" --gated
+python3 wiki/_meta/bin/kb.py --domain keycloak search "cross-site infinispan" --guide high_availability_guide --full
+python3 wiki/_meta/bin/kb.py --domain keycloak show 7032207            # full body (or URL if gated)
+python3 wiki/_meta/bin/kb.py --domain keycloak guides ; python3 wiki/_meta/bin/kb.py --domain keycloak stats
+# python3 kb/rhbk_kb.py search "…"   # still works via the shim
 ```
 
-**When answering RHBK questions, prefer grounding in `kb/` over memory** — run a search, cite
-the returned title/URL/version, and quote the body. Newest-version chapters are ranked first
-(`--primary` to force it); RH-SSO 7.x is demoted (legacy, kept for migration context). See
-`kb/README.md` for provenance and the honest relevance/gating caveats.
+**When answering RHBK questions, prefer grounding in the vault reference tier over memory** —
+run a search, cite the returned title/URL/version, and quote the body. Newest-version chapters
+rank first (`--primary` to force it); RH-SSO 7.x is demoted (legacy, kept for migration context).
 
 ## Compiled wiki (LLM-maintained synthesis) — `wiki/`
 
-On top of the raw `kb/` + `references/` corpus, `wiki/` is an **LLM-maintained
+On top of the raw `wiki/reference/` + `references/` tier, `wiki/` is an **LLM-maintained
 knowledge wiki** (Karpathy's "LLM Wiki" pattern): cross-linked `topics/`,
 `entities/`, and answered `questions/` pages that *compile* the raw sources into
 durable synthesis, so conclusions are filed once instead of re-derived each
@@ -282,11 +286,11 @@ For each app (OpenShift OAuth, ArgoCD Dex/OIDC, Grafana generic OAuth): create a
 - **LDAP sync fails** → verify server URL/SSL, Bind DN + credential, Users DN, username attribute; enable logger `org.keycloak.storage.ldap`.
 
 ## Air-gap & version notes
-- **Most references are regenerated directly from the bundled RHBK 26.6 documentation bodies (`kb/`)** — `securing-apps-oidc-saml.md`, `server-configuration.md`, `server-administration.md`, `high-availability.md`, `authorization-services.md`, `server-development.md`, plus `rhbk-operator.md`, `observability.md`, `migration-upgrading.md`. Every flag, endpoint, field, and class name in them is copied verbatim from the RHBK 26.6 guide chapters (docs.redhat.com). `admin-rest-api.md` remains distilled from the upstream Keycloak 26 docs; `rhbk-platform-support.md` and `rhbk-troubleshooting-kb.md` are Red Hat support/KB-derived. Pinned to RHBK 26.6 (productizes upstream Keycloak 26.6.3). Verify against your exact build; flags/paths/field names occasionally shift between releases.
+- **Most references are regenerated directly from the bundled RHBK 26.6 documentation bodies (now `wiki/reference/keycloak/`)** — `securing-apps-oidc-saml.md`, `server-configuration.md`, `server-administration.md`, `high-availability.md`, `authorization-services.md`, `server-development.md`, plus `rhbk-operator.md`, `observability.md`, `migration-upgrading.md`. Every flag, endpoint, field, and class name in them is copied verbatim from the RHBK 26.6 guide chapters (docs.redhat.com). `admin-rest-api.md` remains distilled from the upstream Keycloak 26 docs; `rhbk-platform-support.md` and `rhbk-troubleshooting-kb.md` are Red Hat support/KB-derived. Pinned to RHBK 26.6 (productizes upstream Keycloak 26.6.3). Verify against your exact build; flags/paths/field names occasionally shift between releases.
 - All previously-flagged `TODO` markers have been **resolved** — values confirmed against keycloak.org / `github.com/keycloak/keycloak` (SPI signatures) / Red Hat docs, or removed where genuinely unverifiable. The `references/` carry **no** unresolved TODOs.
 - **Red Hat build of Keycloak (RHBK):** `rhbk-platform-support.md` and `rhbk-troubleshooting-kb.md` are distilled from Red Hat docs/KB (docs.redhat.com / access.redhat.com / catalog.redhat.com), pinned to **RHBK 26.6 GA** (productizes upstream Keycloak 26.6). KB **resolution bodies are subscriber-gated** — those files index IDs + Verified/Unverified status as offline pointers, not full solutions. RHBK feature status (Supported/Tech-Preview/Dev-Preview/Deprecated) and RHBK-vs-upstream deltas are called out per item; **never treat a Preview feature as production-ready**. Validate matrices/lifecycle dates against your subscription + exact version.
 - The `references/` files make this skill usable **without internet**. The only outbound strings in this skill are `keycloak.org` / `redhat.com` doc attributions and Red Hat KB/RHSA IDs — there are **no** network calls.
-- **Bundled local KB (`kb/`):** a searchable mirror of 1,840 RHBK/RH-SSO records (800 full doc/solution bodies, 26.0→26.6) queried offline via `kb/rhbk_kb.py`. It is a *filtered* slice of a Customer Portal harvest — coverage is best-effort, not exhaustive; subscriber-gated KB **bodies are absent** (pointers only). Prefer it for exact wording/version lookups; treat the distilled `references/` as the fast top layer.
+- **Bundled local KB (in the vault, `wiki/reference/keycloak/`):** a searchable mirror of 1,840 RHBK/RH-SSO records (800 full doc/solution bodies, 26.0→26.6) as Markdown notes, queried offline via `wiki/_meta/bin/kb.py` (or `grep`). It is a *filtered* slice of a Customer Portal harvest — coverage is best-effort, not exhaustive; subscriber-gated KB **bodies are absent** (pointers only). Prefer it for exact wording/version lookups; treat the distilled `references/` as the fast top layer.
 - For a byte-perfect local copy of the full docs, download the official Keycloak/RHBK documentation distribution on a connected host and stage it internally.
 
 _Source: Keycloak Documentation (keycloak.org) + Red Hat build of Keycloak docs & KB (docs.redhat.com / access.redhat.com), distilled into a self-contained offline skill._

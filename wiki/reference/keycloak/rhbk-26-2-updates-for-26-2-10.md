@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues. Also, a change exists for how the serverinfo endpoint works. For details, see the Upgrading Guide."
 ---
 
 # Chapter 8. Updates for 26.2.10 - Red Hat build of Keycloak 26.2 Release Notes

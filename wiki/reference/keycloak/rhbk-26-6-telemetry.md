@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Learn about OpenTelemetry integration for centralized observability and telemetry data. OpenTelemetry (OTel) is an open-source observability framework designed to provide consistent and reliable ways to collect telemetry data across distributed systems. It is a project under the Cloud Native Computing Foundation (CNCF) as an incubating project. Its goal is to provide a unified standard and toolset…"
 ---
 
 # Chapter 1. Centralize your observability stack with OpenTelemetry - Red Hat build of Keycloak 26.6 Observability Guide

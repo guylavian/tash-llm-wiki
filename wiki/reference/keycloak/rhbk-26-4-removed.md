@@ -9,6 +9,7 @@ guide: release_notes
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "The following features have been removed from this release. 16.1. jboss.site.name and jboss.node.name Both system properties have been used internally within Keycloak and have not been part of the official documentation. Red Hat build of Keycloak will fail to start if those are present. Instead, use the command line option spi-cache-embedded-default-site-name as jboss.site.name replacement, and sp…"
 ---
 
 # Chapter 16. Removed features - Red Hat build of Keycloak 26.4 Release Notes

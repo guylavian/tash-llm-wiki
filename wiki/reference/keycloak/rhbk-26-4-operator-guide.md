@@ -9,6 +9,7 @@ guide: operator_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "This guide consists of information for administrators to configure and use the Red Hat build of Keycloak 26.4 Operator. Red Hat build of Keycloak 26.4 Red Hat Customer Content Services Legal Notice Abstract This guide consists of information for administrators to configure and use the Red Hat build of Keycloak 26.4 Operator. Chapter 1. Red Hat build of Keycloak Operator installation How to install…"
 ---
 
 # Operator Guide - Red Hat build of Keycloak 26.4 Operator Guide

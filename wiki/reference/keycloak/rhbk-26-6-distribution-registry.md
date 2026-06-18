@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure a Distribution Registry to use Red Hat build of Keycloak. Note Docker Registry has been renamed to Distribution Registry, however feature, endpoint and protocol are still called Docker. Note Docker authentication is disabled by default. To enable see the Enabling and disabling features chapter. This section describes how you can configure a Distribution registry to use Red Hat build of K…"
 ---
 
 # Chapter 9. Configuring a Distribution Registry - Red Hat build of Keycloak 26.6 Securing Applications and Services Guide

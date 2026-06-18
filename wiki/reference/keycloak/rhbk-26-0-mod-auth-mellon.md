@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "The mod_auth_mellon is an authentication module for Apache. If your language/environment supports using Apache HTTPD as a proxy, then you can use mod_auth_mellon to secure your web application with SAML. For more details on this module see the mod_auth_mellon GitHub repo. Warning Red Hat build of Keycloak does not provide any official support to mod_auth_mellon. The instructions below are best-eff…"
 ---
 
 # Chapter 8. mod_auth_mellon Apache Module - Red Hat build of Keycloak 26.0 Securing Applications and Services Guide

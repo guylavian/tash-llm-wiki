@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure and use token exchange for Red Hat build of Keycloak. Token exchange is the process that allows a client application to exchange one token for another token. In Red Hat build of Keycloak, two features implement token exchange: Standard token exchange: version 2 (V2) - This feature is the fully supported token exchange implementation that is enabled by default once the Red Hat build of Ke…"
 ---
 
 # Chapter 13. Configuring and using token exchange - Red Hat build of Keycloak 26.6 Securing Applications and Services Guide

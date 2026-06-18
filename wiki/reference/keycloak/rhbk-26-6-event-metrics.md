@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Event metrics provide an aggregated view of user activities in a Red Hat build of Keycloak instance. For now, only metrics for user events are captured. For example, you can monitor the number of logins, login failures, or token refreshes performed. The metrics are exposed using the standard metrics endpoint, and you can use it in your own metrics collection system to create dashboards and alerts.…"
 ---
 
 # Chapter 4. Monitoring user activities with event metrics - Red Hat build of Keycloak 26.6 Observability Guide

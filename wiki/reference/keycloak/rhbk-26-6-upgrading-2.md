@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "How to upgrade the Red Hat build of Keycloak Client Libraries. The client libraries are those artifacts: Java admin client - Maven artifact org.keycloak:keycloak-admin-client Java authorization client - Maven artifact org.keycloak:keycloak-authz-client Java policy enforcer - Maven artifact org.keycloak:keycloak-policy-enforcer Java common classes used by other client libraries above - Maven artifa…"
 ---
 
 # Chapter 21. Upgrading the Red Hat build of Keycloak Client Libraries - Red Hat build of Keycloak 26.6 Securing Applications and Services Guide

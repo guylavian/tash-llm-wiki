@@ -8,6 +8,7 @@ source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.3/html
 version: 7.3
 family: rhsso
 documentKind: "Documentation"
+abstract: "2.1. Comparison: Red Hat Single Sign-On for OpenShift Image and Red Hat Single Sign-On The Red Hat Single Sign-On for OpenShift image version number 7.3.8.GA is based on Red Hat Single Sign-On 7.3.8.GA. There are some differences in functionality between the Red Hat Single Sign-On for OpenShift image and Red Hat Single Sign-On: The Red Hat Single Sign-On for OpenShift image includes all of the fun…"
 ---
 
 # Chapter 2. Before You Begin - Red Hat Single Sign-On 7.3 Red Hat Single Sign-On for OpenShift

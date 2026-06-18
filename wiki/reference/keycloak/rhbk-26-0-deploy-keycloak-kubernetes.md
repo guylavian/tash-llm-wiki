@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "This guide describes advanced Red Hat build of Keycloak configurations for Kubernetes which are load tested and will recover from single Pod failures. These instructions are intended for use with the setup described in the Concepts for multi-site deployments chapter. Use it together with the other building blocks outlined in the Building blocks multi-site deployments chapter. 10.1. Prerequisites O…"
 ---
 
 # Chapter 10. Deploy Red Hat build of Keycloak for HA with the Red Hat build of Keycloak Operator - Red Hat build of Keycloak 26.0 High Availability Guide

@@ -9,6 +9,7 @@ guide: getting_started_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "Now that you have an admin account, a realm, and a user, you can use Red Hat Single Sign-On to secure a sample JBoss EAP servlet application. You install a JBoss EAP client adapter, register the application in the admin console, modify the JBoss EAP instance to work with Red Hat Single Sign-On, and use Red Hat Single Sign-On with some sample code to secure the application. Prerequisites You need t…"
 ---
 
 # Chapter 3. Securing a sample application - Red Hat Single Sign-On 7.6 Getting Started Guide

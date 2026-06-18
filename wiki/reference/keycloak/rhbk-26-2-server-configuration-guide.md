@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "This guide consists of information for administrators to configure Red Hat build of Keycloak 26.2. Red Hat build of Keycloak 26.2 Red Hat Customer Content Services Legal Notice Abstract This guide consists of information for administrators to configure Red Hat build of Keycloak 26.2. Chapter 1. Configuring Red Hat build of Keycloak Configure and start Red Hat build of Keycloak. This chapter explai…"
 ---
 
 # Server Configuration Guide - Red Hat build of Keycloak 26.2 Server Configuration Guide

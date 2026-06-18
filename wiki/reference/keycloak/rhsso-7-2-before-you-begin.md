@@ -8,6 +8,7 @@ source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.2/html
 version: 7.2
 family: rhsso
 documentKind: "Documentation"
+abstract: "2.1. Comparison: RH-SSO for OpenShift Image and Red Hat Single Sign-On The RH-SSO for OpenShift image version number 7.2 is based on Red Hat Single Sign-On 7.2. There are some differences in functionality between the RH-SSO for OpenShift image and Red Hat Single Sign-On: The RH-SSO for OpenShift image includes all of the functionality of Red Hat Single Sign-On. In addition, the RH-SSO-enabled JBos…"
 ---
 
 # Chapter 2. Before You Begin - Red Hat Single Sign-On 7.2 Red Hat Single Sign-On for OpenShift

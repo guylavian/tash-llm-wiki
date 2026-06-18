@@ -8,6 +8,7 @@ source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.2/html
 version: 7.2
 family: rhsso
 documentKind: "Documentation"
+abstract: "5.1. Example Workflow: Creating OpenShift Application from Existing Maven Binaries and Securing it Using Red Hat Single Sing-On To deploy existing applications on OpenShift, you can use the binary source capability. 5.1.1. Deploy Binary Build of EAP 6.4 / 7.0 JSP Service Invocation Application and Secure it Using Red Hat Single Sign-On The following example uses both app-jee-jsp and service-jee-ja…"
 ---
 
 # Chapter 5. Tutorials - Red Hat Single Sign-On 7.2 Red Hat Single Sign-On for OpenShift

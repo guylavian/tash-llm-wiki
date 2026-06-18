@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak uses the JBoss Logging framework. The following is a high-level overview for the available log handlers with the common parent log handler root: console file syslog 16.1. Logging configuration Logging is done on a per-category basis in Red Hat build of Keycloak. You can configure logging for the root log level or for more specific categories such as org.hibernate or org.k…"
 ---
 
 # Chapter 16. Configuring logging - Red Hat build of Keycloak 26.0 Server Configuration Guide

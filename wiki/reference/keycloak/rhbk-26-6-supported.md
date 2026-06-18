@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "For the supported configurations for Red Hat build of Keycloak 26.6, see Supported configurations."
 ---
 
 # Chapter 8. Supported configurations - Red Hat build of Keycloak 26.6 Release Notes

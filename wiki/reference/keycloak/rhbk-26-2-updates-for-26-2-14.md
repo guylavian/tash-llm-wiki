@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues and changes related to upgrading. For details, see the Upgrading Guide. 4.1. CVE fixes CVE-2026-3047 A SAML client marked Disabled in the broker realm still completes IdP-initiated broker login and creates a realm SSO session. CVE-2026-3009 Improper Authorization vulnerability. The flaw occurs because the broker login endpoint does not re-validate the ena…"
 ---
 
 # Chapter 4. Updates for 26.2.14 - Red Hat build of Keycloak 26.2 Release Notes

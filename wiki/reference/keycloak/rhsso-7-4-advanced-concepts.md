@@ -8,6 +8,7 @@ source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.4/html
 version: 7.4
 family: rhsso
 documentKind: "Documentation"
+abstract: "These cover additional configuration topics, such as seting up keystores and a truststore for the Red Hat Single Sign-On server, creating an administrator account, an overview of available Red Hat Single Sign-On client registration methods, and guidance on configuring clustering. 4.1. Requirements and Deploying Passthrough TLS Termination Red Hat Single Sign-On Templates 4.1.1. Preparing the Deplo…"
 ---
 
 # Chapter 4. Advanced Concepts - Red Hat Single Sign-On 7.4 Red Hat Single Sign-On for OpenShift on OpenJDK

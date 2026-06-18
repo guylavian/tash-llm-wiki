@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "The Client Registration CLI is a command-line interface (CLI) tool for application developers to configure new clients in a self-service manner when integrating with Red Hat build of Keycloak. It is specifically designed to interact with Red Hat build of Keycloak Client Registration REST endpoints. It is necessary to create or obtain a client configuration for any application to be able to use Red…"
 ---
 
 # Chapter 11. Client registration CLI - Red Hat build of Keycloak 26.0 Securing Applications and Services Guide

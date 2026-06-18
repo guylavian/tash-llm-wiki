@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "This chapter describes the procedures required to deploy Data Grid in a multiple-cluster environment (cross-site). For simplicity, this topic uses the minimum configuration possible that allows Red Hat build of Keycloak to be used with an external Data Grid. This chapter assumes two OpenShift clusters named Site-A and Site-B. This is a building block following the concepts described in the Concept…"
 ---
 
 # Chapter 9. Deploy Data Grid for HA with the Data Grid Operator - Red Hat build of Keycloak 26.0 High Availability Guide

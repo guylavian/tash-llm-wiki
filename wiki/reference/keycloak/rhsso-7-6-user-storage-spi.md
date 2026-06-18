@@ -9,6 +9,7 @@ guide: server_developer_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "You can use the User Storage SPI to write extensions to Red Hat Single Sign-On to connect to external user databases and credential stores. The built-in LDAP and ActiveDirectory support is an implementation of this SPI in action. Out of the box, Red Hat Single Sign-On uses its local database to create, update, and look up users and validate credentials. Often though, organizations have existing ex…"
 ---
 
 # Chapter 7. User Storage SPI - Red Hat Single Sign-On 7.6 Server Developer Guide

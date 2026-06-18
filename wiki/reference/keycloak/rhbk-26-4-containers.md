@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Run Red Hat build of Keycloak from a container image. This chapter describes how to optimize and run the Red Hat build of Keycloak container image to provide the best experience running a container. Warning This chapter applies only for building an image that you run in a OpenShift environment. Only an OpenShift environment is supported for this image. It is not supported if you run it in other Ku…"
 ---
 
 # Chapter 5. Running Red Hat build of Keycloak in a container - Red Hat build of Keycloak 26.4 Server Configuration Guide

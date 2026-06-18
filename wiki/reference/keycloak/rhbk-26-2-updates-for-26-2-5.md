@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues."
 ---
 
 # Chapter 13. Updates for 26.2.5 - Red Hat build of Keycloak 26.2 Release Notes

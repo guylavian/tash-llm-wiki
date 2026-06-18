@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "In this chapter, you are going to understand the different approaches for importing and exporting realms using JSON files. Note Exporting and importing into single files can produce large files, so if your database contains more than 500 users, export to a directory and not a single file. Using a directory performs better as the directory provider uses a separate transaction for each \"page\" (a fil…"
 ---
 
 # Chapter 22. Importing and Exporting Realms - Red Hat build of Keycloak 26.0 Server Configuration Guide

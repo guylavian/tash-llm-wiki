@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "An Identity Broker is an intermediary service connecting service providers with identity providers. The identity broker creates a relationship with an external identity provider to use the provider’s identities to access the internal services the service provider exposes. From a user perspective, identity brokers provide a user-centric, centralized way to manage identities for security domains and…"
 ---
 
 # Chapter 9. Integrating identity providers - Red Hat build of Keycloak 26.4 Server Administration Guide

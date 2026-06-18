@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This guide helps you practice using Red Hat build of Keycloak 26.6 to evaluate it before you use it in a production environment. It includes instructions for installing and running the Red Hat build of Keycloak server in development mode, creating realms and accounts for managing users and applications, and securing a Single Page Application (SPA) Red Hat build of Keycloak 26.6 Red Hat Customer Co…"
 ---
 
 # Getting Started Guide - Red Hat build of Keycloak 26.6 Getting Started Guide

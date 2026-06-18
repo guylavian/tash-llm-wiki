@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "This guide consists of information for administrators to configure Red Hat build of Keycloak 26.0. Red Hat build of Keycloak 26.0 Red Hat Customer Content Services Legal Notice Abstract This guide consists of information for administrators to configure Red Hat build of Keycloak 26.0. Chapter 1. Red Hat build of Keycloak features and concepts Red Hat build of Keycloak is a single sign on solution f…"
 ---
 
 # Server Administration Guide - Red Hat build of Keycloak 26.0 Server Administration Guide

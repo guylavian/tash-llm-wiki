@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Import and export realms as JSON files. In this chapter, you are going to understand the different approaches for importing and exporting realms using JSON files. 19.1. Import / Export Commands Note Exporting and importing into single files can produce large files which may run the export / import process out of memory. If your database contains more than 50,000 users, export to a directory and no…"
 ---
 
 # Chapter 19. Importing and exporting realms - Red Hat build of Keycloak 26.4 Server Configuration Guide

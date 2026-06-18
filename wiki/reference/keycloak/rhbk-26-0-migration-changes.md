@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "2.1. Server configuration changes 2.1.1. New Hostname options Hostname v2 options are supported by default, as the old hostname options were removed. List of necessary migrations: Old options New options hostname hostname-url hostname-path hostname-port hostname hostname-admin hostname-admin-url hostname-admin hostname-strict-backchannel hostname-backchannel-dynamic As you can see, the *-url suffi…"
 ---
 
 # Chapter 2. Release-specific changes - Red Hat build of Keycloak 26.0 Upgrading Guide

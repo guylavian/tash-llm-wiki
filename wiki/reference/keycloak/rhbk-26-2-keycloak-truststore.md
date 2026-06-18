@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Configure the Red Hat build of Keycloak Truststore to communicate through TLS. When Red Hat build of Keycloak communicates with external services or has an incoming connection through TLS, it has to validate the remote certificate in order to ensure it is connecting to a trusted server. This is necessary in order to prevent man-in-the-middle attacks. The certificates of these clients or servers, o…"
 ---
 
 # Chapter 12. Configuring trusted certificates - Red Hat build of Keycloak 26.2 Server Configuration Guide

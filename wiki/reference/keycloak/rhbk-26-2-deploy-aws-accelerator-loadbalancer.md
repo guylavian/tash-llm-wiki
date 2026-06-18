@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Deploy an AWS Global Accelerator as the load-balancer building block in a multi-site deployment. This topic describes the procedure required to deploy an AWS Global Accelerator to route traffic between multi-site Red Hat build of Keycloak deployments. This deployment is intended to be used with the setup described in the Concepts for multi-site deployments chapter. Use this deployment with the oth…"
 ---
 
 # Chapter 11. Deploying an AWS Global Accelerator load balancer - Red Hat build of Keycloak 26.2 High Availability Guide

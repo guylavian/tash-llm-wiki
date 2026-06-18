@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Bring a site online so that it can process client requests. 14.1. When to use this procedure This procedure describes how to re-add a Keycloak site to the Global Accelerator, after it has previously been taken offline, so that it can once again service client requests. 14.2. Procedure Follow these steps to re-add a Keycloak site to the AWS Global Accelerator so that it can handle client requests. …"
 ---
 
 # Chapter 14. Bringing a site online - Red Hat build of Keycloak 26.2 High Availability Guide

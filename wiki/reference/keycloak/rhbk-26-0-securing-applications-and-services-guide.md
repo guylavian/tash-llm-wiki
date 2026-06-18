@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "This guide consists of information for securing applications and services using Red Hat build of Keycloak 26.0. Red Hat build of Keycloak 26.0 Red Hat Customer Content Services Legal Notice Abstract This guide consists of information for securing applications and services using Red Hat build of Keycloak 26.0. Chapter 1. Planning for securing applications and services As an OAuth2, OpenID Connect, …"
 ---
 
 # Securing Applications and Services Guide - Red Hat build of Keycloak 26.0 Securing Applications and Services Guide

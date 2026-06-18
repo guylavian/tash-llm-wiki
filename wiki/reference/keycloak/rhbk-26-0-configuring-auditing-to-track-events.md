@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak includes a suite of auditing capabilities. You can record every login and administrator action and review those actions in the Admin Console. Red Hat build of Keycloak also includes a Listener SPI that listens for events and can trigger actions. Examples of built-in listeners include log files and sending emails if an event occurs. 15.1. Auditing user events You can recor…"
 ---
 
 # Chapter 15. Configuring auditing to track events - Red Hat build of Keycloak 26.0 Server Administration Guide

@@ -173,7 +173,7 @@ RH-SSO (kb:3419601, heap via `standalone.conf`).
 - [[doc-7138771|Unable to access Keycloak Admin WebUI after enabling Client Authentication on security-admin-console]]
 - [[doc-7135122|Red Hat build of Keycloak fails to start in FIPS mode with \"UnsatisfiedLinkError\" due to incompatible Bouncy Castle libraries]]
 - [[doc-7135124|Admin login fails with \"Invalid credentials\" after enabling FIPS mode due to Argon2 password hashing]]
-- [[doc-7128352|[RHBK] Getting \"dns_query can not be null or empty\" when creating a temporary admin user]]
+- [[doc-7128352|RHBK Getting \"dns_query can not be null or empty\" when creating a temporary admin user]]
 - [[doc-7073090|When starting the Red Hat build of Keycloak (RHBK) Operator, \"Failure in creating proxy URL. Proxy port is required!\" is returned]]
 - [[doc-7126933|Configuring Keycloak with Separate Hostname URLs for SSO and Admin Console]]
 - [[doc-7128299|Intermittent Loss of Active Directory Identity Provider Link in RHBK]]

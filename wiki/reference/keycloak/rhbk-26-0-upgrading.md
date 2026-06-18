@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "The client libraries are those artifacts: Java admin client - Maven artifact org.keycloak:keycloak-admin-client Java authorization client - Maven artifact org.keycloak:keycloak-authz-client Java policy enforcer - Maven artifact org.keycloak:keycloak-policy-enforcer Java common classes used by other client libraries above - Maven artifact org.keycloak:keycloak-client-common-synced The client librar…"
 ---
 
 # Chapter 16. Upgrading the Red Hat build of Keycloak Client Libraries - Red Hat build of Keycloak 26.0 Securing Applications and Services Guide

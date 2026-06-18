@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "The following building blocks are needed to set up a multi-site deployment with synchronous replication. The building blocks link to a blueprint with an example configuration. They are listed in the order in which they need to be installed. Note We provide these blueprints to show a minimal functionally complete example with a good baseline performance for regular installations. You would still ne…"
 ---
 
 # Chapter 3. Building blocks multi-site deployments - Red Hat build of Keycloak 26.0 High Availability Guide

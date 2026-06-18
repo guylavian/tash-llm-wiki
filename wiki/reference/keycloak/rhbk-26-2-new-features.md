@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "The following release notes apply to Red Hat build of Keycloak 26.2. This release includes several key features such as new support for fine-grained admin permissions and token exchange, rolling update, and many other features and improvements. 14.1. Fine-grained admin permissions This release introduces support for a new version of Fine-Grained Admin Permissions. Version 2 (V2) provides enhanced …"
 ---
 
 # Chapter 14. New features and enhancements - Red Hat build of Keycloak 26.2 Release Notes

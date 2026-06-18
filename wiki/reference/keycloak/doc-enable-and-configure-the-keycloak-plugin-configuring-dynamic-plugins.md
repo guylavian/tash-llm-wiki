@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_developer_hub/1.9/html/configuring_dynamic_plugins/enable-and-configure-the-keycloak-plugin_configuring-dynamic-plugins
 guide: configuring_dynamic_plugins
 documentKind: "Documentation"
+abstract: "Integrate Keycloak into Red Hat Developer Hub to synchronize users and groups from your Red Hat Build of Keycloak (RHBK) realm. The supported RHBK version is 26.0. 4.1. Enable the Keycloak plugin Enable the Keycloak plugin to synchronize users and groups from your Red Hat Build of Keycloak realm into Red Hat Developer Hub. Prerequisites To enable the Keycloak plugin, you must set the following env…"
 ---
 
 # Chapter 4. Enable and configure the Keycloak plugin - Red Hat Developer Hub 1.9 Configuring dynamic plugins

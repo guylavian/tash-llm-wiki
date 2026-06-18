@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "Review these changes carefully before upgrading. 2.1. RH SSO 7.6.12 2.1.1. Upgraded Operator In this patch release, the Red Hat Single Sign-On Operator internals were upgraded to the latest version of the Operator SDK. This upgrade allows the Operator to benefit from the latest security fixes and improvements. While this is a major upgrade requiring significant changes in the Operator code, the su…"
 ---
 
 # Chapter 2. Release-specific changes - Red Hat Single Sign-On 7.6 Upgrading Guide

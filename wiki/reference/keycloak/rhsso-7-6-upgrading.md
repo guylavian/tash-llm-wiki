@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "The upgrade or migration process for the Red Hat Single Sign-On server depends on the previous version of the software. If you are upgrading to a new minor release, for example from 7.5.x to 7.6, follow the steps in Minor Upgrades. If you are migrating from Keycloak 18.0.0, follow the steps in Minor Upgrades. If you are upgrading to a new micro release, for example from 7.5.2 to 7.5.3, follow the …"
 ---
 
 # Chapter 3. Upgrading the Red Hat Single Sign-On server - Red Hat Single Sign-On 7.6 Upgrading Guide

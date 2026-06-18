@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "The purpose of this guide is to document the steps that are required to successfully migrate Red Hat Single Sign-On 7.6 to Red Hat build of Keycloak 26.6. The instructions address migration of the following elements: Red Hat Single Sign-On 7.6 server Operator deployments on OpenShift Template deployments on OpenShift Applications secured by Red Hat Single Sign-On 7.6 Custom providers Custom themes…"
 ---
 
 # Chapter 1. Migrating Red Hat Single Sign-On 7.6 to Red Hat build of Keycloak - Red Hat build of Keycloak 26.6 Migration Guide

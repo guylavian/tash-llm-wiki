@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "The management interface allows accessing management endpoints via a different HTTP server than the primary one. It provides the possibility to hide endpoints like /metrics or /health from the outside world and, therefore, hardens the security. The most significant advantage might be seen in Kubernetes environments as the specific management port might not be exposed. 18.1. Management interface co…"
 ---
 
 # Chapter 18. Configuring the Management Interface - Red Hat build of Keycloak 26.0 Server Configuration Guide

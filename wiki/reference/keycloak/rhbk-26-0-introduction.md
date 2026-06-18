@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak supports deployments that consist of multiple Red Hat build of Keycloak instances that connect to each other using its Infinispan caches; load balancers can distribute the load evenly across those instances. Those setups are intended for a transparent network on a single site. The Red Hat build of Keycloak high-availability guide goes one step further to describe setups a…"
 ---
 
 # Chapter 1. Multi-site deployments - Red Hat build of Keycloak 26.0 High Availability Guide

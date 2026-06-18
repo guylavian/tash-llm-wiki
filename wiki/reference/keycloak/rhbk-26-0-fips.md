@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "The Federal Information Processing Standard Publication 140-2, (FIPS 140-2), is a U.S. government computer security standard used to approve cryptographic modules. Red Hat build of Keycloak supports running in FIPS 140-2 compliant mode. In this case, Red Hat build of Keycloak will use only FIPS approved cryptography algorithms for its functionality. To run in FIPS 140-2, Red Hat build of Keycloak …"
 ---
 
 # Chapter 17. FIPS 140-2 support - Red Hat build of Keycloak 26.0 Server Configuration Guide

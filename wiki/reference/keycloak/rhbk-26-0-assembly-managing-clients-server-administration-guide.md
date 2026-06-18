@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Clients are entities that can request authentication of a user. Clients come in two forms. The first type of client is an application that wants to participate in single sign-on. These clients just want Red Hat build of Keycloak to provide security for them. The other type of client is one that is requesting an access token so that it can invoke other services on behalf of the authenticated user. …"
 ---
 
 # Chapter 13. Managing OpenID Connect and SAML Clients - Red Hat build of Keycloak 26.0 Server Administration Guide

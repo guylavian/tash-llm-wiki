@@ -184,7 +184,8 @@ def update_global_index(pages, meta, write):
 
 
 def _short(t):
-    return (t or "").split(" - ")[0].strip()
+    # strip chars that would break a [[slug|alias]] (titles like "[RHBK] ..." contain ])
+    return re.sub(r"[\[\]|#]", "", (t or "").split(" - ")[0]).strip()
 
 
 def _safe(s):

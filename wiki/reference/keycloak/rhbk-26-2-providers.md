@@ -9,6 +9,7 @@ guide: server_developer_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak is designed to cover most use-cases without requiring custom code, but we also want it to be customizable. To achieve this Red Hat build of Keycloak has a number of Service Provider Interfaces (SPI) for which you can implement your own providers. 6.1. Implementing an SPI To implement an SPI you need to implement its ProviderFactory and Provider interfaces. You also need t…"
 ---
 
 # Chapter 6. Service Provider Interfaces (SPI) - Red Hat build of Keycloak 26.2 Server Developer Guide

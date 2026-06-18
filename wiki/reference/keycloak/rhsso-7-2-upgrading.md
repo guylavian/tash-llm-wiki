@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 7.2
 family: rhsso
 documentKind: "Documentation"
+abstract: "The upgrade process for the Red Hat Single Sign-On server is different if you are upgrading to a different minor release or not. If you are upgrading to a new minor release, for example from 7.0.0 to 7.1.0, follow the steps in Minor Upgrades. If you are upgrading to a new micro release, for example from 7.1.0 to 7.1.1, follow the steps in Micro Upgrades. 3.1. Minor Upgrades 3.1.1. Preparing for Up…"
 ---
 
 # Chapter 3. Upgrading Red Hat Single Sign-On Server - Red Hat Single Sign-On 7.2 Upgrading Guide

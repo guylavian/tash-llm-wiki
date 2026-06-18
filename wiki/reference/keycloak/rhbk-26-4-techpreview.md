@@ -9,6 +9,7 @@ guide: release_notes
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "The following new features are in a Technology Preview status: 13.1. Federated client authentication and SPIFFE trust relationship provider Identity providers are now able to federate client authentication. This allows clients to authenticate with SPIFFE JWT SVIDs, Kubernetes service accounts, or tokens issued by a OpenID Connect identity provider. 13.2. Rolling updates for patch releases for mini…"
 ---
 
 # Chapter 13. Technology preview features - Red Hat build of Keycloak 26.4 Release Notes

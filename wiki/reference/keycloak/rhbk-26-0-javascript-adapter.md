@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak comes with a client-side JavaScript library called keycloak-js that can be used to secure web applications. The adapter also comes with built-in support for Cordova applications. The adapter uses OpenID Connect protocol under the covers. You can take a look at the Secure applications and services with OpenID Connect chapter for the more generic information about OpenID Co…"
 ---
 
 # Chapter 3. Red Hat build of Keycloak JavaScript adapter - Red Hat build of Keycloak 26.0 Securing Applications and Services Guide

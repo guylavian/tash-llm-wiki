@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "As mentioned previously, policies define the conditions that must be satisfied before granting access to an object. Procedure Click the Policy tab to view all policies associated with a resource server. Policies On this tab, you can view the list of previously created policies as well as create and edit a policy. To create a new policy, click Create policy, then select a policy type from the list.…"
 ---
 
 # Chapter 5. Managing policies - Red Hat build of Keycloak 26.4 Authorization Services Guide

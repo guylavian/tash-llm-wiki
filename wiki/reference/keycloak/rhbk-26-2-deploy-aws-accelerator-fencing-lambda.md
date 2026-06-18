@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Deploy an AWS Lambda as part of the load-balancer building block in a multi-site deployment. This chapter explains how to resolve split-brain scenarios between two sites in a multi-site deployment. It also disables replication if one site fails, so the other site can continue to serve requests. This deployment is intended to be used with the setup described in the Concepts for multi-site deploymen…"
 ---
 
 # Chapter 12. Deploying an AWS Lambda to disable a non-responding site - Red Hat build of Keycloak 26.2 High Availability Guide

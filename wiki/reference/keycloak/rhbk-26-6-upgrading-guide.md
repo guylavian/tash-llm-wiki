@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This book is a guide to upgrading Red Hat build of Keycloak from 26.4.x to 26.6. Red Hat build of Keycloak 26.6 Red Hat Customer Content Services Legal Notice Abstract This book is a guide to upgrading Red Hat build of Keycloak from 26.4.x to 26.6. Chapter 1. Upgrading Red Hat build of Keycloak This guide describes how to upgrade Red Hat build of Keycloak from version 26.4.x to version 26.6. Use t…"
 ---
 
 # Upgrading Guide - Red Hat build of Keycloak 26.6 Upgrading Guide

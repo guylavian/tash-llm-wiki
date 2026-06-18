@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "This section is intended when you want to understand considerations and best practices on how to configure database connection pools for Red Hat build of Keycloak. For a configuration where this is applied, visit Deploy Red Hat build of Keycloak for HA with the Red Hat build of Keycloak Operator. 4.1. Concepts Creating new database connections is expensive as it takes time. Creating them when a re…"
 ---
 
 # Chapter 4. Concepts for database connection pools - Red Hat build of Keycloak 26.0 High Availability Guide

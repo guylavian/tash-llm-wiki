@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "Deploy a single Keycloak cluster, optionally across multiple availability-zones. 2.1. When to use a single-cluster setup The Red Hat build of Keycloak single-cluster setup is targeted at use cases that: Deploy to an infrastructure with transparent networking, like for example a single OpenShift cluster. Desire all healthy Red Hat build of Keycloak instances to handle user requests. Are constrained…"
 ---
 
 # Chapter 2. Single-cluster deployments - Red Hat build of Keycloak 26.4 High Availability Guide

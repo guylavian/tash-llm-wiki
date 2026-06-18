@@ -9,6 +9,7 @@ guide: api_documentation
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "1.1. JavaDocs Documentation JavaDocs Documentation 1.2. Admin REST API Documentation Administration REST API"
 ---
 
 # Chapter 1. Red Hat build of Keycloak API Documentation - Red Hat build of Keycloak 26.2 API Documentation

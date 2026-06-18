@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "This guide consists of information for authorization services for Red Hat build of Keycloak 26.2. Red Hat build of Keycloak 26.2 Red Hat Customer Content Services Legal Notice Abstract This guide consists of information for authorization services for Red Hat build of Keycloak 26.2. Chapter 1. Authorization services overview Red Hat build of Keycloak supports fine-grained authorization policies and…"
 ---
 
 # Authorization Services Guide - Red Hat build of Keycloak 26.2 Authorization Services Guide

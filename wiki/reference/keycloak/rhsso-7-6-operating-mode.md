@@ -9,6 +9,7 @@ guide: server_installation_and_configuration_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "Before deploying Red Hat Single Sign-On in a production environment you need to decide which type of operating mode you are going to use. Will you run Red Hat Single Sign-On within a cluster? Do you want a centralized way to manage your server configurations? Your choice of operating mode affects how you configure databases, configure caching and even how you boot the server. Tip The Red Hat Singl…"
 ---
 
 # Chapter 3. Using operating modes - Red Hat Single Sign-On 7.6 Server Installation and Configuration Guide

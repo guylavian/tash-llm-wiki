@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 7.2
 family: rhsso
 documentKind: "Documentation"
+abstract: "Note Authorization Services is Technology Preview and is not fully supported. This feature is disabled by default. To enable start the server with -Dkeycloak.profile=preview. For more details see Profiles. Warning In future releases we will update our User-Managed Access(UMA) implementation to conform to the latest version of the UMA specification, version 2.0. Due to differences between versions …"
 ---
 
 # Chapter 1. Overview - Red Hat Single Sign-On 7.2 Authorization Services Guide

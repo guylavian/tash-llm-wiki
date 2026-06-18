@@ -115,7 +115,8 @@ def resolve(token, domain, idx):
 
 
 def short_title(t):
-    return t.split(" - ")[0].strip()
+    # strip chars that would break a [[slug|alias]] (titles like "[RHBK] ..." contain ])
+    return re.sub(r"[\[\]|#]", "", (t or "").split(" - ")[0]).strip()
 
 
 def build_section(links):

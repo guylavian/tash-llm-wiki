@@ -10,6 +10,7 @@ version: 26.0
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "1.1. Overview Red Hat build of Keycloak is based on the Keycloak project, which enables you to secure your web applications by providing Web SSO capabilities based on popular standards such as OpenID Connect, OAuth 2.0, and SAML 2.0. The Red Hat build of Keycloak server acts as an OpenID Connect or SAML-based identity provider (IdP), allowing your enterprise user directory or third-party IdP to se…"
 ---
 
 # Chapter 1. Red Hat build of Keycloak 26.0 - Red Hat build of Keycloak 26.0 Release Notes

@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Execute the update compatibility command to check if Red Hat build of Keycloak supports a rolling update for a change in your deployment. Use the update compatibility command to determine if you can update your deployment with a rolling update strategy when enabling or disabling features or changing the Red Hat build of Keycloak version, configurations or providers and themes. The outcome shows wh…"
 ---
 
 # Chapter 23. Checking if rolling updates are possible - Red Hat build of Keycloak 26.4 Server Configuration Guide

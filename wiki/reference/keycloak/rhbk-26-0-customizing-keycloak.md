@@ -9,6 +9,7 @@ guide: operator_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "5.1. Red Hat build of Keycloak custom image with the Operator With the Keycloak Custom Resource (CR), you can specify a custom container image for the Red Hat build of Keycloak server. Note To ensure full compatibility of Operator and Operand, make sure that the version of Red Hat build of Keycloak release used in the custom image is aligned with the version of the operator. 5.1.1. Best practice W…"
 ---
 
 # Chapter 5. Using custom Red Hat build of Keycloak images - Red Hat build of Keycloak 26.0 Operator Guide

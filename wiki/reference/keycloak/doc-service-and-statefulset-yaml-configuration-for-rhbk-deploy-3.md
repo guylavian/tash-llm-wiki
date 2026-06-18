@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_trusted_artifact_signer/1.2/html/deployment_guide/service-and-statefulset-yaml-configuration-for-rhbk_deploy
 guide: deployment_guide
 documentKind: "Documentation"
+abstract: "The Service and StatefulSet YAML resource configuration used when configuring Red Hat’s build of Keycloak (RHBK) for Red Hat’s Trusted Artifact Signer (RHTAS) service. apiVersion: v1 kind: Service metadata: name: postgresql-db namespace: keycloak-system spec: internalTrafficPolicy: Cluster ipFamilies: - IPv4 ipFamilyPolicy: SingleStack ports: - port: 5432 selector: app: postgresql-db apiVersion: a…"
 ---
 
 # Appendix A. Service and StatefulSet YAML configuration for Red Hat build of Keycloak - Red Hat Trusted Artifact Signer 1.2 Deployment Guide

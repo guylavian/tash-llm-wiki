@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Red Hat build of Keycloak currently provides two out-of-the-box implementations of the Vault SPI: a plain-text file-based vault and Java KeyStore-based vault. To obtain a secret from a vault rather than entering it directly, enter the following specially crafted string into the appropriate field: ${vault.key} where the key is the name of the secret recognized by the vault. To prevent secrets from …"
 ---
 
 # Chapter 14. Using a vault to obtain secrets - Red Hat build of Keycloak 26.4 Server Administration Guide

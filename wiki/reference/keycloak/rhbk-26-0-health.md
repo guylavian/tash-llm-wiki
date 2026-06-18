@@ -10,6 +10,7 @@ version: 26.0
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Red Hat build of Keycloak has built in support for health checks. This chapter describes how to enable and use the Red Hat build of Keycloak health checks. The Red Hat build of Keycloak health checks are exposed on the management port 9000 by default. For more details, see Configuring the Management Interface 19.1. Red Hat build of Keycloak health check endpoints Red Hat build of Keycloak exposes …"
 ---
 
 # Chapter 19. Enabling Red Hat build of Keycloak Health checks - Red Hat build of Keycloak 26.0 Server Configuration Guide

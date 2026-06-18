@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "When interacting with an external Data Grid in Kubernetes, the Batch CR allows you to automate this using standard oc commands. 7.1. When to use it Use this when automating interactions on Kubernetes. This avoids providing usernames and passwords and checking shell script outputs and their status. For human interactions, the CLI shell might still be a better fit. 7.2. Example The following Batch C…"
 ---
 
 # Chapter 7. Concepts to automate Data Grid CLI commands - Red Hat build of Keycloak 26.0 High Availability Guide

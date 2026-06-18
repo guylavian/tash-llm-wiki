@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 7.3
 family: rhsso
 documentKind: "Documentation"
+abstract: "Red Hat Single Sign-On Authorization Services are built on top of well-known standards such as the OAuth2 and User-Managed Access specifications. OAuth2 clients (such as front end applications) can obtain access tokens from the server using the token endpoint and use these same tokens to access resources protected by a resource server (such as back end services). In the same way, Red Hat Single Si…"
 ---
 
 # Chapter 8. Authorization Services - Red Hat Single Sign-On 7.3 Authorization Services Guide

@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Note Token Exchange is Preview and is not fully supported. This feature is disabled by default. To enable start the server with --features=preview or --features=token-exchange Token Exchange is Technology Preview and is not fully supported. Note To use more than the Internal Token to Internal Token Exchange flow, also enable the admin-fine-grained-authz feature. For details, see the Enabling and d…"
 ---
 
 # Chapter 12. Using token exchange - Red Hat build of Keycloak 26.0 Securing Applications and Services Guide

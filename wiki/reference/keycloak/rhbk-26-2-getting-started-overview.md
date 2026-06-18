@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "For certain applications, you can look at the following resources to quickly get started with Red Hat build of Keycloak Authorization Services: Securing a JakartaEE Application in Wildfly Securing a Spring Boot Application Securing Quarkus Applications Keycloak Node.js adapter"
 ---
 
 # Chapter 2. Getting Started - Red Hat build of Keycloak 26.2 Authorization Services Guide

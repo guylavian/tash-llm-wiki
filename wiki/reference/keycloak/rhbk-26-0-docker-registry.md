@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Note Docker authentication is disabled by default. To enable see the Enabling and disabling features chapter. This section describes how you can configure a Docker registry to use Red Hat build of Keycloak as its authentication server. For more information on how to set up and configure a Docker registry, see the Docker Registry Configuration Guide. 9.1. Docker registry configuration file installa…"
 ---
 
 # Chapter 9. Docker registry - Red Hat build of Keycloak 26.0 Securing Applications and Services Guide

@@ -94,6 +94,9 @@ def render_note(domain, r, slug):
             fm.append(f"{k}: {yaml_q(r[k])}" if k == "documentKind" else f"{k}: {r[k]}")
     if r.get("primary"):
         fm.append("primary: true")
+    ab = re.sub(r"\s+", " ", (r.get("abstract") or "")).strip()
+    if ab:
+        fm.append(f"abstract: {yaml_q(ab)}")  # restores kb.py's abstract ranking signal
     fm.append("---")
     body = body_text(domain, r).strip()
     title = r.get("title") or slug

@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Once you have an administrative account for the Admin Console, you can configure realms. A realm is a space where you manage objects, including users, applications, roles, and groups. A user belongs to and logs into a realm. One Red Hat build of Keycloak deployment can define, store, and manage as many realms as there is space for in the database. 3.1. Using the Admin Console You configure realms …"
 ---
 
 # Chapter 3. Configuring realms - Red Hat build of Keycloak 26.4 Server Administration Guide

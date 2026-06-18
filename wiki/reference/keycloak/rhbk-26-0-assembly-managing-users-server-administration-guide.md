@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "From the Admin Console, you have a wide range of actions you can perform to manage users. 5.1. Creating users You create users in the realm where you intend to have applications needed by those users. Avoid creating users in the master realm, which is only intended for creating other realms. Prerequisite You are in a realm other than the master realm. Procedure Click Users in the menu. Click Add U…"
 ---
 
 # Chapter 5. Managing users - Red Hat build of Keycloak 26.0 Server Administration Guide

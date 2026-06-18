@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Configure the client used for outgoing HTTP requests. Red Hat build of Keycloak often needs to make requests to the applications and services that it secures. Red Hat build of Keycloak manages these outgoing connections using an HTTP client. This chapter shows how to configure the client, connection pool, proxy environment settings, timeouts, and more. 11.1. Configuring trusted certificates for TL…"
 ---
 
 # Chapter 11. Configuring outgoing HTTP requests - Red Hat build of Keycloak 26.2 Server Configuration Guide

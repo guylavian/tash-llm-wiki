@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "According to the OAuth2 specification, a resource server is a server hosting the protected resources and capable of accepting and responding to protected resource requests. In Red Hat build of Keycloak, resource servers are provided with a rich platform for enabling fine-grained authorization for their protected resources, where authorization decisions can be made based on different access control…"
 ---
 
 # Chapter 3. Managing resource servers - Red Hat build of Keycloak 26.4 Authorization Services Guide

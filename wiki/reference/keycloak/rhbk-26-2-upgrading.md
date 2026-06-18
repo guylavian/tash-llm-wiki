@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "You upgrade the server before you upgrade the adapters. 3.1. Preparing for upgrading Perform the following steps before you upgrade the server. Procedure Shutdown Red Hat build of Keycloak. Back up the old installation, such as configuration, themes, and so on. If XA transaction is enabled, handle any open transactions and delete the data/transaction-logs/ transaction directory. Back up the databa…"
 ---
 
 # Chapter 3. Upgrading the Red Hat build of Keycloak server - Red Hat build of Keycloak 26.2 Upgrading Guide

@@ -122,10 +122,12 @@ resolution steps that need a Red Hat login.
   `web:<url> (label, fetched DATE)`. No uncited synthesis.
 - **Graph edges to the KB:** `sources:` tokens are provenance (plain YAML), not links,
   so they don't show in Obsidian's graph. `python3 _meta/bin/crosslink.py --apply`
-  resolves each page's `kb:` tokens to the matching `reference/<domain>/` note and
-  appends a generated **`## Sources`** section of `[[links]]` — that is what connects
-  the synthesis to the KB in the graph. Re-run after ingest; it's idempotent and never
-  touches the `sources:` block.
+  resolves each page's `kb:` tokens to the matching `reference/<domain>/` note — the
+  **primary/newest version** per token (e.g. `kb:dpop-` → the 26.6 note, not 26.4/26.2;
+  other versions stay reachable via the per-guide reference index) — and appends a
+  generated **`## Sources`** section of `[[links]]`. That is what connects the synthesis
+  to the KB in the graph. Re-run after ingest; it's idempotent and never touches the
+  `sources:` block.
 
 ### Source tiers — keep them distinct
 - **Ground-truth corpus** (`kb:` / `guide:` / `ref:`) — the offline, support-backed

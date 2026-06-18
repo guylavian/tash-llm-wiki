@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.4/html/installing_and_configuring_central_authentication_for_the_ansible_automation_platform/configuring-central-auth-generic-oidc-settings
 guide: installing_and_configuring_central_authentication_for_the_ansible_automation_platform
 documentKind: "Documentation"
+abstract: "Ansible Automation Platform Central Authentication allows for the setting of generic OIDC settings and Red Hat SSO/keycloak for Red Hat SSO and Ansible Automation Platform. 5.1. Prerequisites You are able to log in as an admin user. 5.2. Configuring Central Authentication Generic OIDC settings Procedure Log in to RH-SSO as admin. Note If you have an existing realm you may go to step 6. Add Realm. …"
 ---
 
 # Chapter 5. Configuring Ansible Automation Platform Central Authentication Generic OIDC settings and Red Hat SSO/keycloak for Red Hat SSO and Ansible Automation Platform - Red Hat Ansible Automation Platform 2.4 Installing and configuring central authentication for the Ansible Automation Platform

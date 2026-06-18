@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "Using the Red Hat build of Keycloak authz client administer and check permissions. Depending on your requirements, a resource server should be able to manage resources remotely or even check for permissions programmatically. If you are using Java, you can access the Red Hat build of Keycloak Authorization Services using the Authorization Client API. It is targeted for resource servers that want to…"
 ---
 
 # Chapter 15. Red Hat build of Keycloak authorization client - Red Hat build of Keycloak 26.4 Securing Applications and Services Guide

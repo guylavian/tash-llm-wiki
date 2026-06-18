@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This guide consists of release notes for Red Hat build of Keycloak. Red Hat build of Keycloak 26.6 Red Hat Customer Content Services Legal Notice Abstract This guide consists of release notes for Red Hat build of Keycloak. Chapter 1. Overview Red Hat build of Keycloak is based on the Keycloak project, which enables you to secure your web applications by providing Web SSO capabilities based on popu…"
 ---
 
 # Release Notes - Red Hat build of Keycloak 26.6 Release Notes

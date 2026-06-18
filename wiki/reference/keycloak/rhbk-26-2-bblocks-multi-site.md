@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Learn about building blocks and suggested setups for multi-site deployments. The following building blocks are needed to set up a multi-site deployment with synchronous replication. The building blocks link to a blueprint with an example configuration. They are listed in the order in which they need to be installed. Note We provide these blueprints to show a minimal functionally complete example w…"
 ---
 
 # Chapter 3. Building blocks multi-site deployments - Red Hat build of Keycloak 26.2 High Availability Guide

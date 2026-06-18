@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure Red Hat build of Keycloak with a reverse proxy, API gateway, or load balancer. Distributed environments frequently require the use of a reverse proxy. Red Hat build of Keycloak offers several options to securely integrate with such environments. 8.1. Port to be proxied Red Hat build of Keycloak runs on the following ports by default: 8443 (8080 when you enable HTTP explicitly by --http-e…"
 ---
 
 # Chapter 8. Configuring a reverse proxy - Red Hat build of Keycloak 26.4 Server Configuration Guide

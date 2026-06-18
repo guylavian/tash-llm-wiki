@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Deploy Data Grid for high availability in multi availability zones on Kubernetes. This chapter describes the procedures required to deploy Data Grid in a multiple-cluster environment (cross-site). For simplicity, this topic uses the minimum configuration possible that allows Red Hat build of Keycloak to be used with an external Data Grid. This chapter assumes two OpenShift clusters named Site-A an…"
 ---
 
 # Chapter 9. Deploying Data Grid for HA with the Data Grid Operator - Red Hat build of Keycloak 26.2 High Availability Guide

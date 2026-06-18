@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 7.1
 family: rhsso
 documentKind: "Documentation"
+abstract: "Before you can use this tutorial, you need to complete the installation of Red Hat Single Sign-On and create the initial admin user as shown in the Getting Started tutorial. There is one caveat to this. You have to run a separate JBoss EAP 7 instance on the same machine as Red Hat Single Sign-On Server. This separate instance will run your Java Servlet application. Because of this you will have to…"
 ---
 
 # Chapter 2. Getting Started - Red Hat Single Sign-On 7.1 Authorization Services Guide

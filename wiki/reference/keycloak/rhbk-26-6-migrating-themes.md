@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "7.1. New Admin Console The new Admin Console (keycloak.v2) is built using React. The old Admin Console (keycloak) was built with AngularJS 1.x, which reached end-of-life a while ago. Thus, there is no migration path from the old console or any theme that extends it. The base theme Admin Console is also not supported for the same reason. 7.2. New Account Console The new Account Console (keycloak.v2…"
 ---
 
 # Chapter 7. Migrating custom themes - Red Hat build of Keycloak 26.6 Migration Guide

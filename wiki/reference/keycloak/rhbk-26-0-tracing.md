@@ -10,6 +10,7 @@ version: 26.0
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Warning This chapter is describing a feature which is currently in preview. Please provide your feedback while we’re continuing to work on this. This chapter explains how you can enable and configure distributed tracing in Red Hat build of Keycloak by utilizing OpenTelemetry (OTel). Tracing allows for detailed monitoring of each request’s lifecycle, which helps quickly identify and diagnose issues…"
 ---
 
 # Chapter 21. Enabling Tracing - Red Hat build of Keycloak 26.0 Server Configuration Guide

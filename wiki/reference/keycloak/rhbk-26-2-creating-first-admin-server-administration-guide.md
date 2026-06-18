@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "After installing Red Hat build of Keycloak, you need an administrator account that can act as a super admin with full permissions to manage Red Hat build of Keycloak. With this account, you can log in to the Red Hat build of Keycloak Admin Console where you create realms and users and register applications that are secured by Red Hat build of Keycloak. 2.1. Creating the account on the local host I…"
 ---
 
 # Chapter 2. Creating the first administrator - Red Hat build of Keycloak 26.2 Server Administration Guide

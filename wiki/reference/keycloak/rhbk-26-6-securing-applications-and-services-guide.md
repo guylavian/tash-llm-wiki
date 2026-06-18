@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This guide consists of information for securing applications and services using Red Hat build of Keycloak 26.6. Red Hat build of Keycloak 26.6 Red Hat Customer Content Services Legal Notice Abstract This guide consists of information for securing applications and services using Red Hat build of Keycloak 26.6. Chapter 1. Planning for securing applications and services Understand basic concepts for …"
 ---
 
 # Securing Applications and Services Guide - Red Hat build of Keycloak 26.6 Securing Applications and Services Guide

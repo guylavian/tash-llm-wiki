@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_openstack_platform/17.1/html/integrating_openstack_identity_with_external_user_management_services/assembly_federation-using-rhosp-and-keycloak
 guide: integrating_openstack_identity_with_external_user_management_services
 documentKind: "Documentation"
+abstract: "Red Hat supports using Red Hat’s single sign-on (SSO) technology as an identity provider for Red Hat OpenStack Platform (RHOSP) so that you can use the same federated solution for SSO in RHOSP, that exists in your wider organization. 1.1. Deploying Red Hat OpenStack Platform with single sign-on Use the enable-federation-openidc.yaml environment file to deploy Red Hat OpenStack Platform (RHOSP) so …"
 ---
 
 # Chapter 1. Federation using Red Hat OpenStack Platform and single sign-on - Red Hat OpenStack Platform 17.1 Integrating OpenStack Identity with external user management services

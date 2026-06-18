@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Distributed environments frequently require the use of a reverse proxy. Red Hat build of Keycloak offers several options to securely integrate with such environments. 8.1. Configure the reverse proxy headers Red Hat build of Keycloak will parse the reverse proxy headers based on the proxy-headers option which accepts several values: By default if the option is not specified, no reverse proxy heade…"
 ---
 
 # Chapter 8. Using a reverse proxy - Red Hat build of Keycloak 26.0 Server Configuration Guide

@@ -8,6 +8,7 @@ source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.5/html
 version: 7.5
 family: rhsso
 documentKind: "Documentation"
+abstract: "5.1. Artifact repository mirrors A repository in Maven holds build artifacts and dependencies of various types (all the project jars, library jar, plugins or any other project specific artifacts). It also specifies locations from where to download artifacts from, while performing the S2I build. Besides using central repositories, it is a common practice for organizations to deploy a local custom r…"
 ---
 
 # Chapter 5. Reference - Red Hat Single Sign-On 7.5 Red Hat Single Sign-On for OpenShift

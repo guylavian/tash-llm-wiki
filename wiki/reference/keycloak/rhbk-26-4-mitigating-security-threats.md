@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Security vulnerabilities exist in any authentication server. See the Internet Engineering Task Force’s (IETF) OAuth 2.0 Threat Model and the OAuth 2.0 Security Best Current Practice for more information. 16.1. Host Red Hat build of Keycloak uses the public hostname in several ways, such as within token issuer fields and URLs in password reset emails. By default, the hostname derives from request h…"
 ---
 
 # Chapter 16. Mitigating security threats - Red Hat build of Keycloak 26.4 Server Administration Guide

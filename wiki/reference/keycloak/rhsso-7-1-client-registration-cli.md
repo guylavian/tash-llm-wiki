@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 7.1
 family: rhsso
 documentKind: "Documentation"
+abstract: "Note Client Registration CLI is a Technology Preview feature and is not fully supported. Client Registration CLI is a command line interface tool that can be used by application developers to configure new clients to integrate with Red Hat Single Sign-On. It is specifically designed to interact with Red Hat Single Sign-On Client Registration REST endpoints. It is necessary to create a new client c…"
 ---
 
 # Chapter 5. Client Registration CLI - Red Hat Single Sign-On 7.1 Securing Applications and Services Guide

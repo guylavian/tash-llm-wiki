@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Deploy an AWS Aurora as the database building block in a multi-site deployment. This topic describes how to deploy an Aurora regional deployment of a PostgreSQL instance across multiple availability zones to tolerate one or more availability zone failures in a given AWS region. This deployment is intended to be used with the setup described in the Concepts for multi-site deployments chapter. Use t…"
 ---
 
 # Chapter 8. Deploying AWS Aurora in multiple availability zones - Red Hat build of Keycloak 26.2 High Availability Guide

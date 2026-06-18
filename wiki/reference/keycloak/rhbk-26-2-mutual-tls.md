@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Configure Mutual TLS to verify clients that are connecting to Red Hat build of Keycloak. In order to properly validate client certificates and enable certain authentication methods like two-way TLS or mTLS, you can set a trust store with all the certificates (and certificate chain) the server should be trusting. There are number of capabilities that rely on this trust store to properly authenticat…"
 ---
 
 # Chapter 13. Configuring trusted certificates for mTLS - Red Hat build of Keycloak 26.2 Server Configuration Guide

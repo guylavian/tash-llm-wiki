@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "Node.js adapter to protect server-side JavaScript apps. Red Hat build of Keycloak provides a Node.js adapter built on top of Connect to protect server-side JavaScript apps - the goal was to be flexible enough to integrate with frameworks like Express.js. The adapter uses OpenID Connect protocol under the covers. You can take a look at the Securing applications and services with OpenID Connect chap…"
 ---
 
 # Chapter 4. Red Hat build of Keycloak Node.js adapter - Red Hat build of Keycloak 26.4 Securing Applications and Services Guide

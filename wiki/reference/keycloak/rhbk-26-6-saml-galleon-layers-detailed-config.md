@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Review this detailed list of elements for the `keycloak-saml.xml` configuration file. This chapter contains the detailed list of elements for the keycloak-saml.xml configuration file used by the Red Hat build of Keycloak SAML Galleon feature pack. 7.1. SP element Here is the explanation of the SP element attributes: ... entityID This is the identifier for this client. The IdP needs this value to d…"
 ---
 
 # Chapter 7. Red Hat build of Keycloak SAML Galleon feature pack detailed configuration - Red Hat build of Keycloak 26.6 Securing Applications and Services Guide

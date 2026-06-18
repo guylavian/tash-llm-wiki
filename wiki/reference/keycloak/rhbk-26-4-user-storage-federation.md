@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Organizations can have databases containing information, passwords, and other credentials. Typically, you cannot migrate existing data storage to a Red Hat build of Keycloak deployment so Red Hat build of Keycloak can federate existing external user databases. Red Hat build of Keycloak supports LDAP and Active Directory, but you can also code extensions for any custom user database by using the Re…"
 ---
 
 # Chapter 4. Using external storage - Red Hat build of Keycloak 26.4 Server Administration Guide

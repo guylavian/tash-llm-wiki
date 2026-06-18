@@ -9,6 +9,7 @@ guide: observability_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Track performance and reliability as perceived by users with Service Level Indicators (SLIs) and Service Level Objectives (SLOs). Service Level Indicators (SLIs) and Service Level Objectives (SLOs) are essential components in monitoring and maintaining the performance and reliability of Red Hat build of Keycloak in production environments. The Google Site Reliability Engineering book defines this …"
 ---
 
 # Chapter 4. Monitoring performance with Service Level Indicators - Red Hat build of Keycloak 26.2 Observability Guide

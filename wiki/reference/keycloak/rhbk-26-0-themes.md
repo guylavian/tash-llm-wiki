@@ -9,6 +9,7 @@ guide: server_developer_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak provides theme support for web pages and emails. This allows customizing the look and feel of end-user facing pages so they can be integrated with your applications. Figure 3.1. Login page with sunrise example theme 3.1. Theme types A theme can provide one or more types to customize different aspects of Red Hat build of Keycloak. The types available are: Account - Account…"
 ---
 
 # Chapter 3. Themes - Red Hat build of Keycloak 26.0 Server Developer Guide

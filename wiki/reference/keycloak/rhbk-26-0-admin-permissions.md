@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Each realm created on the Red Hat build of Keycloak has a dedicated Admin Console from which that realm can be managed. The master realm is a special realm that allows admins to manage more than one realm on the system. This chapter goes over all the scenarios for this. 11.1. Master realm access control The master realm in Red Hat build of Keycloak is a special realm and treated differently than o…"
 ---
 
 # Chapter 11. Controlling access to the Admin Console - Red Hat build of Keycloak 26.0 Server Administration Guide

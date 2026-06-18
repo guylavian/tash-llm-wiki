@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak users can manage their accounts through the Account Console. They can configure their profiles, add two-factor authentication, include identity provider accounts, and oversee device activity. Additional resources The Account Console can be configured in terms of appearance and language preferences. An example is adding additional attributes to the Personal info page. For …"
 ---
 
 # Chapter 17. Account Console - Red Hat build of Keycloak 26.2 Server Administration Guide

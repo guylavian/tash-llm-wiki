@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Take a site offline so that it no longer processes client requests. 13.1. When to use this procedure During the deployment lifecycle it might be required that one of the sites is temporarily taken offline for maintenance or to allow for software upgrades. To ensure that no user requests are routed to the site requiring maintenance, it is necessary for the site to be removed from your load balancer…"
 ---
 
 # Chapter 13. Taking a site offline - Red Hat build of Keycloak 26.2 High Availability Guide

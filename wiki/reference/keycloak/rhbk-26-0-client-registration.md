@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "In order for an application or service to utilize Red Hat build of Keycloak it has to register a client in Red Hat build of Keycloak. An admin can do this through the admin console (or admin REST endpoints), but clients can also register themselves through the Red Hat build of Keycloak client registration service. The Client Registration Service provides built-in support for Red Hat build of Keycl…"
 ---
 
 # Chapter 10. Client registration service - Red Hat build of Keycloak 26.0 Securing Applications and Services Guide

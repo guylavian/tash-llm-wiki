@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "2.1. Breaking changes at version 26.2.x At version 26.2.x, some breaking changes exist. Breaking changes are identified as requiring changes from existing users to their configurations. 2.1.1. Changes to port behavior with the X-Forwarded-Host header The X-Forwarded-Host header can optionally also contain the port. In previous versions when the port was omitted from the header, Red Hat build of Ke…"
 ---
 
 # Chapter 2. Release-specific changes - Red Hat build of Keycloak 26.2 Upgrading Guide

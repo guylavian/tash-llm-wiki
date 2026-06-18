@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "In previous sections, some features have already been mentioned as deprecated. The following sections provide details on other deprecated features. 17.1. Disabling filtering of LDAP referrals The option spi-storage—ldap—secure-referral to disable filtering referrals is deprecated. When this feature is removed in a future release, filtering will then be enforced. 17.2. Default db option for product…"
 ---
 
 # Chapter 17. Deprecated features - Red Hat build of Keycloak 26.2 Release Notes

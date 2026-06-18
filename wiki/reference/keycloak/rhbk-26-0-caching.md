@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak is designed for high availability and multi-node clustered setups. The current distributed cache implementation is built on top of Infinispan, a high-performance, distributable in-memory data grid. 10.1. Enable distributed caching When you start Red Hat build of Keycloak in production mode, by using the start command, caching is enabled and all Red Hat build of Keycloak n…"
 ---
 
 # Chapter 10. Configuring distributed caches - Red Hat build of Keycloak 26.0 Server Configuration Guide

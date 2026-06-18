@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_build_of_quarkus/3.33/html/centralize_authorization_with_keycloak_and_oidc/security-keycloak-authorization
 guide: centralize_authorization_with_keycloak_and_oidc
 documentKind: "Documentation"
+abstract: "Learn how to enable bearer token authorization in your Quarkus application by using Keycloak Authorization Services for secure access to protected resources. 1.1. Overview The Keycloak Authorization extension, quarkus-keycloak-authorization, extends the OpenID Connect extension, quarkus-oidc, to provide advanced authorization capabilities. It features a policy enforcer that dynamically manages acc…"
 ---
 
 # Chapter 1. Using OpenID Connect (OIDC) and Keycloak to centralize authorization - Red Hat build of Quarkus 3.33 Centralize authorization with Keycloak and OIDC

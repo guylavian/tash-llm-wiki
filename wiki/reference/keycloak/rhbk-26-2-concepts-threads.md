@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Understand concepts for avoiding resource exhaustion and congestion. This section is intended when you want to understand the considerations and best practices on how to configure thread pools connection pools for Red Hat build of Keycloak. For a configuration where this is applied, visit Deploying Red Hat build of Keycloak for HA with the Operator. 5.1. Concepts 5.1.1. JGroups communications JGro…"
 ---
 
 # Chapter 5. Concepts for configuring thread pools - Red Hat build of Keycloak 26.2 High Availability Guide

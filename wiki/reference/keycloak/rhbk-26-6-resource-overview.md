@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Resource management is straightforward and generic. After creating a resource server, you can start creating the resources and scopes that you want to protect. Resources and scopes can be managed by navigating to the Resource and Authorization Scopes tabs, respectively. 4.1. Viewing resources On the Resource page, you see a list of the resources associated with a resource server. Resources The res…"
 ---
 
 # Chapter 4. Managing resources and scopes - Red Hat build of Keycloak 26.6 Authorization Services Guide

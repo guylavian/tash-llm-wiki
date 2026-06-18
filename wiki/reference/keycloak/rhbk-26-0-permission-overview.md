@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "A permission associates the object being protected and the policies that must be evaluated to decide whether access should be granted. After creating the resources you want to protect and the policies you want to use to protect these resources, you can start managing permissions. To manage permissions, click the Permissions tab when editing a resource server. Permissions Permissions can be created…"
 ---
 
 # Chapter 6. Managing permissions - Red Hat build of Keycloak 26.0 Authorization Services Guide

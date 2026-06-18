@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure the mod_auth_openidc Apache module with Red Hat build of Keycloak. Warning Red Hat build of Keycloak does not provide any official support to mod_auth_openidc. The instructions below are best-effort and may not be up-to-date. We recommend that you stick to official mod_auth_openidc documentation for more details. The mod_auth_openidc is an Apache HTTP plugin for OpenID Connect. If your l…"
 ---
 
 # Chapter 5. Configuring the mod_auth_openidc Apache HTTPD Module - Red Hat build of Keycloak 26.6 Securing Applications and Services Guide

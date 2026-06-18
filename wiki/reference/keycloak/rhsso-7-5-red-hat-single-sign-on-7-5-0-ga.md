@@ -9,6 +9,7 @@ guide: release_notes
 version: 7.5
 family: rhsso
 documentKind: "Documentation"
+abstract: "1.1. Overview Red Hat is proud to announce the release of version 7.5 of Red Hat Single Sign-On (RH-SSO). RH-SSO is based on the Keycloak project, and enables you to secure your web applications by providing Web SSO capabilities based on popular standards such as OpenID Connect, OAuth 2.0, and SAML 2.0. The RH-SSO server acts as an OpenID Connect or SAML-based identity provider (IdP), allowing you…"
 ---
 
 # Chapter 1. Red Hat Single Sign-On 7.5.0.GA - Red Hat Single Sign-On 7.5 Release Notes

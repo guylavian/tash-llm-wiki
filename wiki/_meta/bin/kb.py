@@ -116,7 +116,7 @@ def load(domain):
             "family": fm.get("family"),
             "documentKind": fm.get("documentKind"),
             "primary": str(fm.get("primary")).lower() == "true",
-            "abstract": "",
+            "abstract": fm.get("abstract") or "",
             "body_status": "fetched",
             "_body": body,
             "_domain": domain,

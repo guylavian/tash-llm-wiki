@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "This topic describes a highly available multi-site setup and the behavior to expect. It outlines the requirements of the high availability architecture and describes the benefits and tradeoffs. 2.1. When to use this setup Use this setup to provide Red Hat build of Keycloak deployments that are able to tolerate site failures, reducing the likelihood of downtime. 2.2. Deployment, data storage and ca…"
 ---
 
 # Chapter 2. Concepts for multi-site deployments - Red Hat build of Keycloak 26.0 High Availability Guide

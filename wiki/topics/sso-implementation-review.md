@@ -15,7 +15,7 @@ provenance:
   inferred: 62
   ambiguous: 0
 tags: [security, clients, concept]
-status: reviewed
+status: draft
 updated: 2026-06-17
 ---
 

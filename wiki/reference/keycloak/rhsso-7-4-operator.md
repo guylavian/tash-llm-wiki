@@ -9,6 +9,7 @@ guide: server_installation_and_configuration_guide
 version: 7.4
 family: rhsso
 documentKind: "Documentation"
+abstract: "Note The Red Hat Single Sign-On Operator is Technology Preview and is not fully supported. The Red Hat Single Sign-On Operator automates Red Hat Single Sign-On administration in Openshift. You use this Operator to create custom resources (CRs), which automate administrative tasks. For example, instead of creating a client or a user in the Red Hat Single Sign-On admin console, you can create custom…"
 ---
 
 # Chapter 11. Red Hat Single Sign-On Operator - Red Hat Single Sign-On 7.4 Server Installation and Configuration Guide

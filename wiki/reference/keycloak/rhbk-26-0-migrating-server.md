@@ -9,6 +9,7 @@ guide: migration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "This section provides instructions for migrating a standalone server deployed from the ZIP distribution. Red Hat build of Keycloak 26.0 is built with Quarkus, which replaces the Red Hat JBoss Enterprise Application Platform (JBoss EAP) that was used by Red Hat Single Sign-On 7.6. The main changes to the server are the following: A revamped configuration experience, which is streamlined and support…"
 ---
 
 # Chapter 2. Migrating a Red Hat Single Sign-On 7.6 server - Red Hat build of Keycloak 26.0 Migration Guide

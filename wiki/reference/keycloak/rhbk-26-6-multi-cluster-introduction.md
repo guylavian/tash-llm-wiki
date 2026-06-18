@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Connect multiple Red Hat build of Keycloak deployments in independent OpenShift clusters. Red Hat build of Keycloak supports deployments that consist of multiple Red Hat build of Keycloak instances that connect to each other using its embedded Infinispan caches. Load balancers can distribute the load evenly across those instances. Those setups are intended for transparent networks, see Single-clus…"
 ---
 
 # Chapter 3. Multi-cluster deployments - Red Hat build of Keycloak 26.6 High Availability Guide

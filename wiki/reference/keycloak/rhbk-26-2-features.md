@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Configure Red Hat build of Keycloak to use optional features. Red Hat build of Keycloak has packed some functionality in features, including some disabled features, such as Technology Preview and deprecated features. Other features are enabled by default, but you can disable them if they do not apply to your use of Red Hat build of Keycloak. 14.1. Enabling features Some supported features, and all…"
 ---
 
 # Chapter 14. Enabling and disabling features - Red Hat build of Keycloak 26.2 Server Configuration Guide

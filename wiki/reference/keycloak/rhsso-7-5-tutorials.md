@@ -8,6 +8,7 @@ source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.5/html
 version: 7.5
 family: rhsso
 documentKind: "Documentation"
+abstract: "The tutorials in this chapter assume that you have an OpenShift instance similar to the one created by performing the installation of the OpenShift Container Platform cluster. 4.1. Updating a database for a new Red Hat Single Sign-On for OpenShift image version Note the following points related to the update: Rolling updates from a previous versions of Red Hat Single Sign-On for OpenShift to versi…"
 ---
 
 # Chapter 4. Tutorials - Red Hat Single Sign-On 7.5 Red Hat Single Sign-On for OpenShift

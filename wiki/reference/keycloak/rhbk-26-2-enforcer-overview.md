@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Policy Enforcement Point (PEP) is a design pattern and as such you can implement it in different ways. Red Hat build of Keycloak provides all the necessary means to implement PEPs for different platforms, environments, and programming languages. Red Hat build of Keycloak Authorization Services presents a RESTful API and leverages OAuth2 authorization capabilities for fine-grained authorization usi…"
 ---
 
 # Chapter 9. Policy enforcers - Red Hat build of Keycloak 26.2 Authorization Services Guide

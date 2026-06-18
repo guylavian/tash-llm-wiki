@@ -28,7 +28,7 @@ provenance:
   inferred: 14
   ambiguous: 1
 tags: [clients, tokens, security, concept]
-status: reviewed
+status: draft
 updated: 2026-06-18
 ---
 

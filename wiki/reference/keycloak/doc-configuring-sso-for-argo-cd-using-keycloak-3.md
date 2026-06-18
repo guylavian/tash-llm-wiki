@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_openshift_gitops/1.14/html/access_control_and_user_management/configuring-sso-for-argo-cd-using-keycloak
 guide: access_control_and_user_management
 documentKind: "Documentation"
+abstract: "After the Red Hat OpenShift GitOps Operator is installed, Argo CD automatically creates a user with admin permissions. To manage multiple users, cluster administrators can use Argo CD to configure Single Sign-On (SSO). 3.1. Prerequisites Red Hat SSO is installed on the cluster. The Red Hat OpenShift GitOps Operator is installed on your OpenShift Container Platform cluster. Argo CD is installed on …"
 ---
 
 # Chapter 3. Configuring SSO for Argo CD using Keycloak - Red Hat OpenShift GitOps 1.14 Access control and user management

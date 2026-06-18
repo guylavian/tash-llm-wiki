@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "The following new features are in a Technology Preview status: 3.1. Enhanced HTTP performance You can now enable a more efficient way to handle JSON data in the HTTP layer. This change increases throughput by approximately five percent, stabilizes response times, and reduces system resource usage. In order to apply it, you need to explicitly enable the feature http-optimized-serializers. For more …"
 ---
 
 # Chapter 3. Technology preview features - Red Hat build of Keycloak 26.6 Release Notes

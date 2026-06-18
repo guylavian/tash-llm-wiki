@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Data Grid CLI commands can be automated by creating a `Batch` CR instance. When interacting with an external Data Grid in Kubernetes, the Batch CR allows you to automate this using standard oc commands. 7.1. When to use it Use this when automating interactions on Kubernetes. This avoids providing usernames and passwords and checking shell script outputs and their status. For human interactions, th…"
 ---
 
 # Chapter 7. Concepts to automate Data Grid CLI commands - Red Hat build of Keycloak 26.2 High Availability Guide

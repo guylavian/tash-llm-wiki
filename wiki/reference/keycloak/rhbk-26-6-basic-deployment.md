@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Install Red Hat build of Keycloak using the Operator. 2.1. Performing a basic Red Hat build of Keycloak deployment This chapter describes how to perform a basic Red Hat build of Keycloak Deployment on OpenShift using the Operator. 2.1.1. Preparing for deployment Once the Red Hat build of Keycloak Operator is installed and running in the cluster namespace, you can set up the other deployment prereq…"
 ---
 
 # Chapter 2. Basic Red Hat build of Keycloak deployment - Red Hat build of Keycloak 26.6 Operator Guide

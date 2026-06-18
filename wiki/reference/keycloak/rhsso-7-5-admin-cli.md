@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 7.5
 family: rhsso
 documentKind: "Documentation"
+abstract: "With Red Hat Single Sign-On, you can perform administration tasks from the command-line interface (CLI) by using the Admin CLI command-line tool. 18.1. Installing the Admin CLI Red Hat Single Sign-On packages the Admin CLI server distribution with the execution scripts in the bin directory. The Linux script is called kcadm.sh, and the script for Windows is called kcadm.bat. Add the Red Hat Single …"
 ---
 
 # Chapter 18. Admin CLI - Red Hat Single Sign-On 7.5 Server Administration Guide

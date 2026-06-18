@@ -9,6 +9,7 @@ guide: migration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Starting with version 22, minimal differences exist between Red Hat build of Keycloak and upstream Keycloak. The following differences exist: For upstream Keycloak, the distribution artifacts are on keycloak.org; for Red Hat build of Keycloak, the distribution artifacts are on the Red Hat customer portal. Oracle and MSSQL database drivers are bundled with upstream Keycloak, but not bundled with Re…"
 ---
 
 # Chapter 8. Migrating upstream Keycloak to Red Hat build of Keycloak 26.0 - Red Hat build of Keycloak 26.0 Migration Guide

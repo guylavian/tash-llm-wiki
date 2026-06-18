@@ -9,6 +9,7 @@ guide: server_developer_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak comes with a fully functional Admin REST API with all features provided by the Admin Console. To invoke the API you need to obtain an access token with the appropriate permissions. The required permissions are described in the Server Administration Guide. You can obtain a token by enabling authentication for your application using Red Hat build of Keycloak; see the Securi…"
 ---
 
 # Chapter 2. Admin REST API - Red Hat build of Keycloak 26.4 Server Developer Guide

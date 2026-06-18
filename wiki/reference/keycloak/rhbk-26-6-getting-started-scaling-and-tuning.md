@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Scale and tune your Red Hat build of Keycloak installation. After starting Red Hat build of Keycloak, consider adapting your instance to the required load using these scaling and tuning guidelines: minimize resource utilization achieve target response times minimize database pool contention resolve out of memory errors, or excessive garbage collection overhead provide higher availability via horiz…"
 ---
 
 # Chapter 2. Scaling - Red Hat build of Keycloak 26.6 Getting Started Guide

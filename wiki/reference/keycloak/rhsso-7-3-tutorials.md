@@ -8,6 +8,7 @@ source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.3/html
 version: 7.3
 family: rhsso
 documentKind: "Documentation"
+abstract: "5.1. Example Workflow: Updating Existing Database to Migrate to New Red Hat Single Sign-On for OpenShift Image Version Important Rolling updates from previous versions of Red Hat Single Sign-On for OpenShift to version 7.3.8.GA are not supported as databases and caches are not backward compatible. Stop all instances running some of previous versions of the Red Hat Single Sign-On for OpenShift befo…"
 ---
 
 # Chapter 5. Tutorials - Red Hat Single Sign-On 7.3 Red Hat Single Sign-On for OpenShift

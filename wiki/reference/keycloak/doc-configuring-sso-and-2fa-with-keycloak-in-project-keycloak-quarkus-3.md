@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_satellite/6.18/html/configuring_authentication_for_red_hat_satellite_users/configuring-sso-and-2fa-with-keycloak-in-project_keycloak-quarkus
 guide: configuring_authentication_for_red_hat_satellite_users
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak is an open-source identity and access management solution that provides various authentication features. You can integrate Satellite Server with your existing Red Hat build of Keycloak server to delegate user authentication and authorization to Red Hat build of Keycloak. Red Hat build of Keycloak users can log in using the following login methods: User name and password i…"
 ---
 
 # Chapter 5. Configuring SSO and 2FA with Red Hat build of Keycloak in Satellite - Red Hat Satellite 6.18 Configuring authentication for Red Hat Satellite users

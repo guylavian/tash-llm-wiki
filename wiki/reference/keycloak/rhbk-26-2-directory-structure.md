@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Understand the purpose of the directories under the installation root. 4.1. Installation Locations If you are installing from a zip file then by default there will be an install root directory of rhbk-26.2.15, which can be created anywhere you choose on your filesystem. /opt/keycloak is the root install location for the server in all containerized usage shown for Red Hat build of Keycloak. Note In…"
 ---
 
 # Chapter 4. Directory Structure - Red Hat build of Keycloak 26.2 Server Configuration Guide

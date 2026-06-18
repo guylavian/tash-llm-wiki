@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Bootstrap Red Hat build of Keycloak and recover access by creating a temporary admin account. 3.1. A temporary admin account A user or service admin account created using one of the methods described below is temporary. This means the account should exist only for the duration necessary to perform operations needed to gain permanent and more secure admin access. After that, the account needs to be…"
 ---
 
 # Chapter 3. Bootstrapping and recovering an admin account - Red Hat build of Keycloak 26.2 Server Configuration Guide

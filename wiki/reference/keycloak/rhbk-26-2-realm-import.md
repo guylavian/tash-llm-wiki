@@ -9,6 +9,7 @@ guide: operator_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Automate a realm import using the operator. 3.1. Importing a Red Hat build of Keycloak Realm Using the Red Hat build of Keycloak Operator, you can perform a realm import for the Keycloak Deployment. Note If a Realm with the same name already exists in Red Hat build of Keycloak, it will not be overwritten. The Realm Import CR only supports creation of new realms and does not update or delete those.…"
 ---
 
 # Chapter 3. Automating a realm import - Red Hat build of Keycloak 26.2 Operator Guide

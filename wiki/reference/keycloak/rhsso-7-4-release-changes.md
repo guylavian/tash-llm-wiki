@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 7.4
 family: rhsso
 documentKind: "Documentation"
+abstract: "Review these changes carefully before upgrading. 2.1. RH SSO 7.4 The following changes have occurred from Red Hat Single Sign-On 7.3 to Red Hat Single Sign-On 7.4. 2.1.1. Upgrade to EAP 7.3 The Red Hat Single Sign-On server was upgraded to use EAP 7.3 as the underlying container. This change does not directly involve any specific Red Hat Single Sign-On server functionality, but a few changes relat…"
 ---
 
 # Chapter 2. Changes - Red Hat Single Sign-On 7.4 Upgrading Guide

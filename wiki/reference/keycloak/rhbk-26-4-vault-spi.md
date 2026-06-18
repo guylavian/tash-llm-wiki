@@ -9,6 +9,7 @@ guide: server_developer_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "6.1. Vault provider You can use a vault SPI from org.keycloak.vault package to write custom extension for Red Hat build of Keycloak to connect to arbitrary vault implementation. The built-in files-plaintext provider is an example of the implementation of this SPI. In general the following rules apply: To prevent a secret from leaking across realms, you may want to isolate or limit the secrets that…"
 ---
 
 # Chapter 6. Vault SPI - Red Hat build of Keycloak 26.4 Server Developer Guide

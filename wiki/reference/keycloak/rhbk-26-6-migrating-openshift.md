@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "OpenShift templates were deprecated and removed from the Red Hat build of Keycloak container images. Using the Operator is the recommended alternative for deploying Red Hat build of Keycloak on OpenShift. Note OpenShift 3.x is no longer supported. You will generally need to create a Keycloak CR (of the Red Hat build of Keycloak Operator) that references an externally managed database. The PostgreS…"
 ---
 
 # Chapter 4. Migrating Templates deployments on Openshift - Red Hat build of Keycloak 26.6 Migration Guide

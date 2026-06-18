@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "This chapter explains how to configure the Red Hat build of Keycloak server to store data in a relational database. 9.1. Supported databases The server has built-in support for different databases. You can query the available databases by viewing the expected values for the db configuration option. The following table lists the supported databases and their tested versions. Database Option value T…"
 ---
 
 # Chapter 9. Configuring the database - Red Hat build of Keycloak 26.0 Server Configuration Guide

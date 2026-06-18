@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues and changes related to upgrading. For details, see the Upgrading Guide. 4.1. CVE fixes The following bug fix advisories list the fixed CVEs for the ZIP file distribution and the container image: RHSA-2026:6478 RHSA-2026:6477"
 ---
 
 # Chapter 4. Updates for 26.4.11 - Red Hat build of Keycloak 26.4 Release Notes

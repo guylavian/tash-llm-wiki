@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "1.1. Container Images The official Red Hat build of Keycloak container image uses OpenJDK {jdk_version_container} as the Java runtime environment. Consider this when writing custom extensions. 1.2. Example Listings In some of the example listings, what is meant to be displayed on one line does not fit inside the available page width. These lines have been broken up. A '\\' at the end of a line mean…"
 ---
 
 # Chapter 1. Preface - Red Hat build of Keycloak 26.6 Server Developer Guide

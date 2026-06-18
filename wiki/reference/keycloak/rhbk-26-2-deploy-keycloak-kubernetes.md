@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Deploy Red Hat build of Keycloak for high availability with the Red Hat build of Keycloak Operator as a building block. This guide describes advanced Red Hat build of Keycloak configurations for Kubernetes which are load tested and will recover from single Pod failures. These instructions are intended for use with the setup described in the Concepts for multi-site deployments chapter. Use it toget…"
 ---
 
 # Chapter 10. Deploying Red Hat build of Keycloak for HA with the Operator - Red Hat build of Keycloak 26.2 High Availability Guide

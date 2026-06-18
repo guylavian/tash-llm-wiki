@@ -9,6 +9,7 @@ guide: operator_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Avoid downtime when changing themes, providers, or configurations in optimized images. By default, the Red Hat build of Keycloak Operator will perform rolling updates on configuration changes without downtime, and recreate updates with downtime when the image name or tag changes. This chapter describes how to minimize downtimes by configuring the Red Hat build of Keycloak Operator to perform rolli…"
 ---
 
 # Chapter 5. Avoiding downtime with rolling updates - Red Hat build of Keycloak 26.2 Operator Guide

@@ -9,6 +9,7 @@ guide: release_notes
 version: 7.1
 family: rhsso
 documentKind: "Documentation"
+abstract: "2.1. OpenID Connect Certification The Keycloak version included in Red Hat Single Sign-On (RH-SSO) 7.1 conforms to the 5 OpenID Connect profiles: Basic, Implicit, Hybrid, Config, and Dynamic. Certification was achieved in Keycloak v2.3 (http://openid.net/certification/). Future RH-SSO 7.x versions will remain compatible with these profiles, unless documented otherwise. 2.2. Client adapter for Red …"
 ---
 
 # Chapter 2. Feature Overview - Red Hat Single Sign-On 7.1 Release Notes

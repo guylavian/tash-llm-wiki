@@ -9,6 +9,7 @@ guide: observability_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "Use metrics for troubleshooting errors and performance issues. For a running Red Hat build of Keycloak deployment it is important to understand how the system performs and whether it meets your service level objectives (SLOs). For more details on SLOs, proceed to the Monitoring performance with Service Level Indicators chapter. This guide will provide directions to answer the question: “What can I…"
 ---
 
 # Chapter 5. Troubleshooting using metrics - Red Hat build of Keycloak 26.4 Observability Guide

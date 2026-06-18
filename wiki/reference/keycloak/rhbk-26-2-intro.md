@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "This guide describes how to upgrade Red Hat build of Keycloak from version 26.0.x to version 26.2.15. Use the following procedures in this order: Review the release-specific changes from the previous version of Red Hat build of Keycloak. Upgrade the Red Hat build of Keycloak server. Upgrade the Red Hat build of Keycloak adapters. Upgrade the Red Hat build of Keycloak Admin Client. If you want to u…"
 ---
 
 # Chapter 1. Upgrading Red Hat build of Keycloak - Red Hat build of Keycloak 26.2 Upgrading Guide

@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Using the Red Hat build of Keycloak policy enforcer in Java applications. Policy Enforcement Point (PEP) is a design pattern and as such you can implement it in different ways. Red Hat build of Keycloak provides all the necessary means to implement PEPs for different platforms, environments, and programming languages. Red Hat build of Keycloak Authorization Services presents a RESTful API, and lev…"
 ---
 
 # Chapter 15. Red Hat build of Keycloak policy enforcer - Red Hat build of Keycloak 26.2 Securing Applications and Services Guide

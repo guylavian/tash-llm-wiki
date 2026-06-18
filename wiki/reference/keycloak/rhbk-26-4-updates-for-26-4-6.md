@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues and changes related to upgrading. For details, see the Upgrading Guide. Also, this release includes a change to filtering of LDAP referrals to mitigate a CVE. 9.1. Filtering of LDAP referrals This release adds filtering of LDAP referrals by default. This change enhances security and aligns with best practices for LDAP configurations. If this change is una…"
 ---
 
 # Chapter 9. Updates for 26.4.6 - Red Hat build of Keycloak 26.4 Release Notes

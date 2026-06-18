@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure the caching layer to cluster multiple Red Hat build of Keycloak instances and to increase performance. Red Hat build of Keycloak is designed for high availability and multi-node clustered setups. The current distributed cache implementation is built on top of Infinispan, a high-performance, distributable in-memory data grid. 10.1. Enable distributed caching When you start Red Hat build o…"
 ---
 
 # Chapter 10. Configuring distributed caches - Red Hat build of Keycloak 26.4 Server Configuration Guide

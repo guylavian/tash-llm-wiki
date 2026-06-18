@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Collect metrics to gain insights about state and activities of a running instance of Red Hat build of Keycloak. Red Hat build of Keycloak has built in support for metrics. This chapter describes how to enable and configure server metrics. 3.1. Enabling Metrics It is possible to enable metrics using the build time option metrics-enabled: bin/kc.[sh|bat] start --metrics-enabled=true 3.2. Querying Me…"
 ---
 
 # Chapter 3. Gaining insights with metrics - Red Hat build of Keycloak 26.6 Observability Guide

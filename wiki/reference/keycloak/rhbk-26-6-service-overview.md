@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Red Hat build of Keycloak Authorization Services are built on top of well-known standards such as the OAuth2 and User-Managed Access specifications. OAuth2 clients (such as front end applications) can obtain access tokens from the server using the token endpoint and use these same tokens to access resources protected by a resource server (such as back end services). In the same way, Red Hat build …"
 ---
 
 # Chapter 8. Authorization services - Red Hat build of Keycloak 26.6 Authorization Services Guide

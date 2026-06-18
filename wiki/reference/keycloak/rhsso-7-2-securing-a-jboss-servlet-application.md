@@ -9,6 +9,7 @@ guide: getting_started_guide
 version: 7.2
 family: rhsso
 documentKind: "Documentation"
+abstract: "In this section you will learn how to secure a Java Servlet application on the JBoss EAP application server. You will learn how to install the Red Hat Single Sign-On Client Adapter onto a JBoss EAP application server distribution. You will create and register a client application in the Red Hat Single Sign-On Admin Console. Finally, you will configure the application to be secured by Red Hat Singl…"
 ---
 
 # Chapter 4. Securing a JBoss Servlet Application - Red Hat Single Sign-On 7.2 Getting Started Guide

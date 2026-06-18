@@ -9,6 +9,7 @@ guide: release_notes
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "The following release notes apply to version 26.4.11 of Red Hat build of Keycloak. This release features new capabilities focused on security enhancements, deeper integration, and improved server administration. The highlights of this release are: Passkeys for seamless, passwordless authentication of users. Simplified experiences for application developers with streamlined WebAuthn/Passkey registr…"
 ---
 
 # Chapter 12. New features and enhancements - Red Hat build of Keycloak 26.4 Release Notes

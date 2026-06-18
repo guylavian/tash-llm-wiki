@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 7.2
 family: rhsso
 documentKind: "Documentation"
+abstract: "Red Hat Single Sign-On Authorization Services are based on OAuth2’s User-Managed Access (UMA) Profile. This section describes the different RESTful endpoints that you can interact with to enable fine-grained authorization for your applications and services. 8.1. Protection API The Protection API provides a UMA-compliant set of endpoints providing: Resource Registration With this endpoint, resource…"
 ---
 
 # Chapter 8. Authorization Services - Red Hat Single Sign-On 7.2 Authorization Services Guide

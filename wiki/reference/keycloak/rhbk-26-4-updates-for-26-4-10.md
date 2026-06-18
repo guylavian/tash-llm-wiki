@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues and changes related to upgrading. For details, see the Upgrading Guide. 5.1. CVE fixes CVE-2026-0707 Keycloak’s authentication pipeline excessively tolerates non-standard Bearer token formats (case variations, Tab characters, multiple spaces, mixed whitespace) in the Authorization header, creating inconsistencies with front-end security controls (WAF/prox…"
 ---
 
 # Chapter 5. Updates for 26.4.10 - Red Hat build of Keycloak 26.4 Release Notes

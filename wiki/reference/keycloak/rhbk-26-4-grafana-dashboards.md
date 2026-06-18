@@ -9,6 +9,7 @@ guide: observability_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "Install the Red Hat build of Keycloak Grafana dashboards to visualize the metrics that capture the status and activities of your deployment. Red Hat build of Keycloak provides metrics to observe what is happening inside the deployment. To understand how metrics evolve over time, it is helpful to collect and visualize them in graphs. This guide provides instructions on how to visualize collected Re…"
 ---
 
 # Chapter 7. Visualizing activities in dashboards - Red Hat build of Keycloak 26.4 Observability Guide

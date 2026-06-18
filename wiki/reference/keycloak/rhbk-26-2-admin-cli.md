@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "With Red Hat build of Keycloak, you can perform administration tasks from the command-line interface (CLI) by using the Admin CLI command-line tool. 18.1. Installing the Admin CLI Red Hat build of Keycloak packages the Admin CLI server distribution with the execution scripts in the bin directory. The Linux script is called kcadm.sh, and the script for Windows is called kcadm.bat. Add the Red Hat b…"
 ---
 
 # Chapter 18. Admin CLI - Red Hat build of Keycloak 26.2 Server Administration Guide

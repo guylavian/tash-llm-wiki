@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Tune advanced aspects of the Keycloak CR. 4.1. Advanced configuration This chapter describes how to use Custom Resources (CRs) for advanced configuration of your Red Hat build of Keycloak deployment. 4.1.1. Server configuration details Many server options are exposed as first-class citizen fields in the Keycloak CR. The structure of the CR is based on the configuration structure of Red Hat build o…"
 ---
 
 # Chapter 4. Advanced configuration - Red Hat build of Keycloak 26.6 Operator Guide

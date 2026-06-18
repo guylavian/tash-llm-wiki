@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Validate the health of a multi-site deployment. When running the Multi-site deployments in a Kubernetes environment, you should automate checks to see if everything is up and running as expected. This page provides an overview of URLs, Kubernetes resources, and Healthcheck endpoints available to verify a multi-site setup of Red Hat build of Keycloak. 16.1. Overview A proactive monitoring strategy …"
 ---
 
 # Chapter 16. Health checks for multi-site deployments - Red Hat build of Keycloak 26.2 High Availability Guide

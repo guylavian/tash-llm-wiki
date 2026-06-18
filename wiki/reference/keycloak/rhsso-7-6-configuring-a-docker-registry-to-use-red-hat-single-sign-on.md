@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "Note Docker authentication is disabled by default. To enable see Profiles. This section describes how you can configure a Docker registry to use Red Hat Single Sign-On as its authentication server. For more information on how to set up and configure a Docker registry, see the Docker Registry Configuration Guide. 4.1. Docker registry configuration file installation For users with more advanced Dock…"
 ---
 
 # Chapter 4. Configuring a Docker registry to use Red Hat Single Sign-On - Red Hat Single Sign-On 7.6 Securing Applications and Services Guide

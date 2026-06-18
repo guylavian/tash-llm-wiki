@@ -9,6 +9,7 @@ guide: server_installation_and_configuration_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "Red Hat Single Sign-On uses the public hostname for a number of things. For example, in the token issuer fields and URLs sent in password reset emails. The Hostname SPI provides a way to configure the hostname for a request. The default provider allows setting a fixed URL for frontend requests, while allowing backend requests to be based on the request URI. It is also possible to develop your own …"
 ---
 
 # Chapter 7. Use of the public hostname - Red Hat Single Sign-On 7.6 Server Installation and Configuration Guide

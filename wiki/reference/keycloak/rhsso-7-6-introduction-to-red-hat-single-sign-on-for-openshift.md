@@ -8,6 +8,7 @@ source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.6/html
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "1.1. What is Red Hat Single Sign-On? Red Hat Single Sign-On is an integrated sign-on solution available as a Red Hat JBoss Middleware for OpenShift containerized image. The Red Hat Single Sign-On for OpenShift image provides an authentication server for users to centrally log in, log out, register, and manage user accounts for web applications, mobile applications, and RESTful web services. Red Ha…"
 ---
 
 # Chapter 1. Introduction to Red Hat Single Sign-On for OpenShift - Red Hat Single Sign-On 7.6 Red Hat Single Sign-On for OpenShift

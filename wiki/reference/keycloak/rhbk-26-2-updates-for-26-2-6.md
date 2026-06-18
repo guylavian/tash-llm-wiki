@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues, a change to the rights to assign admin roles, and other notable changes, which are described in the Upgrading Guide. 12.1. Restrict admin role mappings to server administrators To enhance security, only users with the admin role in the master realm (server admins) can assign admin roles. This ensures that critical permissions cannot be delegated by realm…"
 ---
 
 # Chapter 12. Updates for 26.2.6 - Red Hat build of Keycloak 26.2 Release Notes

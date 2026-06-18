@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues. Also, a new UTF-8 option exists for configuring email for a realm. See the Upgrading Guide."
 ---
 
 # Chapter 10. Updates for 26.2.8 - Red Hat build of Keycloak 26.2 Release Notes

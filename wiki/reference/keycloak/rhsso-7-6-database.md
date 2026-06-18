@@ -9,6 +9,7 @@ guide: server_installation_and_configuration_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "Red Hat Single Sign-On comes with its own embedded Java-based relational database called H2. This is the default database that Red Hat Single Sign-On will use to persist data and really only exists so that you can run the authentication server by default. The H2 database is intended only for example purposes. It is not a supported database, so it is not tested for database migration. We highly rec…"
 ---
 
 # Chapter 6. Setting up the relational database - Red Hat Single Sign-On 7.6 Server Installation and Configuration Guide

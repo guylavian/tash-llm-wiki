@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues and changes related to upgrading. For details, see the Upgrading Guide. Also, an additional feature is deprecated. 11.1. Deprecated: Accepting HTTP requests with non-normalized paths The http-accept-non-normalized-paths option was introduced to restore the previous behavior where Red Hat build of Keycloak accepted non-normalized URLs. Because this behavio…"
 ---
 
 # Chapter 11. Updates for 26.4.4 - Red Hat build of Keycloak 26.4 Release Notes

@@ -9,6 +9,7 @@ guide: server_developer_guide
 version: 7.5
 family: rhsso
 documentKind: "Documentation"
+abstract: "Red Hat Single Sign-On provides theme support for web pages and emails. This allows customizing the look and feel of end-user facing pages so they can be integrated with your applications. Figure 3.1. Login page with sunrise example theme 3.1. Theme types A theme can provide one or more types to customize different aspects of Red Hat Single Sign-On. The types available are: Account - Account manag…"
 ---
 
 # Chapter 3. Themes - Red Hat Single Sign-On 7.5 Server Developer Guide

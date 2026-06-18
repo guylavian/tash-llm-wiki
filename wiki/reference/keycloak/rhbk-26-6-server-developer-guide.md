@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This guides consist of information for developers to customize Red Hat build of Keycloak 26.6. Red Hat build of Keycloak 26.6 Red Hat Customer Content Services Legal Notice Abstract This guides consist of information for developers to customize Red Hat build of Keycloak 26.6. Chapter 1. Preface 1.1. Container Images The official Red Hat build of Keycloak container image uses OpenJDK {jdk_version_c…"
 ---
 
 # Server Developer Guide - Red Hat build of Keycloak 26.6 Server Developer Guide

@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_streams_for_apache_kafka/3.2/html/streams_for_apache_kafka_api_reference/type-kafkaauthorizationkeycloak-reference
 guide: streams_for_apache_kafka_api_reference
 documentKind: "Documentation"
+abstract: "The type KafkaAuthorizationKeycloak has been deprecated. Please use KafkaAuthorizationCustom instead. Used in: KafkaClusterSpec The type KafkaAuthorizationKeycloak is supported only in the Streams for Apache Kafka API version(s) v1beta2. The type property is a discriminator that distinguishes use of the KafkaAuthorizationKeycloak type from KafkaAuthorizationSimple, KafkaAuthorizationOpa, KafkaAuth…"
 ---
 
 # Chapter 23. KafkaAuthorizationKeycloak schema reference - Red Hat Streams for Apache Kafka 3.2 Streams for Apache Kafka API Reference

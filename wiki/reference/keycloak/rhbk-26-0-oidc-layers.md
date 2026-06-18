@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "2.1. Available Endpoints As a fully-compliant OpenID Connect Provider implementation, Red Hat build of Keycloak exposes a set of endpoints that applications and services can use to authenticate and authorize their users. This section describes some of the key endpoints that your application and service should use when interacting with Red Hat build of Keycloak. 2.1.1. Endpoints The most important …"
 ---
 
 # Chapter 2. Secure applications and services with OpenID Connect - Red Hat build of Keycloak 26.0 Securing Applications and Services Guide

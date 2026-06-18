@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 7.1
 family: rhsso
 documentKind: "Documentation"
+abstract: "Note Authorization Services is a Technology Preview feature and is not fully supported. This feature is disabled by default. To enable Authorization Services add the standalone/configuration/profile.properties file with the contents profile=preview or start the server with -Dkeycloak.profile=preview to enable all technology preview features. Red Hat Single Sign-On supports fine-grained authorizati…"
 ---
 
 # Chapter 1. Overview - Red Hat Single Sign-On 7.1 Authorization Services Guide

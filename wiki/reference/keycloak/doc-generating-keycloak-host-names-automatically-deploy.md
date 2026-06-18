@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_trusted_artifact_signer/1.1/html/deployment_guide/generating-keycloak-host-names-automatically_deploy
 guide: deployment_guide
 documentKind: "Documentation"
+abstract: "OpenShift routes has support for automatically generating host names by using a set pattern. This feature can integrate with Red Hat’s build of Keycloak (RHBK) operator running on OpenShift. Prerequisites Red Hat OpenShift Container Platform version 4.13 or later. Installation of the RHBK operator. Access to the OpenShift web console with the cluster-admin role. A workstation with the oc binary in…"
 ---
 
 # Appendix B. Generating Keycloak host names automatically - Red Hat Trusted Artifact Signer 1.1 Deployment Guide

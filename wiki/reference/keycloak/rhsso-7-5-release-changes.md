@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 7.5
 family: rhsso
 documentKind: "Documentation"
+abstract: "Review these changes carefully before upgrading. 2.1. RH SSO 7.5.3 The following changes have occurred from Red Hat Single Sign-On 7.5.2 to Red Hat Single Sign-On 7.5.3. 2.1.1. Red Hat Single Sign-On Operator Starting with 7.5.3 you can use Red Hat Single Sign-On Operator 7.6 which is fully backward compatible with RH-SSO 7.5. The Operator is no longer released for 7.5.z. For more details, please …"
 ---
 
 # Chapter 2. Release-specific changes - Red Hat Single Sign-On 7.5 Upgrading Guide

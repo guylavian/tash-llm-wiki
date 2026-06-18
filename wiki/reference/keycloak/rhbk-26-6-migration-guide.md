@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This guide consists of the migration guide for Red Hat build of Keycloak. Red Hat build of Keycloak 26.6 Red Hat Customer Content Services Legal Notice Abstract This guide consists of the migration guide for Red Hat build of Keycloak. Chapter 1. Migrating Red Hat Single Sign-On 7.6 to Red Hat build of Keycloak The purpose of this guide is to document the steps that are required to successfully mig…"
 ---
 
 # Migration Guide - Red Hat build of Keycloak 26.6 Migration Guide

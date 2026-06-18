@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "For the list of supported component versions for Red Hat build of Keycloak 26.2, see Component details."
 ---
 
 # Chapter 21. Component details - Red Hat build of Keycloak 26.2 Release Notes

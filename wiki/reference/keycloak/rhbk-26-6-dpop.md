@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Guide for securing applications with DPoP using Keycloak. Standard OAuth 2.0 access tokens are typically Bearer tokens. Any party in possession of the token can use it to access protected resources, regardless of whether they are the legitimate client. If a Bearer token is leaked (e.g., via server logs, network interception, or browser storage), it is vulnerable to unauthorized reuse, known as a r…"
 ---
 
 # Chapter 16. Securing applications with Demonstrating Proof-of-Possession (DPoP) - Red Hat build of Keycloak 26.6 Securing Applications and Services Guide

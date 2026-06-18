@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 7.4
 family: rhsso
 documentKind: "Documentation"
+abstract: "Clients are entities that can request authentication of a user. Clients come in two forms. The first type of client is an application that wants to participate in single-sign-on. These clients just want Red Hat Single Sign-On to provide security for them. The other type of client is one that is requesting an access token so that it can invoke other services on behalf of the authenticated user. Thi…"
 ---
 
 # Chapter 8. Managing Clients - Red Hat Single Sign-On 7.4 Server Administration Guide

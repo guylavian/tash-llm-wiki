@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Using the Red Hat build of Keycloak admin client to access the Red Hat build of Keycloak Admin REST API. The Red Hat build of Keycloak admin client is a Java library that facilitates the access and usage of the Red Hat build of Keycloak Admin REST API. The library requires Java 11 or higher at runtime (RESTEasy dependency enforces this requirement). To use it from your application add a dependency…"
 ---
 
 # Chapter 13. Red Hat build of Keycloak admin client - Red Hat build of Keycloak 26.2 Securing Applications and Services Guide

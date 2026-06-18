@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Understand concepts for avoiding resource exhaustion and congestion. This section is intended when you want to understand considerations and best practices on how to configure database connection pools for Red Hat build of Keycloak. For a configuration where this is applied, visit Deploying Red Hat build of Keycloak for HA with the Operator. 4.1. Concepts Creating new database connections is expen…"
 ---
 
 # Chapter 4. Concepts for database connection pools - Red Hat build of Keycloak 26.2 High Availability Guide

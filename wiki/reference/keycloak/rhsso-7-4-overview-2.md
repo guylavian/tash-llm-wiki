@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 7.4
 family: rhsso
 documentKind: "Documentation"
+abstract: "Red Hat Single Sign-On supports fine-grained authorization policies and is able to combine different access control mechanisms such as: Attribute-based access control (ABAC) Role-based access control (RBAC) User-based access control (UBAC) Context-based access control (CBAC) Rule-based access control Using JavaScript Time-based access control Support for custom access control mechanisms (ACMs) thr…"
 ---
 
 # Chapter 1. Overview - Red Hat Single Sign-On 7.4 Authorization Services Guide

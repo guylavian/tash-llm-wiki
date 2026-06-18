@@ -9,6 +9,7 @@ guide: observability_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "Check if an instance has finished its start up and is ready to serve requests by calling its health REST endpoints. Red Hat build of Keycloak has built in support for health checks. This chapter describes how to enable and use the Red Hat build of Keycloak health checks. The Red Hat build of Keycloak health checks are exposed on the management port 9000 by default. For more details, see Configurin…"
 ---
 
 # Chapter 1. Tracking instance status with health checks - Red Hat build of Keycloak 26.4 Observability Guide

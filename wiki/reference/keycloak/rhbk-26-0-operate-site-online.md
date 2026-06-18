@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "14.1. When to use this procedure This procedure describes how to re-add a Keycloak site to the Global Accelerator, after it has previously been taken offline, so that it can once again service client requests. 14.2. Procedure Follow these steps to re-add a Keycloak site to the AWS Global Accelerator so that it can handle client requests. 14.2.1. Global Accelerator Determine the ARN of the Network …"
 ---
 
 # Chapter 14. Bring site online - Red Hat build of Keycloak 26.0 High Availability Guide

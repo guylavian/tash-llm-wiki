@@ -9,6 +9,7 @@ guide: server_installation_and_configuration_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "The default installation of Red Hat Single Sign-On can run with some networking limitations. For one, all network endpoints bind to localhost so the auth server is really only usable on one local machine. For HTTP based connections, it does not use default ports like 80 and 443. HTTPS/SSL is not configured out of the box and without it, Red Hat Single Sign-On has many security vulnerabilities. Fin…"
 ---
 
 # Chapter 8. Setting up the network - Red Hat Single Sign-On 7.6 Server Installation and Configuration Guide

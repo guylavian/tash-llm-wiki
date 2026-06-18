@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "The following sections provide details on deprecated features. 5.1. Fine-Grained Admin Permissions (FGAP) v1 Fine-Grained Admin Permissions (FGAP) v1 is deprecated. This version no longer receives enhancements and improvements and will be removed in a future release. To ensure continued support, migrate to FGAP v2. 5.2. AuthenticationManager.AuthResult is now a record The inner class Authenticatio…"
 ---
 
 # Chapter 5. Deprecated features - Red Hat build of Keycloak 26.6 Release Notes

@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "Understand basic concepts for securing applications. As an OAuth2, OpenID Connect and SAML compliant server, Red Hat build of Keycloak can secure any application and service as long as the technology stack they are using supports any of these protocols. For more details about the security protocols supported by Red Hat build of Keycloak, consider looking at Server Administration Guide. Most of the…"
 ---
 
 # Chapter 1. Planning for securing applications and services - Red Hat build of Keycloak 26.4 Securing Applications and Services Guide

@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Guide for the JWT Authorization Grant specification RFC 7521 / 7523. This guide defines how a JWT Bearer Token can be used in Red Hat build of Keycloak as an authorization grant. This feature allows clients to send a JWT assertion to request an access token when the client wants to use an existing trust relationship without a direct user-approval step at the authorization server. The assertion is …"
 ---
 
 # Chapter 14. JWT Authorization Grant - Red Hat build of Keycloak 26.6 Securing Applications and Services Guide

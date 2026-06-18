@@ -9,6 +9,7 @@ guide: server_developer_guide
 version: 7.5
 family: rhsso
 documentKind: "Documentation"
+abstract: "Red Hat Single Sign-On is designed to cover most use-cases without requiring custom code, but we also want it to be customizable. To achieve this Red Hat Single Sign-On has a number of Service Provider Interfaces (SPI) for which you can implement your own providers. 6.1. Implementing an SPI To implement an SPI you need to implement its ProviderFactory and Provider interfaces. You also need to crea…"
 ---
 
 # Chapter 6. Service Provider Interfaces (SPI) - Red Hat Single Sign-On 7.5 Server Developer Guide

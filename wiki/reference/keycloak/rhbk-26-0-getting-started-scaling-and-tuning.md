@@ -9,6 +9,7 @@ guide: getting_started_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "After starting Red Hat build of Keycloak, consider adapting your instance to the required load using these scaling and tuning guidelines: minimize resource utilization achieve target response times minimize database pool contention resolve out of memory errors, or excessive garbage collection overhead provide higher availability via horizontal scaling 2.1. Vertical Scaling As you monitor your Red …"
 ---
 
 # Chapter 2. Scaling - Red Hat build of Keycloak 26.0 Getting Started Guide

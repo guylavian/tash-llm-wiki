@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "2.1. Breaking changes at version 26.4.11 Breaking changes are identified as those that might require changes for existing users to their configurations or applications. In minor or patch releases, Red Hat build of Keycloak will only introduce breaking changes to fix bugs. 2.1.1. Stricter access control for managing permission tickets In order to improve security, the access control for managing pe…"
 ---
 
 # Chapter 2. Release-specific changes - Red Hat build of Keycloak 26.4 Upgrading Guide

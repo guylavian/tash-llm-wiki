@@ -9,15 +9,18 @@ guessing or going to the internet.
   - Read `wiki/CLAUDE.md` first — it's the schema + ingest/query/lint workflow.
   - Entry point: `wiki/index.md`. Pages cross-link with `[[slug]]` (bare slug,
     matches a file under `wiki/topics/` or `wiki/entities/`, no path/`.md`).
-- **Raw corpus** (`kb/`, `references/`) — IMMUTABLE ground truth: 1,840 RHBK/RH-SSO
-  records, 800 full bodies, 12 reference guides. Cited by wiki pages; never edit.
+- **Raw tiers (in-vault, IMMUTABLE)** — the harvested corpus is folded into the vault
+  as reference notes under `wiki/reference/keycloak/` (800 doc bodies + a gated-KB
+  pointer index = 1,840 records), plus the 12 `references/` guides. Cited by wiki
+  pages; never edit.
 
 ## How to answer a Keycloak/RHBK question
 1. Search `wiki/` first — read `wiki/index.md`, then the matching topic/entity page,
    and follow `[[links]]`.
-2. If the wiki is thin, query the raw corpus:
-   `python3 kb/rhbk_kb.py search "<terms>"`  (add `--primary` / `--guide <slug>`
-   to narrow; `--gated` for Red Hat login-only pointers).
+2. If the synthesized pages are thin, search the in-vault reference tier: grep
+   `wiki/reference/keycloak/`, or `python3 kb/rhbk_kb.py search "<terms>"` (a shim →
+   `wiki/_meta/bin/kb.py`, which reads that reference tier; add `--primary` /
+   `--guide <slug>` to narrow, `--gated` for Red Hat login-only pointers).
 3. Synthesize the answer and cite the source (`kb:<id>`, `guide:<slug>`,
    `ref:<file>`).
 4. Optionally file the answer back per `wiki/CLAUDE.md` (QUERY operation) so the
@@ -37,6 +40,8 @@ The wiki's maintenance ops are packaged so they run in OpenCode (and Claude Code
     (`wiki/_meta/.manifest.json`): only ingest new/changed sources.
 
 ## Hard rule
-Ingest/query operations may create or edit pages **under `wiki/` only**. Never
-modify `kb/` or `references/` — that layer is regenerable ground truth. Offline
-only: no network, no `webfetch`; the retriever is `kb/rhbk_kb.py`.
+Ingest/query operations may create or edit pages in the **synthesis layer**
+(`wiki/{topics,entities,questions}/`) only. Never edit the immutable raw tiers
+(`wiki/reference/`, `references/`) — regenerable ground truth. Offline only: no
+network, no `webfetch`; retrieval is grep over the vault (or the `kb/rhbk_kb.py`
+shim → `wiki/_meta/bin/kb.py`).

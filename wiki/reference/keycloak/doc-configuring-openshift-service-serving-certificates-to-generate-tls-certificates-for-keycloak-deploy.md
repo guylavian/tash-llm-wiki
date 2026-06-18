@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_trusted_artifact_signer/1.1/html/deployment_guide/configuring-openshift-service-serving-certificates-to-generate-tls-certificates-for-keycloak_deploy
 guide: deployment_guide
 documentKind: "Documentation"
+abstract: "OpenShift’s service serving certificate can automate the generation and management of Transport Layer Security (TLS) certificates for use by Keycloak. Infrastructure components, such as the Ingress Controller, within an OpenShift cluster will trust these TLS certificates. Prerequisites Red Hat OpenShift Container Platform version 4.13 or later. Installation of the RHBK operator. Access to the Open…"
 ---
 
 # Appendix A. Configuring OpenShift service serving certificates to generate TLS certificates for Keycloak - Red Hat Trusted Artifact Signer 1.1 Deployment Guide

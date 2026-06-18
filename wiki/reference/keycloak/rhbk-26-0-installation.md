@@ -9,6 +9,7 @@ guide: operator_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Use this procedure to install the Red Hat build of Keycloak Operator in an OpenShift cluster. Open the OpenShift Container Platform web console. In the left column, click Home, Operators, OperatorHub. Search for \"Keycloak\" on the search input box. Select the Operator from the list of results. Follow the instructions on the screen. For general instructions on installing Operators by using either th…"
 ---
 
 # Chapter 1. Red Hat build of Keycloak Operator installation - Red Hat build of Keycloak 26.0 Operator Guide

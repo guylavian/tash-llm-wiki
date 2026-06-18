@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "When integrating with a third party like a customer or business partner, you might want to manage their identities separately from others and build a unified and secure experience throughout your business ecosystem when they interact with a realm. In a realm, an organization represents these third parties so that a realm or an organization administrator can manage the entire lifecycle of its membe…"
 ---
 
 # Chapter 12. Managing organizations - Red Hat build of Keycloak 26.2 Server Administration Guide

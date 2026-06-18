@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues and some notable changes. For details, see the Upgrading Guide. 6.1. CVE fixes CVE-2025-13881 The Admin API (/unmanagedAttributes) endpoint fails to respect the visibility configuration defined in the User Profile settings. CVE-2025-14559 This vulnerability allows the issuance of access and refresh tokens for disabled users via a business logic vulnerabil…"
 ---
 
 # Chapter 6. Updates for 26.4.9 - Red Hat build of Keycloak 26.4 Release Notes

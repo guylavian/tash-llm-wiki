@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure and start Red Hat build of Keycloak. This chapter explains the configuration methods for Red Hat build of Keycloak and how to start and apply the preferred configuration. It includes configuration guidelines for optimizing Red Hat build of Keycloak for faster startup and low memory footprint. 1.1. Configuring sources for Red Hat build of Keycloak Red Hat build of Keycloak loads the confi…"
 ---
 
 # Chapter 1. Configuring Red Hat build of Keycloak - Red Hat build of Keycloak 26.4 Server Configuration Guide

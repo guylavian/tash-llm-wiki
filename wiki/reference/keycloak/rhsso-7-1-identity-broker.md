@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 7.1
 family: rhsso
 documentKind: "Documentation"
+abstract: "An Identity Broker is an intermediary service that connects multiple service providers with different identity providers. As an intermediary service, the identity broker is responsible for creating a trust relationship with an external identity provider in order to use its identities to access internal services exposed by service providers. From a user perspective, an identity broker provides a us…"
 ---
 
 # Chapter 12. Identity Brokering - Red Hat Single Sign-On 7.1 Server Administration Guide

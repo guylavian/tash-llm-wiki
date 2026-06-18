@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "The SAML adapter is distributed as a Galleon feature pack for wildfly 29 or newer. More details about the subject in the WildFly documentation. The same option is provided for JBoss EAP 8 GA. For an example about how to integrate Keycloak with JakartaEE applications running on latest Wildfly/EAP, take a look at the servlet-saml-service-provider Jakarta folder in the Keycloak Quickstart GitHub Repo…"
 ---
 
 # Chapter 6. Red Hat build of Keycloak SAML Galleon feature pack for WildFly and EAP - Red Hat build of Keycloak 26.0 Securing Applications and Services Guide

@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_3scale_api_management/2.15/html/admin_portal_guide/admin-portal-sso
 guide: admin_portal_guide
 documentKind: "Documentation"
+abstract: "This guide provides information about how to configure and use Red Hat single sign-on and Red Hat build of Keycloak with the 3scale API Management Admin Portal. 2.1. Enable Red Hat single sign-on, Red Hat build of Keycloak or Auth0 member authentication 3scale supports single sign-on (SS0) authentication for your members and administrators. The 3scale Admin Portal supports the following SSO provid…"
 ---
 
 # Chapter 2. Red Hat single sign-on and Red Hat build of Keycloak for the 3scale API Management Admin Portal - Red Hat 3scale API Management 2.15 Admin Portal Guide

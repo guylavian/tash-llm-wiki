@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Use this as a starting point to size a product environment. Adjust the values for your environment as needed based on your load tests. 6.1. Performance recommendations Warning Performance will be lowered when scaling to more Pods (due to additional overhead) and using a cross-datacenter setup (due to additional traffic and operations). Increased cache sizes can improve the performance when Red Hat…"
 ---
 
 # Chapter 6. Concepts for sizing CPU and memory resources - Red Hat build of Keycloak 26.0 High Availability Guide

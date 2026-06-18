@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 7.4
 family: rhsso
 documentKind: "Documentation"
+abstract: "In previous chapters, we described how to use the Red Hat Single Sign-On Admin Console to perform administrative tasks. You can also perform those tasks from the command-line interface (CLI) by using the Admin CLI command-line tool. 20.1. Installing the Admin CLI The Admin CLI is packaged inside Red Hat Single Sign-On Server distribution. You can find execution scripts inside the bin directory. Th…"
 ---
 
 # Chapter 20. The Admin CLI - Red Hat Single Sign-On 7.4 Server Administration Guide

@@ -9,6 +9,7 @@ guide: migration_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "9.1. Javascript engine available by default on the classpath In the previous version, when Keycloak was used on Java 17 with Javascript providers (Script authenticator, Javascript authorization policy or Script protocol mappers for OIDC and SAML clients), it was needed to copy the javascript engine to the distribution. This is no longer needed as Nashorn javascript engine is available in Red Hat b…"
 ---
 
 # Chapter 9. Other notable changes - Red Hat build of Keycloak 26.4 Migration Guide

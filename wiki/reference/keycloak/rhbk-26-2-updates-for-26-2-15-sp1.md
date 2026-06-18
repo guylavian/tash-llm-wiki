@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues and fixes for CVE issues for Red Hat build of Quarkus. 2.1. CVE fixes The following advisory lists the CVEs that are fixed in Red Hat build or Quarkus for this release of Red Hat build of Keycloak. RHSA-2026:11720"
 ---
 
 # Chapter 2. Updates for 26.2.15 SP1 - Red Hat build of Keycloak 26.2 Release Notes

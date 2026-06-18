@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Synchronize an offline site with an online site. 15.1. When to use this procedure Use this when the state of Data Grid clusters of two sites become disconnected and the contents of the caches are out-of-sync. Perform this for example after a split-brain or when one site has been taken offline for maintenance. At the end of the procedure, the data on the secondary site have been discarded and repla…"
 ---
 
 # Chapter 15. Synchronizing sites - Red Hat build of Keycloak 26.2 High Availability Guide

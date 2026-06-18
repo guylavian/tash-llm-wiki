@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_developer_hub/1.6/html/configuring_dynamic_plugins/rhdh-keycloak_title-plugins-rhdh-configure
 guide: configuring_dynamic_plugins
 documentKind: "Documentation"
+abstract: "The Keycloak backend plugin, which integrates Keycloak into Developer Hub, has the following capabilities: Synchronization of Keycloak users in a realm. Synchronization of Keycloak groups and their users in a realm. Note The supported Red Hat Build of Keycloak (RHBK) version is 26.0. 4.1. Installation The Keycloak plugin is pre-loaded in Developer Hub with basic configuration properties. To enable…"
 ---
 
 # Chapter 4. Installing and configuring Keycloak - Red Hat Developer Hub 1.6 Configuring dynamic plugins

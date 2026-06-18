@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "13.1. When to use this procedure During the deployment lifecycle it might be required that one of the sites is temporarily taken offline for maintenance or to allow for software upgrades. To ensure that no user requests are routed to the site requiring maintenance, it is necessary for the site to be removed from your load balancer configuration. 13.2. Procedure Follow these steps to remove a site …"
 ---
 
 # Chapter 13. Take site offline - Red Hat build of Keycloak 26.0 High Availability Guide

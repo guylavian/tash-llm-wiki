@@ -9,6 +9,7 @@ guide: upgrading_guide
 version: 7.3
 family: rhsso
 documentKind: "Documentation"
+abstract: "Review these changes carefully before upgrading. 2.1. RH-SSO 7.3 The following changes have occurred from RH-SSO 7.2 to RH-SSO 7.3. 2.1.1. Changes to Authorization Services We added support for UMA 2.0. This version of the UMA specification introduced some important changes on how permissions are obtained from the server. Here are the main changes introduced by UMA 2.0 support. See Authorization S…"
 ---
 
 # Chapter 2. Changes - Red Hat Single Sign-On 7.3 Upgrading Guide

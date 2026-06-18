@@ -9,6 +9,7 @@ guide: server_configuration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "A Red Hat build of Keycloak production environment provides secure authentication and authorization for deployments that range from on-premise deployments that support a few thousand users to deployments that serve millions of users. This chapter describes the general areas of configuration required for a production ready Red Hat build of Keycloak environment. This information focuses on the gener…"
 ---
 
 # Chapter 2. Configuring Red Hat build of Keycloak for production - Red Hat build of Keycloak 26.0 Server Configuration Guide

@@ -9,6 +9,7 @@ guide: server_developer_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "You can use the User Storage SPI to write extensions to Red Hat build of Keycloak to connect to external user databases and credential stores. The built-in LDAP and ActiveDirectory support is an implementation of this SPI in action. Out of the box, Red Hat build of Keycloak uses its local database to create, update, and look up users and validate credentials. Often though, organizations have exist…"
 ---
 
 # Chapter 5. User Storage SPI - Red Hat build of Keycloak 26.4 Server Developer Guide

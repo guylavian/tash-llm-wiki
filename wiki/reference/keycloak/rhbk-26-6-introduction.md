@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Explore the different Red Hat build of Keycloak high-availability architectures. Red Hat build of Keycloak can be deployed in a number of high-availability architectures, allowing system administrators to pick the deployment type most suitable for their needs. Ease of deployment, cost and fault-tolerance guarantees are important considerations when determining the correct architecture for your dep…"
 ---
 
 # Chapter 1. High availability overview - Red Hat build of Keycloak 26.6 High Availability Guide

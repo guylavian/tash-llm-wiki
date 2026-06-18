@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Red Hat build of Keycloak is a single sign on solution for web apps and RESTful web services. The goal of Red Hat build of Keycloak is to make security simple so that it is easy for application developers to secure the apps and services they have deployed in their organization. Security features that developers normally have to write for themselves are provided out of the box and are easily tailor…"
 ---
 
 # Chapter 1. Red Hat build of Keycloak features and concepts - Red Hat build of Keycloak 26.0 Server Administration Guide

@@ -6,6 +6,7 @@ slug: doc-red-hat-build-of-keycloak
 tier: reference
 source: https://access.redhat.com/documentation/en-us/red_hat_build_of_keycloak
 documentKind: "Documentation"
+abstract: "Index page for documentation for Red Hat build of Keycloak"
 ---
 
 # Red Hat build of Keycloak

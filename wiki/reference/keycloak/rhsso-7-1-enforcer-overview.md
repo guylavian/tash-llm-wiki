@@ -9,6 +9,7 @@ guide: authorization_services_guide
 version: 7.1
 family: rhsso
 documentKind: "Documentation"
+abstract: "Policy Enforcement Point (PEP) is a design pattern and as such you can implement it in different ways. Red Hat Single Sign-On provides all the necessary means to implement PEPs for different platforms, environments, and programming languages. Red Hat Single Sign-On Authorization Services presents a RESTful API, and leverages OAuth2 authorization capabilities for fine-grained authorization using a …"
 ---
 
 # Chapter 9. Policy Enforcers - Red Hat Single Sign-On 7.1 Authorization Services Guide

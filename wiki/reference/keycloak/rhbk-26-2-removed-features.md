@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "In previous sections, some features have already been mentioned as removed. The following sections provide details on other removed features. 18.1. OpenShift v3 identity brokering Because OpenShift v3 reached end-of-life, support for identity brokering with OpenShift v3 has been removed from Red Hat build of Keycloak. 18.2. robots.txt file The robots.txt file, previously included by default, is no…"
 ---
 
 # Chapter 18. Removed features - Red Hat build of Keycloak 26.2 Release Notes

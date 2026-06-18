@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This guide helps administrators to monitor and troubleshoot Red Hat build of Keycloak 26.6 with health checks, metrics, dashboards and tracing. Red Hat build of Keycloak 26.6 Red Hat Customer Content Services Legal Notice Abstract This guide helps administrators to monitor and troubleshoot Red Hat build of Keycloak 26.6 with health checks, metrics, dashboards and tracing. Chapter 1. Centralize you…"
 ---
 
 # Observability Guide - Red Hat build of Keycloak 26.6 Observability Guide

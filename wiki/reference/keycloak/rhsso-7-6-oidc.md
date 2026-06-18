@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "This section describes how you can secure applications and services with OpenID Connect using either Red Hat Single Sign-On adapters or generic OpenID Connect Relying Party libraries. 2.1. Java adapters Red Hat Single Sign-On comes with a range of different adapters for Java application. Selecting the correct adapter depends on the target platform. All Java adapters share a set of common configura…"
 ---
 
 # Chapter 2. Using OpenID Connect to secure applications and services - Red Hat Single Sign-On 7.6 Securing Applications and Services Guide

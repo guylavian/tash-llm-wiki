@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues. 3.1. Maximum length of the parameters in the OIDC token endpoint When the OIDC token endpoint request (or OAuth2 token endpoint request) is sent, a new limit exists for the maximum length of every OIDC/OAuth2 parameter. The maximum length of each parameter is 4,000 characters, which is aligned with the same limit, which already exists for the parameters …"
 ---
 
 # Chapter 3. Updates for 26.2.15 - Red Hat build of Keycloak 26.2 Release Notes

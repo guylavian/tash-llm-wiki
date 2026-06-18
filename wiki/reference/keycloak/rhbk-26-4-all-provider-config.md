@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Review provider configuration options. 22.1. authentication-sessions 22.1.1. infinispan Value spi-authentication-sessions--infinispan--auth-sessions-limit The maximum number of concurrent authentication sessions per RootAuthenticationSession. CLI: --spi-authentication-sessions--infinispan--auth-sessions-limit Env: KC_SPI_AUTHENTICATION_SESSIONS__INFINISPAN__AUTH_SESSIONS_LIMIT 300 (default) or any…"
 ---
 
 # Chapter 22. All provider configuration - Red Hat build of Keycloak 26.4 Server Configuration Guide

@@ -10,6 +10,7 @@ version: 26.2
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues and changes related to upgrading. For details, see the Upgrading Guide. 5.1. CVE fixes CVE-2025-14778 A Broken Access Control vulnerability exists in the UserManagedPermissionService (UMA Protection API). CVE-2026-1529 Organization invitation tokens in Keycloak are parsed without cryptographic signature verification during the registration flow."
 ---
 
 # Chapter 5. Updates for 26.2.13 - Red Hat build of Keycloak 26.2 Release Notes

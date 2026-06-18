@@ -9,6 +9,7 @@ guide: high_availability_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "15.1. When to use this procedure Use this when the state of Data Grid clusters of two sites become disconnected and the contents of the caches are out-of-sync. Perform this for example after a split-brain or when one site has been taken offline for maintenance. At the end of the procedure, the data on the secondary site have been discarded and replaced by the data of the active site. All caches in…"
 ---
 
 # Chapter 15. Synchronize Sites - Red Hat build of Keycloak 26.0 High Availability Guide

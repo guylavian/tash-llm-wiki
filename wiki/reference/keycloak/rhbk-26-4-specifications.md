@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 26.4
 family: rhbk
 documentKind: "Documentation"
+abstract: "List of specifications and standards implemented by Red Hat build of Keycloak. This chapter presents a list of specifications and standards that Red Hat build of Keycloak currently implements. The standards are separated in different sections and, in each one, a table is shown with the following four columns: Specification: The standard or specification that Red Hat build of Keycloak implements. S…"
 ---
 
 # Chapter 13. Specifications implemented - Red Hat build of Keycloak 26.4 Securing Applications and Services Guide

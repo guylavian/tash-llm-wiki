@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 7.6
 family: rhsso
 documentKind: "Documentation"
+abstract: "Organizations can have databases containing information, passwords, and other credentials. Typically, you cannot migrate existing data storage to a Red Hat Single Sign-On deployment so Red Hat Single Sign-On can federate existing external user databases. Red Hat Single Sign-On supports LDAP and Active Directory, but you can also code extensions for any custom user database by using the Red Hat Sin…"
 ---
 
 # Chapter 4. Using external storage - Red Hat Single Sign-On 7.6 Server Administration Guide

@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Red Hat build of Keycloak can delegate authentication to a parent IDP for login. A typical example of this is the case where you want users to be able to log in through a social provider such as Facebook or Google. You can also link existing accounts to a brokered IDP. This section describes some APIs that your applications can use as it pertains to identity brokering. 3.1. Retrieving external IDP…"
 ---
 
 # Chapter 3. Identity Brokering APIs - Red Hat build of Keycloak 26.4 Server Developer Guide

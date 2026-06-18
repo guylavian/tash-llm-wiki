@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_developer_hub/1.5/html/authentication_in_red_hat_developer_hub/assembly-authenticating-with-rhbk
 guide: authentication_in_red_hat_developer_hub
 documentKind: "Documentation"
+abstract: "Note RHSSO 7.6 is deprecated as an authentication provider. You can continue using RHSSO until the end of its maintenance support. For more information, see RHSSO lifecycle dates. As an alternative, consider migrating to Red Hat Build of Keycloak (RHBK). To authenticate users with Red Hat Build of Keycloak (RHBK): Enable the OpenID Connect (OIDC) authentication provider in RHDH. Provision users fr…"
 ---
 
 # Chapter 2. Authenticating with Red Hat Build of Keycloak (RHBK) - Red Hat Developer Hub 1.5 Authentication in Red Hat Developer Hub

@@ -9,6 +9,7 @@ guide: server_developer_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "This guides consist of information for developers to customize Red Hat build of Keycloak 26.2. Red Hat build of Keycloak 26.2 Red Hat Customer Content Services Legal Notice Abstract This guides consist of information for developers to customize Red Hat build of Keycloak 26.2. Chapter 1. Preface In some of the example listings, what is meant to be displayed on one line does not fit inside the avail…"
 ---
 
 # Server Developer Guide - Red Hat build of Keycloak 26.2 Server Developer Guide

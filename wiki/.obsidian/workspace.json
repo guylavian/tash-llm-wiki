@@ -178,6 +178,7 @@
   },
   "active": "f00a4e190c44715e",
   "lastOpenFiles": [
+    "_meta/bin/selftest.py",
     "reference/keycloak/_ref-keycloak.md",
     "reference/keycloak/_ref-keycloak-server_installation_and_configuration_guide.md",
     "reference/keycloak/_ref-keycloak-observability_guide.md",
@@ -203,7 +204,6 @@
     "reference/keycloak/_ref-keycloak-installing_and_configuring_central_authentication_for_the_ansible_automation_platform.md",
     "reference/keycloak/_ref-keycloak-centralize_authorization_with_keycloak_and_oidc.md",
     "reference/keycloak/_ref-keycloak-integrating_openstack_identity_with_external_user_management_services.md",
-    "reference/keycloak/_ref-keycloak-configuring_dynamic_plugins.md",
     "_meta/bin/__pycache__/crosslink.cpython-314.pyc",
     "_meta/bin/__pycache__",
     "_meta/bin/crosslink.py",

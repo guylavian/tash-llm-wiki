@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure Red Hat build of Keycloak’s management interface for endpoints such as metrics and health checks. The management interface allows accessing management endpoints via a different HTTP server than the primary one. It provides the possibility to hide endpoints like /metrics or /health from the outside world and, therefore, hardens the security. The most significant advantage might be seen in…"
 ---
 
 # Chapter 18. Configuring the Management Interface - Red Hat build of Keycloak 26.4 Server Configuration Guide

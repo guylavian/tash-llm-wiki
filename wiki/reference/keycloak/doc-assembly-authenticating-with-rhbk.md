@@ -7,6 +7,7 @@ tier: reference
 source: https://docs.redhat.com/en/documentation/red_hat_developer_hub/1.7/html/authentication_in_red_hat_developer_hub/assembly-authenticating-with-rhbk
 guide: authentication_in_red_hat_developer_hub
 documentKind: "Documentation"
+abstract: "3.1. Enabling user authentication with Red Hat Build of Keycloak (RHBK) To authenticate users with Red Hat Build of Keycloak (RHBK), enable and configure the OpenID Connect (OIDC) authentication provider in Red Hat Developer Hub and provision the users and groups from RHBK to the Developer Hub software catalog. Prerequisites You added a custom Developer Hub application configuration, and have suff…"
 ---
 
 # Chapter 3. Authenticating with Red Hat Build of Keycloak (RHBK) - Red Hat Developer Hub 1.7 Authentication in Red Hat Developer Hub

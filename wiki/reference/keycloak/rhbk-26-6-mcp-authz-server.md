@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Using Red Hat build of Keycloak as an authorization server for Model Context Protocol (MCP) servers. There are currently four versions of the Model Context Protocol (MCP) specification: 2025-11-25 (latest version) 2025-06-18 2025-03-26 2024-11-05 (initial version) The initial version (2024-11-05) does not cover authorization, as such is not covered in this guide. This guide shows you the following…"
 ---
 
 # Chapter 12. Integrating with Model Context Protocol (MCP) - Red Hat build of Keycloak 26.6 Securing Applications and Services Guide

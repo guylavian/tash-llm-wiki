@@ -9,6 +9,7 @@ guide: securing_applications_and_services_guide
 version: 7.5
 family: rhsso
 documentKind: "Documentation"
+abstract: "This section describes how you can secure applications and services with SAML using either Red Hat Single Sign-On client adapters or generic SAML provider libraries. 3.1. Java adapters Red Hat Single Sign-On comes with a range of different adapters for Java application. Selecting the correct adapter depends on the target platform. 3.1.1. General Adapter Config Each SAML client adapter supported by…"
 ---
 
 # Chapter 3. Using SAML to secure applications and services - Red Hat Single Sign-On 7.5 Securing Applications and Services Guide

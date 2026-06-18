@@ -9,6 +9,7 @@ guide: migration_guide
 version: 26.2
 family: rhbk
 documentKind: "Documentation"
+abstract: "Similarly to the Red Hat Single Sign-On 7.6, custom providers are deployed to the Red Hat build of Keycloak by copying them to a deployment directory. In the Red Hat build of Keycloak, copy your providers to the providers directory instead of standalone/deployments, which no longer exists. Additional dependencies should also be copied to the providers directory. Red Hat build of Keycloak does not …"
 ---
 
 # Chapter 6. Migrating custom providers - Red Hat build of Keycloak 26.2 Migration Guide

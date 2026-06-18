@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Configure a relational database for Red Hat build of Keycloak to store user, client, and realm data. This chapter explains how to configure the Red Hat build of Keycloak server to store data in a relational database. 9.1. Supported databases The server has built-in support for different databases. You can query the available databases by viewing the expected values for the db configuration option.…"
 ---
 
 # Chapter 9. Configuring the database - Red Hat build of Keycloak 26.4 Server Configuration Guide

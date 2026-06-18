@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 26.0
 family: rhbk
 documentKind: "Documentation"
+abstract: "Roles and groups have a similar purpose, which is to give users access and permissions to use applications. Groups are a collection of users to which you apply roles and attributes. Roles define specific applications permissions and access control. A role typically applies to one type of user. For example, an organization may include admin, user, manager, and employee roles. An application can ass…"
 ---
 
 # Chapter 7. Assigning permissions using roles and groups - Red Hat build of Keycloak 26.0 Server Administration Guide

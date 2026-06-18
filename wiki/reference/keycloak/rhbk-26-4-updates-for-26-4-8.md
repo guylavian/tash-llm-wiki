@@ -10,6 +10,7 @@ version: 26.4
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release contains several fixed issues and the addition of database indexes on the BROKER_LINK table. For details, see the Upgrading Guide."
 ---
 
 # Chapter 7. Updates for 26.4.8 - Red Hat build of Keycloak 26.4 Release Notes

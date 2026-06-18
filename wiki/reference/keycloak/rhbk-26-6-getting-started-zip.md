@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Get started with Red Hat build of Keycloak on a physical or virtual server. 1.1. Before you start Make sure your machine or container platform can provide sufficient memory and CPU for your desired usage of Red Hat build of Keycloak. See Concepts for sizing CPU and memory resources for more on how to get started with production sizing. Make sure you have OpenJDK 25 installed. 1.2. Download Red Hat…"
 ---
 
 # Chapter 1. Getting started - Red Hat build of Keycloak 26.6 Getting Started Guide

@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Record information during the request lifecycle with OpenTelemetry tracing to identify root cases for latencies and errors in Red Hat build of Keycloak and connected systems. This chapter explains how you can enable and configure distributed tracing in Red Hat build of Keycloak by utilizing OpenTelemetry (OTel). Tracing allows for detailed monitoring of each request’s lifecycle, which helps quickl…"
 ---
 
 # Chapter 7. Root cause analysis with tracing - Red Hat build of Keycloak 26.6 Observability Guide

@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "This release features new capabilities for users and administrators of Red Hat build of Keycloak. The highlights of this release are: JWT Authorization Grant, enabling external-to-internal token exchange using externally signed JWT assertions Federated client authentication, eliminating the need to manage individual client secrets in Red Hat build of Keycloak Workflows, enabling administrators to …"
 ---
 
 # Chapter 2. New features and enhancements - Red Hat build of Keycloak 26.6 Release Notes

@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "Guide for the draft about OAuth Identity and Authorization Chaining Across Domains. Applications can require access to resources that are distributed across multiple trust domains where each trust domain has its own OAuth 2.0 authorization server. A request may transverse multiple resource servers in multiple trust domains before completing. The OAuth Identity and Authorization Chaining Across Dom…"
 ---
 
 # Chapter 15. OAuth Identity and Authorization Chaining Across Domains - Red Hat build of Keycloak 26.6 Securing Applications and Services Guide

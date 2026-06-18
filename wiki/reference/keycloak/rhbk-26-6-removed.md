@@ -10,6 +10,7 @@ version: 26.6
 family: rhbk
 documentKind: "Documentation"
 primary: true
+abstract: "The following features have been removed from this release. 6.1. Support for PostgreSQL 13 This version of PostgreSQL reached end-of-life in November 2025. It is no longer supported."
 ---
 
 # Chapter 6. Removed features - Red Hat build of Keycloak 26.6 Release Notes

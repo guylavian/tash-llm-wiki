@@ -9,6 +9,7 @@ guide: server_administration_guide
 version: 7.1
 family: rhsso
 documentKind: "Documentation"
+abstract: "Red Hat Single Sign-On can federate external user databases. Out of the box we have support for LDAP and Active Directory. Before you dive into this, you should understand how Red Hat Single Sign-On does federation. Red Hat Single Sign-On performs federation a bit differently than other products/projects. The vision of Red Hat Single Sign-On is that it is an out of the box solution that should pro…"
 ---
 
 # Chapter 14. User Storage Federation - Red Hat Single Sign-On 7.1 Server Administration Guide
