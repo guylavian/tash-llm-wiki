@@ -1,0 +1,7 @@
+# Held-out eval cases — added AFTER baseline numbers were seen.
+# cases.jsonl is FROZEN (see the "Phase 0: eval refinements" commit); to avoid
+# tuning the frozen set to whatever a later phase happens to catch, any case
+# discovered while iterating goes HERE and is reported separately:
+#   python3 _meta/bin/eval.py --cases _meta/eval/cases.heldout.jsonl
+# Same schema as cases.jsonl: {"query","domain","kind","expect_any_of",[pair,variant]}.
+# (Empty until a genuinely new gap is found.)
