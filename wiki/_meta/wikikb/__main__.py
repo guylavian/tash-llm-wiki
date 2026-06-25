@@ -26,6 +26,7 @@ TOOLS = {
     "expand": "retrieval",
     "kb": "retrieval",
     "route": "retrieval",
+    "ask": "graph",        # QUERY pipeline -> one cited, gated answer (offline extractive / local LLM)
     "tkg": "tkg",          # the temporal-knowledge-graph CLI lives at wikikb/tkg/tkg.py
 }
 
