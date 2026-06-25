@@ -19,3 +19,4 @@ cost/*
 !cost/README.md
 llm/*
 !llm/README.md
+.venv-embed/
