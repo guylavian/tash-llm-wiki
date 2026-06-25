@@ -108,9 +108,9 @@ def synthesize_node(state):
     ]
     resp = llm.complete(messages)
     answer = llm.text_of(resp) if resp is not None else None
-    if answer is None:
-        ids = ", ".join(cid for cid, _ in cands[:5]) or "(no candidates)"
-        answer = "[extractive fallback — LLM gateway inactive] top sources: %s" % ids
+    if not answer:                                   # None (gateway off) OR empty (e.g. a reasoning
+        ids = ", ".join(cid for cid, _ in cands[:5]) or "(no candidates)"   # model cut off mid-think)
+        answer = "[extractive fallback — no model answer] top sources: %s" % ids
     banner = state.get("banner") or []
     if banner:
         answer = "⚠️ " + " | ".join(banner) + "\n\n" + answer

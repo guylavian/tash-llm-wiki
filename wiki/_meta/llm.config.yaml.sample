@@ -12,6 +12,16 @@ provider_allowlist: [ollama, ollama_chat, vllm, openai]   # 'openai' is permitte
 max_tokens: 2048
 temperature: 0                         # determinism: filed answers must not drift run-to-run
 
+# --- LM Studio (OpenAI-compatible, loopback) — an alternative to Ollama ---------------------
+# LM Studio serves an OpenAI API on :1234; prefix the loaded model id with `openai/` so LiteLLM
+# routes it to api_base, and the loopback gate permits 'openai' (a dummy api_key is auto-supplied).
+#   model: "openai/google/gemma-4-12b-qat"   # whatever `GET :1234/v1/models` reports
+#   api_base: "http://localhost:1234/v1"
+# NOTE — reasoning/thinking models (some gemma/qwen QAT builds) spend tokens in a hidden reasoning
+# channel BEFORE the answer; keep max_tokens generous (>=1024) or `content` comes back empty
+# (finish_reason=length) and ask falls back to extractive. `llm --probe` caps at 8 tokens, so it
+# can read empty for these models even when `ask` (which uses max_tokens above) works fine.
+
 # Remote/cloud is OFF by default. The loopback gate (llm.py) refuses any non-loopback model/endpoint
 # — including a bare cloud model id with no api_base — UNLESS you set BOTH:
 #     export WIKI_LLM_ALLOW_REMOTE=1
