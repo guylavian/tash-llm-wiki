@@ -7,6 +7,8 @@ summary: "Global `telemetry-*` server options point all RHBK observability signa
 sources:
   - guide:observability_guide
   - kb:telemetry-
+source_notes:
+  - "[[rhbk-26-6-telemetry]]"
 provenance: needs-review
 tags: [observability]
 status: draft

@@ -8,6 +8,9 @@ sources:
   - guide:high_availability_guide
   - kb:concepts-memory-and-cpu-sizing
   - kb:concepts-multi-site
+source_notes:
+  - "[[rhbk-26-2-concepts-memory-and-cpu-sizing]]"
+  - "[[rhbk-26-2-concepts-multi-site]]"
 provenance: needs-review
 tags: [tokens]
 status: draft

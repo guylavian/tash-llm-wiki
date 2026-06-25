@@ -9,6 +9,10 @@ sources:
   - kb:authorization_services_guide/overview
   - kb:authorization_services_guide/service_overview
   - kb:authorization_services_guide/resource_server_overview
+source_notes:
+  - "[[rhbk-26-6-overview-2]]"
+  - "[[rhbk-26-6-service-overview]]"
+  - "[[rhbk-26-6-resource-server-overview]]"
 provenance: needs-review
 tags: [authz, concept]
 status: draft

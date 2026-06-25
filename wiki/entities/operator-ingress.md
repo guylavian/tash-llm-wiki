@@ -7,6 +7,8 @@ summary: "How the Operator exposes RHBK: the built-in `spec.ingress` and the `sp
 sources:
   - guide:operator_guide
   - kb:operator_guide/basic-deployment-
+source_notes:
+  - "[[rhbk-26-6-basic-deployment]]"
 provenance: needs-review
 tags: [operator]
 status: draft

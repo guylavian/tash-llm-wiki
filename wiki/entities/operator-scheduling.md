@@ -7,6 +7,8 @@ summary: "The `spec.scheduling` stanza on the [[keycloak-cr]] — standard Kuber
 sources:
   - guide:operator_guide
   - kb:operator_guide/advanced-configuration-
+source_notes:
+  - "[[rhbk-26-6-advanced-configuration]]"
 provenance: needs-review
 tags: [operator]
 status: draft

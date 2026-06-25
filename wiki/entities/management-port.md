@@ -8,6 +8,9 @@ sources:
   - guide:observability_guide
   - kb:health-
   - kb:configuration-metrics-
+source_notes:
+  - "[[rhbk-26-6-health]]"
+  - "[[rhbk-26-6-configuration-metrics]]"
 provenance: needs-review
 tags: [server-config]
 status: draft

@@ -7,6 +7,8 @@ summary: "RFC 9449 mechanism that turns Bearer tokens into *sender-constrained* 
 sources:
   - guide:securing_applications_and_services_guide
   - kb:dpop-
+source_notes:
+  - "[[rhbk-26-6-dpop]]"
 provenance: needs-review
 tags: [clients]
 status: draft

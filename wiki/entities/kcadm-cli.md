@@ -7,6 +7,8 @@ summary: "The command-line client (`kcadm.sh` on Linux, `kcadm.bat` on Windows) 
 sources:
   - guide:server_administration_guide
   - kb:admin_cli
+source_notes:
+  - "[[rhbk-26-4-admin-cli]]"
 provenance: needs-review
 status: draft
 updated: 2026-06-16

@@ -6,10 +6,9 @@ slug: vlans-and-trunking
 summary: "802.1Q vs ISL VLAN encapsulation on router subinterfaces for inter-VLAN routing, and the native-VLAN/PVID rule whose mismatch silently merges traffic."
 sources:
   - note:_sources/cisco-ios-xe/lan-switching.md
-provenance:
-  extracted: 6
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [lan-switching, concept]
 status: reviewed
 updated: 2026-06-18

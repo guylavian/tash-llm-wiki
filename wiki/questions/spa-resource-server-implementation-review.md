@@ -23,10 +23,18 @@ sources:
   - web:https://www.rfc-editor.org/rfc/rfc7636 (RFC 7636 PKCE, fetched 2026-06-18)
   - web:https://www.rfc-editor.org/rfc/rfc9068 (RFC 9068 JWT Access Tokens, fetched 2026-06-18)
   - web:https://owasp.org/API-Security/editions/2023/en/0x11-t10/ (OWASP API Security Top 10 2023, fetched 2026-06-18)
-provenance:
-  extracted: 9
-  inferred: 14
-  ambiguous: 1
+source_notes:
+  - "[[rhbk-26-6-oidc-layers]]"
+  - "[[rhbk-26-6-overview-2]]"
+  - "[[rhbk-26-6-javascript-adapter]]"
+  - "[[rhbk-26-4-assembly-managing-clients-server-administration-guide]]"
+  - "[[rhbk-26-4-configuring-authentication-server-administration-guide]]"
+  - "[[rhbk-26-6-dpop]]"
+  - "[[rhbk-26-6-authz-client]]"
+  - "[[rhbk-26-6-migrating-applications]]"
+provenance_extracted: 9
+provenance_inferred: 14
+provenance_ambiguous: 1
 tags: [clients, tokens, security, concept]
 status: draft
 updated: 2026-06-18

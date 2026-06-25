@@ -8,10 +8,9 @@ sources:
   - web:https://www.rfc-editor.org/rfc/rfc7636 (RFC 7636, fetched 2026-06-17)
   - web:https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-15.html (OAuth 2.1 draft-15, fetched 2026-06-17)
   - web:https://www.rfc-editor.org/rfc/rfc9700 (RFC 9700 Security BCP, fetched 2026-06-17)
-provenance:
-  extracted: 22
-  inferred: 4
-  ambiguous: 0
+provenance_extracted: 22
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [clients, security, concept]
 status: reviewed
 updated: 2026-06-17

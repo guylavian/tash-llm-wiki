@@ -10,10 +10,9 @@ sources:
   - web:https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-15.txt (draft-ietf-oauth-v2-1-15 OAuth 2.1, fetched 2026-06-17)
   - web:https://owasp.org/www-project-application-security-verification-standard/ (OWASP ASVS, fetched 2026-06-17)
   - web:https://cheatsheetseries.owasp.org/cheatsheets/OAuth2_Cheat_Sheet.html (OWASP OAuth2 Cheat Sheet, fetched 2026-06-17)
-provenance:
-  extracted: 0
-  inferred: 62
-  ambiguous: 0
+provenance_extracted: 0
+provenance_inferred: 62
+provenance_ambiguous: 0
 tags: [security, clients, concept]
 status: draft
 updated: 2026-06-17

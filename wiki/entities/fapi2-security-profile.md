@@ -7,10 +7,9 @@ summary: "The OpenID Foundation FAPI 2.0 Security Profile is a hardened OAuth 2.
 sources:
   - web:https://openid.net/specs/fapi-security-profile-2_0-final.html (OIDF FAPI 2.0 Security Profile final, fetched 2026-06-17)
   - web:https://openid.net/specs/fapi-2_0-attacker-model.html (OIDF FAPI 2.0 Attacker Model, fetched 2026-06-17)
-provenance:
-  extracted: 18
-  inferred: 4
-  ambiguous: 0
+provenance_extracted: 18
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [security, profile]
 status: reviewed
 updated: 2026-06-17

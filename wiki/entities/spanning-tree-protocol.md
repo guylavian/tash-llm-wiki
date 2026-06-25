@@ -6,10 +6,9 @@ slug: spanning-tree-protocol
 summary: "802.1D STP on IOS XE EtherSwitch: five port states with ~30 s convergence, root election by lowest bridge ID, the default timers/priority/cost, and PVST+ interop with the Common Spanning Tree."
 sources:
   - note:_sources/cisco-ios-xe/lan-switching.md
-provenance:
-  extracted: 7
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 7
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [spanning-tree, concept]
 status: reviewed
 updated: 2026-06-18

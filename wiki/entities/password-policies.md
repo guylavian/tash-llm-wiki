@@ -8,6 +8,9 @@ sources:
   - guide:server_administration_guide
   - kb:configuring-authentication_server_administration_guide
   - kb:mitigating_security_threats
+source_notes:
+  - "[[rhbk-26-4-configuring-authentication-server-administration-guide]]"
+  - "[[rhbk-26-4-mitigating-security-threats]]"
 provenance: needs-review
 tags: [authn]
 status: draft

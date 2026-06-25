@@ -8,6 +8,8 @@ sources:
   - kb:7126933
   - ref:rhbk-troubleshooting-kb.md
   - guide:server_configuration_guide
+source_notes:
+  - "[[doc-7126933]]"
 provenance: needs-review
 tags: [server-config]
 status: draft

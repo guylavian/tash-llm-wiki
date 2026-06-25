@@ -7,6 +7,8 @@ summary: "A `KeycloakRealmImport` custom resource that drives the Operator to im
 sources:
   - guide:operator_guide
   - kb:operator_guide/realm-import-
+source_notes:
+  - "[[rhbk-26-6-realm-import]]"
 provenance: needs-review
 tags: [operator]
 status: draft

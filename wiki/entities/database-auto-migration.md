@@ -8,6 +8,9 @@ sources:
   - guide:migration_guide
   - kb:migrating-server
   - kb:migrating-operator
+source_notes:
+  - "[[rhbk-26-6-migrating-server]]"
+  - "[[rhbk-26-6-migrating-operator]]"
 provenance: needs-review
 tags: [migration, server-config]
 status: draft

@@ -6,10 +6,9 @@ slug: bgp-route-reflector
 summary: "Route reflectors scale iBGP without a full mesh by reflecting iBGP-learned routes, using Originator-ID and Cluster-list for loop avoidance — and they honor only set ip next-hop on reflected routes."
 sources:
   - note:_sources/cisco-ios-xe/bgp-routing.md
-provenance:
-  extracted: 6
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [routing-protocols, concept]
 status: reviewed
 updated: 2026-06-18

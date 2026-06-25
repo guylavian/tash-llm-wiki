@@ -7,6 +7,8 @@ summary: "A realm is the isolated security domain in which Keycloak/RHBK manages
 sources:
   - guide:server_administration_guide
   - kb:configuring-realms
+source_notes:
+  - "[[rhbk-26-4-configuring-realms]]"
 provenance: needs-review
 tags: [realm, concept]
 status: draft

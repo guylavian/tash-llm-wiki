@@ -6,10 +6,9 @@ slug: ospf
 summary: "OSPFv2 on IOS XE: a link-state IGP — network types and DR/BDR, cost from a tunable reference bandwidth, loopback-stable router ID, NSSA Type-7↔Type-5 translation, and the matched hello/dead/auth that adjacency depends on."
 sources:
   - note:_sources/cisco-ios-xe/ospf-routing.md
-provenance:
-  extracted: 9
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [routing-protocols, security, concept]
 status: reviewed
 updated: 2026-06-18

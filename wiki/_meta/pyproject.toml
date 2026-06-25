@@ -1,0 +1,45 @@
+# pyproject.toml — project metadata + tooling config for the wikikb toolchain (PEP 621/518).
+#
+# The base toolchain is STDLIB-ONLY and AIR-GAPPED by design: it needs NO pip install. Run tools with
+#   python3 -m wikikb <tool> ...        (from wiki/_meta/, or with PYTHONPATH=<repo>/wiki/_meta)
+# and the tests with
+#   python3 wiki/_meta/tests/selftest.py   (the canonical runner; the standalone probes run the same way)
+# The [build-system] + [project.scripts] below make an OPTIONAL editable install (`pip install -e .`
+# from wiki/_meta/) work for developers who want console entry points — but it is never required.
+
+[project]
+name = "wikikb"
+version = "0.1.0"
+description = "Keycloak/RHBK LLM-wiki toolchain — retrieval, maintenance, eval, and an optional cost/LLM tier (stdlib-only, air-gapped)."
+requires-python = ">=3.9"
+dependencies = []   # NONE: the base toolchain is intentionally stdlib-only (the air-gap invariant).
+
+[project.optional-dependencies]
+# Optional tiers — vendor offline per _meta/requirements-online.txt / _meta/models/README.md; NOT
+# installed by default. Pins are unverified for very new CPython — confirm at vendoring time.
+online = ["litellm", "langgraph"]                          # LLM gateway + LangGraph orchestration
+dense = ["numpy", "sentence-transformers", "tokenizers"]   # offline dense retrieval + measured tokenizers
+
+[project.scripts]
+# Console entry points IF installed (`pip install -e .`). The air-gap path uses `python -m wikikb <tool>`
+# (the dispatcher) and needs none of these. Targets are the nested module paths (post-subpackaging).
+wikikb-kb = "wikikb.retrieval.kb:main"
+wikikb-lint = "wikikb.quality.lint:main"
+wikikb-eval = "wikikb.quality.evaluate:main"
+wikikb-index = "wikikb.build.index:main"
+wikikb-manifest = "wikikb.build.manifest:main"
+wikikb-cost = "wikikb.online.cost:main"
+wikikb-llm = "wikikb.online.llm:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["wikikb", "wikikb.retrieval", "wikikb.build", "wikikb.corpus",
+            "wikikb.quality", "wikikb.online", "wikikb.graph"]
+
+
+[tool.ruff]
+line-length = 110
+target-version = "py39"

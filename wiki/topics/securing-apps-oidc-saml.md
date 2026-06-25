@@ -8,6 +8,9 @@ sources:
   - guide:securing_applications_and_services_guide
   - kb:oidc-layers-
   - kb:overview-
+source_notes:
+  - "[[rhbk-26-6-oidc-layers]]"
+  - "[[rhbk-26-6-overview-2]]"
 provenance: needs-review
 tags: [clients, concept]
 status: draft

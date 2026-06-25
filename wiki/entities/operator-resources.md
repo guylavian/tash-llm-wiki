@@ -7,6 +7,8 @@ summary: "The `spec.resources` field on the [[keycloak-cr]] — compute requests
 sources:
   - guide:operator_guide
   - kb:operator_guide/advanced-configuration-
+source_notes:
+  - "[[rhbk-26-6-advanced-configuration]]"
 provenance: needs-review
 tags: [operator]
 status: draft

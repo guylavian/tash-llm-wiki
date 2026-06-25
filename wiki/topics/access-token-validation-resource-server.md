@@ -9,10 +9,9 @@ sources:
   - web:https://www.rfc-editor.org/rfc/rfc6749 (RFC 6749 OAuth2 core + RFC 6750 Bearer usage, fetched 2026-06-17)
   - web:https://www.rfc-editor.org/rfc/rfc7662 (RFC 7662 Token Introspection + RFC 7009 Token Revocation, fetched 2026-06-17)
   - web:https://owasp.org/API-Security/editions/2023/en/0x11-t10/ (OWASP API Security Top 10 2023, fetched 2026-06-17)
-provenance:
-  extracted: 28
-  inferred: 5
-  ambiguous: 0
+provenance_extracted: 28
+provenance_inferred: 5
+provenance_ambiguous: 0
 tags: [tokens, security, procedure]
 status: reviewed
 updated: 2026-06-17

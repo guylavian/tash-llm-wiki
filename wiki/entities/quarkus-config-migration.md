@@ -7,6 +7,8 @@ summary: "RHBK replaces RH-SSO 7.6's JBoss EAP runtime with Quarkus, so `standal
 sources:
   - guide:migration_guide
   - kb:migrating-server
+source_notes:
+  - "[[rhbk-26-6-migrating-server]]"
 provenance: needs-review
 tags: [migration]
 status: draft

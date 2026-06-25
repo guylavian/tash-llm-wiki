@@ -7,6 +7,8 @@ summary: "Mapping each RH-SSO 7.6 `standalone.xml` subsystem (datasource, TLS, c
 sources:
   - guide:migration_guide
   - kb:migrating-server
+source_notes:
+  - "[[rhbk-26-6-migrating-server]]"
 provenance: needs-review
 tags: [migration, server-config, concept]
 status: draft

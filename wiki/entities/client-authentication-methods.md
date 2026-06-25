@@ -8,6 +8,9 @@ sources:
   - guide:securing_applications_and_services_guide
   - kb:authz-client-
   - kb:oidc-layers-
+source_notes:
+  - "[[rhbk-26-6-authz-client]]"
+  - "[[rhbk-26-6-oidc-layers]]"
 provenance: needs-review
 tags: [clients]
 status: draft

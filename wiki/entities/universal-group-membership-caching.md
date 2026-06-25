@@ -1,0 +1,67 @@
+---
+title: Universal Group Membership Caching
+type: entity
+domain: active-directory
+slug: universal-group-membership-caching
+summary: UGMC lets a Windows Server 2008+ DC cache each user's universal group membership after the first GC-assisted logon, so subsequent logons succeed locally without reaching a global catalog server — the recommended alternative to placing a full GC at a small remote site.
+sources:
+  - web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/replication/Active-Directory-Replication-Concepts (Microsoft Learn — Active Directory Replication Concepts, fetched 2026-06-18)
+  - web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Planning-Global-Catalog-Server-Placement (Microsoft Learn — Planning Global Catalog Server Placement, fetched 2026-06-18)
+provenance_extracted: 8
+provenance_inferred: 3
+provenance_ambiguous: 0
+tags: [replication, sites-topology, ad-authn, concept]
+status: draft
+updated: 2026-06-18
+---
+
+# Universal Group Membership Caching
+
+**Universal group membership caching (UGMC) allows a DC running Windows Server 2008 or later to cache users' universal group memberships locally after the first GC-assisted logon, eliminating the need for a GC server at every site.**
+
+## Body
+
+### How it works
+
+Universal groups can contain members from any domain in the forest, so their membership can only be definitively resolved by a [[global-catalog]] server. Without a GC locally, the authenticating DC must contact a GC across the WAN on every logon to expand universal group membership — which becomes a single point of failure and a latency bottleneck.
+
+When UGMC is enabled on a DC, the first logon for each user still requires a GC contact, but the DC **caches the universal group membership** returned. All subsequent logons for that user complete locally from the cache, with no GC query required. The cache is periodically refreshed from the GC to pick up membership changes (inferred — combining the two reference notes; the exact refresh interval is not specified in the source).
+
+UGMC is enabled per-site via **Active Directory Sites and Services** (site properties > enable Universal Group Membership Caching).
+
+### When to use UGMC instead of a GC
+
+Use UGMC (rather than adding a full GC) when all of the following apply:
+
+- The site has **fewer than 100 users**.
+- No **roaming users** frequently log on for the first time at this site (their first logon still needs a GC).
+- No applications require a GC server locally (Exchange, MSMQ, DCOM-heavy workloads need a local GC).
+- The site is connected to a hub site with a GC by a WAN link that is **not 100% available** — if the WAN were always up, users could reach the GC directly anyway.
+
+The GC server used for cache population should be **no more than one replication hop** from the UGMC-enabled DC, so the cached universal group data stays reasonably fresh (inferred — placement note's one-hop constraint implies freshness).
+
+### UGMC vs. full GC placement
+
+| Factor | UGMC | Full GC |
+|---|---|---|
+| WAN traffic | Low after first logon | Higher (partial-attribute-set replication) |
+| First logon | Requires GC contact | Local |
+| Roaming users | First logon slow | Fast |
+| App compatibility (Exchange) | Not compatible | Compatible |
+| Infrastructure Master conflict | N/A | Must not co-locate with IM (see [[fsmo-roles]]) |
+
+## Contradictions / caveats
+
+- UGMC does not eliminate all GC dependency: UPN logon for a user whose UPN suffix is unknown to the local DC still requires a GC lookup (inferred — UPN resolution is a separate GC function from universal group membership).
+- Applications such as Microsoft Exchange Server require a writable GC and cannot use an RODC GC or UGMC as a substitute.
+- The cache must be considered stale if the GC is unreachable for an extended period — users whose universal group membership has changed may receive incorrect authorization until the cache refreshes.
+
+## Reference notes
+- [[ad-ds-active-directory-replication-concepts]]
+- [[ad-ds-planning-global-catalog-server-placement]]
+
+## See also
+- [[global-catalog]]
+- [[ad-replication]]
+- [[site-topology-design]]
+- [[capacity-and-placement-planning]]

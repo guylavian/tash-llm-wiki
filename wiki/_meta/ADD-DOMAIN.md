@@ -1,146 +1,339 @@
-# Tutorial — Add a new technology "brain" (domain) to the wiki
+# Tutorial — Add a new technology "brain" (domain) from zero to hero
 
-This is the **hands-on, per-tech checklist** for onboarding a new technology domain
-into the vault, worked through with the real example we used to add **Active
-Directory**. The canonical definition of the operation lives in
+This is the **hands-on, end-to-end walkthrough** for onboarding a new technology
+domain into the vault. The canonical definition of the operation lives in
 [`../CLAUDE.md`](../CLAUDE.md) → **Operation: ADD DOMAIN**; this file is the
-copy-paste walkthrough that doesn't drift from it.
+copy-paste tutorial that doesn't drift from it. Worked against the two real
+examples we shipped: **Active Directory** (notes-first → corpus-backed) and
+**Cisco IOS XE** (notes-first).
 
-> **Mental model.** Each domain is an independent "brain" sharing one Obsidian
-> vault, one set of tools, and one tag/area vocabulary. A page belongs to a brain
-> via its `domain:` frontmatter. Adding a brain = (1) declare it, (2) give it a raw
-> tier, (3) seed its synthesis, (4) regenerate + lint. Nothing about the keycloak
-> brain changes.
+> **What you'll build.** A new, independently-queryable "brain" inside the same
+> Obsidian vault: its own raw tier, its own routing index, its own review lens,
+> all sharing one tag/area vocabulary and one set of stdlib tools. Nothing about
+> the existing brains (keycloak, active-directory, cisco-ios-xe) changes.
 
 ---
 
-## 0. Decide the shape
+## The 60-second mental model
+
+The vault has **three layers** (see `../CLAUDE.md`):
+
+| Layer | Location | Mutability | Your job |
+|---|---|---|---|
+| **Raw sources** | `reference/<domain>/` (folded corpus) · `_sources/<domain>/` (hand notes) · `../references/` | **IMMUTABLE** — never edit | create once, then freeze |
+| **Synthesis** | `topics/` · `entities/` · `questions/` | LLM-maintained | this is where you write |
+| **Schema** | `CLAUDE.md` + `_meta/taxonomy.md` | human + LLM | declare the domain here |
+
+**Hard rule — writes go *only* under `wiki/{topics,entities,questions}/` and
+`wiki/_meta/`.** Never edit `reference/<domain>/`, `_sources/<domain>/`, or
+`../references/` — they are immutable and integrity-locked (`_meta/reference.lock.json`,
+sha256 per note). All tooling is **stdlib-only and offline**; the *one* optional
+third-party dependency is the local embedding layer (`embed.py`), which degrades
+gracefully to lexical search when absent.
+
+Adding a brain is six steps: **(1) declare it → (2) give it areas → (3) give it a
+raw tier → (4) seed three synthesis pages → (5) wire the graph + indexes → (6)
+lint until green.** Then you grow it with INGEST / QUERY.
+
+---
+
+## Prerequisites
+
+- You're working inside the vault root (`wiki/`) — the directory you open in Obsidian.
+- `python3` (stdlib only — no `pip install` needed for the core path).
+- Know your **sources** for the new tech: either a harvestable doc corpus
+  (corpus-backed) or the knowledge you'll hand-author (notes-first).
+- Read `../CLAUDE.md` once. This tutorial is the executable version of its
+  *Operation: ADD DOMAIN*.
+
+---
+
+## Step 0 — Decide the shape
 
 | Shape | When | Raw tier | Source tokens |
 |---|---|---|---|
-| **notes-first** | No offline corpus to harvest — you author the ground truth (Active Directory, Windows Server, SCCM) | `_sources/<domain>/*.md` (immutable once written) | `note:` + `web:` |
-| **corpus-backed** | You have a harvestable doc corpus to freeze | `reference/<domain>/*.md` (folded in by `corpus_to_vault.py`) | `kb:`/`guide:`/`ref:` + `web:` |
+| **notes-first** | No harvestable corpus — you author the ground truth (Cisco IOS XE, Windows Server, SCCM) | `_sources/<domain>/*.md` (immutable once written) | `note:` + `web:` |
+| **corpus-backed** | You have a doc corpus to freeze (Red Hat docs, MicrosoftDocs Markdown) | `reference/<domain>/*.md` (folded in by `corpus_to_vault.py`) | `kb:`/`guide:`/`ref:` + `web:` |
 
-Active Directory → **notes-first** (no Red Hat-style support corpus; the authority
-is Microsoft Learn + lab/operational knowledge, which we paraphrase into notes).
+**Rule of thumb:** notes-first is the default. Start notes-first; you can *promote*
+to corpus-backed later if a harvestable source appears (that's exactly the AD path —
+seeded notes-first against Microsoft Learn, then folded in the `windowsserverdocs`
+Markdown tree).
+
+> The shape only changes the **raw tier and the source tokens**. Steps 1, 2, 4, 5,
+> 6 are identical for both.
 
 ---
 
-## 1. Register the domain (the load-bearing step)
+## Step 1 — Register the domain in `taxonomy.md` (the load-bearing step)
 
 Edit `_meta/taxonomy.md`. Copy the `<!-- Template -->` block under `## Domains` and
-fill it in. What we added for AD:
+fill it in. This is the single most important step: **three tools parse these exact
+lines.**
 
 ```markdown
-### active-directory
-- domain: active-directory
-- areas: [directory-services, replication, group-policy, ad-dns, fsmo, trusts, sites-topology, ad-certificate-services, ad-authn, users, security, troubleshooting, migration]
-- shape: notes-first
-- sources: [_sources/active-directory/]
-- review-moc: active-directory-implementation-review
+### <domain>
+- domain: <domain>                  # kebab-case, globally unique
+- areas: [area-a, area-b, security, troubleshooting]
+- shape: notes-first                # or corpus-backed
+- sources: [_sources/<domain>/]     # + corpora/<domain>/ if corpus-backed
+- review-moc: <domain>-implementation-review
 ```
 
-Why this matters: `lint.py` validates every page's `domain:` against the
-`- domain:` lines here (an undeclared domain is a warning), and `index.py` builds
-`index.<domain>.md` only for declared domains. The kebab-only parser ignores the
-`<placeholder>` tokens, so the commented template never registers as a real domain.
+Why it's load-bearing:
+- **`lint.py`** validates every page's `domain:` against the `- domain:` lines here
+  (an undeclared domain is flagged).
+- **`index.py`** builds `index.<domain>.md` *only* for declared domains
+  (`DOMAIN_RE` parses `- domain: <name>`; the `<placeholder>` template is skipped,
+  so it stays inert).
+- **`route.py`** builds that domain's router profile from its `areas:` + descriptions.
 
-## 2. Add new areas to the shared vocabulary
+## Step 2 — Add any new `areas:` to the shared vocabulary
 
-`## Areas` is a **flat union** across all domains; a domain's `areas:` must be a
-subset of it. A new technology almost always contributes new area tokens. We added
-nine AD-specific areas (`directory-services`, `replication`, `group-policy`,
-`ad-dns`, `fsmo`, `trusts`, `sites-topology`, `ad-certificate-services`,
-`ad-authn`) and reused the generic ones (`users`, `security`, `troubleshooting`,
-`migration`). Keep each as a backticked token with a one-line gloss so `tags.py` /
-`lint.py` accept it.
+`## Areas` in `taxonomy.md` is a **flat union across all domains**; a domain's
+`areas:` must be a subset of it. A genuinely new technology contributes several new
+area tokens. Add each as a backticked token **with a one-line gloss** (the gloss
+feeds `route.py`'s keyword profile — write it with the words a user would actually
+query):
 
-## 3. Create the raw tier
+```markdown
+- `routing-protocols` — dynamic IP routing: OSPF, BGP, EIGRP — adjacencies, metrics, path selection
+- `lan-switching` — VLANs, 802.1Q trunking, inter-VLAN routing, access/trunk ports
+```
 
-**Notes-first** (AD):
+Reuse the generic areas (`security`, `troubleshooting`, `users`, `migration`) where
+they fit, rather than minting near-duplicates.
+
+## Step 3 — Create the raw tier
+
+### Notes-first
 
 ```bash
-mkdir -p _sources/active-directory
+mkdir -p _sources/<domain>
 ```
 
-Add a `README.md` declaring these notes ARE the immutable ground truth (copy
-`_sources/active-directory/README.md`), then write notes — **one file per concept**,
-each recording its source (Microsoft Learn URL + fetch date, or a lab/ticket
-observation) and the load-bearing facts, paraphrased (no long verbatim excerpts).
-Our seed: `_sources/active-directory/fsmo-roles.md`.
+Add a `README.md` declaring **these notes ARE the immutable ground truth** (copy
+`_sources/cisco-ios-xe/README.md` or `_sources/active-directory/README.md`). Then
+write notes — **one file per concept** — each recording its source (a `web:` URL +
+fetch date, or a lab/ticket observation) and the load-bearing facts, **paraphrased**
+(no long verbatim excerpts — provenance, not transcripts; copyright + the
+"distill, don't copy" rule).
 
-**Corpus-backed from a docs repo** (the "give me *all* the docs" path — what we
-wired for AD against Microsoft Learn). The Windows Server / AD docs are open-source
-Markdown in `MicrosoftDocs/windowsserverdocs` (AD under `WindowsServerDocs/identity/`).
-Clone on a networked machine, drop the `identity/` tree into
-`_sources/active-directory/_raw/`, then run two stdlib commands offline:
+### Corpus-backed (the "give me *all* the docs" path)
+
+For a DocFX/Markdown docs repo (e.g. `MicrosoftDocs/windowsserverdocs`), clone on a
+networked machine, drop the relevant subtree into `_sources/<domain>/_raw/`, then run
+two stdlib commands **offline**:
 
 ```bash
-# docs tree -> corpus (index.jsonl + body files) — derives the learn.microsoft URLs
-python3 _meta/bin/docs_to_corpus.py \
-    --src _sources/active-directory/_raw/identity \
-    --domain active-directory --apply
+# docs tree -> corpus (index.jsonl + body files); derives the live source URLs
+python3 -m wikikb docs_to_corpus --src _sources/<domain>/_raw/<subtree> \
+    --domain <domain> --apply
 
-# corpus -> immutable in-vault reference notes (existing tool, unchanged)
-python3 _meta/bin/corpus_to_vault.py --domain active-directory --apply
+# corpus -> immutable in-vault reference notes (+ writes the integrity lock)
+python3 -m wikikb corpus_to_vault --domain <domain> --apply
 ```
 
-`docs_to_corpus.py` turns each DocFX `.md` into a corpus record (frontmatter
-`title`/`description` → note title/abstract, body stripped of frontmatter, live URL
-derived from the path); `includes/` partials and non-Markdown assets are skipped.
-After folding in, **flip the domain's `shape:` to `corpus-backed`** in
-`_meta/taxonomy.md` (and add `corpora/active-directory/` to its `sources:`), then
-re-run `index.py` → `crosslink.py --apply` → `lint.py`. The retrieval contract
-becomes grep over `reference/active-directory/` (+ optional `kb.py --domain
-active-directory search`), exactly like keycloak.
+`corpus_to_vault.py` writes one note per source under `reference/<domain>/` (body
+present) or one pointer row in `_gated-kb-index.md` (gated body), and records a
+sha256 per note in `_meta/reference.lock.json` so any later hand-edit is detectable
+(`--verify`). After folding in, **flip `shape:` to `corpus-backed`** in
+`taxonomy.md` and add `corpora/<domain>/` to its `sources:`.
 
-For a non-DocFX bulk source (a CIS/STIG PDF, a vendor guide), drop it in `_raw/` and
-distill it into paraphrased `_sources/<domain>/` notes instead — no long verbatim
-(copyright + the "provenance, not transcripts" rule).
+> For a non-DocFX bulk source (a CIS/STIG PDF, a vendor guide), **don't** force it
+> into the corpus path — distill it into paraphrased `_sources/<domain>/` notes
+> instead. (This is exactly why the Cisco WLC AireOS PDF was *not* folded into
+> `cisco-ios-xe`: it's a different product family, so it belongs in its own domain.)
 
-## 4. Seed the synthesis (minimum viable brain)
+## Step 4 — Seed the synthesis (the minimum viable brain)
 
-Write three pages so the brain is navigable and lintable:
+Write **three pages** so the brain is navigable and lintable. Every page carries the
+full frontmatter contract:
 
-1. **Overview topic** — the spine. `topics/active-directory-overview.md`.
-2. **First entity** it links — `entities/fsmo-roles.md`.
-3. **The review MOC** named in step 1's `review-moc:` —
-   `topics/active-directory-implementation-review.md` — with a rule→anti-pattern→
-   symptom checklist and a symptom→cause reverse index. Copy the shape from
-   `topics/sso-implementation-review.md`.
+```markdown
+---
+title: Human-readable title
+type: topic | entity | question
+domain: <domain>                 # REQUIRED — must match taxonomy.md
+slug: kebab-case-matching-filename
+summary: 1–2 sentence gist — read before the body   # REQUIRED (the tiered-query surface)
+sources:                         # REQUIRED provenance
+  - note:_sources/<domain>/<file>.md      # notes-first
+  - web:https://… (label, fetched 2026-06-18)
+provenance:                      # REQUIRED — assign by READING each claim vs its source
+  extracted: 7                   #   (never count bullets mechanically)
+  inferred: 1
+  ambiguous: 0
+tags: [area-a, concept]          # from taxonomy.md ## Areas / ## Kinds
+status: stub | draft | reviewed
+updated: 2026-06-18              # ISO; use the date in session context
+---
 
-Every page carries the full frontmatter contract: `title / type / domain / slug /
-summary / sources / provenance / tags / status / updated`. For notes-first, cite
-`note:_sources/<domain>/<file>.md` and carry the upstream `web:` URL. Assign
-`provenance:` by reading each claim against its note — don't count bullets. Tag
-`(inferred)` inline for cross-source synthesis. Slugs are globally unique across
-`topics/` + `entities/`.
+# Title
 
-## 5. Generate indexes and lint
+**One-line definition.**
+
+## Body
+Synthesis. Cross-link with [[slug]] (bare slug, no path, no .md).
+Tag synthesis the LLM assembled across sources inline: `… (inferred).`
+
+## See also
+- [[related-slug]]
+```
+
+The three seed pages:
+
+1. **Overview topic** — the spine. `topics/<domain>-overview.md`.
+2. **The first entity** it links — `entities/<some-concept>.md`.
+3. **The review MOC** named in Step 1's `review-moc:` —
+   `topics/<domain>-implementation-review.md`. Copy the shape from
+   `topics/sso-implementation-review.md` or `topics/cisco-ios-xe-implementation-review.md`:
+   a **rule → anti-pattern → symptom** checklist plus a **symptom → likely-cause
+   reverse index** (this is the lookup surface a future SRE/agent uses to turn an
+   alert into a cause page; pair it with the optional `symptoms:` frontmatter field).
+
+Slugs are kebab-case and **globally unique across `topics/` + `entities/`**. A
+`[[slug]]` whose page doesn't exist yet is allowed — it's a `[[wanted]]` TODO marker,
+not an error.
+
+## Step 5 — Wire the graph + generate indexes
 
 ```bash
-python3 _meta/bin/index.py     # writes index.<domain>.md + adds the domain to the global router
-python3 _meta/bin/lint.py      # health check
+python3 -m wikikb crosslink --apply    # synthesis -> corpus graph edges (## Sources)
+python3 -m wikikb index                # writes index.<domain>.md + updates the global router
 ```
 
-A healthy new brain looks like our AD run:
+- **`crosslink.py`** resolves each page's `kb:` source tokens to the matching
+  `reference/<domain>/` note and appends a generated `## Sources` block of
+  `[[doc-id|Title]]` wikilinks — **these are the edges that connect your synthesis
+  to the corpus in Obsidian's graph** (and the edges `expand.py` later walks for
+  multi-hop retrieval). It's idempotent and never touches your `sources:` block.
+  *Note:* it only resolves `kb:` tokens — a **notes-first** domain (`note:`/`web:`)
+  gets no synthesis→corpus edges, so its graph is built from inline `[[slug]]` links
+  alone. (That's a known limitation, not a mistake — see "Known seams" below.)
+- **`index.py`** writes `index.<domain>.md` (titles + summaries only, never bodies)
+  and regenerates the `index.md` global router block. The reference tier is
+  **counted, not page-listed** (a generated `[[_ref-<domain>|N reference notes]]`
+  hub keeps every corpus note graph-connected without polluting the page index).
 
-- `wrote index.active-directory.md (3 pages)` and the global `index.md` router gains
-  `- [active-directory](index.active-directory.md) — 3 pages · review lens [[active-directory-implementation-review]]`.
-- The only AD findings are **intentional `[[wanted]]` TODO markers** (we left
-  `[[group-policy]]` as the next page to write) and the review-MOC's
-  `inferred>=extracted` drift warning — expected, because a MOC is pure synthesis
-  (the sibling `sso-implementation-review` shows the same).
-- **No AD orphans, no broken links, no missing-frontmatter errors.**
-
-## 6. Grow it, and record what you ingest
-
-From here the brain grows through the normal **INGEST** / **QUERY** ops in
-`../CLAUDE.md`. As you fold in real sources, record them:
+## Step 6 — Lint and verify
 
 ```bash
-python3 _meta/bin/manifest.py record note:_sources/active-directory/<file>.md --pages <slug,...>
+python3 -m wikikb lint            # health check (add --strict to fail on errors)
+python3 _meta/tests/selftest.py        # end-to-end smoke test (optional but recommended)
 ```
+
+A **healthy new brain** looks like the cisco-ios-xe run:
+
+- `wrote index.<domain>.md (N pages)` and the global `index.md` router gains a line
+  like `- [<domain>](index.<domain>.md) — N pages · review lens [[<domain>-implementation-review]]`.
+- **No orphans, no broken links, no missing-frontmatter/sources errors.**
+- The *only* expected findings are: intentional `[[wanted]]` TODO markers (pages you
+  deliberately left for later), and the review-MOC's `inferred >= extracted` drift
+  warning — expected, because a MOC is pure synthesis (the sibling
+  `sso-implementation-review` shows the same warning).
+
+> **Provenance gate.** Once you set a page to `status: reviewed`, bad provenance
+> (`needs-review`, or `inferred >= extracted`) becomes a **hard ERROR** under
+> `lint.py --strict`. Keep synthesis-heavy pages at `status: draft` until a human/LLM
+> pass has verified each claim against the raw layer.
+
+## Step 7 — Record what you ingest
+
+As you fold in real sources, record them so INGEST stays incremental:
+
+```bash
+python3 -m wikikb manifest record note:_sources/<domain>/<file>.md --pages <slug,...>
+# corpus-backed:
+python3 -m wikikb manifest record kb:7032207 --pages <slug-a,slug-b>
+```
+
+---
+
+## Worked example, end to end — `cisco-ios-xe` (notes-first)
+
+The exact sequence we ran to add the third brain (13 synthesis pages from 4 IOS XE
+config guides):
+
+```bash
+# 1–2. taxonomy.md: added the ### cisco-ios-xe block + 5 new areas
+#      (routing-protocols, ip-routing, lan-switching, spanning-tree, etherchannel)
+
+# 3. raw tier (notes-first): README + one paraphrased note per guide
+mkdir -p _sources/cisco-ios-xe
+#   _sources/cisco-ios-xe/{README,ospf-routing,bgp-routing,
+#                          protocol-independent-routing,lan-switching}.md
+
+# 4. seed synthesis: overview + 11 entities + the review MOC
+#   topics/cisco-ios-xe-overview.md
+#   topics/cisco-ios-xe-implementation-review.md     (rule→anti-pattern→symptom + reverse index)
+#   entities/{ospf,bgp,bgp-path-attributes,bgp-route-reflector,
+#             cisco-administrative-distance,static-and-default-routes,
+#             route-redistribution-and-route-maps,policy-based-routing,
+#             vlans-and-trunking,spanning-tree-protocol,etherchannel}.md
+
+# 5. wire + index
+python3 -m wikikb crosslink --apply     # (no-op for notes-first: note:/web: don't resolve)
+python3 -m wikikb index                 # -> wrote index.cisco-ios-xe.md (13 pages)
+
+# 6. verify
+python3 -m wikikb lint --strict         # rc=0; only [[wanted]] + MOC drift findings
+python3 _meta/tests/selftest.py              # 11/11
+
+# 7. record
+python3 -m wikikb manifest record note:_sources/cisco-ios-xe/ospf-routing.md \
+    --pages cisco-ios-xe-overview,ospf
+```
+
+Result: a fully queryable brain. `route.py "ospf neighbor stuck in exstart"` →
+confident `cisco-ios-xe`; the query reads only `index.cisco-ios-xe.md`, lands on
+`[[ospf]]` / the review MOC's reverse index, and answers.
+
+---
+
+## Grow it — the INGEST / QUERY loop
+
+From here the brain grows through the normal ops in `../CLAUDE.md`:
+
+- **INGEST** — `manifest.py status` (what's new/changed) → write/update pages →
+  `crosslink.py --apply` → `index.py` → `lint.py` → `manifest.py record`.
+- **QUERY** — `route.py "<q>"` (route to domain) → read `index.<domain>.md` +
+  candidate summaries → `expand.py --domain <d> "<q>"` (1-hop graph neighborhood) →
+  open bodies / grep `reference/<domain>/` (or `_sources/`) only when needed →
+  synthesize with the two-group References section → file the answer to
+  `questions/<slug>.md` so the wiki compounds.
+
+---
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `lint.py`: "domain `<x>` not declared" | Page `domain:` doesn't match a `- domain:` line | Add/fix the `### <domain>` block in `taxonomy.md` (Step 1) |
+| `index.py` doesn't create `index.<domain>.md` | Domain not declared, or the block is still the `<placeholder>` template | Fill the template with a real kebab-case slug |
+| `lint.py`: tag `<t>` not in vocabulary | Used a `tags:` value not in `## Areas`/`## Kinds` | Add the token to `taxonomy.md`, or use an existing one |
+| Reviewed page errors on provenance | `status: reviewed` + `inferred >= extracted` or `needs-review` | Lower to `status: draft`, or verify claims and fix the counts |
+| New page flagged as orphan | Nothing links to it and the index doesn't list it | Add an inline `[[slug]]` from a related page; re-run `index.py` |
+| `corpus_to_vault.py --verify` fails | A supposedly-immutable `reference/` note was hand-edited | Restore it; never edit the raw tier |
+| Graph adds no retrieval lift for a notes-first domain | `crosslink.py` resolves only `kb:` tokens, so `## Sources` is empty | Expected. The dense layer (`embed.py`) is the recall path for notes-first domains |
+
+---
+
+## Known seams (be aware of these)
+
+These are real tooling gaps surfaced by code review — none blocks adding a domain,
+but know them:
+
+- **`manifest.py` doesn't track the `note:` tier** (its `SRC_RE` matches only
+  `kb:`/`guide:`/`ref:`/`web:`). So a pure notes-first domain's `note:` sources can't
+  yet be marked "ingested" by `manifest.py status`. Record what you can; don't be
+  surprised when notes-first sources don't show in the manifest tally.
+- **`crosslink.py` only wires `kb:` → reference-note edges.** Notes-first domains
+  (`note:`/`web:`) get no synthesis→corpus graph edges, so their multi-hop retrieval
+  rescue is structurally weaker — the dense/embedding layer is their recall path.
+- **`lint.py`'s link regex ignores the aliased `[[slug|Title]]` form** that
+  `crosslink.py` itself writes, so generated `## Sources` edges don't count toward
+  the linter's orphan/backlink accounting (handled separately via the `_ref-*` hubs).
 
 ---
 
@@ -148,9 +341,9 @@ python3 _meta/bin/manifest.py record note:_sources/active-directory/<file>.md --
 
 - [ ] Shape chosen (notes-first vs corpus-backed)
 - [ ] `### <domain>` block added under `## Domains` in `_meta/taxonomy.md`
-- [ ] New `areas:` added to `## Areas`
+- [ ] New `areas:` added to `## Areas` (with one-line glosses)
 - [ ] Raw tier created (`_sources/<domain>/` + README, or `reference/<domain>/`)
 - [ ] Overview topic + first entity + `<domain>-implementation-review` MOC written
-- [ ] `index.py` run → `index.<domain>.md` + router updated
-- [ ] `lint.py` clean (only intentional wanted-pages / MOC drift)
+- [ ] `crosslink.py --apply` run (corpus-backed) → `index.py` → `index.<domain>.md` + router updated
+- [ ] `lint.py --strict` clean (only intentional wanted-pages / MOC drift)
 - [ ] Sources recorded in the manifest as they're ingested

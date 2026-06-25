@@ -6,10 +6,9 @@ slug: bgp
 summary: "BGP-4 on IOS XE: the interdomain path-vector protocol over TCP/179 — AS_Path loop prevention, 2-byte/4-byte ASNs (asplain vs asdot), one best path per prefix, and the next-hop reachability rule that trips up iBGP."
 sources:
   - note:_sources/cisco-ios-xe/bgp-routing.md
-provenance:
-  extracted: 8
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [routing-protocols, concept]
 status: reviewed
 updated: 2026-06-18

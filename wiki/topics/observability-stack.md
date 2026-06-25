@@ -10,6 +10,11 @@ sources:
   - kb:health-
   - kb:configuration-metrics-
   - kb:tracing-
+source_notes:
+  - "[[rhbk-26-6-telemetry]]"
+  - "[[rhbk-26-6-health]]"
+  - "[[rhbk-26-6-configuration-metrics]]"
+  - "[[rhbk-26-6-tracing]]"
 provenance: needs-review
 tags: [observability, concept]
 status: draft

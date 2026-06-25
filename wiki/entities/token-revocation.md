@@ -6,10 +6,9 @@ slug: token-revocation
 summary: "RFC 7009 defines how clients signal an authorization server to invalidate a token immediately; correct implementation requires HTTPS-only endpoints, client-authenticated requests, and cascade invalidation of all tokens from the same grant."
 sources:
   - web:https://www.rfc-editor.org/rfc/rfc7662 (RFC 7662 Token Introspection + RFC 7009 Token Revocation, fetched 2026-06-17)
-provenance:
-  extracted: 9
-  inferred: 3
-  ambiguous: 0
+provenance_extracted: 9
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [tokens, security, endpoint]
 status: reviewed
 updated: 2026-06-17

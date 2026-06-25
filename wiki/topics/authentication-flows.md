@@ -7,6 +7,8 @@ summary: "An authentication flow is an ordered container of executions and sub-f
 sources:
   - guide:server_administration_guide
   - kb:configuring-authentication_server_administration_guide
+source_notes:
+  - "[[rhbk-26-4-configuring-authentication-server-administration-guide]]"
 provenance: needs-review
 tags: [authn, concept]
 status: draft

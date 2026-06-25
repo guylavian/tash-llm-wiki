@@ -9,10 +9,12 @@ sources:
   - kb:oidc-layers-
   - kb:migrating-applications
   - web:https://datatracker.ietf.org/doc/rfc9700/ (RFC 9700, fetched 2026-06-16)
-provenance:
-  extracted: 8
-  inferred: 5
-  ambiguous: 0
+source_notes:
+  - "[[rhbk-26-6-oidc-layers]]"
+  - "[[rhbk-26-6-migrating-applications]]"
+provenance_extracted: 8
+provenance_inferred: 5
+provenance_ambiguous: 0
 tags: [clients]
 status: reviewed
 updated: 2026-06-17

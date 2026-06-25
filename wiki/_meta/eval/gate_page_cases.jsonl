@@ -1,0 +1,8 @@
+# gate_page_cases.jsonl — page-level Confidence-gate probe. One JSON object per line.
+# Tests GATE BEHAVIOUR (does the provenance arm flag the page), NOT answer correctness.
+# expect ∈ {"flag", "clean"}. Rule = lint.page_gate_verdict (H2 extracted==0, H3 reviewed
+# AND inferred>=extracted). Run: gate_page_probe.py
+# fire-case + silent-case here; the intentional-fail (teeth) is a separate run (see report).
+{"page": "questions/c9500-issu-svl-blackhole-nsf-gr.md", "expect": "flag", "why": "the confident-wrong ISSU artifact: extracted:0 + self-tagged reviewed. H2 (extracted==0) AND H3 (reviewed+inferred>=extracted) must fire — and status:reviewed must NOT silence them."}
+{"page": "topics/ldap-user-federation.md", "expect": "clean", "why": "NEGATIVE CONTRAST: a real healthy keycloak page — extracted 7 > inferred 2, real kb:/guide:/ref: sources, reviewed. Must NOT fire. Without this case the probe only proves over-eager firing, not calibration."}
+{"page": "topics/active-directory-implementation-review.md", "expect": "clean", "why": "MOC EXEMPTION LOCK: a synthesis Map-of-Content (declared review-moc: in taxonomy) — extracted:0 is correct for a navigation page that makes no claims. Must be EXEMPT from H2. If a future change un-exempts MOCs, this case FAILs the suite."}

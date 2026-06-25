@@ -6,10 +6,9 @@ slug: static-and-default-routes
 summary: "Static routes (default AD 1), floating statics, and the three ways to set a gateway of last resort — plus the two traps: interface-pointing statics get advertised like connected routes, and a 0.0.0.0/0 static won't propagate into OSPF/IS-IS."
 sources:
   - note:_sources/cisco-ios-xe/protocol-independent-routing.md
-provenance:
-  extracted: 7
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 7
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [ip-routing, concept]
 status: reviewed
 updated: 2026-06-18

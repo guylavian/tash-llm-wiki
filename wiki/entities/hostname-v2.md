@@ -6,10 +6,9 @@ slug: hostname-v2
 summary: The `hostname:v2` model controls how RHBK forms its frontend, backchannel, and admin base URLs (driving token issuer, OIDC discovery, redirect URIs, email links); production requires an explicit `--hostname` or `--hostname-strict false`.
 sources:
   - guide:server_configuration_guide
-provenance:
-  extracted: 8
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config]
 status: reviewed
 updated: 2026-06-16

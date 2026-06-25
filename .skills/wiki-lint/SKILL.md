@@ -10,9 +10,9 @@ Packages the **LINT** operation. Behavior is defined in **`wiki/CLAUDE.md`**
 
 ## Do this
 ```bash
-python3 wiki/_meta/bin/lint.py            # health check (stdlib, no network)
-python3 wiki/_meta/bin/lint.py --strict   # exit 1 on any error (broken link / no sources)
-python3 wiki/_meta/bin/index.py           # regenerate routing indexes if lint reports them stale
+python3 -m wikikb lint            # health check (stdlib, no network)
+python3 -m wikikb lint --strict   # exit 1 on any error (broken link / no sources)
+python3 -m wikikb index           # regenerate routing indexes if lint reports them stale
 ```
 Then resolve what it reports: write wanted pages, link orphans, fill stubs, replace
 auto-seeded summaries with real ones, assign real provenance to `needs-review`

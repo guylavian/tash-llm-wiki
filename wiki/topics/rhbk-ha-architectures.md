@@ -9,6 +9,10 @@ sources:
   - kb:multi-cluster-introduction
   - kb:single-cluster-introduction
   - kb:concepts-multi-site
+source_notes:
+  - "[[rhbk-26-6-multi-cluster-introduction]]"
+  - "[[rhbk-26-6-single-cluster-introduction]]"
+  - "[[rhbk-26-2-concepts-multi-site]]"
 provenance: needs-review
 tags: [ha, concept]
 status: draft

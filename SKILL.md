@@ -1,6 +1,6 @@
 ---
 name: keycloak-admin
-description: Keycloak and Red Hat build of Keycloak (RHBK) administration — realm management, client/OAuth2/OIDC & SAML setup, user & credential management, roles & groups, identity brokering & federation (LDAP/AD), tokens & sessions, themes, fine-grained authorization, server configuration/operator/OpenShift deployment, HA, and RH-SSO→RHBK migration. Activate for Keycloak/RHBK Admin REST API / kcadm.sh operations, authentication setup, identity-provider configuration, and RHBK platform/support questions. Includes an OFFLINE reference distilled from the official Keycloak 26 docs and Red Hat RHBK 26.6 docs/KB, plus a bundled, searchable local knowledge base (1,840 RHBK/RH-SSO records, 800 full doc/solution bodies) queried with `wiki/_meta/bin/kb.py` (or grep) — no internet required.
+description: Keycloak and Red Hat build of Keycloak (RHBK) administration — realm management, client/OAuth2/OIDC & SAML setup, user & credential management, roles & groups, identity brokering & federation (LDAP/AD), tokens & sessions, themes, fine-grained authorization, server configuration/operator/OpenShift deployment, HA, and RH-SSO→RHBK migration. Activate for Keycloak/RHBK Admin REST API / kcadm.sh operations, authentication setup, identity-provider configuration, and RHBK platform/support questions. Includes an OFFLINE reference distilled from the official Keycloak 26 docs and Red Hat RHBK 26.6 docs/KB, plus a bundled, searchable local knowledge base (1,840 RHBK/RH-SSO records, 800 full doc/solution bodies) queried with `wiki/_meta/wikikb/kb.py` (or grep) — no internet required.
 allowed-tools:
   - Bash
   - Read
@@ -100,7 +100,7 @@ official RHBK/RH-SSO documentation and Red Hat KB — usable with **no internet*
 when a question needs the *exact* wording, a specific version, or a long-tail topic the
 distilled references don't cover.
 
-- **Query tool:** `python3 wiki/_meta/bin/kb.py --domain keycloak …` (Python 3 stdlib only,
+- **Query tool:** `python3 -m wikikb kb --domain keycloak …` (Python 3 stdlib only,
   air-gapped) — or plain `grep wiki/reference/keycloak/`.
 - **Corpus (now folded into the vault):** `wiki/reference/keycloak/` — one Markdown note per
   source (741 RHBK/RH-SSO doc chapters across **26.0/26.2/26.4/26.6**, 40 solutions, 14 articles,
@@ -111,12 +111,12 @@ distilled references don't cover.
   unless you pass `--gated`.
 
 ```bash
-python3 wiki/_meta/bin/kb.py --domain keycloak search "ldap truststore operator"   # ranked hits + snippets
-python3 wiki/_meta/bin/kb.py --domain keycloak search "fips bcfips strict" --kind doc --primary
-python3 wiki/_meta/bin/kb.py --domain keycloak search "disconnected mirror image" --gated
-python3 wiki/_meta/bin/kb.py --domain keycloak search "cross-site infinispan" --guide high_availability_guide --full
-python3 wiki/_meta/bin/kb.py --domain keycloak show 7032207            # full body (or URL if gated)
-python3 wiki/_meta/bin/kb.py --domain keycloak guides ; python3 wiki/_meta/bin/kb.py --domain keycloak stats
+python3 -m wikikb kb --domain keycloak search "ldap truststore operator"   # ranked hits + snippets
+python3 -m wikikb kb --domain keycloak search "fips bcfips strict" --kind doc --primary
+python3 -m wikikb kb --domain keycloak search "disconnected mirror image" --gated
+python3 -m wikikb kb --domain keycloak search "cross-site infinispan" --guide high_availability_guide --full
+python3 -m wikikb kb --domain keycloak show 7032207            # full body (or URL if gated)
+python3 -m wikikb kb --domain keycloak guides ; python3 -m wikikb kb --domain keycloak stats
 ```
 
 **When answering RHBK questions, prefer grounding in the vault reference tier over memory** —
@@ -137,11 +137,11 @@ session. The raw layer stays immutable; the wiki is regenerable downstream of it
   consulting the delta manifest so only new/changed sources are processed),
   **QUERY** (tiered: read titles + summaries first, open bodies only when needed;
   fall back to grep / `kb.py`; file the answer back), **LINT**, and **STATUS** (audit).
-- **Tooling** lives in `wiki/_meta/bin/` (stdlib only, air-gapped):
-  - `python3 wiki/_meta/bin/lint.py [--status]` — broken/wanted links, orphans,
+- **Tooling** lives in `wiki/_meta/wikikb/` (stdlib only, air-gapped):
+  - `python3 -m wikikb lint [--status]` — broken/wanted links, orphans,
     missing summary/sources/provenance, provenance drift, auto-seeded summaries,
     link hubs, stale pages; `--status` adds the delta-manifest audit.
-  - `python3 wiki/_meta/bin/manifest.py {seed,status,record}` — the delta manifest
+  - `python3 -m wikikb manifest {seed,status,record}` — the delta manifest
     (`wiki/_meta/.manifest.json`): which sources are ingested vs pending/changed.
 - **Operations are packaged** as Agent Skills in `.skills/` (`wiki-ingest`,
   `wiki-query`, `wiki-lint`, `wiki-status`) and OpenCode commands in `.opencode/`
@@ -288,7 +288,7 @@ For each app (OpenShift OAuth, ArgoCD Dex/OIDC, Grafana generic OAuth): create a
 - All previously-flagged `TODO` markers have been **resolved** — values confirmed against keycloak.org / `github.com/keycloak/keycloak` (SPI signatures) / Red Hat docs, or removed where genuinely unverifiable. The `references/` carry **no** unresolved TODOs.
 - **Red Hat build of Keycloak (RHBK):** `rhbk-platform-support.md` and `rhbk-troubleshooting-kb.md` are distilled from Red Hat docs/KB (docs.redhat.com / access.redhat.com / catalog.redhat.com), pinned to **RHBK 26.6 GA** (productizes upstream Keycloak 26.6). KB **resolution bodies are subscriber-gated** — those files index IDs + Verified/Unverified status as offline pointers, not full solutions. RHBK feature status (Supported/Tech-Preview/Dev-Preview/Deprecated) and RHBK-vs-upstream deltas are called out per item; **never treat a Preview feature as production-ready**. Validate matrices/lifecycle dates against your subscription + exact version.
 - The `references/` files make this skill usable **without internet**. The only outbound strings in this skill are `keycloak.org` / `redhat.com` doc attributions and Red Hat KB/RHSA IDs — there are **no** network calls.
-- **Bundled local KB (in the vault, `wiki/reference/keycloak/`):** a searchable mirror of 1,840 RHBK/RH-SSO records (800 full doc/solution bodies, 26.0→26.6) as Markdown notes, queried offline via `wiki/_meta/bin/kb.py` (or `grep`). It is a *filtered* slice of a Customer Portal harvest — coverage is best-effort, not exhaustive; subscriber-gated KB **bodies are absent** (pointers only). Prefer it for exact wording/version lookups; treat the distilled `references/` as the fast top layer.
+- **Bundled local KB (in the vault, `wiki/reference/keycloak/`):** a searchable mirror of 1,840 RHBK/RH-SSO records (800 full doc/solution bodies, 26.0→26.6) as Markdown notes, queried offline via `wiki/_meta/wikikb/kb.py` (or `grep`). It is a *filtered* slice of a Customer Portal harvest — coverage is best-effort, not exhaustive; subscriber-gated KB **bodies are absent** (pointers only). Prefer it for exact wording/version lookups; treat the distilled `references/` as the fast top layer.
 - For a byte-perfect local copy of the full docs, download the official Keycloak/RHBK documentation distribution on a connected host and stage it internally.
 
 _Source: Keycloak Documentation (keycloak.org) + Red Hat build of Keycloak docs & KB (docs.redhat.com / access.redhat.com), distilled into a self-contained offline skill._

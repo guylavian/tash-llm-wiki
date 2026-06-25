@@ -8,6 +8,9 @@ sources:
   - guide:authorization_services_guide
   - kb:authorization_services_guide/resource_overview
   - kb:authorization_services_guide/overview
+source_notes:
+  - "[[rhbk-26-6-resource-overview]]"
+  - "[[rhbk-26-6-overview-2]]"
 provenance: needs-review
 tags: [authz]
 status: draft

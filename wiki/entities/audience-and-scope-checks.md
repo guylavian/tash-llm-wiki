@@ -8,10 +8,9 @@ sources:
   - web:https://www.rfc-editor.org/rfc/rfc9068 (RFC 9068 JWT Profile for OAuth 2.0 Access Tokens, fetched 2026-06-17)
   - web:https://www.rfc-editor.org/rfc/rfc9700 (RFC 9700 OAuth 2.0 Security BCP, fetched 2026-06-17)
   - web:https://owasp.org/API-Security/editions/2023/en/0x11-t10/ (OWASP API Security Top 10 2023, fetched 2026-06-17)
-provenance:
-  extracted: 14
-  inferred: 4
-  ambiguous: 0
+provenance_extracted: 14
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [tokens, security, concept]
 status: reviewed
 updated: 2026-06-17

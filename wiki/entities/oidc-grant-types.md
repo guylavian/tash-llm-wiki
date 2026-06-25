@@ -7,6 +7,8 @@ summary: "The flows RHBK supports for obtaining tokens, and which are recommende
 sources:
   - guide:securing_applications_and_services_guide
   - kb:oidc-layers-
+source_notes:
+  - "[[rhbk-26-6-oidc-layers]]"
 provenance: needs-review
 tags: [clients]
 status: draft

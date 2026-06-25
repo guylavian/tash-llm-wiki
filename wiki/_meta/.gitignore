@@ -1,7 +1,21 @@
 # Derived, regenerable Phase-3 artifacts — never source of truth, never committed.
 # Rebuild from the immutable reference tier with: embed.py --domain <d> --build
 embeddings/
+# Temporal knowledge-graph store — derived from the vault; rebuild with: python3 -m wikikb tkg ingest
+tkg/
 # Vendored embedding model(s) — large binaries transferred per the offline step in
 # models/README.md. Keep the README; ignore the model directories themselves.
 models/*
 !models/README.md
+
+# Optional ONLINE tier (LiteLLM/LangGraph) — config, caches, vendored wheels, and the regenerable
+# usage ledger are never committed; keep the READMEs (cost/ + llm/ hold only docs today).
+llm.config.yaml
+wheels/
+.llm_cache/
+.checkpoints/
+eval/cost_report.json
+cost/*
+!cost/README.md
+llm/*
+!llm/README.md

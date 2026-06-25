@@ -74,12 +74,24 @@ lines). `index.py` reads each block to build that domain's `index.<domain>.md`. 
 per-domain `areas:` are a subset of the `## Areas` vocabulary above; when you add a
 domain that needs a *new* area, add it to `## Areas` too (areas are a flat union).
 
+**Source tiers as a coverage axis (for the QUERY Confidence gate).** Beyond *shape*,
+each domain declares `- tiers-covered:` — the coarse knowledge-tiers actually ingested,
+from this fixed, deliberately tiny set (do **not** grow it into an ontology):
+- `conceptual` — how it works: product docs / guides / MS Learn.
+- `support-kb` — break-fix / known-issue / patch knowledge: support KB & Solution articles.
+- `scenarios` — end-to-end deployment & operations playbooks.
+A QUERY classifies the question's tier; if the routed domain does not cover it, the
+**Confidence gate** (`CLAUDE.md`, Operation: QUERY) fires `Out of corpus coverage`.
+This is the high-precision signal that catches a *faithful extraction from an incomplete
+tier* — the failure `provenance_*` counts cannot see.
+
 ### keycloak
 - domain: keycloak
 - areas: [realm, authn, authz, clients, tokens, federation, brokering, users, operator, ha, observability, server-config, migration, spi, iac, security, troubleshooting]
 - shape: corpus-backed
 - sources: [corpora/keycloak/, _sources/keycloak/]
 - review-moc: sso-implementation-review
+- tiers-covered: [conceptual, support-kb]   # product guides + RH KB Solution notes (documentKind: Solution)
 
 ### active-directory
 - domain: active-directory
@@ -87,6 +99,7 @@ domain that needs a *new* area, add it to `## Areas` too (areas are a flat union
 - shape: corpus-backed
 - sources: [reference/active-directory/, corpora/active-directory/, _sources/active-directory/]
 - review-moc: active-directory-implementation-review
+- tiers-covered: [conceptual]   # MS Learn conceptual docs only — NO support-kb/break-fix tier (the gap behind cross-site-split-brain-pac-signing)
 
 ### cisco-ios-xe
 - domain: cisco-ios-xe
@@ -94,6 +107,7 @@ domain that needs a *new* area, add it to `## Areas` too (areas are a flat union
 - shape: notes-first
 - sources: [_sources/cisco-ios-xe/]
 - review-moc: cisco-ios-xe-implementation-review
+- tiers-covered: [conceptual]   # config guides only
 
 <!-- Template — copy per new technology (placeholders are ignored by lint/index):
 ### <domain>
@@ -102,6 +116,7 @@ domain that needs a *new* area, add it to `## Areas` too (areas are a flat union
 - shape: notes-first | corpus-backed
 - sources: [_sources/<domain>/]      # + corpora/<domain>/ if corpus-backed
 - review-moc: <domain>-implementation-review
+- tiers-covered: [conceptual]        # coarse tiers ingested: conceptual | support-kb | scenarios
 -->
 
 ## Synonyms (normalized away by `tags.py --normalize`)

@@ -8,6 +8,9 @@ sources:
   - guide:operator_guide
   - kb:operator_guide/advanced-configuration-
   - kb:operator_guide/rolling-updates-
+source_notes:
+  - "[[rhbk-26-6-advanced-configuration]]"
+  - "[[rhbk-26-6-rolling-updates]]"
 provenance: needs-review
 tags: [operator]
 status: draft

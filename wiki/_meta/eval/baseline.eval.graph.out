@@ -1,0 +1,42 @@
+====================================================================================
+RETRIEVER EVAL — 19 cases  (recall window kmax=10)
+====================================================================================
+
+RECALL  (lexical -> +graph seed-sources -> +graph 1-hop closure)
+  @5   lexical  7/19 ( 37%)
+  @10  lexical  9/19 ( 47%)  ->  +graph 13/19 ( 68%)  ->  +closure 14/19 ( 74%)
+       graph-rescued (primary): 4   |   closure adds: 1
+
+  by domain (lexical r@10 -> +graph):
+    active-directory    3/7  ->  3/7
+    keycloak            6/12  ->  10/12
+
+  by kind (lexical r@10 -> +graph):
+    easy                7/13  ->  10/13
+    lexical-miss        2/6  ->  3/6
+
+PAIRED exact -> paraphrase (same target; the lexical-recall gap):
+  dpop               exact @7    ->  paraphrase @118 
+  kerberos-delegation exact @1    ->  paraphrase @87  
+  token-exchange     exact @2    ->  paraphrase @10  
+
+CONTEXT-TOKEN PROXY  (index + snippets skimmed + bodies actually opened; chars/4)
+  mean index    tokens :  13040
+  mean snippet  tokens :    455  (7.0 candidates skimmed/case)
+  mean opened-body tok :  74851  (1.32 full notes opened/case)
+  mean TOTAL ctx tokens:  88347   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
+
+GRAPH RESCUE (Phase 2: lexical misses the graph turns into 1 correct open)
+  cases rescued in-proxy : 4  (each replaces wasted miss-opens with the cited note)
+
+MISS BREAKDOWN @10 : 10 miss  =  4 graph-rescued (Phase 2)  +  6 still-missing (Phase 3)
+  - [graph-rescued] active passive cross-site session replication keeps user session
+  - [graph-rescued] import LDAP users into the local database versus federate them o
+  - [graph-rescued] single page application public client authorization code PKCE ex
+  - [STILL-MISSING] bind an access token to a client held key so a stolen token cann
+  - [STILL-MISSING] deploy Keycloak on OpenShift with the operator and a Keycloak cu
+  - [graph-rescued] expired user sessions remain in postgresql after logout persiste
+  - [STILL-MISSING] let a front end service get a ticket to a backend on behalf of a
+  - [STILL-MISSING] group managed service account automatic password rotation KDS ro
+  - [STILL-MISSING] recover when the only domain controller holding an operations ma
+  - [STILL-MISSING] active directory integrated DNS zones SRV records _msdcs domain 

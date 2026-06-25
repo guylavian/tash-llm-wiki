@@ -1,0 +1,77 @@
+---
+title: Disjoint Namespace
+type: entity
+domain: active-directory
+slug: disjoint-namespace
+summary: A configuration where one or more domain member computers have a primary DNS suffix that does not match the AD DS domain name — supported but significantly more complex to operate than a contiguous namespace.
+sources:
+  - web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Disjoint-Namespace (Microsoft Learn — Disjoint Namespace, fetched 2026-06-18)
+  - web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/DNS-and-AD-DS (Microsoft Learn — DNS and AD DS, fetched 2026-06-18)
+provenance_extracted: 12
+provenance_inferred: 4
+provenance_ambiguous: 0
+symptoms:
+  - "service logons fail"
+  - "SPN mismatch"
+  - "LDAPS certificate mismatch"
+  - "Kerberos name-suffix routing broken"
+tags: [ad-dns, directory-services, troubleshooting, concept]
+status: draft
+updated: 2026-06-18
+---
+
+# Disjoint Namespace
+
+**A disjoint namespace exists when a domain member computer's primary DNS suffix (shown in System Properties as "Primary DNS Suffix") does not match the DNS name of the Active Directory domain it belongs to.**
+
+## Body
+
+In a standard (contiguous) namespace, joining `corp.contoso.com` gives the computer an FQDN of `<hostname>.corp.contoso.com`. In a disjoint namespace the machine might use `corp.fabrikam.com` as its suffix while belonging to the AD domain `na.corp.fabrikam.com` — a mismatch by definition.
+
+### How it works
+
+DCs in a disjoint namespace continue to register **global and site-specific SRV records** in the AD domain's DNS zone (e.g. `_msdcs.na.corp.fabrikam.com`) so that [[dc-locator]] still functions. Their host (A/AAAA) records, however, are registered in the disjoint DNS zone (e.g. `corp.fabrikam.com`). Both DNS zones must be reachable for DC Locator to resolve the host name once it has the SRV record (inferred — combining zone registration facts from the source).
+
+### Supported scenarios
+
+- A forest with multiple domains sharing a single DNS namespace (the primary suffix is the parent zone, e.g. `corp.fabrikam.com` while the domain is `na.corp.fabrikam.com`).
+- A single AD domain with hosts using per-department or per-location suffixes.
+
+### Unsupported / broken scenarios
+
+These configurations are explicitly not supported:
+
+1. The disjoint suffix matches an AD domain name in the same or a different forest — this breaks Kerberos name-suffix routing.
+2. The same disjoint suffix is used in another forest — prevents unique routing.
+3. A CA server's FQDN changes mid-deployment so it no longer shares the DC domain suffix — can invalidate CRL Distribution Point URLs (partial: supported if the CA stays in a stable disjoint namespace from initial deployment).
+
+### Operational consequences
+
+| Area | Impact |
+|------|--------|
+| DNS administration | Separate zones must be created and maintained per domain; no automatic delegation. |
+| Group Policy | Requires manual GPO configuration to set `msDS-AllowedDNSSuffixes` and DNS suffix search order. |
+| Application compatibility | Applications assuming suffix == domain name may fail; **test all apps before deploying**. |
+| LDAPS certificates | Subject/SAN must cover both the AD domain name and the primary DNS suffix; mismatches cause LDAP connection failures. |
+| SPN management | SPNs registered against the AD domain name may not match service FQDNs in the disjoint zone; causes Kerberos auth failures (see [[spn-and-upn-uniqueness]]). |
+
+### Namespace transitions
+
+Moving from contiguous to disjoint (or back) after deployment requires auditing and possibly rebuilding all manually set SPNs. The `msDS-AllowedToDelegateTo` attribute on Windows Server 2003-era constrained delegation objects may also need manual edits (inferred — the source calls this out specifically for WS2003 constrained delegation).
+
+## Contradictions / caveats
+
+- Microsoft documents disjoint namespace as **supported** but warns that it makes AD↔DNS integration "more complex to administer, maintain, and troubleshoot" — it is a conscious trade-off, not a best practice.
+- Applications from third-party vendors may not be tested against disjoint namespaces; validate compatibility in a lab before production deployment.
+- The source notes that WINS could historically offset some disadvantages by resolving single-label names, but WINS is deprecated in Windows Server 2022+ (inferred context from the deprecation timeline).
+
+## Reference notes
+- [[ad-ds-disjoint-namespace]]
+- [[ad-ds-dns-and-ad-ds]]
+
+## See also
+- [[dns-for-ad-ds]]
+- [[dc-locator]]
+- [[spn-and-upn-uniqueness]]
+- [[ad-integrated-dns-zones]]
+- [[dns-infrastructure-design]]

@@ -18,7 +18,7 @@ guessing or going to the internet.
 1. Search `wiki/` first — read `wiki/index.md`, then the matching topic/entity page,
    and follow `[[links]]`.
 2. If the synthesized pages are thin, search the in-vault reference tier: grep
-   `wiki/reference/keycloak/`, or `python3 wiki/_meta/bin/kb.py --domain keycloak
+   `wiki/reference/keycloak/`, or `python3 -m wikikb kb --domain keycloak
    search "<terms>"` (add `--primary` / `--guide <slug>` to narrow, `--gated` for
    Red Hat login-only pointers).
 3. Synthesize the answer and cite the source (`kb:<id>`, `guide:<slug>`,
@@ -34,9 +34,9 @@ The wiki's maintenance ops are packaged so they run in OpenCode (and Claude Code
 - **OpenCode commands/agent:** `.opencode/agent/wiki.md` + `.opencode/command/`
   (`/ingest`, `/query`, `/lint`, `/status`).
 - These are **thin pointers**; `wiki/CLAUDE.md` is the single source of truth.
-- **Tooling** (stdlib only, air-gapped) is in `wiki/_meta/bin/`:
-  - `python3 wiki/_meta/bin/lint.py [--status]` — health check + delta-manifest audit
-  - `python3 wiki/_meta/bin/manifest.py {seed,status,record}` — the delta manifest
+- **Tooling** (stdlib only, air-gapped) is in `wiki/_meta/wikikb/`:
+  - `python3 -m wikikb lint [--status]` — health check + delta-manifest audit
+  - `python3 -m wikikb manifest {seed,status,record}` — the delta manifest
     (`wiki/_meta/.manifest.json`): only ingest new/changed sources.
 
 ## Hard rule
@@ -44,4 +44,12 @@ Ingest/query operations may create or edit pages in the **synthesis layer**
 (`wiki/{topics,entities,questions}/`) only. Never edit the immutable raw tiers
 (`wiki/reference/`, `references/`) — regenerable ground truth. Offline only: no
 network, no `webfetch`; retrieval is grep over the vault (or
-`python3 wiki/_meta/bin/kb.py --domain <d> search`).
+`python3 -m wikikb kb --domain <d> search`).
+
+## Optional online tier (off by default)
+An **optional, off-by-default** LiteLLM + LangGraph tier (`wiki/_meta/wikikb/{cost,llm}.py`,
+`wiki/_meta/wikikb/graph/`) can mechanize QUERY/INGEST and measure real token/$/latency cost. It defaults
+to a **local loopback** model and is enabled only with `WIKI_LLM=local` + the vendored deps; absent
+that, everything above is unchanged and fully offline. `webfetch` stays **false** — the tier never
+reaches the public internet; the only socket it may open is the operator's local model endpoint. See
+`wiki/CLAUDE.md` → "Optional online tier" (single source of truth).

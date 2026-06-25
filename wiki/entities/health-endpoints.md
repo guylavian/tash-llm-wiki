@@ -7,6 +7,8 @@ summary: "RHBK exposes four REST health endpoints on the management port `9000`,
 sources:
   - guide:observability_guide
   - kb:health-
+source_notes:
+  - "[[rhbk-26-6-health]]"
 provenance: needs-review
 tags: [observability]
 status: draft

@@ -6,10 +6,9 @@ slug: route-redistribution-and-route-maps
 summary: "Re-advertising routes between protocols through a route map — metrics don't translate so you must supply one — and the protocol-specific 'no redistribute' behavior that removes the whole statement for IS-IS/EIGRP."
 sources:
   - note:_sources/cisco-ios-xe/protocol-independent-routing.md
-provenance:
-  extracted: 6
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [routing-protocols, ip-routing, concept]
 status: reviewed
 updated: 2026-06-18

@@ -7,6 +7,8 @@ summary: "A resource-server setting that decides the outcome when a requested re
 sources:
   - guide:authorization_services_guide
   - kb:authorization_services_guide/resource_server_overview
+source_notes:
+  - "[[rhbk-26-6-resource-server-overview]]"
 provenance: needs-review
 tags: [authz]
 status: draft

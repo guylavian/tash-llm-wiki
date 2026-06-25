@@ -7,6 +7,8 @@ summary: "Pointing the [[keycloak-cr]] at a custom container image (`spec.image`
 sources:
   - guide:operator_guide
   - kb:operator_guide/customizing-keycloak-
+source_notes:
+  - "[[rhbk-26-6-customizing-keycloak]]"
 provenance: needs-review
 status: draft
 updated: 2026-06-16

@@ -8,6 +8,9 @@ sources:
   - guide:operator_guide
   - kb:operator_guide/basic-deployment-
   - kb:operator_guide/advanced-configuration-
+source_notes:
+  - "[[rhbk-26-6-basic-deployment]]"
+  - "[[rhbk-26-6-advanced-configuration]]"
 provenance: needs-review
 tags: [operator]
 status: draft

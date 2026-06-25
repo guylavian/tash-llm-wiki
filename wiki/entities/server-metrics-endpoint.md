@@ -8,6 +8,9 @@ sources:
   - guide:observability_guide
   - kb:configuration-metrics-
   - kb:metrics-for-troubleshooting-
+source_notes:
+  - "[[rhbk-26-6-configuration-metrics]]"
+  - "[[rhbk-26-6-metrics-for-troubleshooting]]"
 provenance: needs-review
 tags: [observability]
 status: draft

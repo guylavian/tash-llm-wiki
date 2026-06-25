@@ -15,6 +15,14 @@ sources:
   - kb:migrating-themes
   - kb:migrating-keycloak
   - kb:other-changes
+source_notes:
+  - "[[rhbk-26-6-migrating-server]]"
+  - "[[rhbk-26-6-migrating-operator]]"
+  - "[[rhbk-26-6-migrating-applications]]"
+  - "[[rhbk-26-6-migrating-providers]]"
+  - "[[rhbk-26-6-migrating-themes]]"
+  - "[[rhbk-26-6-migrating-keycloak]]"
+  - "[[rhbk-26-6-other-changes]]"
 provenance: needs-review
 tags: [migration, concept]
 status: draft

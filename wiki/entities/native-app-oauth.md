@@ -8,10 +8,9 @@ sources:
   - web:https://www.rfc-editor.org/rfc/rfc8252 (RFC 8252 — OAuth 2.0 for Native Apps, fetched 2026-06-17)
   - web:https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-15.html (OAuth 2.1 draft-15, fetched 2026-06-17)
   - web:https://www.rfc-editor.org/rfc/rfc9700 (RFC 9700 — OAuth 2.0 Security BCP, fetched 2026-06-17)
-provenance:
-  extracted: 28
-  inferred: 5
-  ambiguous: 0
+provenance_extracted: 28
+provenance_inferred: 5
+provenance_ambiguous: 0
 tags: [clients, security, profile]
 status: reviewed
 updated: 2026-06-17

@@ -44,21 +44,31 @@ regenerable from a harvest; the synthesis is downstream of it.
     ├── reference/<domain>/ # IMMUTABLE imported doc bodies, one Markdown note per source + _gated-kb-index.md
     ├── _sources/<domain>/  # raw hand-written note staging (notes-first domains)
     └── _meta/              # tooling — NOT content (excluded from all scanners)
+        ├── pyproject.toml  #   package metadata + ruff/pytest config (NO pip install required)
         ├── .manifest.json  #   delta manifest: ingested sources → pages
         ├── taxonomy.md     #   controlled vocab: domains, areas, kinds, versions
-        └── bin/            #   stdlib tools (no network):
-            ├── index.py        #   (re)generate index.md + index.<domain>.md
-            ├── lint.py         #   health check + --status audit
-            ├── manifest.py     #   delta manifest engine (seed / status / record)
-            ├── tags.py         #   tag taxonomy validate / normalize / backfill
-            ├── backfill.py     #   one-time frontmatter backfill (summary / provenance / domain)
-            ├── corpus_to_vault.py  #   fold a harvested corpus into reference/<domain>/ notes
-            ├── crosslink.py    #   link synthesized pages → their reference notes (## Sources) for the graph
-            ├── route.py        #   cheap query→domain router (skip the global index on a confident route)
-            ├── expand.py       #   graph-expand seed pages → 1-hop reference-note candidates (no new search)
-            ├── embed.py        #   OPTIONAL offline dense layer: build/query embeddings (kb.py --hybrid; lexical fallback)
-            └── eval/           #   retrieval scoreboard: eval.py (recall@k + context-cost) over eval/cases.jsonl
+        ├── eval/           #   eval + gate cases + committed goldens (cases.jsonl, baseline.eval*.out)
+        ├── wikikb/         #   the toolchain PACKAGE — grouped into concern subpackages
+        │   ├── __init__.py · __main__.py   #   package + `python3 -m wikikb <tool>` dispatcher (layout-independent CLI)
+        │   ├── paths.py        #   single home for project paths (WIKI/REF/META/EVAL) — no per-file __file__ math
+        │   ├── retrieval/      #   kb · route · expand · embed   (search, routing, graph-expand, optional dense)
+        │   ├── build/          #   index · manifest · crosslink · tags · backfill   (wiki build & maintenance)
+        │   ├── corpus/         #   corpus_to_vault · docs_to_corpus · migrate_native   (corpus ingestion/migration)
+        │   ├── quality/        #   lint (+ Confidence gate) · coverage (tiers-covered/H1) · evaluate (recall+cost scoreboard)
+        │   ├── online/         #   cost · llm   (OPTIONAL token/$/latency + local-first LiteLLM gateway)
+        │   ├── graph/          #   OPTIONAL LangGraph QUERY/INGEST StateGraphs (nodes/query_graph/ingest_graph)
+        │   └── tkg/            #   temporal + cross-domain knowledge graph: model · store · versions · tkg (CLI)
+        └── tests/          #   selftest.py + gate_probe.py + gate_page_probe.py + cost_probe.py + conftest.py
 ```
+
+> **Running the tools (no install):** the toolchain is the importable package `wikikb` under
+> `wiki/_meta/`. Run a tool with the dispatcher **`python3 -m wikikb <tool> …`** (e.g. `python3 -m wikikb
+> kb --domain keycloak search "…"`) **from `wiki/_meta/`** (or anywhere with `PYTHONPATH=<repo>/wiki/_meta`).
+> The dispatcher keeps the CLI stable regardless of which subpackage a tool lives in; the direct form
+> `python3 -m wikikb.<group>.<tool>` (e.g. `wikikb.retrieval.kb`) also works. Run the tests with
+> `python3 wiki/_meta/tests/selftest.py`. No `pip install` is needed — the air-gap "copy-and-run" model
+> is preserved (`pip install -e .` from `wiki/_meta/` is an OPTIONAL convenience that adds `wikikb-<tool>`
+> console commands).
 
 - **topics/** — broad, multi-source syntheses. "How LDAP federation works end to end."
 - **entities/** — narrow, one concept. A single config key, a provider, a flag,
@@ -125,7 +135,7 @@ resolution steps that need a Red Hat login.
   `kb:<id>`, a `guide:<slug>`, a `ref:<file>`, a `note:<path>`, or a
   `web:<url> (label, fetched DATE)`. No uncited synthesis.
 - **Graph edges to the KB:** `sources:` tokens are provenance (plain YAML), not links,
-  so they don't show in Obsidian's graph. `python3 _meta/bin/crosslink.py --apply`
+  so they don't show in Obsidian's graph. `python3 -m wikikb crosslink --apply`
   resolves each page's `kb:` tokens to the matching `reference/<domain>/` note — the
   **primary/newest version** per token (e.g. `kb:dpop-` → the 26.6 note, not 26.4/26.2;
   other versions stay reachable via the per-guide reference index) — and appends a
@@ -189,7 +199,7 @@ validated against the domains declared in `_meta/taxonomy.md`. Two domain shapes
 
 **Obsidian/the vault rules all the data** — there is no external corpus and no
 corpus query tool. To onboard a corpus-backed domain, harvest then fold it in with
-`python3 _meta/bin/corpus_to_vault.py --domain <d> --apply`, which writes the
+`python3 -m wikikb corpus_to_vault --domain <d> --apply`, which writes the
 `reference/<domain>/` notes. The reference tier is grep-able and `[[link]]`-able but
 is **not** a synthesized page tier: `lint.py` doesn't scan it for page discipline and
 `index.py` doesn't list it in the routing index (only counts it).
@@ -202,7 +212,7 @@ first** (`route.py`): on a confident single-domain route it opens just that
 `index.md`**; only when the router abstains does it read `index.md` to disambiguate.
 This keeps each query inside a local model's context window (the binding constraint
 for ~27B Ollama-class models) as the wiki grows to many domains.
-Regenerate indexes with `python3 _meta/bin/index.py`; never hand-edit the generated
+Regenerate indexes with `python3 -m wikikb index`; never hand-edit the generated
 `index.<domain>.md`. `lint.py` warns when an index is stale or oversized.
 
 ### Evaluation-lens MOC per domain
@@ -237,7 +247,7 @@ walkthrough: `_meta/ADD-DOMAIN.md`.
    AD added `directory-services`, `replication`, `group-policy`, `fsmo`, …).
 4. **Create the raw tier.** *Notes-first:* `mkdir _sources/<domain>/` and drop a
    `README.md` (it's the immutable ground truth — see `_sources/active-directory/`).
-   *Corpus-backed:* harvest, then `python3 _meta/bin/corpus_to_vault.py --domain
+   *Corpus-backed:* harvest, then `python3 -m wikikb corpus_to_vault --domain
    <d> --apply` to write `reference/<domain>/` notes.
 5. **Seed the synthesis.** Write at least: one **overview topic** (the spine), the
    first **entity** it links, and the **`<domain>-implementation-review` MOC** named
@@ -246,13 +256,13 @@ walkthrough: `_meta/ADD-DOMAIN.md`.
    contract — `domain:`, `summary:`, `sources:` (`note:`/`web:` for notes-first),
    `provenance:`. Cross-link with `[[slug]]`; slugs stay globally unique across
    `topics/` + `entities/`.
-6. **Generate + lint.** `python3 _meta/bin/index.py` (writes `index.<domain>.md` and
-   adds the domain to the global router) then `python3 _meta/bin/lint.py`. A new
+6. **Generate + lint.** `python3 -m wikikb index` (writes `index.<domain>.md` and
+   adds the domain to the global router) then `python3 -m wikikb lint`. A new
    brain is healthy when its pages aren't orphaned, the only findings are intentional
    `[[wanted]]` TODO markers, and the review-MOC's inferred-heavy drift warning (it's
    synthesis) is the lone provenance note — mirroring `sso-implementation-review`.
 7. **Record it** in the manifest as you ingest real sources:
-   `python3 _meta/bin/manifest.py record <source> --pages <slug,...>`.
+   `python3 -m wikikb manifest record <source> --pages <slug,...>`.
 
 ---
 
@@ -261,12 +271,12 @@ walkthrough: `_meta/ADD-DOMAIN.md`.
 Goal: fold a raw source (or a query result) into the wiki without duplicating it.
 
 0. **Check the delta manifest first.** Run
-   `python3 _meta/bin/manifest.py status` to see which sources are already
+   `python3 -m wikikb manifest status` to see which sources are already
    ingested and which are new/changed. The manifest (`_meta/.manifest.json`)
    records every ingested source (its content hash, timestamps, and which wiki
    pages it produced), so INGEST only does work for genuinely new or changed
    material instead of re-reading the whole corpus. After writing pages, record
-   what you did: `python3 _meta/bin/manifest.py record <source> --pages <slug,...>`.
+   what you did: `python3 -m wikikb manifest record <source> --pages <slug,...>`.
 1. Identify the source: a reference note in `reference/<domain>/` (corpus-backed —
    grep it / read the note), a `references/*.md` file, or a hand-authored
    `note:_sources/<domain>/*.md` (notes-first domains). Cite it with the matching
@@ -289,7 +299,7 @@ Goal: fold a raw source (or a query result) into the wiki without duplicating it
 Goal: answer a question, and leave the wiki richer than you found it.
 
 1. **Cheap pass first (route → tiered read).** Route the query to its **domain(s)**
-   with `python3 _meta/bin/route.py "<query>"` (keyword match against the per-domain
+   with `python3 -m wikikb route "<query>"` (keyword match against the per-domain
    `areas:` vocabulary in `taxonomy.md`). On a **confident single-domain** route, read
    **only** that `index.<domain>.md` and **skip the global `index.md`** — it saves the
    ~4.3k-token cross-domain router on most queries. When the router **abstains**
@@ -304,7 +314,7 @@ Goal: answer a question, and leave the wiki richer than you found it.
 2. **Graph-expand the seed pages before reading raw (use the link graph you built).**
    The candidate pages from step 1 are *seeds*: each carries a generated `## Sources`
    block (`[[reference-note]]` links written by `crosslink.py`) and `[[page]]` wikilinks
-   to neighbors. `python3 _meta/bin/expand.py --domain <d> "<query>"` returns that 1-hop
+   to neighbors. `python3 -m wikikb expand --domain <d> "<query>"` returns that 1-hop
    neighborhood **with no new search** — the **seed-source notes** (the seeds' own
    `## Sources`; tight, high-precision) plus the looser **1-hop closure** (neighbor
    pages' sources). Open those cited reference notes *directly* instead of re-searching:
@@ -323,13 +333,16 @@ Goal: answer a question, and leave the wiki richer than you found it.
    pointers are in `reference/<domain>/_gated-kb-index.md` — cite the URL). **Optional
    dense accelerator:** when a query is a *paraphrase* whose answer note shares little
    surface vocabulary (lexical ranks it deep, the graph didn't cite it), and an embedding
-   index has been built, `python3 _meta/bin/kb.py --domain <d> search "…" --hybrid` fuses
+   index has been built, `python3 -m wikikb kb --domain <d> search "…" --hybrid` fuses
    the lexical and dense rankings (RRF) to surface it. The dense layer is **optional and
    offline** (`embed.py` + a vendored model — see `_meta/models/README.md`); absent it,
    `--hybrid` silently falls back to lexical. This governs *when to read more*; it is
    independent of the citation contract in step 4, which applies to **every** answer even
    when the synthesized pages alone sufficed.
-4. **Synthesize, and cite each claim to the tier it came from.** Every answer
+4. **Confidence gate → synthesize → cite.** First apply the **Confidence gate**
+   (below) and **prepend a banner** if it trips — a synthesized page is
+   *interpretation*, and amortization makes whatever was filed the cheap cache hit, so
+   never serve inference as fact. Then synthesize, and cite each claim to its tier. Every answer
    MUST end with a **References** section in two separate groups:
    - **RH ground-truth (`kb:` / `guide:` / `ref:`)** — for each wiki page you
      used, resolve its frontmatter `sources:` back to the underlying kb/guide/ref
@@ -351,9 +364,50 @@ Goal: answer a question, and leave the wiki richer than you found it.
    supporting pages. If answering surfaced a reusable fact, also run a
    mini-INGEST to capture it as an entity/topic.
 
+### Confidence gate — never serve inference as fact
+
+A synthesized page is *interpretation*, not raw truth, and **amortization makes whatever
+was filed the cheap cache hit** — served fast, with provenance, *forever*. Before
+returning a QUERY answer, run this **deterministic checklist** — compute every input; do
+**not** rely on the page's self-description.
+
+**Inputs** (per page used; provenance from the flat `provenance_*` keys):
+`q_tier` = the question's tier-class (`conceptual` | `support-kb` | `scenarios`) ·
+`covered` = the routed domain's `tiers-covered:` (`_meta/taxonomy.md`) ·
+`extracted` = `provenance_extracted` (0 if absent) · `inferred` = `provenance_inferred` ·
+`status`.
+
+**Fire the banner if ANY high-precision arm is true — each fires ALONE, ignoring `status`:**
+- **H1 — out of coverage:** `q_tier ∉ covered`.  *(verified: `_meta/tests/gate_probe.py`)*
+- **H2 — ungrounded:** `extracted == 0`.  *(enforced: `lint.py`; verified: `gate_page_probe.py`)*
+- **H3 — incoherent review:** `status == reviewed` **AND** `inferred ≥ extracted`.  *(enforced: `lint.py`)*
+- **H4 — explicit:** `status == needs-review`.
+
+**Else fire `Provisional` only IN COMBINATION (low-precision — never alone):**
+`status ≠ reviewed` **AND** (`inferred ≥ extracted` **OR** the load-bearing claim is inline `(inferred)`/`(ambiguous)`).
+
+**`status` is ADDITIVE-ONLY.** It may *raise* a banner (H3/H4/L); it must **NEVER
+suppress** one. A page cannot earn silence by self-tagging `status: reviewed` — H1 and H2
+ignore `status` entirely. (This was the exact bug the ISSU page exploited: `extracted: 0`
++ self-`reviewed` slipped past the old `status ≠ reviewed` conjunction.)
+
+**Do NOT fire on a lone weak signal:** a `draft` page with `extracted > 0` **and**
+`inferred < extracted` in a covered tier; a single non-load-bearing `(inferred)` bullet.
+
+**Banners.** H1 → *⚠️ Out of corpus coverage — `<domain>` holds `<covered>` only; this is
+a `<q_tier>` question and that tier is not ingested; verify against the primary source.*
+· H2/H3 → *⚠️ Ungrounded / incoherent provenance — this answer rests on synthesis, not
+extracted sources; weigh the References.* · H4/L → *⚠️ Provisional.*
+
+**When filing back (step 5):** never file `status: reviewed` with `extracted == 0` or
+`inferred ≥ extracted` (`lint.py` makes this a hard error). **Do not hand-patch a page to
+silence the banner** — fix the *coverage* (ingest the missing tier via the `_raw/` drop
+path → INGEST); the banner clears because its cause did. Build the mechanism; let the
+page be its first catch.
+
 ## Operation: LINT
 
-Run `python3 wiki/_meta/bin/lint.py` (stdlib only, no network). It reports:
+Run `python3 -m wikikb lint` (stdlib only, no network). It reports:
 - **Broken links** — `[[slug]]` with no matching page *and* not yet a stub.
 - **Wanted pages** — `[[slug]]` referenced but not created (intentional TODOs).
 - **Orphans** — pages nothing links to and that `index.md` doesn't list.
@@ -375,7 +429,7 @@ link orphans from `index.md`, fill stubs, reconcile contradictions.
 
 ## Operation: STATUS (audit)
 
-Run `python3 wiki/_meta/bin/lint.py --status` (or `manifest.py status`). It
+Run `python3 -m wikikb lint --status` (or `python3 -m wikikb manifest status`). It
 reports ingested-vs-pending sources, the delta (new/changed since last record),
 link hubs, orphans, and stale pages — a single audit entry point that reuses the
 lint scanners rather than duplicating them.
@@ -384,12 +438,84 @@ lint scanners rather than duplicating them.
 
 ## Tooling & packaging
 
-The scripts live under `wiki/_meta/bin/` (stdlib-only, air-gapped): `lint.py`,
+The scripts live under `wiki/_meta/wikikb/` (stdlib-only, air-gapped): `lint.py`,
 `manifest.py`, plus `crosslink.py` / `tags.py` in Pass 2. **This file
 (`CLAUDE.md`) is the single source of truth** for what each operation does. The
 `.skills/<op>/SKILL.md` packages and the `.opencode/command/<op>.md` runtime
 commands are **thin pointers back here** — keep the behavior described here, not
 duplicated there, so they can't drift.
+
+### Optional online tier (LiteLLM + LangGraph) — OFF by default, local-first
+
+On top of the stdlib tools sits an **optional, off-by-default** measurement/orchestration tier that
+follows the `embed.py` precedent exactly (lazy import, behind a flag, vendored offline, graceful
+degradation — see `_meta/MIGRATION-litellm-langgraph.md` + `_meta/COUNCIL-DIRECTIVES.md`). With it
+absent or `WIKI_LLM` unset, the wiki behaves **identically to today** — the host runtime drives the
+prose ops; the deterministic retrieval/eval/gate tools are unchanged.
+
+- **`cost.py`** — token/$/latency accounting. `proxy_tokens()` (FLOAT) is the retrieval context-cost
+  proxy `evaluate.py` already prints (byte-identical to the old `chars/4`); `count_tokens()` (vendored
+  tokenizer, else heuristic) + `measure()` are the **measured generation** path, active only under
+  `python3 -m wikikb evaluate --measure-llm`. Real tokens/$ never touch the retrieval proxy.
+- **`llm.py`** — the LiteLLM gateway. Defaults to a **local loopback** Ollama/vLLM endpoint; a
+  loopback+allowlist gate refuses any non-loopback model unless the explicit double opt-in
+  (`WIKI_LLM_ALLOW_REMOTE=1` **and** a provider key). Returns None when off/absent → callers fall back
+  to the deterministic/extractive answer. Never opens a socket on import.
+- **`graph/`** — `query_graph.py` / `ingest_graph.py` mechanize QUERY/INGEST as **LangGraph**
+  StateGraphs (the gate node imports `lint.gate_banner` — the SAME 5-arm Confidence gate `lint`
+  enforces and the probes assert; no re-implementation). `langgraph` is imported inside the factory,
+  so the modules import stdlib-safe and the graph is the optional online tier, not the default path.
+- **`python3 -m wikikb evaluate --measure-llm`** adds a measured generation tokens/$/latency block (prints `n/a (offline)`
+  when the gateway is inactive); `--budget-tokens` / `--budget-usd` fail CI (exit 3) on a cost
+  regression. **Recall never runs through the graph or the gateway.**
+- **`lint.py --status`** appends an LLM-spend table read directly from the regenerable
+  `_meta/eval/cost_report.json` ledger (no `cost`/`llm` import — LINT/STATUS stays stdlib-only).
+- **Vendoring (offline):** `_meta/requirements-online.txt` + `_meta/{llm,cost}/README.md`
+  (`pip download … --only-binary=:all:` on a networked box → `--no-index` on the sealed box). Config:
+  `_meta/llm.config.yaml` (gitignored; copy the `.sample`).
+- **Deliberately OUT of scope (deferred):** the LiteLLM **proxy server** + virtual keys, semantic /
+  disk response caching beyond the wiki's own `questions/` amortization, cloud model routing, and a
+  shadow `$`-rate for local models (local `$` stays `unpriced/local` — lead with tokens + latency).
+- **Verification:** `selftest.py` carries the tripwires (byte-identical goldens, network/DNS block,
+  no module-scope 3rd-party import, the 5-arm gate, graph offline-import, INGEST dry-run);
+  `cost_probe.py` is the O(1) cost/budget probe. Network stays disabled by default (`webfetch:false`);
+  the only socket the tier may open is to the operator's local loopback model.
+
+### Temporal + cross-domain knowledge graph (`wikikb/tkg/`) — stdlib core, optional Graphiti/Kuzu backend
+
+A downstream, **regenerable graph view** of the vault for temporal and cross-domain questions. Obsidian
+stays the single source of truth; the graph is compiled from edges that *already exist*. Build it with
+`python3 -m wikikb tkg ingest` (writes the derived JSON store under `_meta/tkg/`, gitignored). Five verbs:
+`ingest · graph-status · cross-domain-query · provenance-trace · temporal-query`.
+
+- **Nodes** (`WikiNode`, labels `Entity|Topic|Question|Source|Domain`): pages → Entity/Topic/Question by
+  `type:`; each cited reference note → a Source; each `domain:` → a Domain.
+- **Edges, deterministic only (rule R3 — NO LLM/inference):** `LINKS_TO` (page→page, from body
+  `[[wikilinks]]`), `CITES` (page→Source, resolved by **reusing `crosslink.resolve()`** — primary/newest
+  version wins), `IN_DOMAIN` (page→Domain). Non-`kb:` provenance (`guide:/ref:/web:/note:`) is kept on the
+  Page node as `sources_raw` and surfaced by `provenance-trace` — never dropped, never an edge.
+- **Two edge kinds (rule R4):** `structural` is the **hard default** (`valid_from = valid_until = None`). A
+  `CITES` edge is promoted to `version-temporal` ONLY when all three hold: the reference note has a
+  structured `version:` **and** `documentKind == Documentation` **and** `tkg/versions.py` returns a *usable*
+  date. `valid_until` is **always None** — supersession is never inferred from version succession.
+- **Temporal honesty (rules R1/R2):** `valid_from` originates **only** from `tkg/versions.py`, a curated
+  registry of real, **publicly-sourced** release dates with a per-entry `precision` (`verified` = explicit GA
+  announcement; `errata-confirmed` = a public RHSA/RHEA errata proving availability, a conservative lower
+  bound — Red Hat's exact GA dates are paywalled; `approximate` = recorded but **excluded** from `valid_from`).
+  **OMIT, NEVER FABRICATE:** no usable date ⇒ the edge stays structural. Every version-temporal edge carries
+  `valid_from_precision` so `errata-confirmed` is never mistaken for an exact GA date. A Source node's version
+  metadata is read **exclusively** from the immutable `reference/<domain>/` note frontmatter (a build-time
+  assertion enforces the `reference/`-only path), so a synthesis page's **`updated:` can never become
+  `valid_from`** — it is structurally unreachable, not merely discouraged.
+- **Optional Graphiti/Kuzu backend** (`tkg/graphiti_backend.py`, the `online/` precedent): keeps Graphiti's
+  bi-temporal *model* but drops its LLM extraction (R3). Enabled by `WIKI_TKG=kuzu` + `kuzu` installed, it
+  loads the already-built nodes/edges into an **embedded Kuzu** store via **raw `kuzu`** (never constructs a
+  `graphiti_core` client — whose `__init__` instantiates an LLM client — and never calls `add_episode`).
+  Temporal columns are named `valid_at`/`invalid_at` (Graphiti-schema-compatible). Lazy import inside
+  `connect()`; `available()` is `find_spec`-only (no import, no socket); absent/off ⇒ the **JSON store stays
+  canonical** and all five verbs are unaffected. The JSON store answers every query; Kuzu is a write-side
+  accelerator. `selftest.py` asserts importing the tier (incl. the backend) pulls no `kuzu`/`graphiti_core`,
+  the backend is off by default, the build is deterministic, the R4 invariant holds, and all five verbs run.
 
 ---
 

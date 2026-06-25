@@ -7,6 +7,8 @@ summary: "An SPI in the `org.keycloak.vault` package for writing a custom extens
 sources:
   - guide:server_developer_guide
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/vault-spi
+source_notes:
+  - "[[rhbk-26-6-vault-spi]]"
 provenance: needs-review
 tags: [server-config, spi]
 status: draft

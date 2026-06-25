@@ -10,6 +10,10 @@ sources:
   - kb:operator_guide/basic-deployment-
   - kb:operator_guide/advanced-configuration-
   - ref:rhbk-operator.md
+source_notes:
+  - "[[rhbk-26-6-installation]]"
+  - "[[rhbk-26-6-basic-deployment]]"
+  - "[[rhbk-26-6-advanced-configuration]]"
 provenance: needs-review
 tags: [operator, concept]
 status: draft

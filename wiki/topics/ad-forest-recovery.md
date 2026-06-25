@@ -1,0 +1,72 @@
+---
+title: Active Directory Forest Recovery
+type: topic
+domain: active-directory
+slug: ad-forest-recovery
+summary: The procedure for recovering an entire AD forest after a forest-wide failure leaves all DCs unusable — restore one DC per domain from backup, clean up metadata of the rest, reset the krbtgt and trust passwords, seize FSMO roles, then rebuild remaining DCs.
+sources:
+  - web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-guide (Microsoft Learn — Active Directory Forest Recovery Guide, fetched 2026-06-18)
+provenance_extracted: 6
+provenance_inferred: 2
+provenance_ambiguous: 0
+symptoms:
+  - "forest-wide failure"
+  - "all domain controllers"
+  - "krbtgt reset"
+tags: [troubleshooting, replication, directory-services]
+status: draft
+updated: 2026-06-18
+---
+
+# Active Directory Forest Recovery
+
+**The disaster-recovery procedure for when a forest-wide failure (corruption,
+ransomware, bad change replicated everywhere) leaves every DC unable to function — you
+rebuild the forest from backup rather than repair replication.**
+
+## Body
+
+Forest recovery is the **last resort**, used when the problem has replicated to all
+DCs so there's no healthy DC to restore *from* within the running forest. The guide is
+a template you customize; the shape of it:
+
+1. **Identify the problem and decide to recover** — confirm it's forest-wide and that
+   normal repair won't work.
+2. **Restore one DC per domain** from a known-good backup (non-authoritative restore
+   of the directory; authoritative restore of SYSVOL on the first DC).
+3. **Isolate and clean up** — keep the restored DC off the network from the others;
+   **clean up metadata** of all the DCs you are *not* restoring so the directory
+   stops expecting them.
+4. **Seize FSMO roles** onto the restored DC ([[fsmo-roles]]) — the old holders are
+   gone and must never return.
+5. **Reset secrets twice** — the **krbtgt** account password (the Kerberos signing key;
+   reset it to invalidate tickets minted before the disaster) and the **trust**
+   passwords; reset the restored DC's own computer account as needed.
+6. **Raise the RID pool / invalidate the current pool** so reissued RIDs can't collide
+   with pre-disaster ones.
+7. **Redeploy the remaining DCs** by fresh install/promotion (not by reconnecting the
+   old ones), add back GCs, verify DNS and replication.
+
+The recovery leans on other AD pieces: you must be able to authenticate with the
+**DSRM** account to do restores — which is exactly the credential [[windows-laps]] can
+manage and back up on DCs (inferred — explains why LAPS DSRM backup matters for DR).
+
+## Contradictions / caveats
+
+- **Never reconnect** an un-restored old DC after recovery — reintroducing its stale
+  directory state (or a resurrected FSMO holder) causes a split-brain / lingering-
+  object mess. Rebuild instead.
+- The exact steps vary by OS version and by how many domains the forest has; the guide
+  explicitly is a customizable template, not a fixed script (inferred from the
+  source's framing).
+
+## Reference notes
+- [[ad-ds-ad-forest-recovery-guide]]
+
+## See also
+- [[krbtgt-reset]]
+- [[ad-metadata-cleanup]]
+- [[fsmo-roles]]
+- [[windows-laps]]
+- [[ad-replication]]
+- [[active-directory-implementation-review]]

@@ -8,10 +8,11 @@ sources:
   - guide:server_administration_guide
   - ref:securing-apps-oidc-saml.md
   - kb:user-storage-federation
-provenance:
-  extracted: 7
-  inferred: 2
-  ambiguous: 0
+source_notes:
+  - "[[rhbk-26-4-user-storage-federation]]"
+provenance_extracted: 7
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [federation, concept]
 status: reviewed
 updated: 2026-06-16

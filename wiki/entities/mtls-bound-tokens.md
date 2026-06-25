@@ -7,10 +7,9 @@ summary: "mTLS certificate binding sender-constrains OAuth2 access (and optional
 sources:
   - web:https://www.rfc-editor.org/rfc/rfc8705 (RFC 8705, fetched 2026-06-17)
   - web:https://openid.net/specs/fapi-security-profile-2_0-final.html (FAPI 2.0 Security Profile, fetched 2026-06-17)
-provenance:
-  extracted: 28
-  inferred: 5
-  ambiguous: 0
+provenance_extracted: 28
+provenance_inferred: 5
+provenance_ambiguous: 0
 tags: [tokens, security, concept]
 status: reviewed
 updated: 2026-06-17

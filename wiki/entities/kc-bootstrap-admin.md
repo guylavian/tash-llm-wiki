@@ -7,10 +7,9 @@ summary: RHBK's `bootstrap-admin` start flags (or env vars) mint a temporary adm
 sources:
   - guide:server_configuration_guide
   - ref:server-configuration.md
-provenance:
-  extracted: 5
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 5
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config]
 status: reviewed
 updated: 2026-06-16

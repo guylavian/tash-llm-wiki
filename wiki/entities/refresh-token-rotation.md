@@ -8,10 +8,9 @@ sources:
   - web:https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-15.html (OAuth 2.1 draft-15, fetched 2026-06-17)
   - web:https://www.rfc-editor.org/rfc/rfc9700 (RFC 9700 Security BCP, fetched 2026-06-17)
   - web:https://www.ietf.org/archive/id/draft-ietf-oauth-browser-based-apps-26.html (Browser-Based Apps BCP draft-26, fetched 2026-06-17)
-provenance:
-  extracted: 12
-  inferred: 3
-  ambiguous: 0
+provenance_extracted: 12
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [tokens, security, concept]
 status: reviewed
 updated: 2026-06-17

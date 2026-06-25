@@ -9,6 +9,8 @@ sources:
   - guide:server_administration_guide
   - kb:migrating-applications
   - ref:securing-apps-oidc-saml.md
+source_notes:
+  - "[[rhbk-26-6-migrating-applications]]"
 provenance: needs-review
 tags: [clients, migration, concept]
 status: draft

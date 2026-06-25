@@ -15,7 +15,7 @@ Packages the **QUERY** operation. Behavior is defined in **`wiki/CLAUDE.md`**
    **bodies only** when the cheap pass can't answer — this keeps query cost flat.
 3. If the synthesized pages are thin, fall back to the in-vault raw tier (read-only):
    grep `wiki/reference/<domain>/` (corpus-backed) or `wiki/_sources/<domain>/`
-   (notes-first). `python3 wiki/_meta/bin/kb.py --domain <d> search "..."` is an
+   (notes-first). `python3 -m wikikb kb --domain <d> search "..."` is an
    optional ranked search over that same reference tier.
 4. Synthesize, then end the answer with the **two-group References section**
    (RH ground-truth `kb:`/`guide:`/`ref:` *and* Wiki `[[slug]]` + `web:`) — the
@@ -29,3 +29,9 @@ Packages the **QUERY** operation. Behavior is defined in **`wiki/CLAUDE.md`**
 ## Hard rule
 Reads of `kb/` and `references/` are fine; **writes go only to `wiki/`**. No
 network beyond the offline corpus; stdlib only.
+
+> **Optional online tier:** an off-by-default LangGraph runner
+> (`wiki/_meta/wikikb/graph/query_graph.py`, enabled with `WIKI_LLM=local` + the vendored deps) can
+> mechanize this QUERY flow against a **local loopback** model, and `eval.py --measure-llm` reports
+> real token/$/latency. It is an *alternative* to the host-runtime loop, not a replacement, and stays
+> fully offline by default. See `wiki/CLAUDE.md` → "Optional online tier".

@@ -7,6 +7,8 @@ summary: "Event metrics expose aggregated counters of user activities (logins, l
 sources:
   - guide:observability_guide
   - kb:event-metrics-
+source_notes:
+  - "[[rhbk-26-6-event-metrics]]"
 provenance: needs-review
 tags: [observability]
 status: draft

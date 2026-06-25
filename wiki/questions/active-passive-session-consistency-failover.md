@@ -9,10 +9,13 @@ sources:
   - kb:concepts-multi-site
   - kb:operate-synchronize
   - kb:deploy-infinispan-kubernetes-crossdc
-provenance:
-  extracted: 9
-  inferred: 3
-  ambiguous: 0
+source_notes:
+  - "[[rhbk-26-2-concepts-multi-site]]"
+  - "[[rhbk-26-2-operate-synchronize]]"
+  - "[[rhbk-26-2-deploy-infinispan-kubernetes-crossdc]]"
+provenance_extracted: 9
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [ha, tokens]
 status: reviewed
 updated: 2026-06-17

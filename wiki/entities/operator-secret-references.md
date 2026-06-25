@@ -7,6 +7,8 @@ summary: "How the [[keycloak-cr]] points at Kubernetes Secrets/ConfigMaps, and h
 sources:
   - guide:operator_guide
   - kb:operator_guide/advanced-configuration-
+source_notes:
+  - "[[rhbk-26-6-advanced-configuration]]"
 provenance: needs-review
 tags: [operator]
 status: draft

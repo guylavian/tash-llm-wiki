@@ -9,6 +9,10 @@ sources:
   - kb:authorization_services_guide/permission_overview
   - kb:authorization_services_guide/policy_overview
   - kb:authorization_services_guide/resource_server_overview
+source_notes:
+  - "[[rhbk-26-6-permission-overview]]"
+  - "[[rhbk-26-6-policy-overview]]"
+  - "[[rhbk-26-6-resource-server-overview]]"
 provenance: needs-review
 tags: [authz]
 status: draft

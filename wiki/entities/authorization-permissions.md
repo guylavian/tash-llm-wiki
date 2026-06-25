@@ -7,6 +7,8 @@ summary: "A permission ties the object being protected ([[authorization-resource
 sources:
   - guide:authorization_services_guide
   - kb:authorization_services_guide/permission_overview
+source_notes:
+  - "[[rhbk-26-6-permission-overview]]"
 provenance: needs-review
 tags: [authz]
 status: draft

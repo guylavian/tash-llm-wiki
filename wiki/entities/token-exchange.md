@@ -7,6 +7,8 @@ summary: "Using one token (or credentials) to obtain a different token, via the 
 sources:
   - guide:securing_applications_and_services_guide
   - kb:token-exchange-
+source_notes:
+  - "[[rhbk-26-6-token-exchange]]"
 provenance: needs-review
 tags: [tokens]
 status: draft

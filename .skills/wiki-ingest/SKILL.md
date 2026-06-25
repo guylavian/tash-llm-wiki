@@ -12,7 +12,7 @@ pointer so the runtime can discover the op; do not duplicate the rules here.
 ## Do this
 1. **Read `wiki/CLAUDE.md` first** — follow "Operation: INGEST" exactly.
 2. Check the delta manifest so you only process new/changed sources:
-   `python3 wiki/_meta/bin/manifest.py status`
+   `python3 -m wikikb manifest status`
 3. Extract durable facts → create/update `wiki/entities/*.md` and place synthesis
    in `wiki/topics/*.md`; cross-link with `[[slug]]`.
 4. Every page needs: `domain:` (validated against taxonomy), `summary:`, `sources:`
@@ -20,9 +20,9 @@ pointer so the runtime can discover the op; do not duplicate the rules here.
    (`extracted`/`inferred`/`ambiguous` — never mechanical), `status:`, `updated:`.
    Tag `(inferred)`/`(ambiguous)` claims inline.
 5. Record what you ingested, then regenerate the routing indexes:
-   `python3 wiki/_meta/bin/manifest.py record <source> --pages <slug,...>` then
-   `python3 wiki/_meta/bin/index.py` (refreshes `index.<domain>.md` + the `index.md` router).
-6. Lint: `python3 wiki/_meta/bin/lint.py`
+   `python3 -m wikikb manifest record <source> --pages <slug,...>` then
+   `python3 -m wikikb index` (refreshes `index.<domain>.md` + the `index.md` router).
+6. Lint: `python3 -m wikikb lint`
 
 ## Hard rule
 Edits go **only** to the synthesis layer (`wiki/{topics,entities,questions}/`). Never

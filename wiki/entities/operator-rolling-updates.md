@@ -7,6 +7,8 @@ summary: "How the RHBK Operator decides between a zero-downtime rolling update a
 sources:
   - guide:operator_guide
   - kb:operator_guide/rolling-updates-
+source_notes:
+  - "[[rhbk-26-6-rolling-updates]]"
 provenance: needs-review
 tags: [operator]
 status: draft

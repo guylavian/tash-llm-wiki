@@ -6,10 +6,9 @@ slug: bgp-path-attributes
 summary: "How BGP picks the best path — AS_Path, Local_Pref, MED, Next_Hop, Origin — and the two Cisco defaults that surprise people: missing-MED-as-0 and MED compared only within the same neighbor AS."
 sources:
   - note:_sources/cisco-ios-xe/bgp-routing.md
-provenance:
-  extracted: 7
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 7
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [routing-protocols, concept]
 status: reviewed
 updated: 2026-06-18

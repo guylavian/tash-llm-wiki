@@ -1,0 +1,59 @@
+---
+title: Group Managed Service Accounts (gMSA)
+type: entity
+domain: active-directory
+slug: group-managed-service-accounts
+summary: AD-managed service-account identities whose passwords Windows generates and rotates automatically (via the KDS root key) and shares across a server farm — eliminating human-managed service passwords and simplifying SPN management.
+sources:
+  - web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-managed-service-accounts/group-managed-service-accounts/group-managed-service-accounts-overview (Microsoft Learn — Group Managed Service Accounts overview, fetched 2026-06-18)
+  - web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-service-accounts (Microsoft Learn — Service Accounts in Windows Server, fetched 2026-06-18)
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
+tags: [users, security, directory-services]
+status: draft
+updated: 2026-06-18
+---
+
+# Group Managed Service Accounts (gMSA)
+
+**A domain service account whose password is generated and rotated by Windows — not a
+human — and can be shared by every server in a farm under one identity.**
+
+## Body
+
+A standalone Managed Service Account (sMSA) gives one host automatic password
+management, simplified **SPN** management, and delegable administration. A **gMSA**
+extends that across **multiple servers** — exactly what mutual-authentication
+protocols on a load-balanced farm need, because every instance authenticates as the
+**same principal** without anyone synchronizing a password.
+
+How the password is managed:
+- The **Microsoft Key Distribution Service** (`kdssvc.dll`) holds a shared secret —
+  the **KDS root key** — from which DCs compute the gMSA's password from the
+  account's attributes. Member hosts retrieve the current (and previous) password by
+  contacting a DC; the password rotates automatically on a schedule.
+- Clients authenticate to the service without knowing which instance they reach.
+
+Requirements/notes:
+- 64-bit architecture to run the administration PowerShell cmdlets.
+- gMSAs depend on **Kerberos supported encryption types** (`msDS-SupportedEncryptionTypes`).
+  Always configure **AES** — if the host is set to refuse RC4 and AES isn't
+  configured, authentication fails.
+- Failover clusters don't support gMSAs directly, but a clustered Windows service /
+  app pool / scheduled task that natively supports gMSA can use one.
+
+In the [[securing-active-directory]] model, gMSAs remove a whole class of risk:
+static, human-known, rarely-rotated service-account passwords (inferred — they
+implement the credential-hygiene the security guidance calls for).
+
+## Reference notes
+- [[ad-ds-group-managed-service-accounts-overview]]
+- [[ad-ds-understand-service-accounts]]
+
+## See also
+- [[service-accounts-overview]]
+- [[kds-root-key]]
+- [[delegated-managed-service-accounts]]
+- [[securing-active-directory]]
+- [[active-directory-overview]]

@@ -9,6 +9,9 @@ sources:
   - kb:7135124
   - ref:rhbk-troubleshooting-kb.md
   - guide:server_configuration_guide
+source_notes:
+  - "[[doc-7135122]]"
+  - "[[doc-7135124]]"
 provenance: needs-review
 status: draft
 updated: 2026-06-16

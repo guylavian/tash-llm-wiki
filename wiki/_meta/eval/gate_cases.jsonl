@@ -1,0 +1,9 @@
+# gate_cases.jsonl — Confidence-gate probe cases (tier-coverage arm). One JSON object per line.
+# Tests GATE BEHAVIOR, not answer correctness: given a question of `question_tier` against
+# `domain`, the gate must return `expect_gate` based on the domain's tiers-covered: in
+# _meta/taxonomy.md.  expect_gate ∈ {"out-of-coverage", "none"}.  Run: gate_probe.py
+# The two positive cases are the two confident-wrong artifacts (AD split-brain, Cisco ISSU);
+# the keycloak case is the NEGATIVE contrast that proves calibration (no over-firing).
+{"query": "two DCs in different sites split-brain after a network partition; replication delta plus Kerberos PAC signing errors on one DC; fix replication or PAC first?", "domain": "active-directory", "question_tier": "support-kb", "expect_gate": "out-of-coverage", "why": "break-fix/incident question; AD corpus is conceptual-only (no support-kb tier) -> must fire. Catches the confident-wrong cross-site-split-brain-pac-signing page."}
+{"query": "Catalyst 9500 StackWise Virtual ISSU caused a ~90s blackhole and OSPF/BGP flap despite NSF/SSO; fix the ISSU procedure or the NSF/Graceful-Restart config?", "domain": "cisco-ios-xe", "question_tier": "support-kb", "expect_gate": "out-of-coverage", "why": "upgrade/break-fix question; cisco corpus is conceptual-only -> must fire. Catches the c9500-issu page (extracted:0, self-tagged reviewed)."}
+{"query": "RHBK pods CrashLoopBackOff with ISPN000541 dns_query error at bootstrap; what is the fix?", "domain": "keycloak", "question_tier": "support-kb", "expect_gate": "none", "why": "NEGATIVE CONTRAST: same break-fix CLASS, but keycloak carries the support-kb tier (documentKind: Solution notes, e.g. bootstrap-admin-dns-query) -> must NOT fire. Proves calibration, not over-firing."}

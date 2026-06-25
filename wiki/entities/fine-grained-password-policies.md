@@ -1,0 +1,44 @@
+---
+title: Fine-Grained Password Policies (FGPP)
+type: entity
+domain: active-directory
+slug: fine-grained-password-policies
+summary: AD Password Settings Objects that let one domain enforce multiple password/lockout policies for different sets of users (e.g. stricter rules for privileged accounts) — applied to global security groups and users, requiring the 2012 DFL.
+sources:
+  - web:https://learn.microsoft.com/windows-server/identity/ad-ds/manage/how-to/fine-grained-password-policies (Microsoft Learn — Fine-grained password policies, fetched 2026-06-18)
+provenance_extracted: 5
+provenance_inferred: 1
+provenance_ambiguous: 0
+tags: [security, users, directory-services]
+status: draft
+updated: 2026-06-18
+---
+
+# Fine-Grained Password Policies (FGPP)
+
+**A way to enforce more than one password and account-lockout policy within a single
+AD domain, instead of the one domain-wide policy AD historically allowed.**
+
+## Body
+
+Before FGPP, a domain had exactly one password/lockout policy (set in the Default
+Domain Policy GPO). FGPP lets you define **Password Settings Objects (PSOs)** and
+apply different rules to different users — e.g. stricter length/complexity/lockout for
+privileged accounts, lighter rules for everyone else.
+
+- **Applies only to** global security groups and user objects (not OUs — to scope by
+  OU, use a shadow group).
+- **Requires** the **Windows Server 2012 Domain Functional Level** or higher.
+- By default only **Domain Admins** can set FGPPs, but the ability is delegable.
+- Managed with the **Active Directory Administrative Center (ADAC)** or the AD
+  PowerShell module (RSAT).
+
+FGPP is the native control for the "stricter rules for privileged accounts" posture
+that [[securing-active-directory]] calls for, and complements [[windows-laps]], which
+governs **local**-admin passwords rather than domain-account policy (inferred — they
+cover adjacent but distinct credential surfaces).
+
+## See also
+- [[securing-active-directory]]
+- [[laps-password-encryption]]
+- [[active-directory-overview]]

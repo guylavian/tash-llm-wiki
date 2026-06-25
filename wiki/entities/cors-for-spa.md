@@ -8,10 +8,9 @@ sources:
   - web:https://www.ietf.org/archive/id/draft-ietf-oauth-browser-based-apps-26.html (draft-ietf-oauth-browser-based-apps-26, fetched 2026-06-17)
   - web:https://owasp.org/www-project-application-security-verification-standard/ (OWASP ASVS 4.0.3, fetched 2026-06-18)
   - web:https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html (OWASP Cheat Sheet Series, fetched 2026-06-18)
-provenance:
-  extracted: 12
-  inferred: 4
-  ambiguous: 0
+provenance_extracted: 12
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [clients, security, concept]
 status: reviewed
 updated: 2026-06-17

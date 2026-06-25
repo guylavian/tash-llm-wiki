@@ -5,16 +5,22 @@ New pages **must** be added to the right list below (the linter flags orphans).
 
 Schema & workflows: see [`CLAUDE.md`](./CLAUDE.md). **All data lives in this Obsidian
 vault**: synthesized pages + the immutable `reference/<domain>/` doc notes (grep them,
-or `python3 _meta/bin/kb.py --domain <d> search …` for ranked search) + `../references/`.
+or `python3 -m wikikb kb --domain <d> search …` for ranked search) + `../references/`.
 Per-domain routing indexes are in `index.<domain>.md` (below).
+
+## Live index (Obsidian Bases)
+
+_A native [[wiki.base]] view — it reads page frontmatter directly and updates itself as pages are added: no `index.py`, no "add it to the index or it's an orphan" rule. The generated router and the hand-maintained Topics/Entities/Questions lists below are kept **only for comparison** until this is verified, then they can be retired. Open `wiki.base` for the per-domain tabs._
+
+![[wiki.base]]
 
 <!-- index.py:domains:begin (generated — do not edit) -->
 ## Domains
 _Per-domain routing indexes (generated). A QUERY routes here first, then opens the relevant index below to stay inside the model's context window._
 
-- [active-directory](index.active-directory.md) — 68 pages · [[_ref-active-directory|221 reference notes]] · review lens [[active-directory-implementation-review]]
-- [cisco-ios-xe](index.cisco-ios-xe.md) — 13 pages · review lens [[cisco-ios-xe-implementation-review]]
-- [keycloak](index.keycloak.md) — 159 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
+- [active-directory](index.active-directory.md) — 69 pages · [[_ref-active-directory|221 reference notes]] · review lens [[active-directory-implementation-review]]
+- [cisco-ios-xe](index.cisco-ios-xe.md) — 15 pages · review lens [[cisco-ios-xe-implementation-review]]
+- [keycloak](index.keycloak.md) — 167 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
 <!-- index.py:domains:end -->
 
 ## Topics
@@ -180,6 +186,7 @@ _Per-domain routing indexes (generated). A QUERY routes here first, then opens t
 - [[uneven-pod-load-master-realm]] — hot pod + LOGIN_ERROR flood from master-realm auth
 
 ## Questions
+- [questions/active-active-invalid-grant-token-refresh.md](./questions/active-active-invalid-grant-token-refresh.md)
 - [questions/ldap-import-vs-noimport.md](./questions/ldap-import-vs-noimport.md)
 - [questions/rhbk-default-password-hash.md](./questions/rhbk-default-password-hash.md)
 - [questions/active-passive-session-consistency-failover.md](./questions/active-passive-session-consistency-failover.md)
@@ -190,9 +197,18 @@ _Per-domain routing indexes (generated). A QUERY routes here first, then opens t
 - [questions/kerberos-rbcd-s4u-delegation-detailed.md](./questions/kerberos-rbcd-s4u-delegation-detailed.md)
 - [questions/token-exchange-rhbk-detailed.md](./questions/token-exchange-rhbk-detailed.md)
 - [questions/logout-session-lifecycle-active-passive.md](./questions/logout-session-lifecycle-active-passive.md)
+- [questions/active-passive-failover-sessions-lost.md](./questions/active-passive-failover-sessions-lost.md)
 - [questions/fsmo-transfer-vs-seize-dead-dc-twist.md](./questions/fsmo-transfer-vs-seize-dead-dc-twist.md)
+- [questions/cross-site-split-brain-pac-signing.md](./questions/cross-site-split-brain-pac-signing.md)
+- [questions/c9500-issu-svl-blackhole-nsf-gr.md](./questions/c9500-issu-svl-blackhole-nsf-gr.md)
+- [questions/client-credentials-burst-token-expired.md](./questions/client-credentials-burst-token-expired.md)
+- [questions/rhsso-openshift3-connection-problems.md](./questions/rhsso-openshift3-connection-problems.md)
+- [questions/passthrough-roundrobin-login-loop.md](./questions/passthrough-roundrobin-login-loop.md)
+- [questions/mixed-speed-port-channel.md](./questions/mixed-speed-port-channel.md)
+- [questions/parallel-user-import-silent-failure.md](./questions/parallel-user-import-silent-failure.md)
+- [questions/rhbk-oscp-scaling-resources.md](./questions/rhbk-oscp-scaling-resources.md)
 
 ---
 _Seeded 2026-06-16. Grow it via the INGEST / QUERY operations in `CLAUDE.md`.
-Run `python3 wiki/_meta/bin/lint.py` to check health, or `--status` for the
-delta-manifest audit. Tooling lives in `wiki/_meta/bin/` (excluded from scanners)._
+Run `python3 -m wikikb lint` to check health, or `--status` for the
+delta-manifest audit. Tooling lives in `wiki/_meta/wikikb/` (excluded from scanners)._

@@ -1,0 +1,19 @@
+# llm.config.yaml.sample — copy to `llm.config.yaml` (gitignored) and edit to enable the OPTIONAL
+# online tier. With NO real config and WIKI_LLM unset/off, the wiki is exactly today's offline,
+# host-runtime-driven system — the gateway is an accelerator, never a requirement.
+#
+# This is a TINY flat key:value subset (llm.py parses it with stdlib, no PyYAML). Env vars override:
+#   WIKI_LLM=local|cloud|off   WIKI_LLM_MODEL=...   WIKI_LLM_API_BASE=...   WIKI_LLM_MAX_TOKENS=...
+#   WIKI_LLM_TEMPERATURE=...    WIKI_LLM_ALLOW_REMOTE=1 (opt-in remote; also needs a provider key env)
+
+model: "ollama/qwen2.5:32b"            # ~27B Ollama-class local model (the design target)
+api_base: "http://127.0.0.1:11434"     # loopback ONLY (Ollama default). vLLM: openai/<model> + :8000/v1
+provider_allowlist: [ollama, ollama_chat, vllm, openai]   # 'openai' is permitted ONLY behind the loopback gate (local vLLM)
+max_tokens: 2048
+temperature: 0                         # determinism: filed answers must not drift run-to-run
+
+# Remote/cloud is OFF by default. The loopback gate (llm.py) refuses any non-loopback model/endpoint
+# — including a bare cloud model id with no api_base — UNLESS you set BOTH:
+#     export WIKI_LLM_ALLOW_REMOTE=1
+#     export OPENAI_API_KEY=...        (or ANTHROPIC_API_KEY / GEMINI_API_KEY / ...)
+# Only then does a cloud model incur real $ cost. Keep keys out of git and out of this file.

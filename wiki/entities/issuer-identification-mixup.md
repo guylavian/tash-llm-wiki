@@ -7,10 +7,9 @@ summary: "When a client talks to more than one authorization server, it must ver
 sources:
   - web:https://www.rfc-editor.org/rfc/rfc9207 (RFC 9207 AS Issuer Identification, fetched 2026-06-17)
   - web:https://www.rfc-editor.org/rfc/rfc9700 (RFC 9700 OAuth 2.0 Security BCP, fetched 2026-06-17)
-provenance:
-  extracted: 14
-  inferred: 3
-  ambiguous: 0
+provenance_extracted: 14
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [clients, security, failure-mode]
 status: reviewed
 updated: 2026-06-17

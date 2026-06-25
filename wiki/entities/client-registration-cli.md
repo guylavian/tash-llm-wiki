@@ -7,6 +7,8 @@ summary: "`kcreg.sh` / `kcreg.bat` — the command-line front end to the RHBK [[
 sources:
   - guide:securing_applications_and_services_guide
   - kb:client-registration-cli-
+source_notes:
+  - "[[rhbk-26-6-client-registration-cli]]"
 provenance: needs-review
 tags: [clients]
 status: draft

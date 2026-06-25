@@ -7,10 +7,11 @@ summary: Import ON keeps a synchronized local copy (full admin listing/search, a
 sources:
   - guide:server_administration_guide
   - kb:user-storage-federation
-provenance:
-  extracted: 4
-  inferred: 1
-  ambiguous: 0
+source_notes:
+  - "[[rhbk-26-4-user-storage-federation]]"
+provenance_extracted: 4
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [federation]
 status: reviewed
 updated: 2026-06-16

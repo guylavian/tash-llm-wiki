@@ -1,0 +1,76 @@
+---
+title: Active Directory Replication & Site Topology
+type: topic
+domain: active-directory
+slug: ad-replication
+summary: How AD's multi-master replication converges — connection objects built by the KCC, sites/subnets/site links and their cost/interval/schedule, site link transitivity and bridges, and the global-catalog role that makes topology the lever for WAN-efficient replication and DC location.
+sources:
+  - web:https://learn.microsoft.com/windows-server/identity/ad-ds/get-started/replication/active-directory-replication-concepts (Microsoft Learn — Active Directory Replication Concepts, fetched 2026-06-18)
+  - web:https://learn.microsoft.com/windows-server/identity/ad-ds/plan/designing-the-site-topology (Microsoft Learn — Designing the Site Topology, fetched 2026-06-18)
+provenance_extracted: 7
+provenance_inferred: 2
+provenance_ambiguous: 0
+symptoms:
+  - "replication.*1396"
+  - "1753.*endpoint mapper"
+  - "lingering object"
+tags: [replication, sites-topology, directory-services, concept]
+status: draft
+updated: 2026-06-18
+---
+
+# Active Directory Replication & Site Topology
+
+**AD keeps domain controllers in sync with multi-master replication; site topology
+is the operator's lever to make that replication and DC location WAN-efficient.**
+
+## Body
+
+Replication moves directory changes between DCs so any DC can accept a write and
+converge it (the multi-master model from [[active-directory-overview]]; the
+exceptions are the [[fsmo-roles]]). The moving parts:
+
+- **Connection object** — a one-way inbound replication link from a source DC to a
+  destination DC, hung off the destination's **NTDS Settings** object. The
+  **Knowledge Consistency Checker (KCC)** builds and repairs these automatically.
+- **Site** — a set of well-connected **subnets** (typically a LAN/datacenter).
+  Clients use site membership to find the **nearest** DC, and intra-site replication
+  is frequent and uncompressed.
+- **Site link** — connects sites for **inter-site** replication; carries a **cost**
+  (lower = preferred path), a **replication interval**, and a **schedule** (when
+  replication may run). These three knobs trade convergence speed against WAN load.
+- **Site link bridge / transitivity** — site links are transitive by default; bridges
+  let you control transitivity when the network isn't fully routed.
+- **Global catalog (GC)** — a partial, forest-wide read replica used for forest-wide
+  searches and UPN logon; **universal group membership caching** lets a site without
+  a GC still log users in.
+
+Designing topology is therefore a placement exercise — put DCs where
+clients are, size site-link cost/schedule to the WAN, and keep DNS healthy so the
+**DC Locator** can resolve the `_msdcs` SRV records that turn site membership into an
+actual DC connection (this is why replication and [[dns-for-ad-ds]] fail together).
+
+## Contradictions / caveats
+
+- Most "replication is broken" tickets are **not** the replication engine itself but
+  a dependency: DNS resolution failure, time skew breaking Kerberos
+  (`1396`/`1753` errors), or **lingering objects** after a DC was offline past the
+  tombstone lifetime (inferred — the recurring root-cause pattern across the
+  troubleshooting reference notes).
+- The **Infrastructure Master** FSMO interacts with GC placement (see
+  [[fsmo-roles]]): don't co-locate it with a GC in a multi-domain forest unless all
+  DCs are GCs.
+
+## Reference notes
+- [[ad-ds-active-directory-replication-concepts]]
+- [[ad-ds-designing-the-site-topology]]
+
+## See also
+- [[active-directory-overview]]
+- [[dns-for-ad-ds]]
+- [[fsmo-roles]]
+- [[active-directory-implementation-review]]
+- [[site-links-and-replication-schedule]]
+- [[knowledge-consistency-checker]]
+- [[global-catalog]]
+- [[universal-group-membership-caching]]

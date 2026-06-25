@@ -9,6 +9,10 @@ sources:
   - kb:migrating-providers
   - kb:migrating-themes
   - kb:other-changes
+source_notes:
+  - "[[rhbk-26-6-migrating-providers]]"
+  - "[[rhbk-26-6-migrating-themes]]"
+  - "[[rhbk-26-6-other-changes]]"
 provenance: needs-review
 tags: [migration]
 status: draft

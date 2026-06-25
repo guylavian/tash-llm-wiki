@@ -7,6 +7,8 @@ summary: "Roles (realm roles and client roles, optionally composite) grant permi
 sources:
   - guide:server_administration_guide
   - kb:admin_cli
+source_notes:
+  - "[[rhbk-26-4-admin-cli]]"
 provenance: needs-review
 tags: [users]
 status: draft

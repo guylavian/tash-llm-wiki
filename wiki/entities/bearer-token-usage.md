@@ -7,10 +7,9 @@ summary: "RFC 6750 and the OAuth 2.0 Security BCP (RFC 9700) define strict rules
 sources:
   - web:https://www.rfc-editor.org/rfc/rfc6749 (RFC 6749 + RFC 6750, fetched 2026-06-17)
   - web:https://www.rfc-editor.org/rfc/rfc9700 (RFC 9700 OAuth 2.0 Security BCP, fetched 2026-06-17)
-provenance:
-  extracted: 18
-  inferred: 3
-  ambiguous: 0
+provenance_extracted: 18
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [tokens, security, anti-pattern]
 status: reviewed
 updated: 2026-06-17

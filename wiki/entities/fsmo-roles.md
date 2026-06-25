@@ -7,10 +7,9 @@ summary: The five single-master roles that sit on top of AD's otherwise multi-ma
 sources:
   - note:_sources/active-directory/fsmo-roles.md
   - web:https://learn.microsoft.com/windows-server/identity/ad-ds/ (Microsoft Learn — FSMO roles, fetched 2026-06-18)
-provenance:
-  extracted: 6
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 symptoms:
   - "RID pool.*exhaust"
   - "KRB_AP_ERR_SKEW"

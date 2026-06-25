@@ -6,10 +6,9 @@ slug: rp-initiated-logout
 summary: "RP-Initiated Logout is the OIDC flow where the client redirects the user agent to the OP's end_session_endpoint to terminate the session; several validation rules around id_token_hint, post_logout_redirect_uri, and state make it a common source of open-redirect and DoS vulnerabilities."
 sources:
   - web:https://openid.net/specs/openid-connect-rpinitiated-1_0.html (OIDF RP-Initiated Logout 1.0, fetched 2026-06-17)
-provenance:
-  extracted: 9
-  inferred: 3
-  ambiguous: 0
+provenance_extracted: 9
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [security, endpoint]
 status: reviewed
 updated: 2026-06-17

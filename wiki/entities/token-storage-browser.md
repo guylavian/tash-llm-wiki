@@ -9,10 +9,9 @@ sources:
   - web:https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html (OWASP Cheat Sheet Series, fetched 2026-06-18)
   - web:https://owasp.org/www-project-application-security-verification-standard/ (OWASP ASVS 4.0.3, fetched 2026-06-18)
   - web:https://curity.io/resources/learn/the-bff-pattern/ (Curity BFF / Token Handler, fetched 2026-06-17)
-provenance:
-  extracted: 18
-  inferred: 4
-  ambiguous: 1
+provenance_extracted: 18
+provenance_inferred: 4
+provenance_ambiguous: 1
 tags: [clients, tokens, security, anti-pattern]
 status: reviewed
 updated: 2026-06-18

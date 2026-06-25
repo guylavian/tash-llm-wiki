@@ -8,6 +8,9 @@ sources:
   - guide:server_administration_guide
   - kb:configuring-authentication_server_administration_guide
   - kb:configuring-realms
+source_notes:
+  - "[[rhbk-26-4-configuring-authentication-server-administration-guide]]"
+  - "[[rhbk-26-4-configuring-realms]]"
 provenance: needs-review
 tags: [authn]
 status: draft

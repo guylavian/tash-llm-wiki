@@ -7,6 +7,8 @@ summary: "Components attached to an LDAP provider that map LDAP data (attributes
 sources:
   - guide:server_administration_guide
   - kb:user-storage-federation
+source_notes:
+  - "[[rhbk-26-4-user-storage-federation]]"
 provenance: needs-review
 tags: [clients, federation]
 status: draft

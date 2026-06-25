@@ -7,6 +7,8 @@ summary: "Several RH-SSO 7.6 Java client adapters are no longer released with RH
 sources:
   - guide:migration_guide
   - kb:migrating-applications
+source_notes:
+  - "[[rhbk-26-6-migrating-applications]]"
 provenance: needs-review
 tags: [migration]
 status: draft

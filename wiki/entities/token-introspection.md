@@ -6,10 +6,9 @@ slug: token-introspection
 summary: "RFC 7662 defines a protected POST endpoint that lets a resource server ask the authorization server whether a token is currently active; misuse of the `active` flag or weak caching is the primary cause of revoked tokens remaining valid."
 sources:
   - web:https://www.rfc-editor.org/rfc/rfc7662 (RFC 7662 Token Introspection, fetched 2026-06-17)
-provenance:
-  extracted: 14
-  inferred: 3
-  ambiguous: 0
+provenance_extracted: 14
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [tokens, security, endpoint]
 status: reviewed
 updated: 2026-06-17

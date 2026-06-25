@@ -8,6 +8,9 @@ sources:
   - guide:high_availability_guide
   - kb:deploy-keycloak-kubernetes
   - kb:multi-cluster-introduction
+source_notes:
+  - "[[rhbk-26-2-deploy-keycloak-kubernetes]]"
+  - "[[rhbk-26-6-multi-cluster-introduction]]"
 provenance: needs-review
 tags: [ha, server-config]
 status: draft

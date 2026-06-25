@@ -17,6 +17,18 @@ sources:
   - kb:7128299
   - kb:7142577
   - kb:7141508
+source_notes:
+  - "[[doc-7142778]]"
+  - "[[doc-7135882]]"
+  - "[[doc-7138771]]"
+  - "[[doc-7135122]]"
+  - "[[doc-7135124]]"
+  - "[[doc-7128352]]"
+  - "[[doc-7073090]]"
+  - "[[doc-7126933]]"
+  - "[[doc-7128299]]"
+  - "[[doc-7142577]]"
+  - "[[doc-7141508]]"
 provenance: needs-review
 tags: [concept]
 status: draft

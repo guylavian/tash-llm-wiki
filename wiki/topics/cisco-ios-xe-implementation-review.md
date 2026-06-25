@@ -9,10 +9,9 @@ sources:
   - note:_sources/cisco-ios-xe/bgp-routing.md
   - note:_sources/cisco-ios-xe/protocol-independent-routing.md
   - note:_sources/cisco-ios-xe/lan-switching.md
-provenance:
-  extracted: 11
-  inferred: 19
-  ambiguous: 0
+provenance_extracted: 11
+provenance_inferred: 19
+provenance_ambiguous: 0
 tags: [troubleshooting, concept]
 status: draft
 updated: 2026-06-18

@@ -5,6 +5,12 @@
 __pycache__/
 *.pyc
 
+# Python build / install / cache artifacts (optional `pip install -e .`)
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
 # Obsidian per-machine session state (app.json/core-plugins/graph are kept)
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json

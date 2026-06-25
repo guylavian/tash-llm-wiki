@@ -8,10 +8,11 @@ sources:
   - guide:server_administration_guide
   - guide:release_notes
   - kb:configuring-authentication_server_administration_guide
-provenance:
-  extracted: 4
-  inferred: 1
-  ambiguous: 0
+source_notes:
+  - "[[rhbk-26-4-configuring-authentication-server-administration-guide]]"
+provenance_extracted: 4
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [authn]
 status: reviewed
 updated: 2026-06-17

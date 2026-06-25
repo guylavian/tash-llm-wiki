@@ -7,6 +7,8 @@ summary: "RHBK records OpenTelemetry spans for the request lifecycle via a suppo
 sources:
   - guide:observability_guide
   - kb:tracing-
+source_notes:
+  - "[[rhbk-26-6-tracing]]"
 provenance: needs-review
 tags: [observability]
 status: draft

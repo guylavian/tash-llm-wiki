@@ -7,6 +7,8 @@ summary: "RHBK ships example availability, latency, and error SLIs/SLOs computed
 sources:
   - guide:observability_guide
   - kb:keycloak-service-level-indicators-
+source_notes:
+  - "[[rhbk-26-6-keycloak-service-level-indicators]]"
 provenance: needs-review
 status: draft
 updated: 2026-06-16

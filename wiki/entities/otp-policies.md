@@ -7,6 +7,8 @@ summary: "Realm-level policy (Authentication → Policy → OTP Policy) that con
 sources:
   - guide:server_administration_guide
   - kb:configuring-authentication_server_administration_guide
+source_notes:
+  - "[[rhbk-26-4-configuring-authentication-server-administration-guide]]"
 provenance: needs-review
 tags: [authn]
 status: draft

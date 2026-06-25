@@ -7,6 +7,8 @@ summary: "RHBK acts as an identity broker — an intermediary that delegates aut
 sources:
   - guide:server_administration_guide
   - kb:identity_broker
+source_notes:
+  - "[[rhbk-26-4-identity-broker]]"
 provenance: needs-review
 tags: [brokering, concept]
 status: draft

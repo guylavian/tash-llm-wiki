@@ -8,6 +8,9 @@ sources:
   - guide:server_administration_guide
   - kb:configuring-realms
   - kb:admin_cli
+source_notes:
+  - "[[rhbk-26-4-configuring-realms]]"
+  - "[[rhbk-26-4-admin-cli]]"
 provenance: needs-review
 tags: [realm]
 status: draft

@@ -7,10 +7,9 @@ summary: The orientation page for the active-directory brain — what AD DS is (
 sources:
   - note:_sources/active-directory/fsmo-roles.md
   - web:https://learn.microsoft.com/windows-server/identity/ad-ds/ (Microsoft Learn — AD DS, fetched 2026-06-18)
-provenance:
-  extracted: 4
-  inferred: 2
-  ambiguous: 0
+provenance_extracted: 4
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [directory-services, concept]
 status: draft
 updated: 2026-06-18
@@ -42,16 +41,34 @@ to one of three dependencies: a missing FSMO holder, broken **DNS** (DCs are
 located via `_msdcs` SRV records), or **time skew** breaking Kerberos (inferred —
 this is the recurring root-cause pattern across the failure modes below).
 
-This page is intentionally a spine. Detailed mechanics live on entity pages and the
-review MOC; grow them via INGEST as notes land in `_sources/active-directory/`.
+This page is intentionally a spine. Detailed mechanics live on the topic/entity
+pages below and the review MOC; grow them via INGEST as more of the
+`reference/active-directory/` tier is synthesized.
+
+Beyond core AD DS, the `active-directory` brain also covers the adjacent identity
+pillars: [[windows-laps]] (local-admin/DSRM password automation) and
+[[ad-certificate-services]] (the PKI behind LDAPS, smartcards, and federation certs).
 
 ## Contradictions / caveats
 
-This is a notes-first domain seeded from Microsoft Learn — facts are paraphrased
-from the upstream docs and lab knowledge, not a Red Hat-style support corpus.
-Version-specific behavior (Windows Server 2016/2019/2022/2025 functional levels)
-should be called out per claim as pages mature.
+This is a **corpus-backed** domain (`reference/active-directory/` holds the imported
+AD DS doc bodies); the LAPS and AD CS pillars are seeded notes-first from paraphrased
+Microsoft Learn material in `_sources/active-directory/` until their docs are
+harvested. Version-specific behavior (Windows Server 2016/2019/2022/2025 functional
+levels) should be called out per claim as pages mature.
 
 ## See also
 - [[fsmo-roles]]
+- [[ad-replication]]
+- [[dns-for-ad-ds]]
+- [[group-policy]]
+- [[securing-active-directory]]
+- [[group-managed-service-accounts]]
+- [[ad-forest-recovery]]
+- [[windows-laps]]
+- [[ad-certificate-services]]
 - [[active-directory-implementation-review]]
+- [[ldap-signing-and-channel-binding]]
+- [[ad-recycle-bin]]
+- [[ad-database-and-32k-pages]]
+- [[ad-ds-maximum-limits]]

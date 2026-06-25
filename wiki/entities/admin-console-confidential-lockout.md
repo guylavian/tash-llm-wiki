@@ -8,6 +8,8 @@ sources:
   - kb:7138771
   - ref:rhbk-troubleshooting-kb.md
   - guide:server_administration_guide
+source_notes:
+  - "[[doc-7138771]]"
 provenance: needs-review
 status: draft
 updated: 2026-06-16

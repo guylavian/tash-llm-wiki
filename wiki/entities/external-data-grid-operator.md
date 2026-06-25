@@ -8,6 +8,9 @@ sources:
   - guide:high_availability_guide
   - kb:deploy-infinispan-kubernetes-crossdc
   - kb:deploy-keycloak-kubernetes
+source_notes:
+  - "[[rhbk-26-2-deploy-infinispan-kubernetes-crossdc]]"
+  - "[[rhbk-26-2-deploy-keycloak-kubernetes]]"
 provenance: needs-review
 tags: [ha, operator]
 status: draft

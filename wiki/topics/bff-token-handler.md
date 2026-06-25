@@ -9,10 +9,9 @@ sources:
   - web:https://curity.io/resources/learn/the-bff-pattern/ (Curity BFF pattern, fetched 2026-06-17)
   - web:https://curity.io/resources/learn/token-handler-overview/ (Curity Token Handler overview, fetched 2026-06-17)
   - web:https://www.keycloak.org/docs/latest/securing_apps/index.html (Keycloak securing-apps OSS, fetched 2026-06-17)
-provenance:
-  extracted: 28
-  inferred: 6
-  ambiguous: 0
+provenance_extracted: 28
+provenance_inferred: 6
+provenance_ambiguous: 0
 tags: [clients, tokens, security, profile]
 status: reviewed
 updated: 2026-06-17

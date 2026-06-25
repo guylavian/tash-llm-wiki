@@ -7,6 +7,8 @@ summary: "An Admin Console tester (the Evaluate tab on a resource server) that s
 sources:
   - guide:authorization_services_guide
   - kb:authorization_services_guide/policy_evaluation_overview
+source_notes:
+  - "[[rhbk-26-6-policy-evaluation-overview]]"
 provenance: needs-review
 tags: [authz]
 status: draft

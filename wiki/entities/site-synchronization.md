@@ -8,6 +8,9 @@ sources:
   - guide:high_availability_guide
   - kb:operate-synchronize
   - kb:concepts-multi-site
+source_notes:
+  - "[[rhbk-26-2-operate-synchronize]]"
+  - "[[rhbk-26-2-concepts-multi-site]]"
 provenance: needs-review
 tags: [ha]
 status: draft

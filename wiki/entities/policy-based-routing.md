@@ -6,10 +6,9 @@ slug: policy-based-routing
 summary: "Forwarding by a route map on an interface instead of by destination lookup — source/app-sensitive routing — with the caveats that it disables fast switching, local-PBR TCP needs a RIB entry for the remote host, and verify-availability stops next-hop blackholes."
 sources:
   - note:_sources/cisco-ios-xe/protocol-independent-routing.md
-provenance:
-  extracted: 6
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [ip-routing, concept]
 status: reviewed
 updated: 2026-06-18

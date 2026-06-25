@@ -10,10 +10,13 @@ sources:
   - kb:migrating-themes
   - kb:other-changes
   - guide:server_developer_guide
-provenance:
-  extracted: 10
-  inferred: 2
-  ambiguous: 0
+source_notes:
+  - "[[rhbk-26-6-migrating-providers]]"
+  - "[[rhbk-26-6-migrating-themes]]"
+  - "[[rhbk-26-6-other-changes]]"
+provenance_extracted: 10
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [migration, spi]
 status: reviewed
 updated: 2026-06-17

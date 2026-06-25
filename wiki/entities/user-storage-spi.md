@@ -7,6 +7,8 @@ summary: "The SPI for bridging an external proprietary user/credential store int
 sources:
   - guide:server_developer_guide
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/user-storage-spi
+source_notes:
+  - "[[rhbk-26-6-user-storage-spi]]"
 provenance: needs-review
 tags: [federation, spi]
 status: draft

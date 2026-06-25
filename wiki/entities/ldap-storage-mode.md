@@ -7,6 +7,8 @@ summary: "Two settings on an LDAP provider that decide (a) whether users are cop
 sources:
   - guide:server_administration_guide
   - kb:user-storage-federation
+source_notes:
+  - "[[rhbk-26-4-user-storage-federation]]"
 provenance: needs-review
 tags: [federation]
 status: draft

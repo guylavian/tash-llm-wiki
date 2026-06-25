@@ -6,10 +6,9 @@ slug: back-channel-logout
 summary: "A server-to-server logout mechanism in which the OpenID Provider POSTs a signed Logout Token directly to a registered RP endpoint, bypassing the browser entirely and making it the resilient alternative to front-channel/iframe logout in modern browsers."
 sources:
   - web:https://openid.net/specs/openid-connect-rpinitiated-1_0.html (OIDF Back-Channel Logout 1.0, fetched 2026-06-17)
-provenance:
-  extracted: 9
-  inferred: 2
-  ambiguous: 0
+provenance_extracted: 9
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [tokens, security, profile]
 status: reviewed
 updated: 2026-06-17

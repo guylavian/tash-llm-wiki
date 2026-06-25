@@ -6,10 +6,9 @@ slug: etherchannel
 summary: "Bonding links into one logical channel: flow-based 16-bucket load balancing (and its bucket-remap gotchas) plus LACP flow-based 1:1 active/standby redundancy that must be enabled on both ends."
 sources:
   - note:_sources/cisco-ios-xe/lan-switching.md
-provenance:
-  extracted: 6
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [etherchannel, concept]
 status: reviewed
 updated: 2026-06-18

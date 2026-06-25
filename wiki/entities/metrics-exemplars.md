@@ -7,6 +7,8 @@ summary: "Exemplars attach the last recorded trace ID to a metric data point, so
 sources:
   - guide:observability_guide
   - kb:exemplars-
+source_notes:
+  - "[[rhbk-26-6-exemplars]]"
 provenance: needs-review
 tags: [observability]
 status: draft

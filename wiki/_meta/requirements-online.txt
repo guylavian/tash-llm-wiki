@@ -1,0 +1,36 @@
+# requirements-online.txt — the OPTIONAL online tier. NOT installed by default; the base repo stays
+# zero-pip (Phases 0-3 need NO dependency from this file — they run on the stdlib heuristic). Vendor
+# these on a networked box and install --no-index on the sealed box. See _meta/llm/README.md +
+# _meta/cost/README.md.
+#
+# OFFLINE VENDORING — match the air-gapped box's CPython-version + OS + arch + ABI (several wheels are
+# COMPILED). --platform takes a wheel PLATFORM TAG (manylinux2014_x86_64 / macosx_11_0_arm64), NOT a
+# Rust triple; --abi is required or pip falls back to the running interpreter's ABI and the offline
+# install fails:
+#   pip download -r requirements-online.txt -d ./wheels \
+#       --platform <platform-tag> --python-version <X.Y> --abi <abi-tag> --implementation cp --only-binary=:all:
+#   # then on the sealed box:
+#   pip install --no-index --find-links ./wheels -r requirements-online.txt
+#
+# !! PINS BELOW ARE UNVERIFIED ON THIS AIR-GAPPED BOX (the libs are absent here, Python is 3.14).
+#    The council mandates pinning EXACT versions and re-verifying each API symbol against the pinned
+#    version's source before relying on it (COUNCIL-DIRECTIVES.md §3). Adjust to versions that have
+#    wheels for your target Python — litellm/langgraph/pydantic-core wheels for very new CPython may lag.
+
+# --- LLM gateway (Phase 2+) ---
+litellm==1.61.0            # SDK only (no proxy). NEVER call litellm.token_counter (tiktoken net download).
+
+# --- Orchestration (Phase 4-5) ---
+langgraph==0.2.62          # StateGraph for QUERY/INGEST. MemorySaver (in-package); SqliteSaver NOT used.
+# NOTE: LangChain is intentionally NOT a dependency (LCEL/ChatLiteLLM cut — COUNCIL-DIRECTIVES.md §5).
+# langgraph pulls langchain-core transitively; we do not import it directly.
+
+# --- Measured token counts, tier-1 of cost.count_tokens (Phase 1) ---
+tokenizers==0.21.0         # COMPILED (Rust) — loads a vendored tokenizer.json by path. Arch-fragile.
+
+# --- COMPILED transitive deps to expect (surface them on the networked box, not the sealed one) ---
+#   tiktoken, pydantic-core, orjson, regex  — all ship binary wheels; --only-binary=:all: forces them.
+
+# --- Already-optional dense layer (retro-documented; see _meta/models/README.md) ---
+numpy==2.1.3
+sentence-transformers==3.3.1

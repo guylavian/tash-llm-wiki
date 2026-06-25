@@ -9,6 +9,6 @@ indexes, and per-domain context-budget warnings. See the `wiki-status` skill and
 "Operation: STATUS" in `wiki/CLAUDE.md`.
 
 Audit output:
-!`python3 wiki/_meta/bin/lint.py --status`
+!`python3 -m wikikb lint --status`
 
 Reads `references/` read-only; writes only `wiki/_meta/.manifest.json`.

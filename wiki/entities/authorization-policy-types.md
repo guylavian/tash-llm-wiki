@@ -7,6 +7,8 @@ summary: "Policies define the *conditions* that must be satisfied to grant acces
 sources:
   - guide:authorization_services_guide
   - kb:authorization_services_guide/policy_overview
+source_notes:
+  - "[[rhbk-26-6-policy-overview]]"
 provenance: needs-review
 tags: [authz]
 status: draft

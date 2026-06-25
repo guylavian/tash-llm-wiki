@@ -8,6 +8,9 @@ sources:
   - guide:server_administration_guide
   - kb:admin_permissions
   - kb:admin_cli
+source_notes:
+  - "[[rhbk-26-4-admin-permissions]]"
+  - "[[rhbk-26-4-admin-cli]]"
 provenance: needs-review
 status: draft
 updated: 2026-06-16

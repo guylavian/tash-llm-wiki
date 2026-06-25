@@ -7,6 +7,8 @@ summary: "The `spec.additionalOptions` field on the [[keycloak-cr]] — a key/va
 sources:
   - guide:operator_guide
   - kb:operator_guide/advanced-configuration-
+source_notes:
+  - "[[rhbk-26-6-advanced-configuration]]"
 provenance: needs-review
 status: draft
 updated: 2026-06-16

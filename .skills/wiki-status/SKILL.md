@@ -11,9 +11,9 @@ lint scanners and the delta manifest rather than duplicating them.
 
 ## Do this
 ```bash
-python3 wiki/_meta/bin/lint.py --status     # lint report + delta-manifest audit
-python3 wiki/_meta/bin/manifest.py status   # just the delta-manifest audit
-python3 wiki/_meta/bin/manifest.py seed     # rebuild the manifest from current pages
+python3 -m wikikb lint --status     # lint report + delta-manifest audit
+python3 -m wikikb manifest status   # just the delta-manifest audit
+python3 -m wikikb manifest seed     # rebuild the manifest from current pages
 ```
 `ref:` sources are content-hashed (real change detection); `kb:`/`guide:`/`note:`/`web:`
 are presence-tracked. Reads `references/` read-only; writes only

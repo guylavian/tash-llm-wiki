@@ -9,10 +9,9 @@ sources:
   - web:https://www.rfc-editor.org/rfc/rfc9700 (RFC 9700 OAuth 2.0 Security BCP, fetched 2026-06-17)
   - web:https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-15.html (OAuth 2.1 draft-15, fetched 2026-06-17)
   - web:https://www.keycloak.org/docs/latest/securing_apps/index.html (Keycloak securing-apps upstream OSS, fetched 2026-06-18)
-provenance:
-  extracted: 18
-  inferred: 4
-  ambiguous: 0
+provenance_extracted: 18
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [clients, tokens, security, profile]
 status: reviewed
 updated: 2026-06-17

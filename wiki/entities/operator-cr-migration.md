@@ -7,6 +7,8 @@ summary: "The RHBK Operator is a complete rewrite, not backward compatible with 
 sources:
   - guide:migration_guide
   - kb:migrating-operator
+source_notes:
+  - "[[rhbk-26-6-migrating-operator]]"
 provenance: needs-review
 tags: [migration, operator]
 status: draft

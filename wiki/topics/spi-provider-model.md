@@ -8,6 +8,9 @@ sources:
   - guide:server_developer_guide
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/providers
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/user-storage-spi
+source_notes:
+  - "[[rhbk-26-6-providers]]"
+  - "[[rhbk-26-6-user-storage-spi]]"
 provenance: needs-review
 tags: [spi, concept]
 status: draft

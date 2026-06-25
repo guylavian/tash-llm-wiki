@@ -8,6 +8,9 @@ sources:
   - guide:server_developer_guide
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2/html/server_developer_guide/themes
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2/html/server_developer_guide/theme_react
+source_notes:
+  - "[[rhbk-26-2-themes]]"
+  - "[[rhbk-26-2-theme-react]]"
 provenance: needs-review
 tags: [spi]
 status: draft

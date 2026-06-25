@@ -8,6 +8,8 @@ sources:
   - guide:operator_guide
   - kb:operator_guide/installation-
   - ref:rhbk-operator.md
+source_notes:
+  - "[[rhbk-26-6-installation]]"
 provenance: needs-review
 tags: [operator]
 status: draft

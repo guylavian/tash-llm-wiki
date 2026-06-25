@@ -9,10 +9,9 @@ sources:
   - web:https://www.rfc-editor.org/rfc/rfc9700 (RFC 9700 OAuth 2.0 Security BCP, fetched 2026-06-17)
   - web:https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html (OWASP Cheat Sheets, fetched 2026-06-18)
   - web:https://owasp.org/www-project-web-security-testing-guide/ (OWASP WSTG, fetched 2026-06-18)
-provenance:
-  extracted: 18
-  inferred: 4
-  ambiguous: 0
+provenance_extracted: 18
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [clients, security, concept]
 status: reviewed
 updated: 2026-06-18

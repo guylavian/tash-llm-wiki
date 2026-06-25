@@ -7,6 +7,8 @@ summary: "`KeycloakSession` is the per-request handle passed into every provider
 sources:
   - guide:server_developer_guide
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/providers
+source_notes:
+  - "[[rhbk-26-6-providers]]"
 provenance: needs-review
 tags: [spi, tokens]
 status: draft

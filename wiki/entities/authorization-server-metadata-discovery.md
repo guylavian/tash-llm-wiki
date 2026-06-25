@@ -7,10 +7,9 @@ summary: "The mechanism by which OAuth 2.0 / OIDC clients locate an authorizatio
 sources:
   - web:https://www.rfc-editor.org/rfc/rfc8414 (RFC 8414 — OAuth 2.0 AS Metadata, fetched 2026-06-17)
   - web:https://openid.net/specs/openid-connect-discovery-1_0.html (OpenID Connect Discovery 1.0, fetched 2026-06-17)
-provenance:
-  extracted: 28
-  inferred: 4
-  ambiguous: 0
+provenance_extracted: 28
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [security, clients, endpoint]
 status: reviewed
 updated: 2026-06-17

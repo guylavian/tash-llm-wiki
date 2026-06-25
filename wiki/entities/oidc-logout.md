@@ -8,6 +8,9 @@ sources:
   - guide:securing_applications_and_services_guide
   - kb:oidc-layers-
   - kb:dpop-
+source_notes:
+  - "[[rhbk-26-6-oidc-layers]]"
+  - "[[rhbk-26-6-dpop]]"
 provenance: needs-review
 tags: [clients]
 status: draft

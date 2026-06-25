@@ -7,10 +7,9 @@ summary: "The 0–255 trust rating IOS XE uses to pick between routes to the sam
 sources:
   - note:_sources/cisco-ios-xe/protocol-independent-routing.md
   - note:_sources/cisco-ios-xe/ospf-routing.md
-provenance:
-  extracted: 7
-  inferred: 1
-  ambiguous: 0
+provenance_extracted: 7
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [ip-routing, concept]
 status: reviewed
 updated: 2026-06-18

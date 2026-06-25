@@ -9,10 +9,11 @@ sources:
   - ref:securing-apps-oidc-saml.md
   - kb:oidc-layers-
   - web:https://datatracker.ietf.org/doc/rfc9700/ (RFC 9700, fetched 2026-06-16)
-provenance:
-  extracted: 14
-  inferred: 6
-  ambiguous: 0
+source_notes:
+  - "[[rhbk-26-6-oidc-layers]]"
+provenance_extracted: 14
+provenance_inferred: 6
+provenance_ambiguous: 0
 tags: [clients, concept]
 status: reviewed
 updated: 2026-06-16

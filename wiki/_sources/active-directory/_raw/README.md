@@ -30,12 +30,12 @@ wiki/_sources/active-directory/_raw/identity/
 
 ```bash
 # 1. docs tree -> corpus (index.jsonl + body files)
-python3 wiki/_meta/bin/docs_to_corpus.py \
+python3 -m wikikb docs_to_corpus \
     --src wiki/_sources/active-directory/_raw/identity \
     --domain active-directory --apply
 
 # 2. corpus -> immutable in-vault reference notes
-python3 wiki/_meta/bin/corpus_to_vault.py --domain active-directory --apply
+python3 -m wikikb corpus_to_vault --domain active-directory --apply
 ```
 
 After that, flip the domain's `shape:` to `corpus-backed` in

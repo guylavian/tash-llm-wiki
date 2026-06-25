@@ -27,15 +27,23 @@ corpus. Layers (see `wiki/CLAUDE.md`):
    the page format (`summary:`, two-tier `sources:`, per-claim `provenance:`).
 2. Use the packaged ops in `.skills/` (`wiki-ingest`, `wiki-query`, `wiki-lint`,
    `wiki-status`) and the slash commands in `.opencode/command/`.
-3. Tooling lives in `wiki/_meta/bin/` (stdlib only, air-gapped):
+3. Tooling lives in `wiki/_meta/wikikb/` (stdlib only, air-gapped):
    `index.py`, `lint.py`, `manifest.py`, `tags.py`, `backfill.py`, `corpus_to_vault.py`.
 
 ## Hard rules
 - Edits go **only** to the synthesis layer under `wiki/`. Never edit the immutable
   raw tiers (`wiki/reference/`, `wiki/_sources/`) or `references/`.
 - Retrieve by reading/grepping the vault — tiered `index.<domain>.md` → summaries →
-  bodies, and `grep wiki/reference/<domain>/` for the long tail. `wiki/_meta/bin/kb.py`
+  bodies, and `grep wiki/reference/<domain>/` for the long tail. `wiki/_meta/wikikb/kb.py`
   is an optional ranked-search convenience over that same reference tier; it is not a
   separate store. No network, no `webfetch`, no `npx`/installs.
 - Never fabricate sources, facts, or provenance counts. Everything traces to the
   raw layer; provenance is assigned by reading each claim, never mechanically.
+
+## Optional online tier (off by default)
+An optional LiteLLM gateway + LangGraph runner (`wiki/_meta/wikikb/{cost,llm}.py`, `graph/`) can
+mechanize QUERY/INGEST and measure real token/$/latency. It is **off unless `WIKI_LLM=local`** and the
+deps are vendored, defaults to a **local loopback** model, and degrades to today's offline behavior
+otherwise. `webfetch` stays **false**; the tier never reaches the public internet. It is an
+*alternative* to the host-runtime loop, not a replacement. Single source of truth: `wiki/CLAUDE.md` →
+"Optional online tier".

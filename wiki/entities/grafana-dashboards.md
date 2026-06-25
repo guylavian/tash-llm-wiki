@@ -7,6 +7,8 @@ summary: "RHBK provides official Grafana dashboard JSON (troubleshooting and cap
 sources:
   - guide:observability_guide
   - kb:grafana-dashboards-
+source_notes:
+  - "[[rhbk-26-6-grafana-dashboards]]"
 provenance: needs-review
 tags: [observability]
 status: draft

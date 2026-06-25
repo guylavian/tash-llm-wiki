@@ -7,6 +7,8 @@ summary: "An RPT is an access token issued by the token endpoint that carries th
 sources:
   - guide:authorization_services_guide
   - kb:authorization_services_guide/service_overview
+source_notes:
+  - "[[rhbk-26-6-service-overview]]"
 provenance: needs-review
 tags: [authz, tokens]
 status: draft

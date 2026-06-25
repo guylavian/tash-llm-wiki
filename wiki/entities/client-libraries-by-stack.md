@@ -12,6 +12,8 @@ sources:
   - web:https://datatracker.ietf.org/doc/rfc9700/ (RFC 9700, fetched 2026-06-16)
   - web:https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide (Spring Security OAuth EOL/migration, fetched 2026-06-16)
   - web:https://github.com/authts/react-oidc-context (fetched 2026-06-16)
+source_notes:
+  - "[[rhbk-26-6-migrating-applications]]"
 provenance: needs-review
 tags: [clients]
 status: draft

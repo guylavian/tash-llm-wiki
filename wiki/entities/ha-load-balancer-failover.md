@@ -9,6 +9,10 @@ sources:
   - kb:deploy-aws-accelerator-loadbalancer
   - kb:deploy-aws-accelerator-fencing-lambda
   - kb:health-checks-multi-site
+source_notes:
+  - "[[rhbk-26-2-deploy-aws-accelerator-loadbalancer]]"
+  - "[[rhbk-26-2-deploy-aws-accelerator-fencing-lambda]]"
+  - "[[rhbk-26-2-health-checks-multi-site]]"
 provenance: needs-review
 tags: [ha]
 status: draft
