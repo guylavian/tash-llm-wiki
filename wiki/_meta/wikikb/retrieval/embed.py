@@ -77,6 +77,42 @@ def status_str(model=DEFAULT_MODEL):
         model, "yes" if have_model(model) else "NO (vendor to %s/)" % os.path.relpath(model_path(model), WIKI))
 
 
+# ---------- model-drift gate (stdlib only — guards silent wrong retrieval) -------------
+# The index stamps the model NAME + dim, but a same-dim model swapped under the same dir
+# (a version bump, a fine-tune) would let dense_rank cosine the live query against vectors
+# from a DIFFERENT embedding space — silently wrong. So stamp a cheap identity fingerprint
+# at build and refuse (fall back to lexical) on mismatch at query.
+# ponytail: fingerprint = config bytes + weights file-SIZE, not a full hash of the 100s-of-MB
+# weights (too slow per query). Catches a swapped/upgraded model; misses an in-place
+# same-size weight edit. Upgrade to a full safetensors hash only if that case ever bites.
+
+def current_fingerprint(model=DEFAULT_MODEL):
+    """sha256[:16] over the model's config files + weights byte-size. None if absent."""
+    d = model_path(model)
+    if not os.path.isdir(d):
+        return None
+    h = hashlib.sha256()
+    for fn in ("config.json", "config_sentence_transformers.json", "sentence_bert_config.json"):
+        p = os.path.join(d, fn)
+        if os.path.isfile(p):
+            with open(p, "rb") as fh:
+                h.update(fh.read())
+    for fn in ("model.safetensors", "pytorch_model.bin"):
+        p = os.path.join(d, fn)
+        if os.path.isfile(p):
+            h.update(("%s=%d" % (fn, os.path.getsize(p))).encode())
+    return "sha256:" + h.hexdigest()[:16]
+
+
+def stamp_ok(meta, model=DEFAULT_MODEL):
+    """True iff the index's model stamp matches the live model. Backward-compatible:
+    an index built before fingerprints (no stamp) passes — there is nothing to verify."""
+    want = (meta or {}).get("model_fingerprint")
+    if not want:
+        return True
+    return want == current_fingerprint(model)
+
+
 # ---------- chunking (stdlib) ---------------------------------------------------------
 
 _HEAD = re.compile(r"^#{2,3}\s+\S", re.MULTILINE)
@@ -188,6 +224,7 @@ def build(domain, model=DEFAULT_MODEL, query_prefix=DEFAULT_QUERY_PREFIX, apply=
     vectors = np.vstack(vecs).astype("float32") if vecs else np.zeros((0, 0), dtype="float32")
     meta = {"model": model, "query_prefix": query_prefix,
             "dim": int(vectors.shape[1]) if vectors.size else 0,
+            "model_fingerprint": current_fingerprint(model),
             "rows": rows, "note_hash": cur_hash}
 
     print("domain=%s notes=%d  reused=%d  re-embedded=%d  chunks=%d  dim=%d"
@@ -228,12 +265,22 @@ def dense_rank(domain, query, topn=50):
     meta = load_meta(domain)
     if not meta or not meta.get("rows"):
         return None
+    if not stamp_ok(meta, meta.get("model", DEFAULT_MODEL)):  # model drift -> don't mis-retrieve
+        sys.stderr.write("embed: model drift for domain=%s (index built with %s, live model differs) "
+                         "-> dense disabled, lexical only. Rebuild: embed --domain %s --build\n"
+                         % (domain, meta.get("model_fingerprint"), domain))
+        return None
     vectors = np.load(vec_path(domain))["vectors"]
     if vectors.size == 0:
         return None
     enc = _encoder(meta.get("model", DEFAULT_MODEL))
-    qv = enc.encode([meta.get("query_prefix", "") + query], normalize_embeddings=True)[0]
-    sims = vectors @ np.asarray(qv, dtype="float32")        # cosine (rows are normalized)
+    qv = np.asarray(enc.encode([meta.get("query_prefix", "") + query], normalize_embeddings=True)[0],
+                    dtype="float32")
+    if qv.shape[-1] != vectors.shape[1]:                    # dim drift -> fall back, never crash
+        sys.stderr.write("embed: dim mismatch for domain=%s (index dim=%d, model dim=%d) -> lexical only\n"
+                         % (domain, vectors.shape[1], qv.shape[-1]))
+        return None
+    sims = vectors @ qv                                     # cosine (rows are normalized)
     best = {}
     for row, s in zip(meta["rows"], sims):                   # max sim over a note's chunks
         slug = row["slug"]

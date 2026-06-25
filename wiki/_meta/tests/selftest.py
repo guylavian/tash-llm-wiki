@@ -106,6 +106,16 @@ check("reference tier matches integrity lock (no hand-edits)", rc == 0, out.stri
 rc, out = run("kb.py", "--domain", "keycloak", "search", "dpop sender constrained", "--hybrid", "--limit", "2")
 check("kb --hybrid degrades to lexical (no model)", rc == 0 and "hit(s)" in out, out[:160])
 
+# 10b. Model-drift gate (5b fix): the index stamps a model fingerprint; stamp_ok must REJECT a
+# mismatched stamp (else dense_rank silently cosines the query against another model's vectors) and
+# stay backward-compatible with a stampless legacy index. Pure dict logic — no torch needed.
+from wikikb.retrieval import embed as _embed
+check("embed model-drift gate rejects a mismatched fingerprint",
+      _embed.stamp_ok({"model_fingerprint": "sha256:deadbeefdeadbeef"}) is False,
+      "stamp_ok accepted a bogus fingerprint — silent wrong retrieval possible")
+check("embed model-drift gate is backward-compatible (no stamp -> pass)",
+      _embed.stamp_ok({}) is True, "stampless legacy index was rejected")
+
 # 11. Provenance gate — FAITHFUL: uses lint.page_gate_verdict() (the SAME rule lint --strict and the
 # LangGraph gate node use), NOT the old inline copy that read the nested `_provenance` key and so
 # silently missed the 50/52 reviewed pages on the native FLAT provenance schema (the BF-10 leak).
