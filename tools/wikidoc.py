@@ -71,8 +71,10 @@ SECRET_PATTERNS = [
     (re.compile(r"(?i)\b(password|passwd|secret|api[_-]?key|token)\s*[:=]\s*"
                 r"(?!\*\*\*)(?!<)(?!\$\{)\S+"), "unredacted secret assignment"),
     (re.compile(r"\beyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}"), "JWT-like token"),
-    (re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"), "raw IPv4 address"),
 ]
+# Dotted-numeric runs — used to disambiguate IPv4 addresses from version strings
+# (e.g. 23.2.0.0.0). Matching the whole run lets us reject 5+-group versions by length.
+DOTTED_NUMERIC_RE = re.compile(r"\b\d{1,3}(?:\.\d{1,3})+\b")
 # FQDNs that are NOT the approved placeholder.
 FQDN_RE = re.compile(r"\b(?:[a-z0-9-]+\.)+[a-z]{2,}\b", re.IGNORECASE)
 FQDN_ALLOW = re.compile(r"(?i)(example\.internal|example\.com|localhost|k8s\.keycloak\.org|"
@@ -223,17 +225,37 @@ def validate_file(path: Path) -> list[Finding]:
 def _check_body(fm: dict, body: str) -> list[Finding]:
     out: list[Finding] = []
 
-    # redaction
+    # redaction (secret assignments + JWT-like tokens stay ERROR)
     for pat, label in SECRET_PATTERNS:
         for m in pat.finditer(body):
-            # IPv4 pattern also matches version strings like 26.2.10.0 — filter those.
-            if label == "raw IPv4 address":
-                octs = m.group(0).split(".")
-                if any(int(o) > 255 for o in octs):
-                    continue
             out.append(Finding("error", "REDACT",
                                f"possible {label}: '{m.group(0)[:48]}' "
                                "(use ***, example.internal, or a placeholder)"))
+
+    # IPv4 vs version-string disambiguation. Only a 4-group quad with valid octets is an
+    # IP candidate; a 5+-group run (e.g. 23.2.0.0.0) is a version and is ignored entirely.
+    # Private / loopback / link-local addresses are the real leak risk -> ERROR; any other
+    # syntactically-valid quad -> WARNING, so public-looking version quads never fail CI.
+    for m in DOTTED_NUMERIC_RE.finditer(body):
+        octs = m.group(0).split(".")
+        if len(octs) != 4:
+            continue  # 2-3 groups or a 5+-group version string — not an IPv4 address
+        nums = [int(o) for o in octs]
+        if any(o > 255 for o in nums):
+            continue  # octet out of range — a version, not an IP
+        a, b = nums[0], nums[1]
+        private = (a == 10
+                   or (a == 172 and 16 <= b <= 31)
+                   or (a == 192 and b == 168)
+                   or a == 127                      # loopback 127.0.0.0/8
+                   or (a == 169 and b == 254))      # link-local 169.254.0.0/16
+        if private:
+            out.append(Finding("error", "REDACT",
+                               f"private/internal IPv4 address: '{m.group(0)}' "
+                               "(use example.internal or a placeholder)"))
+        else:
+            out.append(Finding("warn", "IP_OR_VERSION",
+                               f"possible IP/version '{m.group(0)}' — confirm it is not internal"))
     # FQDNs that aren't the approved placeholders
     for m in FQDN_RE.finditer(body):
         tok = m.group(0)
@@ -394,7 +416,11 @@ def _llm_call(prompt: str, base_url: str, model: str, api_key: str,
             data = json.loads(resp.read().decode("utf-8"))
     except urllib.error.URLError as e:
         raise SystemExit(f"LLM endpoint error ({url}): {e}")
-    return data["choices"][0]["message"]["content"]
+    choices = data.get("choices") if isinstance(data, dict) else None
+    if not choices:
+        raise SystemExit(f"LLM endpoint returned no choices ({url}): "
+                         f"{json.dumps(data)[:500]}")
+    return choices[0]["message"]["content"]
 
 
 def _strip_fences(text: str) -> str:
