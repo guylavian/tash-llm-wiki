@@ -1,0 +1,21 @@
+<!-- BEGIN wiki-serving (FR-11) — merge into AGENTS.md -->
+## Wiki routing rules (operational questions)
+
+The curated LLM-Wiki is served read-only via `wiki_route` / `wiki_get` (see
+`agent/wiki_tools.json`). These rules are mandatory (spec FR-11):
+
+1. **Route first.** Before answering ANY operational/break-fix question, call `wiki_route`
+   with the user's symptom/error string and, when known, the product `version`. Never answer
+   operational questions from memory without routing.
+2. **Respect version-gating.** If the top hit's `applies_to` does not include the version the
+   user asked about (or `wiki_route` returns nothing once `version` is set), tell the user the
+   answer is **out-of-version** and escalate — do not adapt a different version's steps.
+3. **Never fabricate around gated content.** If the chosen hit's `source_provenance.visibility`
+   is not `public` (i.e. `gated`/`internal`), state that the resolution is gated, give the
+   `ref` so the operator can open it with the proper login, and **do not** paraphrase or invent
+   a fix.
+4. **No hit ⇒ escalate.** If `wiki_route` returns no usable hit, say so and escalate to a human
+   runbook owner. Do not synthesize an operational procedure that is not backed by a hit.
+5. **Fetch then quote.** Use `wiki_get` on a hit before quoting steps; cite `path#section` and
+   the `source_provenance` in your answer.
+<!-- END wiki-serving -->

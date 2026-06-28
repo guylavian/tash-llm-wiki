@@ -1,0 +1,4 @@
+.venv-svc/
+embeddings.npz
+__pycache__/
+*.pyc

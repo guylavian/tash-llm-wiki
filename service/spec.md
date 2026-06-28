@@ -162,6 +162,12 @@ full bodies; authoring/validation of frontmatter (that is `tools/wikidoc.py`); a
 - **OQ-3 (resolved by decision).** "section summary" for FR-10 is defined as: the section's H2
   heading text + its first non-empty line (≤ 200 chars), never the full body. Flagged here for
   visibility; see design.md §Embedding.
+- **OQ-4 (blocks: Docker build only, NFR-5).** NFR-5 requires the base image pinned by DIGEST.
+  The internal mirror's digest for `python:3.12-slim` cannot be resolved from the build sandbox
+  and external fetch is forbidden. The `Dockerfile` carries a clearly-marked
+  `sha256:<PIN_FROM_INTERNAL_MIRROR>` placeholder + the exact `docker inspect` command to fill
+  it. **Question for owner:** provide the mirror's resolved digest (or confirm a digest-pinning
+  CI step will inject it at build time). All non-Docker artifacts are unaffected.
 
 ## 7. Acceptance criteria summary
 
