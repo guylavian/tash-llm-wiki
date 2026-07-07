@@ -1,7 +1,7 @@
 # Wiki Roadmap — successor plan (post Phase 0–5)
 
 This is the live roadmap that succeeds `MIGRATION-litellm-langgraph.md` (whose Phase 0–5
-LiteLLM/LangGraph migration **shipped 2026-06-25**) and `RAG-REPLACEMENT-PLAN.md`. It tracks what
+LiteLLM/LangGraph migration **shipped 2026-06-25**) and the retired RAG-replacement plan. It tracks what
 is **done**, what is **in flight**, and the **next** work, across the multi-domain LLM-wiki.
 
 ---

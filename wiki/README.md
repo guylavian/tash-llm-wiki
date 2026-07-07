@@ -69,7 +69,5 @@ ADD-DOMAIN / INGEST / QUERY / LINT / STATUS operations.
 
 ## Roadmap
 
-- **`RAG-REPLACEMENT-PLAN.md`** — how this wiki becomes a working, air-gapped RAG
-  replacement / SRE brain: activate the dormant dense-retrieval, local-LLM synthesis,
-  and Graphiti/Kuzu graph layers into one cited, gated `wikikb ask` pipeline.
-- **`REVIEW.md`** — project health review (toolchain, lint/selftest baseline).
+- **`_meta/ROADMAP.md`** — the live roadmap (dense retrieval, local-LLM synthesis,
+  graph layers → one cited, gated `wikikb ask` pipeline).
