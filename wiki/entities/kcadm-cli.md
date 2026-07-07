@@ -9,9 +9,11 @@ sources:
   - kb:admin_cli
 source_notes:
   - "[[rhbk-26-4-admin-cli]]"
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 0
+provenance_ambiguous: 0
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # kcadm.sh — Admin CLI

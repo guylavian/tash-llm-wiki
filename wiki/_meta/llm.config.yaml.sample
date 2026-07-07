@@ -12,6 +12,14 @@ provider_allowlist: [ollama, ollama_chat, vllm, openai]   # 'openai' is permitte
 max_tokens: 2048
 temperature: 0                         # determinism: filed answers must not drift run-to-run
 
+# --- OPTIONAL 32B->7B routing (Phase 5) -----------------------------------------------------
+# Set BOTH to route the cheap leaf (INGEST extract) to a small model and the quality leaf (QUERY
+# synthesize) to a large one. Routing + cross-model fallback is handled by litellm.Router (OSS) —
+# llm.py doesn't re-implement it. Leave both unset (the default) and routing is a no-op: every leaf
+# uses `model` above, exactly as today. Both must pass the same loopback gate as `model`.
+#   model_small: "ollama/qwen2.5:7b"
+#   model_large: "ollama/qwen2.5:32b"
+
 # --- LM Studio (OpenAI-compatible, loopback) — an alternative to Ollama ---------------------
 # LM Studio serves an OpenAI API on :1234; prefix the loaded model id with `openai/` so LiteLLM
 # routes it to api_base, and the loopback gate permits 'openai' (a dummy api_key is auto-supplied).

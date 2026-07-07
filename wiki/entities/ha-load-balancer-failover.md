@@ -13,10 +13,12 @@ source_notes:
   - "[[rhbk-26-2-deploy-aws-accelerator-loadbalancer]]"
   - "[[rhbk-26-2-deploy-aws-accelerator-fencing-lambda]]"
   - "[[rhbk-26-2-health-checks-multi-site]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [ha]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # HA Load Balancer & Site Failover (AWS Global Accelerator)
@@ -48,7 +50,8 @@ service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "3"
 service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "3"
 ```
 `/lb-check` is exposed only when the **`multi-site` feature** is enabled
-([[multi-site-feature-flag]]). Operational verification:
+([[multi-site-feature-flag]]) (inferred — not verified verbatim in this page's
+three cited chapters). Operational verification:
 - `curl -s https://<lb-url>/lb-check` (and per-site URLs) for app health.
 - `curl -s https://keycloak:<managementport>/health` for DB readiness (management
   port only).
@@ -61,12 +64,15 @@ Data Grid cross-site connectivity loss and **disables a non-responding site** in
 the Accelerator EndpointGroup. This prevents requests reaching a degraded/isolated
 site. Manual site offline/online procedures are also documented (e.g.
 `site take-offline`/`site bring-online` on the Data Grid CLI) and feed into
-[[site-synchronization]].
+[[site-synchronization]] (inferred — these commands are grounded in the
+corpus's Infinispan CLI Batch / Synchronizing sites chapters, not one of this
+page's three cited chapters).
 
 ## Sticky sessions
 On OpenShift the default passthrough Ingress (HAProxy) uses **source-IP sticky
 sessions**. For load tests or when a reverse proxy sits in front, disable them on
-the CR:
+the CR (grounded in the corpus's "Deploying RHBK for HA with the Operator"
+chapter — not one of this page's three cited chapters):
 ```yaml
 spec:
   ingress:
@@ -83,7 +89,9 @@ spec:
 - **Fail-open** means that with both sites unhealthy the LB still forwards
   traffic — it does not guarantee a working backend.
 - Failover is not instantaneous: requests may error until the LB detects the
-  failure; some scenarios incur up to 5 min downtime.
+  failure; some scenarios incur up to 5 min downtime (inferred — the "up to 5
+  minutes" figure is grounded in the corpus's multi-site Introduction chapter,
+  not one of this page's three cited chapters).
 
 ## See also
 - [[ha-cross-site]]

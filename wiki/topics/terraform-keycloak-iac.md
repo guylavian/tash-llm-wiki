@@ -10,10 +10,12 @@ sources:
   - web:https://github.com/keycloak/terraform-provider-keycloak (fetched 2026-06-16)
   - web:https://www.terraform.io/docs/cli/commands/providers/mirror.html (fetched 2026-06-16)
   - web:https://oneuptime.com/blog/post/2026-02-23-how-to-handle-terraform-in-air-gapped-environments/view (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 15
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [iac, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Keycloak as IaC — the Terraform Provider (keycloak/keycloak)
@@ -45,7 +47,9 @@ and [[quarkus-config-migration]].
 - A **dedicated service account** client in the `master` realm with
   `realm-management` roles — **not** the admin user. This is the *same* pattern as
   the read-only audit account ([[air-gapped-client-integration]]); for Terraform
-  it needs **write** management roles, for audit only `view-*`.
+  it needs **write** management roles, for audit only `view-*` (inferred — the
+  comparison to the audit-account pattern is this wiki's own cross-page
+  synthesis).
 
 ```hcl
 terraform {
@@ -76,6 +80,8 @@ The network has no internet, so `terraform init` cannot reach the registry. Use 
 - Host modules internally; **pin every version**.
 
 ## Code-quality best practices (for the IaC review)
+(inferred — general Terraform/IaC hygiene, not specific claims from the cited
+provider docs.)
 - **Modules** per concern (realms / clients / groups); **variables** for env
   differences; **outputs** for IDs other modules need.
 - **Never commit secrets** — client secrets via a secret store / TF vars, and keep
@@ -88,6 +94,8 @@ With the IaC, the audit gains a dimension the REST API alone can't give:
 **declared desired-state vs live**. Run `terraform plan` (read-only, no apply) and
 treat a non-empty plan as **configuration drift** — someone changed the server
 outside Terraform. Cross-check drift findings against the live-audit findings.
+(inferred — this application of `terraform plan` to a live audit is this page's
+own synthesis, not a claim from any cited Terraform doc.)
 
 ## Contradictions / caveats
 - Provider resources/attributes track upstream Keycloak; a brand-new RHBK feature

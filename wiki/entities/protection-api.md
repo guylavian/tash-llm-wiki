@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-service-overview]]"
   - "[[rhbk-26-6-overview-2]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [authz]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Protection API and PAT
@@ -45,7 +47,7 @@ Endpoint locations come from the UMA2 discovery document:
 
 ## Contradictions / caveats
 - Stable across RHBK **26.0–26.6**.
-- The PAT is *not* the [[requesting-party-token|RPT]]: a PAT authorizes *managing* protected resources; an RPT *carries granted permissions* for accessing them.
+- The PAT is *not* the [[requesting-party-token|RPT]]: a PAT authorizes *managing* protected resources; an RPT *carries granted permissions* for accessing them (inferred — a distinction synthesized across the two guide chapters, not stated as a single side-by-side comparison in either).
 - Token validation of PATs/RPTs follows normal rules — see [[oidc-token-validation]] and [[tokens-and-sessions]].
 
 ## See also

@@ -10,8 +10,11 @@ provenance_extracted: 9
 provenance_inferred: 2
 provenance_ambiguous: 0
 tags: [tokens, security, profile]
+symptoms:
+  - "alg: none"
+  - "HTTP 400"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Back-Channel Logout

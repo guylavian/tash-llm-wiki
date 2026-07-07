@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-authz-client]]"
   - "[[rhbk-26-6-oidc-layers]]"
-provenance: needs-review
+provenance_extracted: 2
+provenance_inferred: 5
+provenance_ambiguous: 0
 tags: [clients]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Client Authentication Methods
@@ -35,7 +37,8 @@ client to the server:
    signs a JWT using the **client secret** as an HMAC key. (`client_secret_jwt`.)
 
 mTLS / certificate-bound client authentication is also available and is required
-by stricter [[fapi-oauth21-profiles]].
+by stricter [[fapi-oauth21-profiles]] (inferred — mTLS client auth is documented in
+the RHBK Mutual TLS chapter, not in the two chapters cited on this page).
 
 ## Public vs confidential
 - **Public clients** (SPAs, native apps) cannot authenticate — they have no
@@ -43,21 +46,27 @@ by stricter [[fapi-oauth21-profiles]].
   PKCE; the JavaScript adapter requires a public client. Consider [[dpop]] to
   sender-constrain their tokens.
 - **Confidential clients** use one of the methods above and are required for the
-  introspection, CIBA, and JWT-authorization-grant endpoints.
+  introspection and CIBA endpoints (JWT-authorization-grant restriction not directly
+  confirmed in the cited chapters) (inferred).
 
 ## Where it's enabled
 Toggle **Client authentication** to On in the Admin Console, then configure
-credentials on the **Credentials** tab (Client Id and Secret, or Signed JWT).
+credentials on the **Credentials** tab (Client Id and Secret, or Signed JWT) (inferred —
+this UI-steps detail comes from the Server Administration Guide's client-management
+chapter, which is not one of the two chapters cited on this page).
 The token-exchange and direct-grant flows accept these same credentials as form
 parameters, Basic Auth, client JWT, or client cert, per your realm's client
-authentication flow.
+authentication flow (inferred).
 
 ## Contradictions / caveats
 - Method names are stable across RHBK 26.0–26.6. FAPI Advanced and OAuth 2.1
   profiles can *require* stronger methods (private_key_jwt or mTLS) and forbid
-  plain client-secret auth.
+  plain client-secret auth (inferred — the cited oidc-layers chapter confirms FAPI/OAuth
+  2.1 client profiles enforce confidential clients and PKCE, but does not spell out a
+  ban on client-secret auth in those exact terms).
 
 ## See also
+- [[tokens-and-sessions]] — auth method gates which grants/token lifecycles a client can use
 - [[oidc-grant-types]]
 - [[dpop]]
 - [[fapi-oauth21-profiles]]

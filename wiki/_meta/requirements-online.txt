@@ -18,10 +18,12 @@
 #    wheels for your target Python — litellm/langgraph/pydantic-core wheels for very new CPython may lag.
 
 # --- LLM gateway (Phase 2+) ---
-litellm==1.61.0            # SDK only (no proxy). NEVER call litellm.token_counter (tiktoken net download).
+litellm==1.83.7            # SDK only (no proxy). NEVER call litellm.token_counter (tiktoken net download).
+                           # VERIFIED end-to-end on CPython 3.14 vs LM Studio (loopback) 2026-06-28.
 
 # --- Orchestration (Phase 4-5) ---
-langgraph==0.2.62          # StateGraph for QUERY/INGEST. MemorySaver (in-package); SqliteSaver NOT used.
+langgraph==1.2.6           # StateGraph for QUERY/INGEST. MemorySaver (in-package); SqliteSaver NOT used.
+                           # VERIFIED: build_query_graph()+run_query() compile & run on CPython 3.14.
 # NOTE: LangChain is intentionally NOT a dependency (LCEL/ChatLiteLLM cut — COUNCIL-DIRECTIVES.md §5).
 # langgraph pulls langchain-core transitively; we do not import it directly.
 

@@ -1,0 +1,67 @@
+---
+title: "Using oc and kubectl commands"
+type: reference
+domain: openshift
+slug: microshift-cli-ref-4-22-microshift-usage-oc-kubectl
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/microshift_cli_ref/microshift-usage-oc-kubectl
+version: 4.22
+family: microshift_cli_ref
+documentKind: "Documentation"
+---
+
+# Using oc and kubectl commands
+
+[id="microshift-usage-oc-kubectl"]
+= Using oc and kubectl commands
+
+[role="_abstract"]
+The Kubernetes command-line interface (CLI), `kubectl`, can be used to run commands against a Kubernetes cluster. Because {microshift-short} is a certified Kubernetes distribution, you can use the supported `kubectl` CLI tool or you can gain extended functionality by using the {oc-first}.
+
+[id="microshift-kubectl-binary_{context}"]
+== The kubectl CLI tool
+
+You can use the `kubectl` CLI tool to interact with Kubernetes primitives on your {microshift-short} node. You can also use existing `kubectl` workflows and scripts for users coming from another Kubernetes environment, or for those who prefer to use the `kubectl` CLI.
+
+* The `kubectl` CLI tool is included in the archive when you download `oc`.
+
+* For more information, see the Kubernetes CLI tool documentation.
+
+[id="microshift-oc-binary_{context}"]
+== The oc CLI tool
+
+The `oc` CLI tool offers the same capabilities as the `kubectl` CLI tool, but it extends to natively support additional {OCP} features, including:
+
+* **Route resource**
++
+The `Route` resource object is specific to {OCP} distributions, and builds upon standard Kubernetes primitives.
++
+* **Additional commands**
++
+The additional command `oc new-app`, for example, makes it easier to get new applications started using existing source code or pre-built images.
+
+[IMPORTANT]
+====
+If you installed an earlier version of `oc`, you might not be able use it to complete all of the commands in {microshift-short} . If you want the latest features, you must download and install the latest version of `oc` that corresponds with your {microshift-short} version.
+====
+
+Using new capabilities often requires the latest `oc` binary. A 4.22 server might have additional capabilities that a previous version of the `oc` binary cannot use. In addition, the 4.22 `oc` binary might have additional capabilities that are unsupported by a previous-version server.
+
+.Compatibility Matrix
+
+[cols="1,1,1"]
+|===
+
+|
+|*X.Y* (`oc` Client)
+|*X.Y+N* footnote:versionpolicyn[Where *N* is a number greater than or equal to 1.] (`oc` Client)
+
+|*X.Y* (Server)
+|Fully compatible.
+|The `oc` CLI tool might provide options and features that are not compatible with the accessed server.
+
+|*X.Y+N* footnote:versionpolicyn[] (Server)
+|The `oc` CLI tool might not be able to access server features.
+|Fully compatible.
+
+|===

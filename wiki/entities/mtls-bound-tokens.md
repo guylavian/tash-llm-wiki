@@ -11,8 +11,12 @@ provenance_extracted: 28
 provenance_inferred: 5
 provenance_ambiguous: 0
 tags: [tokens, security, concept]
+symptoms:
+  - "invalid_token"
+  - "invalid_client"
+  - "invalid_grant"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # mTLS Certificate-Bound Access Tokens
@@ -107,11 +111,11 @@ TLS may terminate at a reverse proxy. Securely conveying the client cert (or its
 - Must not trust spoofable proxy headers for the client cert without authentication of the header source (inferred).
 
 **SPA / browser client:**
-mTLS client-cert flows are not practical in browsers — browser cert selection is user-visible and cert management is uncontrollable. Use DPoP (see [[dpop-sender-constraining]]) for browser-side sender-constraining. FAPI 2.0 allows DPoP as the alternative to mTLS for this reason (inferred).
+mTLS client-cert flows are not practical in browsers — browser cert selection is user-visible and cert management is uncontrollable. Use DPoP (see [[dpop]]) for browser-side sender-constraining. FAPI 2.0 allows DPoP as the alternative to mTLS for this reason (inferred).
 
 ## See also
 
-- [[dpop-sender-constraining]] — DPoP is the browser-viable alternative to mTLS binding; FAPI 2.0 mandates one or the other
+- [[dpop]] — DPoP is the browser-viable alternative to mTLS binding; FAPI 2.0 mandates one or the other
 - [[fapi2-security-profile]] — mandates sender-constrained tokens; restricts client auth to mTLS or `private_key_jwt`
 - [[client-authentication-methods]] — covers `tls_client_auth` and `self_signed_tls_client_auth` in the RHBK context
 - [[access-token-validation-resource-server]] — RS-side validation flow where the thumbprint check fits

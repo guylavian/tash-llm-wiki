@@ -23,10 +23,12 @@ sources:
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_user_attribute_protocol_mapper.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_user_property_protocol_mapper.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/hardcoded_attribute_mapper.md (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 20
+provenance_inferred: 6
+provenance_ambiguous: 0
 tags: [clients, iac]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Protocol mappers (OIDC & SAML claims) (Terraform)
@@ -98,10 +100,10 @@ resource "keycloak_generic_protocol_mapper" "example" {
 ```
 
 **`keycloak_openid_audience_protocol_mapper`** is the one you reach for to satisfy
-RFC-style `aud` validation on resource servers: add a client or a custom string to `aud`.
-Pair it with `keycloak_openid_audience_resolve_protocol_mapper` when you'd rather have
-Keycloak derive the audience automatically from the user's client roles instead of
-hardcoding a value. See [[oidc-endpoints]].
+RFC-style `aud` validation on resource servers: add a client or a custom string to `aud`
+(inferred). Pair it with `keycloak_openid_audience_resolve_protocol_mapper` when you'd
+rather have Keycloak derive the audience automatically from the user's client roles
+instead of hardcoding a value (inferred). See [[oidc-endpoints]].
 
 ```hcl
 resource "keycloak_openid_audience_protocol_mapper" "example" {
@@ -115,7 +117,7 @@ resource "keycloak_openid_audience_protocol_mapper" "example" {
 **Role/group claim mappers** — `keycloak_openid_user_realm_role_protocol_mapper`,
 `keycloak_openid_user_client_role_protocol_mapper`, and
 `keycloak_openid_group_membership_protocol_mapper` — are the workhorses for
-authorization data in tokens. They support `multivalued` (emit an array), an optional
+authorization data in tokens (inferred). They support `multivalued` (emit an array), an optional
 prefix (`realm_role_prefix` / `client_role_prefix`), and for group membership a
 `full_path` toggle that controls whether the parent group hierarchy is encoded.
 
@@ -141,14 +143,16 @@ OIDC user-attribute/property mappers, replacing the OIDC `claim_name`/token togg
   `mrparkers/keycloak` source fail provider resolution — switch `required_providers`
   and re-init. See [[terraform-keycloak-iac]].
 - **RH-SSO vs RHBK context path:** the provider drives mappers through the Admin REST
-  API, so mapper resources are largely server-version agnostic. The version-sensitive
-  knob is at the **provider** block, not these resources: set `base_path = "/auth"` for
-  legacy **RH-SSO 7.x (Wildfly)** and **omit** it for **RHBK (Quarkus)**.
+  API, so mapper resources are largely server-version agnostic (inferred). The
+  version-sensitive knob is at the **provider** block, not these resources: set
+  `base_path = "/auth"` for legacy **RH-SSO 7.x (Wildfly)** and **omit** it for **RHBK
+  (Quarkus)** (inferred).
 - **Version drift:** newer token-placement attributes (notably
   `add_to_token_introspection`, present on `sub`, `user_attribute`, `user_realm_role`,
   `user_session_note`) and the audience-resolve resource track upstream Keycloak; a
   feature may lag in your pinned RHBK/provider. Pin the provider version and verify the
-  attribute exists before using it. RHBK ships 26.0 / 26.2 / 26.4 / 26.6.
+  attribute exists before using it. RHBK ships 26.0 / 26.2 / 26.4 / 26.6 (inferred —
+  general RHBK version knowledge, not from this page's cited sources).
 - **Deprecation:** `keycloak_generic_client_protocol_mapper` is deprecated — migrate to
   `keycloak_generic_protocol_mapper` (which also supports `client_scope_id`).
 - **Air-gapped:** with no internet, `terraform init` can't reach the registry — the

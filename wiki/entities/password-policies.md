@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-4-configuring-authentication-server-administration-guide]]"
   - "[[rhbk-26-4-mitigating-security-threats]]"
-provenance: needs-review
+provenance_extracted: 11
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [authn]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Password policies and hashing
@@ -57,7 +59,9 @@ password the next time they log in.
   without re-auth (`0` = always re-auth). **May be deprecated** in favor of configuring
   the Update Password required action.
 
-The brute-force chapter recommends a complex policy plus OTP to resist guessing; see
+Pairing a strong password policy with OTP is the practical mitigation for the
+guessing attacks the brute-force chapter describes (inferred — a synthesis
+connecting the two chapters, not a single stated recommendation); see
 [[brute-force-detection]] and [[security-hardening-checklist]].
 
 ## Contradictions / caveats

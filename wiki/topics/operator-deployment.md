@@ -14,10 +14,12 @@ source_notes:
   - "[[rhbk-26-6-installation]]"
   - "[[rhbk-26-6-basic-deployment]]"
   - "[[rhbk-26-6-advanced-configuration]]"
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 1
+provenance_ambiguous: 2
 tags: [operator, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Deploying RHBK with the Operator (Keycloak CR end to end)
@@ -47,7 +49,9 @@ that the Operator reconciles into a StatefulSet, Service, and (optionally) Ingre
    (`oc create secret generic keycloak-db-secret --from-literal=username=...
    --from-literal=password=...`) and reference it via `db.usernameSecret` /
    `db.passwordSecret`.
-4. **Apply the `Keycloak` CR** (`apiVersion: k8s.keycloak.org/v2alpha1`,
+4. **Apply the `Keycloak` CR** (`apiVersion: k8s.keycloak.org/v2alpha1` in
+   26.0–26.4; **26.6 examples use `v2beta1`** (ambiguous — verify the CRD version
+   shipped by your Operator channel before copying an example verbatim),
    `kind: Keycloak`). See [[keycloak-cr]] for the field map.
 5. **Verify** with the CR status conditions `Ready`, `HasErrors`, `RollingUpdate`:
    `oc get keycloaks/example-kc -o go-template='{{range .status.conditions}}...'`.
@@ -78,13 +82,19 @@ TLS cannot rewrite request headers. See [[operator-ingress]].
 ## Contradictions / caveats
 
 - **Admin-console chapter is 26.0-era**; the manual-OLM-approval guidance
-  (`installPlanApproval: Manual`) is documented from **26.6** — see
-  [[operator-olm-install]]. Older streams default OLM to automatic upgrades.
+  (`installPlanApproval: Manual`) is documented from **26.6** (ambiguous — the
+  identical guidance is already present in the `rhbk-26-2-installation` and
+  `rhbk-26-4-installation` notes and absent from 26.0, so **26.2** is the more
+  accurate first version) — see [[operator-olm-install]]. Older streams default
+  OLM to automatic upgrades.
 - `unsupported.podTemplate` is Tech Preview and not fully tested; it can also
   confuse the `Auto` rolling-update probe (see [[operator-rolling-updates]]).
 - Anyone able to create/edit `Keycloak` or `KeycloakRealmImport` CRs (or set
   `spec.image` / `podTemplate`) effectively has namespace-admin-level trust, since
-  those can mount/read Secrets — treat CR authorship as privileged.
+  those can mount/read Secrets — treat CR authorship as privileged (inferred — the
+  guide states only that setting a custom image "requires a high degree of trust"
+  since it can access any Secret used for env vars; the broader namespace-admin
+  framing generalizes that single warning to `podTemplate`/`KeycloakRealmImport`).
 
 ## See also
 - [[rhbk-operator]]

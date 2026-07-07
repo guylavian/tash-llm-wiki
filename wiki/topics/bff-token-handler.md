@@ -13,8 +13,13 @@ provenance_extracted: 28
 provenance_inferred: 6
 provenance_ambiguous: 0
 tags: [clients, tokens, security, profile]
+symptoms:
+  - "431 Request Header Fields Too Large"
+  - "invalid_dpop_proof"
+  - "state_mismatch"
+  - "SameSite cookie blocked"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # BFF / Token Handler Pattern for SPAs
@@ -49,7 +54,7 @@ All API calls from the SPA pass through the BFF (or a co-located API-gateway pro
 
 **Static content separation.** The SPA's CDN/static host issues no cookies and handles no OAuth logic. Multiple micro-frontends under the same parent domain can share a single BFF's cookies without re-login (Curity Token Handler §"Token Handler Pattern" / §"Micro-Frontends").
 
-**DPoP binding at the BFF (upstream/OSS).** When the BFF issues DPoP-bound tokens, each outbound request to a resource server requires a fresh proof signed by the private key, with `typ: dpop+jwt`, the algorithm, embedded public-key JWK, and `htm`/`htu` bindings. When a resource server returns `DPoP-Nonce`, the next proof must include it; caching old proofs after a nonce is issued produces `use_dpop_nonce` errors (Keycloak securing-apps → dpop). See [[dpop-sender-constraining]] and [[mtls-bound-tokens]] for sender-constraining options.
+**DPoP binding at the BFF (upstream/OSS).** When the BFF issues DPoP-bound tokens, each outbound request to a resource server requires a fresh proof signed by the private key, with `typ: dpop+jwt`, the algorithm, embedded public-key JWK, and `htm`/`htu` bindings. When a resource server returns `DPoP-Nonce`, the next proof must include it; caching old proofs after a nonce is issued produces `use_dpop_nonce` errors (Keycloak securing-apps → dpop). See [[dpop]] and [[mtls-bound-tokens]] for sender-constraining options.
 
 ## Anti-pattern
 
@@ -108,6 +113,7 @@ Observable failures that point to a missing or broken BFF pattern:
 - BFF residual risk: a successful XSS cannot steal tokens, but can still replay the session cookie to call APIs or exfiltrate user data via legitimate endpoints. The BFF limits the blast radius; it does not eliminate XSS impact (BBA-26 §5.1.4 → §5.2.3).
 
 ## See also
+- [[oidc-token-validation]] — the RS-side validation the BFF performs on stored tokens
 
 - [[oidc-client-best-practices]]
 - [[token-storage-browser]]
@@ -115,7 +121,7 @@ Observable failures that point to a missing or broken BFF pattern:
 - [[pkce]]
 - [[state-and-nonce]]
 - [[cors-for-spa]]
-- [[dpop-sender-constraining]]
+- [[dpop]]
 - [[mtls-bound-tokens]]
 - [[redirect-uri-validation]]
 - [[rp-initiated-logout]]

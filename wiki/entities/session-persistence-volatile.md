@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-2-concepts-memory-and-cpu-sizing]]"
   - "[[rhbk-26-2-concepts-multi-site]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [tokens]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Session Persistence — Database-backed vs Volatile Caches
@@ -28,7 +30,8 @@ the cost of losing all sessions if every node restarts.**
   stored in the database and **cached** in Infinispan. In the multi-cluster model
   the DB is **synchronously replicated** across both sites, and a cache write
   emits an invalidation via the `work` cache. This is why "no data loss" holds
-  across site failures — the durable copy is in the replicated DB.
+  across site failures — the durable copy is in the replicated DB (inferred — a
+  synthesis connecting the multi-site consistency model to this sizing chapter).
 - **Volatile (cache as source of truth).** You can stop persisting sessions to the
   DB to reduce database load and IOPS. See [[distributed-caches]] for the required
   cache settings (≥2 owners, unlimited entries). Trade-off: **all sessions are

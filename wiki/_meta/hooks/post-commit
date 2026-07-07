@@ -1,0 +1,5 @@
+#!/bin/sh
+# Rebuild the wiki semantic graph when a commit touches synthesis pages.
+git diff-tree --no-commit-id --name-only -r HEAD | grep -qE '^wiki/(topics|entities|questions)/' \
+  && exec sh "$(git rev-parse --show-toplevel)/wiki/_meta/sync-graph.sh"
+exit 0

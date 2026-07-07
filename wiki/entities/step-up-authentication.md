@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-4-configuring-authentication-server-administration-guide]]"
   - "[[rhbk-26-4-configuring-realms]]"
-provenance: needs-review
+provenance_extracted: 5
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [authn]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Step-up authentication (ACR / LoA)
@@ -35,7 +37,8 @@ updated: 2026-06-16
 
 This is built with the requirement types and Conditional sub-flows described in
 [[authentication-flows]] and typically uses [[otp-policies]] or WebAuthn as the
-higher-level factor.
+higher-level factor (inferred — synthesis connecting this chapter's ACR/LoA
+mapping to the separate authentication-flows/conditional-subflow material).
 
 ## Contradictions / caveats
 - Bodies sourced are RHBK **26.0**; ACR→LoA mapping and the step-up flow are present in

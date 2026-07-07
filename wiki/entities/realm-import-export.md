@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-4-admin-cli]]"
   - "[[rhbk-26-4-configuring-realms]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [operator, realm]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Realm import / export

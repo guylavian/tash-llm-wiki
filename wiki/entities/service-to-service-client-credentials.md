@@ -13,8 +13,10 @@ provenance_extracted: 18
 provenance_inferred: 4
 provenance_ambiguous: 0
 tags: [clients, tokens, security, profile]
+symptoms:
+  - "invalid_client"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Service-to-Service Client Credentials
@@ -97,7 +99,7 @@ See [[access-token-validation-resource-server]], [[audience-and-scope-checks]], 
 - [[token-introspection]]
 - [[token-revocation]]
 - [[dpop]]
-- [[dpop-sender-constraining]]
+- [[dpop]]
 - [[mtls-bound-tokens]]
 - [[bearer-token-usage]]
 - [[jwt-validation-pitfalls]]

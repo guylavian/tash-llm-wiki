@@ -245,7 +245,7 @@ This means the V1+FGAP:v1 combination has a **limited lifespan** — Red Hat rec
 ## See also
 - [[token-exchange]] — V2 vs V1 comparison, key form parameters, limitations
 - [[dpop]] — DPoP sender-constraining: key binding, proof JWT, DPoP vs bearer
-- [[dpop-sender-constraining]] — DPoP mechanics, use cases, refresh token handling
+- [[dpop]] — DPoP mechanics, use cases, refresh token handling
 - [[token-revocation]] — RFC 7009 semantics, cascade rules, unsupported token types
 - [[refresh-token-rotation]] — one-time-use refresh tokens, replay detection
 - [[tokens-and-sessions]] — token lifespans, session types, timeout governance

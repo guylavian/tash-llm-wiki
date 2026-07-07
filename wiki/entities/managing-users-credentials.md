@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-4-assembly-managing-users-server-administration-guide]]"
   - "[[rhbk-26-4-admin-cli]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [users]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Managing users and credentials
@@ -46,8 +48,9 @@ assigned per user; they feed into the [[authentication-flows]].
 ## Contradictions / caveats
 - Bodies sourced are RHBK **26.0**; the Managing users chapter (user profile, managed vs
   unmanaged attributes, required actions) is consistent in 26.2/26.4 primary results.
-- The **Update Email** required action depends on the preview Update Email workflow —
-  see [[realm-administration]].
+- The **Update Email** required action depends on the preview Update Email workflow
+  (inferred — confirmed in the broader RHBK 26.4 corpus, e.g. `features`/`configuring-realms`,
+  but not in this page's cited managing-users chapter) — see [[realm-administration]].
 
 ## See also
 - [[password-policies]]

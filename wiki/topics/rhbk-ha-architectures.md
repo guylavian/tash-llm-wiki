@@ -13,10 +13,12 @@ source_notes:
   - "[[rhbk-26-6-multi-cluster-introduction]]"
   - "[[rhbk-26-6-single-cluster-introduction]]"
   - "[[rhbk-26-2-concepts-multi-site]]"
-provenance: needs-review
+provenance_extracted: 16
+provenance_inferred: 0
+provenance_ambiguous: 1
 tags: [ha, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RHBK High-Availability Architectures (Single-cluster vs Multi-cluster)
@@ -95,7 +97,8 @@ replication. The guide prioritizes consistency over availability.**
   (adds the `/lb-check` probe) — see [[multi-site-feature-flag]]. It is not used
   for single-cluster.
 - External Data Grid requires **Data Grid 8.5.2+** for supported external
-  deployments.
+  deployments (ambiguous — `rhbk-26-6-multi-cluster-introduction` states
+  **8.5.3+**; treat 8.5.3 as the source of record until confirmed otherwise).
 - Naming differs by version (multi-site vs multi-cluster); when searching the KB
   use the term matching your version: `--guide high_availability_guide`.
 

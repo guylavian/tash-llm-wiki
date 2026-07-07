@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-enforcer-overview]]"
   - "[[rhbk-26-6-overview-2]]"
-provenance: needs-review
+provenance_extracted: 7
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [authz]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Policy enforcer (PEP)
@@ -45,12 +47,12 @@ Two ways to get an RPT, each async with `onGrant`/`onDeny`/`onError` callbacks:
 The authorization request supports `permissions`, and `metadata` with `response_include_resource_name`, `response_permissions_limit`, and `submit_request` — mirroring the [[requesting-party-token|token-endpoint parameters]]. The current token is available as `authorization.rpt`.
 
 ## Where it fits
-The enforcer is the PEP in the PAP/PDP/PEP/PIP model of [[fine-grained-authorization]]: RHBK is the centralized PDP; the enforcer asks it for decisions and enforces them locally. The resource server's [[policy-enforcement-mode]] still governs what happens when no policy is associated.
+The enforcer is the PEP in the PAP/PDP/PEP/PIP model of [[fine-grained-authorization]]: RHBK is the centralized PDP; the enforcer asks it for decisions and enforces them locally (inferred — a cross-page synthesis placing the enforcer in that model, not a single-source statement). The resource server's [[policy-enforcement-mode]] still governs what happens when no policy is associated.
 
 ## Contradictions / caveats
 - Stable across RHBK **26.0–26.6**.
 - The guide documents only the **Java** and **JavaScript** enforcers here; other platforms require a custom PEP against the REST API.
-- Legacy **RH-SSO 7.x** used different (WildFly-era) adapters; migrating PEPs is part of [[rhsso-to-rhbk-migration]].
+- Legacy **RH-SSO 7.x** used different (WildFly-era) adapters; migrating PEPs is part of [[rhsso-to-rhbk-migration]] (inferred — not covered by this chapter's cited sources).
 
 ## See also
 - [[fine-grained-authorization]]

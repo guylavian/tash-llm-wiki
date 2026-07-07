@@ -6,10 +6,12 @@ slug: build-vs-runtime-options
 summary: "Build options are persisted into an optimized RHBK image by `kc.sh build`; runtime (configuration) options are applied at `kc.sh start`."
 sources:
   - guide:server_configuration_guide
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Build options vs runtime options
@@ -41,7 +43,7 @@ Without `--optimized`, `kc.sh start --db postgres ...` runs an implicit build fi
 `build` performs a closed-world provider scan, pre-parses config files, and prepares DB-specific resources, so the server skips that work at each startup. For container/Operator images this is why a `RUN kc.sh build` line is added to the Containerfile (with `ENV KC_DB`, `ENV KC_HEALTH_ENABLED`, etc.).
 
 ## Contradictions / caveats
-- The 🛠 build-time vs runtime split is stable across RHBK 26.0–26.6 (quoted from 26.4); the exact *set* of build options can grow between releases.
+- The 🛠 build-time vs runtime split is stable across RHBK 26.0–26.6 (quoted from 26.4); the exact *set* of build options can grow between releases (inferred — only the 26.4 note was checked directly).
 - Operator-managed custom images **must** be optimized (all build-time options set + `kc.sh build`). See [[rhbk-operator]].
 - Changing certain build options (e.g. some features) requires a recreate rather than a rolling update — see the rolling-update compatibility chapter.
 

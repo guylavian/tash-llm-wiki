@@ -17,9 +17,14 @@ stdlib-default, or faithfulness invariants.**
 - **Remote endpoints → opt-in allowed** (OQ#5 resolved): keep the `WIKI_LLM_ALLOW_REMOTE=1` + key-env
   **double-opt-in** for cloud models (and real $ cost). The default remains local-loopback-only; the
   remote path is a loud, logged, explicit escape hatch — **not** structurally removed.
-- **Implementation status → deferred.** The full Phase 0–5 migration is the agreed target, but
-  **no code is to be written yet** — this document is the reviewed, authoritative plan to execute
-  against when work begins.
+- **Implementation status → SHIPPED (Phases 0–5 complete, 2026-06-25).** The full Phase 0–5 migration
+  has landed: `cost.py`/`llm.py` (loopback-gated LiteLLM gateway), the LangGraph QUERY + INGEST graphs
+  (`graph/query_graph.py`, `graph/ingest_graph.py`), `evaluate.py --measure-llm` + budget gates, and
+  the `lint.py --status` spend table. **Phase 5 closed** with the 32B→7B routing lever delegated to
+  `litellm.Router` (OSS — `llm.complete_routed()`, cheap/hard model groups + fallbacks); disk response
+  caching stays deliberately deferred (the `questions/` tier already amortizes; temp=0 ≠ bit-stable on
+  local GPU). With `WIKI_LLM` unset and no optional deps, the wiki behaves exactly as it did pre-Phase-0.
+  Successor work is tracked in `_meta/ROADMAP.md`.
 
 ---
 

@@ -1,0 +1,1117 @@
+---
+title: "Deploying {product-title} clusters using FIPS encryption"
+type: reference
+domain: openshift
+slug: rosa-hcp-4-22-rosa-hcp-creating-cluster-with-fips-encryption
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/rosa_hcp/rosa-hcp-creating-cluster-with-fips-encryption
+version: 4.22
+family: rosa_hcp
+documentKind: "Documentation"
+---
+
+# Deploying {product-title} clusters using FIPS encryption
+
+[id="rosa-hcp-creating-cluster-with-fips-encryption"]
+= Deploying OpenShift Container Platform clusters using FIPS encryption
+
+[role="_abstract"]
+Deploying a OpenShift Container Platform cluster using Federal Information Processing Standards (FIPS) encryption ensures that sensitive data is protected using validated cryptographic modules.
+
+// Module included in the following assemblies:
+//
+// * rosa_hcp/rosa-hcp-aws-private-creating-cluster.adoc
+// * rosa_hcp/rosa-hcp-cluster-no-cni.adoc
+// * rosa_hcp/rosa-hcp-creating-cluster-with-aws-kms-key.adoc
+// * rosa_hcp/rosa-hcp-creating-cluster-with-fips-encryption.adoc
+// * rosa_hcp/rosa-hcp-sts-creating-a-cluster-ext-auth.adoc
+// * rosa_hcp/rosa-hcp-sts-creating-a-cluster-quickly.adoc
+
+[id="rosa-hcp-prerequisites_{context}"]
+= OpenShift Container Platform prerequisites
+
+[role="_abstract"]
+Before you can create a OpenShift Container Platform cluster,  you must complete the following prerequisites. Use each link to find detailed instructions for completing that specific prerequisite:
+
+* Configure a virtual private cloud (VPC)
+* Create account-wide roles
+* Create the ocm-role IAM role
+* Create an OIDC configuration
+* Create Operator roles
+
+// Module included in the following assemblies:
+// * rosa_architecture/rosa-sts-about-iam-resources.adoc
+// * support/troubleshooting/rosa-troubleshooting-iam-resources.adoc
+// * rosa_planning/rosa-sts-ocm-role.adoc
+// * rosa_planning/rosa-hcp-prepare-iam-resources.adoc
+[id="rosa-sts-ocm-roles-and-permissions-iam-basic-role_{context}"]
+= Creating an ocm-role IAM role
+
+[role="_abstract"]
+You create your `ocm-role` IAM roles by using the {rosa-cli-first}. If you want to create and manage clusters by using only the {rosa-cli-first} and the OpenShift CLI (`oc`), you can use the `--no-console` profile for the `ocm-role` IAM resource. For more information about the `ocm-role` IAM resource permissions profile, see the _Additional resources_.
+
+[IMPORTANT]
+====
+You must create the `ocm-role` IAM role before you can create your OpenShift Container Platform cluster.
+====
+
+.Prerequisites
+
+* You have an AWS account.
+* You have Red{nbsp}Hat Organization Administrator privileges in the {cluster-manager} organization.
+* You have the permissions required to install AWS account-wide roles.
+* You have installed and configured the latest {rosa-cli}, `rosa`, on your installation host.
+
+.Procedure
+* Run one of the following commands to create the required `ocm-role` IAM resource:
++
+[IMPORTANT]
+====
+The process to change your `ocm-role` IAM resource profile requires you to unlink and delete the current `ocm-role` IAM resource and create a new one with the required profile.
+====
+
+** To create an `ocm-role` IAM role with standard privileges, run the following command:
++
+[source,terminal]
+----
+$ rosa create ocm-role
+----
++
+** To create an `ocm-role` IAM role with admin privileges, run the following command:
++
+[IMPORTANT]
+====
+The admin profile supports "auto" mode configuration for OpenShift Container Platform clusters which provisions OIDC Configuration and Operator roles automatically. To achieve this automatic flow, the profile has a wider set of permissions than the standard profile.
+====
++
+[source,terminal]
+----
+$ rosa create ocm-role --admin
+----
++
+This command allows you to create the role by specifying specific attributes. The following example output shows the "auto mode" selected, which lets the {rosa-cli} (`rosa`) create your Operator roles and policies.
+See "Methods of account-wide role creation" for more information. The following example shows what your creation flow might look like.
++
+[source,terminal]
+----
+I: Creating ocm role
+? Role prefix: ManagedOpenShift
+? Enable admin capabilities for the OCM role (optional): No
+? Permissions boundary ARN (optional):
+? Role Path (optional):
+? Role creation mode: auto
+I: Creating role using 'arn:aws:iam::<ARN>:user/<UserName>'
+? Create the 'ManagedOpenShift-OCM-Role-182' role? Yes
+I: Created role 'ManagedOpenShift-OCM-Role-182' with ARN  'arn:aws:iam::<ARN>:role/ManagedOpenShift-OCM-Role-182'
+I: Linking OCM role
+? OCM Role ARN: arn:aws:iam::<ARN>:role/ManagedOpenShift-OCM-Role-182
+? Link the 'arn:aws:iam::<ARN>:role/ManagedOpenShift-OCM-Role-182' role with organization '<AWS ARN>'? Yes
+I: Successfully linked role-arn 'arn:aws:iam::<ARN>:role/ManagedOpenShift-OCM-Role-182' with organization account '<AWS ARN>'
+----
++
+where:
++
+--
+`Role prefix`:: A prefix value for all of the created AWS resources. In this example, `ManagedOpenShift` prepends all of the AWS resources.
+`Enable admin capabilities for the OCM role (optional)`:: Choose if you want this role to have the additional admin permissions.
++
+[NOTE]
+====
+You do not see this prompt if you used the `--admin` option.
+====
++
+`Permissions boundary ARN (optional)`:: The Amazon Resource Name (ARN) of the policy to set permission boundaries.
+`Role Path (optional)`:: Specify an IAM path for the user name.
+`Role creation mode`:: Choose the method to create your AWS roles. By using `auto`, the {rosa-cli} generates and links the roles and policies. In the `auto` mode, you receive some different prompts to create the AWS roles.
+`Create the 'ManagedOpenShift-OCM-Role-182' role?`:: The `auto` method asks if you want to create a specific `ocm-role` by using your prefix.
+`OCM Role ARN`:: Confirm that you want to associate your IAM role with your {cluster-manager}.
+`Link the 'arn:aws:iam::<ARN>:role/ManagedOpenShift-OCM-Role-182' role with organization '<AWS ARN>'?`:: Links the created role with your AWS organization.
+--
+
+** To create an `ocm-role` IAM role with the minimum required privileges, run the following command:
++
+[NOTE]
+====
+While the `no-console` profile offers the minimum permissions policy that can still create OpenShift Container Platform clusters, the permissions are insufficient if you want to use {cluster-manager-url} for cluster creation.
+====
++
+[source,terminal]
+----
+$ rosa create ocm-role --no-console
+----
+
+// Module included in the following assemblies:
+//
+// * rosa_hcp/rosa-hcp-egress-zero-install.adoc
+// * rosa_hcp/rosa-hcp-cluster-no-cni.adoc
+// * rosa_hcp/rosa-hcp-creating-cluster-with-aws-kms-key.adoc
+// * rosa_hcp/rosa-hcp-sts-creating-a-cluster-quickly.adoc
+// * rosa_planning/rosa-hcp-prepare-iam-roles-resources.adoc
+
+[id="rosa-sts-creating-account-wide-sts-roles-and-policies_{context}"]
+= Creating the account-wide STS roles and policies
+
+[role="_abstract"]
+Before you create a OpenShift Container Platform cluster, you must create the required account-wide IAM roles and policies by using the {rosa-cli-first}.
+
+[NOTE]
+====
+Specific AWS-managed policies for OpenShift Container Platform must be attached to each role. Customer-managed policies must not be used with these required account roles. For more information regarding AWS-managed policies for OpenShift Container Platform clusters, see AWS managed policies for OpenShift Container Platform.
+====
+
+.Prerequisites
+
+* You have completed the AWS prerequisites for OpenShift Container Platform.
+* You have available AWS service quotas.
+* You have enabled the OpenShift Container Platform in the AWS Console.
+* You have installed and configured the latest {rosa-cli-first} on your installation host.
+* You have logged in to your Red{nbsp}Hat account by using the {rosa-cli}.
+
+.Procedure
+
+. If they do not exist in your AWS account, create the required account-wide STS roles and attach the policies by running the following command:
++
+[source,terminal]
+----
+$ rosa create account-roles --hosted-cp
+----
+[source,terminal]
+----
+$ export PREFIX=<custom_prefix>; rosa create account-roles --hosted-cp --prefix $PREFIX
+----
++
+When using FIPS encryption, you need to set a custom prefix instead of using the default `ManagedOpenShift` prefix.
+
+. Verify that your worker role has the correct AWS policy by running the following command:
++
+[source,terminal]
+----
+$ aws iam attach-role-policy \
+--role-name ManagedOpenShift-HCP-ROSA-Worker-Role \
+--policy-arn "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+----
++
+--
+`--role-name ManagedOpenShift-HCP-ROSA-Worker-Role`::This role needs to include the prefix that was created in the previous step.
+--
+
+. Optional: Set your prefix as an environmental variable by running the following command:
++
+[source,terminal]
+----
+$ export ACCOUNT_ROLES_PREFIX=<account_role_prefix>
+----
+
+** View the value of the variable by running the following command:
++
+[source,terminal]
+----
+$ echo $ACCOUNT_ROLES_PREFIX
+----
++
+For example:
++
+[source,terminal]
+----
+ManagedOpenShift
+----
+
+[NOTE]
+====
+As an additional safeguard, after role creation, you can manually update the trust policies of the Support and Installer account-wide roles to include an external ID. For more information, see _About external ID_.
+====
+
+[role="_additional-resources"]
+.Additional resources
+
+* AWS managed IAM policies for OpenShift Container Platform
+
+// Module included in the following assemblies:
+//
+// * rosa_hcp/rosa-hcp-creating-cluster-with-aws-kms-key.adoc
+// * rosa_hcp/rosa-hcp-egress-zero-install.adoc
+// * rosa_hcp/rosa-hcp-quickstart-guide.adoc
+// * rosa_hcp/rosa-hcp-sts-creating-a-cluster-quickly.adoc
+
+[id="rosa-hcp-create-network_{context}"]
+= Creating an AWS VPC using the ROSA CLI
+
+[role="_abstract"]
+The `rosa create network` command is available in v.1.2.48 or later of the {rosa-cli}. The command uses AWS CloudFormation to create a VPC and associated networking components necessary to install a OpenShift Container Platform cluster. CloudFormation is a native AWS infrastructure-as-code tool and is compatible with the AWS CLI.
+
+If you do not specify a template, CloudFormation uses a default template that creates resources with the following parameters:
+
+.Default VPC parameters
+[cols="2a,3a",options="header"]
+|===
+|VPC parameter
+|Value
+
+| Availability zones
+| 1
+
+| Region
+| `us-east-1`
+
+| VPC CIDR
+| `10.0.0.0/16`
+|===
+
+You can create and customize CloudFormation templates to use with the `rosa create network` command. See the additional resources of this section for information on the default VPC template.
+
+.Prerequisites
+
+* You have configured your AWS account
+* You have configured your Red Hat accounts
+* You have installed the {rosa-cli} and configured it to the latest version
+
+.Procedure
+
+. Create an AWS VPC using the default CloudFormations template by running the following command:
++
+[source,terminal]
+----
+$ rosa create network
+----
+
+. Optional: Customize your VPC by specifying additional parameters.
++
+You can use the `--param` flag to specify changes to the default VPC template. The following example command specifies custom values for `region`, `Name`, `AvailabilityZoneCount` and `VpcCidr`.
++
+[source,terminal]
+----
+$ rosa create network --param Region=us-east-2 --param Name=quickstart-stack --param AvailabilityZoneCount=3 --param VpcCidr=10.0.0.0/16
+----
++
+The command takes about 5 minutes to run and provides regular status updates from AWS as resources are created. If there is an issue with CloudFormation, a rollback is attempted. For all other errors that are encountered, please follow the error message instructions or contact AWS support.
+// ifdef::rosa-egress-lockdown[]
+// . Create a new directory for your CloudFormation templates by running the following command:
+// +
+// [source,terminal]
+// ----
+// $ mkdir TEMPLATES
+// ----
+
+// . Run the following command to create a local copy of this CloudFormation template to create a private VPC:
+// +
+// [source,terminal]
+// ----
+// $ cat<<-EOF>TEMPLATES/rosa-zero-egress-vpc.yaml
+// AWSTemplateFormatVersion: '2010-09-09'
+// Description: |
+//   CloudFormation template for a Zero-Egress VPC for ROSA,
+//   equivalent to the provided Terraform configuration.
+//   This VPC includes private subnets, a security group for internal traffic,
+//   and VPC Endpoints for STS, ECR (API, DKR), and S3 to facilitate
+//   communication for ROSA in a private environment.
+
+// Parameters:
+//   ClusterName:
+//     Type: String
+//     Description: The name of the ROSA cluster, used for naming resources.
+
+//   VpcCidrBlock:
+//     Type: String
+//     Default: 10.0.0.0/16
+//     Description: CIDR block for the VPC.
+
+//   PrivateSubnet1CidrBlock:
+//     Type: String
+//     Default: 10.0.1.0/24
+//     Description: CIDR block for the first private subnet.
+
+//   PrivateSubnet2CidrBlock:
+//     Type: String
+//     Default: 10.0.2.0/24
+//     Description: CIDR block for the second private subnet.
+
+//   AvailabilityZone1:
+//     Type: AWS::EC2::AvailabilityZone::Name
+//     Description: First Availability Zone for the private subnet.
+
+//   AvailabilityZone2:
+//     Type: AWS::EC2::AvailabilityZone::Name
+//     Description: Second Availability Zone for the private subnet.
+
+// Resources:
+//   RosaVPC:
+//     Type: AWS::EC2::VPC
+//     Properties:
+//       CidrBlock: !Ref VpcCidrBlock
+//       EnableDnsSupport: true
+//       EnableDnsHostnames: true
+//       Tags:
+//         - Key: Name
+//           Value: !Sub ${ClusterName}-vpc
+//         - Key: Terraform
+//           Value: "true"
+//         - Key: service
+//           Value: ROSA
+//         - Key: cluster_name
+//           Value: !Ref ClusterName
+
+//   PrivateSubnet1:
+//     Type: AWS::EC2::Subnet
+//     Properties:
+//       VpcId: !Ref RosaVPC
+//       CidrBlock: !Ref PrivateSubnet1CidrBlock
+//       AvailabilityZone: !Ref AvailabilityZone1
+//       MapPublicIpOnLaunch: false # Ensures it's private
+//       Tags:
+//         - Key: Name
+//           Value: !Sub ${ClusterName}-private-subnet-1
+//         - Key: Terraform
+//           Value: "true"
+//         - Key: service
+//           Value: ROSA
+//         - Key: cluster_name
+//           Value: !Ref ClusterName
+//         - Key: kubernetes.io/role/internal-elb
+//           Value: "1" # Tag from Terraform
+
+//   PrivateSubnet2:
+//     Type: AWS::EC2::Subnet
+//     Properties:
+//       VpcId: !Ref RosaVPC
+//       CidrBlock: !Ref PrivateSubnet2CidrBlock
+//       AvailabilityZone: !Ref AvailabilityZone2
+//       MapPublicIpOnLaunch: false # Ensures it's private
+//       Tags:
+//         - Key: Name
+//           Value: !Sub ${ClusterName}-private-subnet-2
+//         - Key: Terraform
+//           Value: "true"
+//         - Key: service
+//           Value: ROSA
+//         - Key: cluster_name
+//           Value: !Ref ClusterName
+//         - Key: kubernetes.io/role/internal-elb
+//           Value: "1" # Tag from Terraform
+
+//   PrivateRouteTable:
+//     Type: AWS::EC2::RouteTable
+//     Properties:
+//       VpcId: !Ref RosaVPC
+//       Tags:
+//         - Key: Name
+//           Value: !Sub ${ClusterName}-private-route-table
+//         - Key: Terraform
+//           Value: "true"
+//         - Key: service
+//           Value: ROSA
+//         - Key: cluster_name
+//           Value: !Ref ClusterName
+
+//   PrivateSubnet1RouteTableAssociation:
+//     Type: AWS::EC2::SubnetRouteTableAssociation
+//     Properties:
+//       SubnetId: !Ref PrivateSubnet1
+//       RouteTableId: !Ref PrivateRouteTable
+
+//   PrivateSubnet2RouteTableAssociation:
+//     Type: AWS::EC2::SubnetRouteTableAssociation
+//     Properties:
+//       SubnetId: !Ref PrivateSubnet2
+//       RouteTableId: !Ref PrivateRouteTable
+
+//   AuthorizeInboundVpcTrafficSecurityGroup:
+//     Type: AWS::EC2::SecurityGroup
+//     Properties:
+//       GroupDescription: Allow all inbound traffic within the VPC
+//       VpcId: !Ref RosaVPC
+//       SecurityGroupIngress:
+//         - IpProtocol: "-1" # All protocols
+//           FromPort: -1 # All ports
+//           ToPort: -1 # All ports
+//           CidrIp: !Ref VpcCidrBlock # Allows all traffic from within the VPC CIDR
+//       SecurityGroupEgress:
+//         - IpProtocol: "-1" # All protocols
+//           FromPort: -1 # All ports
+//           ToPort: -1 # All ports
+//           CidrIp: "0.0.0.0/0" # Allow all outbound traffic (typically for VPC Endpoints)
+//       Tags:
+//         - Key: Name
+//           Value: !Sub ${ClusterName}-inbound-vpc-sg
+//         - Key: Terraform
+//           Value: "true"
+//         - Key: service
+//           Value: ROSA
+//         - Key: cluster_name
+//           Value: !Ref ClusterName
+
+//   STSVpcEndpoint:
+//     Type: AWS::EC2::VPCEndpoint
+//     Properties:
+//       VpcId: !Ref RosaVPC
+//       ServiceName: !Sub com.amazonaws.${AWS::Region}.sts
+//       VpcEndpointType: Interface
+//       PrivateDnsEnabled: true
+//       SubnetIds:
+//         - !Ref PrivateSubnet1
+//         - !Ref PrivateSubnet2
+//       SecurityGroupIds:
+//         - !GetAtt AuthorizeInboundVpcTrafficSecurityGroup.GroupId # Referencing SG ID
+//       Tags:
+//         - Key: Name
+//           Value: !Sub ${ClusterName}-sts-endpoint
+//         - Key: Terraform
+//           Value: "true"
+//         - Key: service
+//           Value: ROSA
+//         - Key: cluster_name
+//           Value: !Ref ClusterName
+
+//   ECRApiVpcEndpoint:
+//     Type: AWS::EC2::VPCEndpoint
+//     Properties:
+//       VpcId: !Ref RosaVPC
+//       ServiceName: !Sub com.amazonaws.${AWS::Region}.ecr.api
+//       VpcEndpointType: Interface
+//       PrivateDnsEnabled: true
+//       SubnetIds:
+//         - !Ref PrivateSubnet1
+//         - !Ref PrivateSubnet2
+//       SecurityGroupIds:
+//         - !GetAtt AuthorizeInboundVpcTrafficSecurityGroup.GroupId
+//       Tags:
+//         - Key: Name
+//           Value: !Sub ${ClusterName}-ecr-api-endpoint
+//         - Key: Terraform
+//           Value: "true"
+//         - Key: service
+//           Value: ROSA
+//         - Key: cluster_name
+//           Value: !Ref ClusterName
+
+//   ECRDkrVpcEndpoint:
+//     Type: AWS::EC2::VPCEndpoint
+//     Properties:
+//       VpcId: !Ref RosaVPC
+//       ServiceName: !Sub com.amazonaws.${AWS::Region}.ecr.dkr
+//       VpcEndpointType: Interface
+//       PrivateDnsEnabled: true
+//       SubnetIds:
+//         - !Ref PrivateSubnet1
+//         - !Ref PrivateSubnet2
+//       SecurityGroupIds:
+//         - !GetAtt AuthorizeInboundVpcTrafficSecurityGroup.GroupId
+//       Tags:
+//         - Key: Name
+//           Value: !Sub ${ClusterName}-ecr-dkr-endpoint
+//         - Key: Terraform
+//           Value: "true"
+//         - Key: service
+//           Value: ROSA
+//         - Key: cluster_name
+//           Value: !Ref ClusterName
+
+//   S3VpcEndpoint:
+//     Type: AWS::EC2::VPCEndpoint
+//     Properties:
+//       VpcId: !Ref RosaVPC
+//       ServiceName: !Sub com.amazonaws.${AWS::Region}.s3
+//       VpcEndpointType: Gateway
+//       RouteTableIds:
+//         - !Ref PrivateRouteTable # Associate with the private route table
+//       Tags:
+//         - Key: Name
+//           Value: !Sub ${ClusterName}-s3-endpoint
+//         - Key: Terraform
+//           Value: "true"
+//         - Key: service
+//           Value: ROSA
+//         - Key: cluster_name
+//           Value: !Ref ClusterName
+
+// Outputs:
+//   VpcId:
+//     Description: The ID of the created VPC.
+//     Value: !Ref RosaVPC
+//     Export:
+//       Name: !Sub ${AWS::StackName}-VpcId
+
+//   PrivateSubnetIds:
+//     Description: A comma-separated list of the private subnet IDs.
+//     Value: !Join [",", [!Ref PrivateSubnet1, !Ref PrivateSubnet2]]
+//     Export:
+//       Name: !Sub ${AWS::StackName}-PrivateSubnetIds
+
+//   PrivateRouteTableId:
+//     Description: The ID of the private route table.
+//     Value: !Ref PrivateRouteTable
+//     Export:
+//       Name: !Sub ${AWS::StackName}-PrivateRouteTableId
+
+//   SecurityGroupId:
+//     Description: The ID of the security group for internal VPC traffic.
+//     Value: !GetAtt AuthorizeInboundVpcTrafficSecurityGroup.GroupId
+//     Export:
+//       Name: !Sub ${AWS::StackName}-SecurityGroupId
+// EOF
+// ----
+
+// . Create an AWS VPC using the default CloudFormations template by running the following command:
+// +
+// [source,terminal]
+// ----
+// $ rosa create network --template-dir TEMPLATES
+// ----
+// endif::rosa-egress-lockdown[]
+
+.Verification
+* When completed, you receive a summary of the created resources:
++
+[source,terminal]
+----
+INFO[0140] Resources created in stack:
+INFO[0140] Resource: AttachGateway, Type: AWS::EC2::VPCGatewayAttachment, ID: <gateway_id>
+INFO[0140] Resource: EC2VPCEndpoint, Type: AWS::EC2::VPCEndpoint, ID: <vpce_id>
+INFO[0140] Resource: EcrApiVPCEndpoint, Type: AWS::EC2::VPCEndpoint, ID: <vpce_id>
+INFO[0140] Resource: EcrDkrVPCEndpoint, Type: AWS::EC2::VPCEndpoint, ID: <vpce_id>
+INFO[0140] Resource: ElasticIP1, Type: AWS::EC2::EIP, ID: <IP>
+INFO[0140] Resource: ElasticIP2, Type: AWS::EC2::EIP, ID: <IP>
+INFO[0140] Resource: InternetGateway, Type: AWS::EC2::InternetGateway, ID: igw-016e1a71b9812464e
+INFO[0140] Resource: KMSVPCEndpoint, Type: AWS::EC2::VPCEndpoint, ID: <vpce_id>
+INFO[0140] Resource: NATGateway1, Type: AWS::EC2::NatGateway, ID: <nat-gateway_id>
+INFO[0140] Resource: PrivateRoute, Type: AWS::EC2::Route, ID: <route_id>
+INFO[0140] Resource: PrivateRouteTable, Type: AWS::EC2::RouteTable, ID: <route_id>
+INFO[0140] Resource: PrivateSubnetRouteTableAssociation1, Type: AWS::EC2::SubnetRouteTableAssociation, ID: <route_id>
+INFO[0140] Resource: PublicRoute, Type: AWS::EC2::Route, ID: <route_id>
+INFO[0140] Resource: PublicRouteTable, Type: AWS::EC2::RouteTable, ID: <route_id>
+INFO[0140] Resource: PublicSubnetRouteTableAssociation1, Type: AWS::EC2::SubnetRouteTableAssociation, ID: <route_id>
+INFO[0140] Resource: S3VPCEndpoint, Type: AWS::EC2::VPCEndpoint, ID: <vpce_id>
+INFO[0140] Resource: STSVPCEndpoint, Type: AWS::EC2::VPCEndpoint, ID: <vpce_id>
+INFO[0140] Resource: SecurityGroup, Type: AWS::EC2::SecurityGroup, ID: <security-group_id>
+INFO[0140] Resource: SubnetPrivate1, Type: AWS::EC2::Subnet, ID: <private_subnet_id-1>
+INFO[0140] Resource: SubnetPublic1, Type: AWS::EC2::Subnet, ID: <public_subnet_id-1>
+INFO[0140] Resource: VPC, Type: AWS::EC2::VPC, ID: <vpc_id>
+INFO[0140] Stack rosa-network-stack-5555 created
+----
++
+--
+* The `<private_subnet_id-1>` and `<public_subnet_id-1>` subnet IDs are used to create your cluster when using the `rosa create cluster` command.
+* The network stack name (`rosa-network-stack-5555`) is used to delete the resource later.
+--
+
+// Module included in the following assemblies:
+//
+//
+// * rosa_architecture/rosa-sts-about-iam-resources.adoc
+// * rosa_architecture/rosa-oidc-overview.adoc
+// * rosa_hcp/rosa-hcp-quickstart-guide.adoc
+// * rosa_hcp/rosa-hcp-egress-zero-install.adoc
+// * rosa_hcp/rosa-hcp-cluster-no-cni.adoc
+// * rosa_hcp/rosa-hcp-creating-cluster-with-aws-kms-key.adoc
+// * rosa_hcp/rosa-hcp-sts-creating-a-cluster-quickly.adoc
+// * rosa_install_access_delete_clusters/rosa-sts-creating-a-cluster-quickly.adoc
+// * rosa_install_access_delete_clusters/rosa-sts-creating-a-cluster-with-customizations.adoc
+// * rosa_planning/rosa-hcp-prepare-iam-roles-resources.adoc
+
+[id="rosa-sts-byo-oidc_{context}"]
+= Creating an OpenID Connect configuration
+
+[role="_abstract"]
+OpenShift Container Platform clusters use OIDC and the AWS Security Token Service (STS) to authenticate Operator access to AWS resources they require to perform their functions. Each production cluster requires its own OIDC configuration. When creating a OpenShift Container Platform cluster, you can create the OpenID Connect (OIDC) configuration before creating your cluster.
+
+.Prerequisites
+
+* You have completed the AWS prerequisites for OpenShift Container Platform.
+* You have installed and configured the latest {rosa-cli-first} on your installation host.
+
+.Procedure
+
+. To create your OIDC configuration alongside the AWS resources, run the following command:
++
+[source,terminal]
+----
+$ rosa create oidc-config --mode=auto --yes
+----
++
+This command returns the following information.
++
+For example:
++
+[source,terminal]
+----
+? Would you like to create a Managed (Red Hat hosted) OIDC Configuration Yes
+I: Setting up managed OIDC configuration
+I: To create Operator Roles for this OIDC Configuration, run the following command and remember to replace <user-defined> with a prefix of your choice:
+	rosa create operator-roles --prefix <user-defined> --oidc-config-id 13cdr6b
+If you are going to create a Hosted Control Plane cluster please include '--hosted-cp'
+I: Creating OIDC provider using 'arn:aws:iam::4540112244:user/userName'
+? Create the OIDC provider? Yes
+I: Created OIDC provider with ARN 'arn:aws:iam::4540112244:oidc-provider/dvbwgdztaeq9o.cloudfront.net/13cdr6b'
+----
++
+When creating your cluster, you must supply the OIDC config ID. The CLI output provides this value for `--mode auto`, otherwise you must determine these values based on `aws` CLI output for `--mode manual`.
+
+. Optional: you can save the OIDC configuration ID as a variable to use later. Run the following command to save the variable:
++
+--
+[source,terminal]
+----
+$ export OIDC_ID=<oidc_config_id>
+----
+`<oidc_config_id>`:: In this example output, the OIDC configuration ID is `13cdr6b`.
+--
+
+** View the value of the variable by running the following command:
++
+[source,terminal]
+----
+$ echo $OIDC_ID
+----
++
+For example:
++
+[source,terminal]
+----
+13cdr6b
+----
+
+.Verification
+
+* You can list the possible OIDC configurations available for your clusters that are associated with your user organization. Run the following command:
++
+[source,terminal]
+----
+$ rosa list oidc-config
+----
++
+For example:
++
+[source,terminal]
+----
+ID                                MANAGED  ISSUER URL                                                             SECRET ARN
+2330dbs0n8m3chkkr25gkkcd8pnj3lk2  true     https://dvbwgdztaeq9o.cloudfront.net/2330dbs0n8m3chkkr25gkkcd8pnj3lk2
+233hvnrjoqu14jltk6lhbhf2tj11f8un  false    https://oidc-r7u1.s3.us-east-1.amazonaws.com                           aws:secretsmanager:us-east-1:242819244:secret:rosa-private-key-oidc-r7u1-tM3MDN
+----
+
+// Module included in the following assemblies:
+//
+// * rosa_hcp/rosa-hcp-cluster-no-cni.adoc
+// * rosa_hcp/rosa-hcp-creating-cluster-with-aws-kms-key.adoc
+// * rosa_hcp/rosa-hcp-quickstart-guide.adoc
+// * rosa_hcp/rosa-hcp-sts-creating-a-cluster-quickly.adoc
+// * rosa_hcp/rosa-hcp-egress-zero-install.adoc
+// * rosa_planning/rosa-hcp-prepare-iam-roles-resources.adoc
+
+[id="rosa-operator-config_{context}"]
+= Creating Operator roles and policies
+
+[role="_abstract"]
+When you deploy a OpenShift Container Platform cluster, you must create the Operator IAM roles. The cluster Operators use the Operator roles and policies to obtain temporary permissions to perform cluster operations, such as managing storage and external access.
+
+.Prerequisites
+
+* You have completed the AWS prerequisites for OpenShift Container Platform.
+* You have installed and configured the latest {rosa-cli-first} on your installation host.
+* You created the account-wide AWS roles.
+
+.Procedure
+. To create your Operator roles, run the following command:
++
+[source,terminal]
+----
+$ rosa create operator-roles --hosted-cp --prefix=$PREFIX --oidc-config-id=$OIDC_ID
+----
++
+The Operator roles are now created and ready to use for creating your OpenShift Container Platform cluster.
+. To create your Operator roles, run the following command:
++
+[source,terminal]
+----
+$ rosa create operator-roles --hosted-cp --prefix=$OPERATOR_ROLES_PREFIX --oidc-config-id=$OIDC_ID --installer-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/${ACCOUNT_ROLES_PREFIX}-HCP-ROSA-Installer-Role
+----
++
+The following breakdown provides options for the Operator role creation.
++
+[source,terminal]
+----
+$ rosa create operator-roles --hosted-cp
+	--prefix=$OPERATOR_ROLES_PREFIX
+	--oidc-config-id=$OIDC_ID
+	--installer-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/$ACCOUNT_ROLES_PREFIX-HCP-ROSA-Installer-Role
+----
++
+where:
++
+--
+`--prefix=`:: You must supply a prefix when creating these Operator roles. Failing to do so produces an error. See the Additional resources of this section for information on the Operator prefix.
+`--oidc-config-id=`:: This value is the OIDC configuration ID that you created for your OpenShift Container Platform cluster.
+`--installer-role-arn`:: This value is the installer role ARN that you created when you created the OpenShift Container Platform account roles.
+--
++
+You must include the `--hosted-cp` parameter to create the correct roles for OpenShift Container Platform clusters. This command returns the following information.
++
+For example:
++
+[source,terminal]
+----
+? Role creation mode: auto
+? Operator roles prefix: <pre-filled_prefix>
+? OIDC Configuration ID: 23soa2bgvpek9kmes9s7os0a39i13qm4 | https://dvbwgdztaeq9o.cloudfront.net/23soa2bgvpek9kmes9s7os0a39i13qm4
+? Create hosted control plane operator roles: Yes
+W: More than one Installer role found
+? Installer role ARN: arn:aws:iam::4540112244:role/<prefix>-HCP-ROSA-Installer-Role
+? Permissions boundary ARN (optional):
+I: Reusable OIDC Configuration detected. Validating trusted relationships to operator roles:
+I: Creating roles using 'arn:aws:iam::4540112244:user/<userName>'
+I: Created role '<prefix>-openshift-cluster-csi-drivers-ebs-cloud-credentials' with ARN 'arn:aws:iam::4540112244:role/<prefix>-openshift-cluster-csi-drivers-ebs-cloud-credentials'
+I: Created role '<prefix>-openshift-cloud-network-config-controller-cloud-credenti' with ARN 'arn:aws:iam::4540112244:role/<prefix>-openshift-cloud-network-config-controller-cloud-credenti'
+I: Created role '<prefix>-kube-system-kube-controller-manager' with ARN 'arn:aws:iam::4540112244:role/<prefix>-kube-system-kube-controller-manager'
+I: Created role '<prefix>-kube-system-capa-controller-manager' with ARN 'arn:aws:iam::4540112244:role/<prefix>-kube-system-capa-controller-manager'
+I: Created role '<prefix>-kube-system-control-plane-operator' with ARN 'arn:aws:iam::4540112244:role/<prefix>-kube-system-control-plane-operator'
+I: Created role '<prefix>-kube-system-kms-provider' with ARN 'arn:aws:iam::4540112244:role/<prefix>-kube-system-kms-provider'
+I: Created role '<prefix>-openshift-image-registry-installer-cloud-credentials' with ARN 'arn:aws:iam::4540112244:role/<prefix>-openshift-image-registry-installer-cloud-credentials'
+I: Created role '<prefix>-openshift-ingress-operator-cloud-credentials' with ARN 'arn:aws:iam::4540112244:role/<prefix>-openshift-ingress-operator-cloud-credentials'
+I: To create a cluster with these roles, run the following command:
+	rosa create cluster --sts --oidc-config-id 23soa2bgvpek9kmes9s7os0a39i13qm4 --operator-roles-prefix <prefix> --hosted-cp
+----
++
+where:
++
+--
+`Operator roles prefix`:: This field is prepopulated with the prefix that you set in the initial creation command.
+`OIDC Configuration ID`:: This field requires you to select an OIDC configuration that you created for your OpenShift Container Platform cluster.
+--
++
+The Operator roles are now created and ready to use for creating your OpenShift Container Platform cluster.
+
+.Verification
+
+* You can list the Operator roles associated with your OpenShift Container Platform account. Run the following command:
++
+[source,terminal]
+----
+$ rosa list operator-roles
+----
++
+For example:
++
+[source,terminal]
+----
+I: Fetching operator roles
+ROLE PREFIX  AMOUNT IN BUNDLE
+<prefix>      8
+? Would you like to detail a specific prefix Yes
+? Operator Role Prefix: <prefix>
+ROLE NAME                                                         ROLE ARN                                                                                         VERSION  MANAGED
+<prefix>-kube-system-capa-controller-manager                       arn:aws:iam::4540112244:role/<prefix>-kube-system-capa-controller-manager                       4.13     No
+<prefix>-kube-system-control-plane-operator                        arn:aws:iam::4540112244:role/<prefix>-kube-system-control-plane-operator                        4.13     No
+<prefix>-kube-system-kms-provider                                  arn:aws:iam::4540112244:role/<prefix>-kube-system-kms-provider                                  4.13     No
+<prefix>-kube-system-kube-controller-manager                       arn:aws:iam::4540112244:role/<prefix>-kube-system-kube-controller-manager                       4.13     No
+<prefix>-openshift-cloud-network-config-controller-cloud-credenti  arn:aws:iam::4540112244:role/<prefix>-openshift-cloud-network-config-controller-cloud-credenti  4.13     No
+<prefix>-openshift-cluster-csi-drivers-ebs-cloud-credentials       arn:aws:iam::4540112244:role/<prefix>-openshift-cluster-csi-drivers-ebs-cloud-credentials       4.13     No
+<prefix>-openshift-image-registry-installer-cloud-credentials      arn:aws:iam::4540112244:role/<prefix>-openshift-image-registry-installer-cloud-credentials      4.13     No
+<prefix>-openshift-ingress-operator-cloud-credentials              arn:aws:iam::4540112244:role/<prefix>-openshift-ingress-operator-cloud-credentials              4.13     No
+----
++
+After the command runs, it displays all the prefixes associated with your AWS account and notes how many roles are associated with this prefix. If you need to see all of these roles and their details, enter "Yes" on the detail prompt to have these roles listed out with specifics.
+
+// Module included in the following assemblies:
+//
+// * observability/monitoring/enabling-monitoring-for-user-defined-projects.adoc
+
+[id="aws-encryption-key_{context}"]
+= Create an AWS KMS encryption key
+
+[role="_abstract"]
+Using your AWS account and the `aws` CLI tool, you can create an AWS KMS encryption key to encrypt your resources.
+
+.Procedure
+
+. Set the AWS region where you installed your VPC by running the following command:
++
+[NOTE]
+====
+You should use the same region where you installed your VPC.
+====
++
+[source,terminal]
+----
+$ AWS_REGION=<aws_region>
+----
+
+. Create a custom AWS customer-managed KMS key by running the following command:
++
+[source,terminal]
+----
+$ KMS_ARN=$(aws kms create-key --region $AWS_REGION --description 'Custom ROSA Encryption Key' --tags TagKey=red-hat,TagValue=true --query KeyMetadata.Arn --output text)
+----
++
+This command saves the Amazon Resource Name (ARN) output of this custom key for further steps.
++
+[NOTE]
+====
+Customers must provide the `--tags TagKey=red-hat,TagValue=true` argument that is required for a customer KMS key.
+====
+
+. Verify the KMS key has been created by running the following command:
++
+[source,terminal]
+----
+$ echo $KMS_ARN
+----
+
+. Set your AWS account ID to an environment variable by running the following command:
++
+[source,terminal]
+----
+$ AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+----
+
+. Create your AWS key policy by running the following command.
++
+[NOTE]
+====
+If you use the default prefix, you need to modify the following code sample where you see `{PREFIX}-` to `ManagedOpenShift-`.
+====
++
+[source,terminal]
+----
+cat << EOF > rosa-key-policy.json
+{
+    "Version": "2012-10-17",
+    "Id": "key-rosa-policy-1",
+    "Statement": [
+        {
+            "Sid": "Enable IAM User Permissions",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::${AWS_ACCOUNT}:root"
+            },
+            "Action": "kms:*",
+            "Resource": "*"
+        },
+        {
+            "Sid": "Allow ROSA use of the key",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-HCP-ROSA-Support-Role",
+                    "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-HCP-ROSA-Installer-Role",
+                    "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-HCP-ROSA-Worker-Role",
+                    "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-openshift-cluster-csi-drivers-ebs-cloud-credentials",
+                    "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-kube-system-kms-provider"
+                ]
+            },
+            "Action": [
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:DescribeKey"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "Allow attachment of persistent resources",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-HCP-ROSA-Support-Role",
+                    "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-HCP-ROSA-Installer-Role",
+                    "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-HCP-ROSA-Worker-Role",
+                    "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-openshift-cluster-csi-drivers-ebs-cloud-credentials"
+                ]
+            },
+            "Action": [
+                "kms:CreateGrant",
+                "kms:ListGrants",
+                "kms:RevokeGrant"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "Bool": {
+                    "kms:GrantIsForAWSResource": "true"
+                }
+            }
+        }
+    ]
+}
+EOF
+----
+
+. Confirm the details of the policy file created by running the following command:
++
+[source,terminal]
+----
+$ cat rosa-key-policy.json
+----
+
+. Apply the newly generated key policy to the custom KMS key by running the following command:
++
+[source,terminal]
+----
+aws kms put-key-policy --key-id $KMS_ARN --policy file://rosa-key-policy.json --policy-name default
+----
++
+You can now create your cluster using this AWS KMS encryption key.
+
+// Module included in the following assemblies:
+//
+// * rosa_hcp/rosa-hcp-creating-cluster-with-fips-encryption.adoc
+
+[id="creating-cluster-with-fips-encryption_{context}"]
+= Creating a OpenShift Container Platform cluster using FIPS encryption
+
+[role="_abstract"]
+You can create a OpenShift Container Platform cluster with Federal Information Processing Standards (FIPS) encryption and a customer-provided KMS key for node root volumes, the etcd database, or both. A different KMS key ARN can be provided for each option.
+
+[NOTE]
+====
+OpenShift Container Platform does not automatically configure the `default` storage class to encrypt persistent volumes with the customer-provided KMS key. You can configure this in-cluster after installation.
+====
+
+// Module included in the following assemblies:
+//
+// * rosa_hcp/rosa-hcp-creating-cluster-with-fips-encryption.adoc
+
+[id="creating-cluster-with-fips-encryption-cli_{context}"]
+= Creating a OpenShift Container Platform cluster using FIPS encryption in the CLI
+
+[role="_abstract"]
+You can create a OpenShift Container Platform cluster with Federal Information Processing Standards (FIPS) encryption and a customer-provided KMS key using {rosa-cli-first}.
+
+.Procedure
+
+. Verify the KMS key has been created by running the following command:
++
+[source,terminal]
+----
+$ echo $KMS_ARN
+----
+
+. Confirm the details of the policy file created by running the following command:
++
+[source,terminal]
+----
+$ cat rosa-key-policy.json
+----
+
+. Create the cluster by running the following command:
++
+[NOTE]
+====
+If your cluster name is longer than 15 characters, it will contain an autogenerated domain prefix as a sub-domain for your provisioned cluster on `*.openshiftapps.com`.
+
+To customize the subdomain, use the `--domain-prefix` flag. The domain prefix cannot be longer than 15 characters, must be unique, and cannot be changed after cluster creation.
+====
++
+[source,terminal]
+----
+$ rosa create cluster \
+--cluster-name ${PREFIX}-test \
+--hosted-cp \
+--machine-cidr 10.0.0.0/16 \
+--oidc-config-id $OIDC_CONFIG \
+--mode auto \
+--region $AWS_REGION \
+--replicas 2 \
+--operator-roles-prefix $PREFIX \
+--installer-role-arn "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-HCP-ROSA-Installer-Role" \
+--support-role-arn "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-HCP-ROSA-Support-Role" \
+--worker-iam-role-arn "arn:aws:iam::${AWS_ACCOUNT}:role/${PREFIX}-HCP-ROSA-Worker-Role" \
+--subnet-ids <subnet-ids> \
+--etcd-encryption \
+--etcd-encryption-kms-arn $KMS_ARN \
+--fips
+----
++
+--
+where:
+
+`--subnet-ids`:: These subnet IDs should be at least one private subnet ID and public subnet ID.
+`--kms-key-arn`:: This KMS key ARN is used to encrypt all worker node root volumes. It is not required if only etcd database encryption is needed.
+`--etcd-encryption-kms-arn`:: This KMS key ARN is used to encrypt the etcd database. The etcd database is always encrypted by default with an AES cipher block, but can be encrypted instead with a KMS key. It is not required if only node root volume encryption is needed.
+--
+
+.Verification
+
+. Log in to your cluster as an admin user.
+. Set the node name as a variable by running the following command:
++
+[source,terminal]
+----
+$ NODE=$(oc get nodes --no-headers | awk '$2=="Ready"{print $1; exit}')
+----
+
+. Check your cluster's FIPS status by running the following command:
++
+[source,terminal]
+----
+$ oc debug node/${NODE} --to-namespace=default -- chroot /host bash -c 'set -x; \
+fips-mode-setup --check; \
+update-crypto-policies --show; \
+cat /etc/system-fips; \
+cat /proc/sys/crypto/fips_enabled; \
+sysctl crypto.fips_enabled'
+----
++
+.Example output
+[source,terminal]
+----
+Starting pod/ip-10-0-1-162us-east-2computeinternal-debug-86cnb ...
+To use host binaries, run `chroot /host`
++ fips-mode-setup --check
+FIPS mode is enabled.
++ update-crypto-policies --show
+FIPS
++ cat /etc/system-fips
+# FIPS module installation complete
++ cat /proc/sys/crypto/fips_enabled
+1
++ sysctl crypto.fips_enabled
+crypto.fips_enabled = 1
+
+Removing debug pod ...
+----
+
+// Module included in the following assemblies:
+//
+// * rosa_hcp/rosa-hcp-creating-cluster-with-fips-encryption.adoc
+
+[id="creating-cluster-with-fips-encryption-ui_{context}"]
+= Creating a OpenShift Container Platform cluster using FIPS encryption in {cluster-manager-first}
+
+[role="_abstract"]
+You can create a OpenShift Container Platform cluster with Federal Information Processing Standards (FIPS) encryption and a customer-provided KMS key in {cluster-manager-url}.
+
+[NOTE]
+====
+OpenShift Container Platform does not automatically configure the `default` storage class to encrypt persistent volumes with the customer-provided KMS key. You can configure this in-cluster after installation.
+====
+
+.Procedure
+
+. Log in to {cluster-manager-url}.
+. Configure your cluster until you reach the *Cluster settings* screen.
+. Select *Enable FIPS cryptography* if you require your cluster to be FIPS validated.
++
+[NOTE]
+====
+If *Enable FIPS cryptography* is selected, *Enable additional etcd encryption* is enabled by default and cannot be disabled. You can select *Enable additional etcd encryption* without selecting *Enable FIPS cryptography*.
+====
+
+. Supply your configured KMS Amazon Resource Number (ARN) in the *Key ARN* field.
+. Continue creating your FIPS-encrypted cluster.
+
+[role="_additional-resources"]
+[id="additional-resources_rosa-hcp-creating-cluster-with-fips-encryption"]
+== Additional resources
+
+* AWS CloudFormation
+* Default VPC AWS CloudFormation template
+* Troubleshooting OpenShift Container Platform cluster installations
+* Getting support for OpenShift Container Platform
+* Get Started with Amazon VPC
+* HashiCorp Terraform documentation
+* Subnet Auto Discovery
+* Creating a OpenShift Container Platform cluster using the CLI
+* About IAM resources for clusters that use STS
+* About custom Operator IAM role prefixes
+* AWS prerequisites for OpenShift Container Platform
+* Creating OpenID Connect (OIDC) identity providers
+* Getting support for OpenShift Container Platform
+* Troubleshooting OpenShift Container Platform cluster installations

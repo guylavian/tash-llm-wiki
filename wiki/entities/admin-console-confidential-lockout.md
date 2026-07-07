@@ -10,9 +10,11 @@ sources:
   - guide:server_administration_guide
 source_notes:
   - "[[doc-7138771]]"
-provenance: needs-review
+provenance_extracted: 5
+provenance_inferred: 1
+provenance_ambiguous: 0
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Admin console lockout after enabling Client Authentication on security-admin-console
@@ -40,7 +42,9 @@ UPDATE client SET public_client = true WHERE id='<CLIENT_ID>';
 DELETE FROM client_attributes WHERE client_id='<CLIENT_ID>' AND name='pkce.code.challenge.method';
 ```
 then restart RHBK to flush the in-memory cache. Test in a lower environment
-first; an air-gapped restart flushes the cache.
+first; an air-gapped restart flushes the cache. (inferred — the source says to
+test in a lower environment before applying in production; the air-gapped
+framing is added context, not stated in kb:7138771.)
 
 Applies to RHBK 26.x, master realm `security-admin-console` client.
 

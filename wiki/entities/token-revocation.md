@@ -10,8 +10,10 @@ provenance_extracted: 9
 provenance_inferred: 3
 provenance_ambiguous: 0
 tags: [tokens, security, endpoint]
+symptoms:
+  - "unsupported_token_type"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Token Revocation

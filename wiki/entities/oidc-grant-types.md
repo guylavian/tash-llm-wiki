@@ -9,10 +9,12 @@ sources:
   - kb:oidc-layers-
 source_notes:
   - "[[rhbk-26-6-oidc-layers]]"
-provenance: needs-review
+provenance_extracted: 11
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [clients]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # OIDC / OAuth2 Grant Types (flows)

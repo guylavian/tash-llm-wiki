@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-providers]]"
   - "[[rhbk-26-6-user-storage-spi]]"
-provenance: needs-review
+provenance_extracted: 14
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [spi, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # SPI provider/factory model & extension deployment
@@ -46,7 +48,7 @@ Normally use a unique `getId()`. To override a built-in (e.g. customize `OIDCLog
 
 ## Registering & building
 
-Providers are registered by copying the JAR (and any extra dependencies not already shipped) into the server's `providers/` directory. After adding/removing JARs, RHBK must be **re-built**: either run `kc.sh build` explicitly, or do a non-optimized start. This is the same build step that [[kc-bootstrap-admin]]-era operators run as an init container.
+Providers are registered by copying the JAR (and any extra dependencies not already shipped) into the server's `providers/` directory. After adding/removing JARs, RHBK must be **re-built**: either run `kc.sh build` explicitly, or do a non-optimized start. This is the same build step that [[kc-bootstrap-admin]]-era operators run as an init container (inferred — a cross-reference to the operator page's build model, not stated in this page's cited sources).
 
 Classloading caveats (RHBK 26.x):
 - Provider JARs are **not** isolated classloaders. Do not bundle resources/classes that collide with built-in ones (notably an `application.properties`, or an overriding `commons-lang3`) — this causes auto-build to fail when the provider JAR is later removed, and produces "split package" warnings at start.

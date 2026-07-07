@@ -17,7 +17,7 @@ provenance_inferred: 5
 provenance_ambiguous: 1
 tags: [tokens]
 status: reviewed
-updated: 2026-06-18
+updated: 2026-07-02
 ---
 
 # Logout ו-session lifecycle ב-RHBK 26 באתר Active-Passive — מה באמת מתבטל, ואיפה זה נשבר
@@ -161,7 +161,7 @@ NotBefore הוא **revocation policy ברמת realm או client** — timestamp 
 ### RH ground-truth (`kb:` / `guide:` / `ref:`)
 - **kb:managing-user-sessions** — Chapter 6. Managing user sessions, RHBK 26.4 Server Administration Guide (session revocation, notBefore, Sign out all active sessions → SAML does not receive back-channel logout)
 - **kb:mitigating-security-threats** — Chapter 16. Mitigating security threats, RHBK 26.4 Server Administration Guide (not-before revocation policy, push)
-- **kb:configuring-distributed-caches** — Chapter 10. Configuring distributed caches, RHBK 26.4 Server Configuration Guide (cache types: sessions/offlineSessions, volatile sessions, persistent-user-sessions + multi-site interaction)
+- **kb:caching** — Chapter 10. Configuring distributed caches, RHBK 26.4 Server Configuration Guide (cache types: sessions/offlineSessions, volatile sessions, persistent-user-sessions + multi-site interaction)
 - **kb:sso-protocols** — Chapter 10. SSO protocols, RHBK 26.4 Server Administration Guide (RP-Initiated Logout, logout endpoint)
 - **kb:managing-clients** — Chapter 13. Managing OpenID Connect and SAML Clients, RHBK 26.4 Server Administration Guide (logout settings: front-channel/back-channel, revocation, offline tokens)
 - **kb:multi-cluster-introduction** — Chapter 3. Multi-cluster deployments, RHBK 26.6 High Availability Guide (concepts, data durability, synchronous replication)
@@ -170,7 +170,7 @@ NotBefore הוא **revocation policy ברמת realm או client** — timestamp 
 - **ref:server-administration.md** — Server administration distillation (sessions, tokens, notBefore)
 - **ref:securing-apps-oidc-saml.md** — Securing apps distillation (logout, SAML SLO)
 
-### Wiki (`[[slug]]` pages)
+### Wiki pages
 - [[oidc-logout]] — OIDC logout endpoint & SAML SLO
 - [[tokens-and-sessions]] — session lifespans, refresh tokens, offline tokens
 - [[session-persistence-volatile]] — DB-backed vs volatile sessions

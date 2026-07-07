@@ -1,6 +1,6 @@
 ---
 name: wiki-lint
-description: Health-check the RHBK/Keycloak wiki/ — broken/wanted links, orphans, missing summary/sources/provenance, provenance drift, auto-seeded summaries, link hubs, and stale pages. Use after a batch ingest or before shipping wiki changes.
+description: Health-check the multi-domain wiki/ (all domains in wiki/_meta/taxonomy.md) — broken/wanted links, orphans, missing summary/sources/provenance, provenance drift, auto-seeded summaries, link hubs, and stale pages. Use after a batch ingest or before shipping wiki changes.
 ---
 
 # wiki-lint

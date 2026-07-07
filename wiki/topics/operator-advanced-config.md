@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-advanced-configuration]]"
   - "[[rhbk-26-6-basic-deployment]]"
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 0
+provenance_ambiguous: 1
 tags: [operator, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Operator advanced configuration
@@ -86,7 +88,8 @@ and it can confuse the `Auto` rolling-update probe. See [[operator-pod-template]
 `topologySpreadConstraints`, and `priorityClassName`. With no custom affinity, Pods
 default to **same-zone affinity** and **same-node anti-affinity** to improve
 availability and avoid high-latency cross-zone cache traffic. Import/update Jobs
-inherit scheduling from the CR (26.6). See [[operator-scheduling]].
+inherit scheduling from the CR (documented from 26.4, see Contradictions/caveats
+below on the version discrepancy). See [[operator-scheduling]].
 
 ## Resources
 
@@ -111,8 +114,10 @@ generated password. Once a master realm exists, `bootstrapAdmin` is ignored. See
 
 - `unsupported.podTemplate` is Tech Preview across 26.0–26.6.
 - Job scheduling inheritance (import/update Jobs honoring `scheduling`) is spelled
-  out from **26.6**; the default same-zone/anti-node affinity applies to server
-  Pods only, not Jobs.
+  out from **26.6** (ambiguous — the same text is already present in the
+  `rhbk-26-4-advanced-configuration` note and absent from 26.0/26.2, so **26.4** is
+  the more accurate first version, not 26.6); the default same-zone/anti-node
+  affinity applies to server Pods only, not Jobs.
 
 ## See also
 - [[operator-deployment]]

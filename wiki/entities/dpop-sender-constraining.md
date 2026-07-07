@@ -106,6 +106,7 @@ Concrete observable failures from the wrong implementations above:
 DPoP binds only HTTP method and URI — request body integrity depends on TLS (§11.7). DPoP cannot protect against an attacker who can run code inside the client's process and mint proofs in real time (§11.4). For highest-assurance flows (FAPI 2.0) see [[fapi2-security-profile]] and [[mtls-bound-tokens]] as alternatives or complements.
 
 ## See also
+- [[oidc-grant-types]] — grants that issue the tokens DPoP binds
 
 - [[dpop]]
 - [[mtls-bound-tokens]]

@@ -11,9 +11,11 @@ sources:
 source_notes:
   - "[[rhbk-26-2-deploy-keycloak-kubernetes]]"
   - "[[rhbk-26-6-multi-cluster-introduction]]"
-provenance: needs-review
+provenance_extracted: 7
+provenance_inferred: 2
+provenance_ambiguous: 0
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RHBK Database Connection Pool Sizing for HA
@@ -32,7 +34,8 @@ cache. So:
 - Keeping connections open lets PostgreSQL use **server-side prepared statements**
   (PostgreSQL promotes a statement after ~5 executions by default).
 - Because most RHBK requests are served from the **embedded cache** and never
-  touch the DB, even a modest pool can serve several hundred requests/s.
+  touch the DB, even a modest pool can serve several hundred requests/s (inferred
+  — a conclusion drawn from the sizing numbers above, not itself stated in the guide).
 
 On the `Keycloak` CR:
 ```yaml
@@ -52,7 +55,9 @@ spec:
 
 ## Related pitfalls
 - **XA off with Aurora:** set `transaction.xaEnabled: false` — the AWS Aurora JDBC
-  wrapper driver does not support XA transactions.
+  wrapper driver does not support XA transactions (inferred — not found in the
+  cited HA-guide chapters; this is general AWS JDBC wrapper driver knowledge, verify
+  against the exact HA guide chapter or the driver's own docs before relying on it).
 - Pool size interacts with thread-pool size (`http-pool-max-threads`) and Aurora
   IOPS budget when sessions are DB-backed ([[session-persistence-volatile]]).
 

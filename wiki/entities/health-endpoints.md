@@ -9,10 +9,12 @@ sources:
   - kb:health-
 source_notes:
   - "[[rhbk-26-6-health]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [observability]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Health endpoints and Kubernetes probes
@@ -45,7 +47,7 @@ Enabling health also turns on **async server bootstrap** by default (HTTP ports 
 - **HEALTHCHECK in Containerfile**: the image strips `curl`, so use BASH `/dev/tcp`:
   `{ printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000`
 
-In multi-site HA, `health/ready` is checked periodically to mark a Pod ready, and a separate `lb-check` endpoint on the load balancer confirms the cluster is up. See [[ha-cross-site]].
+In multi-site HA, `health/ready` is checked periodically to mark a Pod ready, and a separate `lb-check` endpoint on the load balancer confirms the cluster is up (inferred — cross-page synthesis with the multi-site health-checks material, not stated in this page's cited chapter). See [[ha-cross-site]].
 
 ## Contradictions / caveats
 

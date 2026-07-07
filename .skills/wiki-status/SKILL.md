@@ -1,6 +1,6 @@
 ---
 name: wiki-status
-description: Audit the RHBK/Keycloak wiki/ — the delta manifest (ingested-vs-pending sources, new/changed/gone, pending references), plus link hubs, orphans, and stale pages. Use to see what is left to ingest and the overall health of the wiki.
+description: Audit the multi-domain wiki/ (all domains in wiki/_meta/taxonomy.md) — the delta manifest (ingested-vs-pending sources, new/changed/gone, pending references), plus link hubs, orphans, and stale pages. Use to see what is left to ingest and the overall health of the wiki.
 ---
 
 # wiki-status

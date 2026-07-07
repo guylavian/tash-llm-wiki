@@ -22,10 +22,12 @@ sources:
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/hardcoded_group_identity_provider_mapper.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/hardcoded_role_identity_provider_mapper.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/user_template_importer_identity_provider_mapper.md (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 16
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [brokering, iac]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Identity providers & IdP mappers (brokering) (Terraform)
@@ -108,7 +110,9 @@ Pick by intent: **importer** (claim→user attribute), **attribute_to_role**
 gotcha: on **Keycloak 10+** most of these require `extra_config` to carry a
 `syncMode` value or the mapper won't behave.
 
-## RHBK / migration / air-gap notes
+## RHBK / migration / air-gap notes (inferred — general Terraform/RHBK migration
+knowledge, not covered by this page's cited sources, which document only IdP/mapper
+resource arguments; verify against [[terraform-keycloak-iac]] and the provider changelog.)
 - **Upstream, not Red Hat ground-truth.** These resources track OSS Keycloak.
   A brand-new RHBK feature (or a preview such as the **Kubernetes** and
   **SPIFFE** IdPs above) may lag in the provider or be gated behind a preview

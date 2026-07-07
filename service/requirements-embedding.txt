@@ -1,6 +1,0 @@
-# Stage-1 embedding target = core + numpy-flat store (ADR-4). Internal mirror only.
-#   pip install --no-index --index-url <INTERNAL_MIRROR> -r requirements-embedding.txt
--r requirements.txt
-numpy==2.5.0
-# sqlite-vec / faiss-cpu are an OPEN, deferred accelerator choice (spec OQ-1) — NOT pinned
-# until the internal-mirror availability is confirmed by the owner.

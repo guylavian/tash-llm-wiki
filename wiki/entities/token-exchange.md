@@ -9,10 +9,12 @@ sources:
   - kb:token-exchange-
 source_notes:
   - "[[rhbk-26-6-token-exchange]]"
-provenance: needs-review
+provenance_extracted: 14
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [tokens]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Token Exchange

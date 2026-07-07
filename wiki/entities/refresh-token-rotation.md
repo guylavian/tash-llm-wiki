@@ -12,8 +12,10 @@ provenance_extracted: 12
 provenance_inferred: 3
 provenance_ambiguous: 0
 tags: [tokens, security, concept]
+symptoms:
+  - "invalid_grant"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Refresh Token Rotation
@@ -34,7 +36,7 @@ Rotation semantics:
 6. **Session alignment.** The AS SHOULD tie refresh token lifetime to the user's authenticated session; a browser app's refresh token SHOULD NOT outlive a logout event (BBA §6.3.2.3). See [[oidc-logout]] and [[back-channel-logout]].
 7. **No rotation for client credentials.** A refresh token MUST NOT be issued for the client credentials grant at all — the service re-authenticates with its own credentials (OAuth 2.1 §3.2.3 / §4.2).
 
-Rotation is not a substitute for sender-constraining; DPoP or mTLS binding is the stronger mitigation when the client supports it (OAuth 2.1 §1.4.3; RFC 9700 §2.2.1). See [[dpop-sender-constraining]] and [[mtls-bound-tokens]].
+Rotation is not a substitute for sender-constraining; DPoP or mTLS binding is the stronger mitigation when the client supports it (OAuth 2.1 §1.4.3; RFC 9700 §2.2.1). See [[dpop]] and [[mtls-bound-tokens]].
 
 ## Anti-pattern
 
@@ -72,17 +74,18 @@ Concrete signals a wrong implementation produces:
 - Always use the latest issued refresh token; discard the previous one immediately after a successful exchange.
 - Handle `invalid_grant` gracefully: treat it as a hard session termination and redirect the user to re-authenticate rather than retrying.
 - Do not store refresh tokens in browser-accessible storage (localStorage / sessionStorage) — use HttpOnly cookies (BFF pattern) or in-memory only. See [[token-storage-browser]] and [[bff-token-handler]].
-- For SPAs that hold the refresh token client-side, consider DPoP binding as a complement to rotation (see [[dpop-sender-constraining]]).
+- For SPAs that hold the refresh token client-side, consider DPoP binding as a complement to rotation (see [[dpop]]).
 - Confidential clients (BFF): authenticate at every token-endpoint call so the AS can enforce client binding.
 
 **Limitation to be aware of (inferred from BBA §5.1.2.3 / §5.2.2.4):** rotation does not stop a determined attacker who can suppress the legitimate client from using the newest token (network isolation, clearing storage). DPoP similarly cannot protect a freshly minted access token if the attacker can bind it to their own key before the legitimate client does. Rotation raises the cost of token theft but does not eliminate it for browser clients.
 
 ## See also
+- [[securing-apps-oidc-saml]] — where rotation is configured per client in RHBK
 
 - [[tokens-and-sessions]]
 - [[token-storage-browser]]
 - [[bff-token-handler]]
-- [[dpop-sender-constraining]]
+- [[dpop]]
 - [[mtls-bound-tokens]]
 - [[dpop]]
 - [[oidc-logout]]

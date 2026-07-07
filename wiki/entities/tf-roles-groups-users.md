@@ -17,10 +17,12 @@ sources:
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/users_permissions.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/generic_client_role_mapper.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/generic_role_mapper.md (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 18
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [iac, users]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Roles, groups, users & role mappers (Terraform)
@@ -112,7 +114,7 @@ backing resources/scopes; `keycloak_users_permissions` must exist only once per 
 - **`base_path = "/auth"` — RH-SSO vs RHBK:** legacy RH-SSO 7.x (Wildfly) needs the
   `/auth` context path on the provider; RHBK (Quarkus) does **not** — omit
   `base_path`. This affects how the provider reaches the Admin REST API these
-  resources call, not the resource arguments themselves.
+  resources call, not the resource arguments themselves (inferred).
 - **Version-sensitive arguments:** `keycloak_group.organization_id` requires
   **Keycloak 26.6.0+**; the `*_permissions` resources require the
   `admin_fine_grained_authz` preview feature enabled on the server;

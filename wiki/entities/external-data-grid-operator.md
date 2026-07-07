@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-2-deploy-infinispan-kubernetes-crossdc]]"
   - "[[rhbk-26-2-deploy-keycloak-kubernetes]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 3
+provenance_ambiguous: 1
 tags: [ha, operator]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # External Data Grid (Cross-DC) with the Data Grid Operator
@@ -30,9 +32,12 @@ Operator** in each site (`Site-A`, `Site-B`). The two clusters form a Cross-DC
 ("cross-site") connection so cached data survives a whole-site failure.
 
 - **Minimum supported version: Data Grid 8.5.2** (or newer patch) for external
-  deployments.
+  deployments (ambiguous — the cited 26.2 chapter actually states **8.5.3**;
+  the 26.0 chapter states 8.5.2. See Contradictions/caveats).
 - Cross-site transport uses **JGroups over TLS**; 26.4/26.6 connect the two sites
-  via Data Grid's **Gossip Router**.
+  via Data Grid's **Gossip Router** (inferred — the cited 26.2 chapter configures
+  JGroups TLS keystores/routerKeyStore but does not name "Gossip Router" as such;
+  not verified against a 26.4/26.6 chapter).
 
 ## Deployment essentials (blueprint)
 1. Install the Data Grid Operator in **both** clusters.
@@ -59,7 +64,8 @@ The `multi-site` feature must also be enabled ([[multi-site-feature-flag]]).
 
 ## Operating it
 - **CLI automation** via a `Batch` CR runs Data Grid CLI commands declaratively
-  with `oc`.
+  with `oc` (inferred — the `Batch` CR is documented in the corpus's Infinispan
+  CLI Batch chapter, not one of this page's two cited chapters).
 - **Health** of the cache manager:
   `GET /rest/v2/cache-managers/default/health/status` (no credentials), or the
   full per-cache health with Data Grid credentials — see
@@ -67,11 +73,14 @@ The `multi-site` feature must also be enabled ([[multi-site-feature-flag]]).
 - Re-sync after split-brain: [[site-synchronization]].
 
 ## Contradictions / caveats
+- **Minimum Data Grid version drifts by RHBK release**: the 26.0 chapter states
+  8.5.2, the 26.2 chapter (this page's cited source) states 8.5.3. Confirm the
+  exact minimum against the guide matching your RHBK version rather than this page.
 - This is **external** Infinispan — distinct from the **embedded** caches a
   single-cluster deployment uses ([[distributed-caches]]). Embedded cannot span
   sites.
 - The blueprint is a **minimal functional example**, not a hardened config — add
-  your own security and performance tuning.
+  your own security and performance tuning (inferred).
 - Naming: 26.0/26.2 docs call the parent setup "multi-site"; 26.4/26.6 call it
   "multi-cluster". The Data Grid Cross-DC building block is the same.
 

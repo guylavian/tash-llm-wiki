@@ -12,8 +12,12 @@ provenance_extracted: 22
 provenance_inferred: 4
 provenance_ambiguous: 0
 tags: [clients, security, concept]
+symptoms:
+  - "invalid_grant"
+  - "invalid_request"
+  - "PKCE verification failed"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # PKCE (Proof Key for Code Exchange)
@@ -102,7 +106,7 @@ Concrete errors produced by each failure mode:
 - [[token-storage-browser]]
 - [[native-app-oauth]]
 - [[refresh-token-rotation]]
-- [[dpop-sender-constraining]]
+- [[dpop]]
 - [[bff-token-handler]]
 - [[oidc-client-best-practices]]
 - [[fapi-oauth21-profiles]]

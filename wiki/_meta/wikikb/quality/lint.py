@@ -200,6 +200,75 @@ def bold_definition(text):
     return re.sub(r"\s+", " ", m.group(1)).strip().rstrip(".")
 
 
+# ---- CITATION-GROUNDING gate: a cited source must actually CONTAIN the distinctive claim ----
+# The page-level provenance gate (page_gate_verdict) checks the provenance COUNTS; this checks the
+# provenance CONTENT — the gap that let a `reviewed` page cite a real note for an env var the note
+# never mentions (the SSO_HTTPS_CIPHER_SUITES fabrication). It flags distinctive, fabrication-prone
+# tokens — ENV/CONST identifiers and `--cli-flags` — that appear in the body but in NONE of the
+# page's offline-readable cited sources. Lexical, stdlib, conservative: skips `(inferred)`/
+# `(ambiguous)` lines (declared synthesis), crypto cipher-suite constants (domain vocab that varies in
+# punctuation), and pages whose only sources are `web:`/unresolved (can't verify offline).
+# ENV/CONST identifiers only (FOO_BAR_BAZ) — the high-precision, fabrication-prone shape. CLI flags
+# (`--x`) are deliberately NOT matched: too many are tooling/wikikb flags or markdown-anchor fragments.
+_DISTINCTIVE_RE = re.compile(r"\b[A-Z][A-Z0-9]{2,}(?:_[A-Z0-9]+)+\b")
+# A line is "grounded/declared" — and skipped — if it carries an inline provenance tag in any form:
+# (inferred) / (inferred: …) / (ambiguous …), or an inline source cite (web:/ref:/kb:/guide:/note:).
+_INFERRED_RE = re.compile(r"\((?:inferred|ambiguous)\b|\((?:web|ref|kb|guide|note):", re.I)
+_CIPHERish = ("AES", "SHA", "GCM", "CHACHA", "POLY", "ECDHE", "ECDSA", "_RSA", "CBC", "_TLS_")
+_domain_token_cache = {}
+
+
+def _strip_fm_body(text):
+    return FM_RE.sub("", text, count=1)
+
+
+def _is_distinctive_artifact(t):
+    """Skip crypto cipher-suite constants — domain vocab that varies in punctuation across sources."""
+    return any(c in t for c in _CIPHERish)
+
+
+def domain_corpus_tokens(domain):
+    """The set of distinctive tokens (env-vars/flags) that appear ANYWHERE in `reference/<domain>/`.
+    Empty for a notes-first / corpus-less domain (⇒ grounding is unverifiable, so we don't flag)."""
+    if domain in _domain_token_cache:
+        return _domain_token_cache[domain]
+    toks = set()
+    dd = os.path.join(WIKI, "reference", domain or "")
+    if os.path.isdir(dd):
+        for fn in os.listdir(dd):
+            if not fn.endswith(".md"):
+                continue
+            try:
+                body = open(os.path.join(dd, fn), encoding="utf-8", errors="replace").read()
+            except OSError:
+                continue
+            for m in _DISTINCTIVE_RE.finditer(body):
+                toks.add(m.group(0).lower())
+    _domain_token_cache[domain] = toks
+    return toks
+
+
+def ungrounded_citations(text, fm):
+    """Distinctive tokens asserted as fact in the body but absent from the page's ENTIRE domain
+    reference corpus — i.e. nowhere in the ground truth (the fabricated-citation smell). Skips
+    `(inferred)`/`(ambiguous)` lines (declared synthesis). [] when the domain has no corpus to
+    verify against (notes-first) — grounding is then the human's job, not a false accusation."""
+    corpus = domain_corpus_tokens(fm.get("domain"))
+    if not corpus:
+        return []
+    bad = []
+    for line in _strip_fm_body(text).splitlines():
+        if _INFERRED_RE.search(line):
+            continue
+        for m in _DISTINCTIVE_RE.finditer(line):
+            t = m.group(0)
+            if _is_distinctive_artifact(t):
+                continue
+            if t.lower() not in corpus and t not in bad:
+                bad.append(t)
+    return bad
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--strict", action="store_true")
@@ -308,6 +377,20 @@ def main():
                     warnings.append(f"{rel}: provenance drifts inferred>=extracted ({inf}>={ext}) — verify vs raw layer")
             elif isinstance(prov, str) and prov in ("needs-review", "unknown") and not reviewed:
                 warnings.append(f"{rel}: provenance: {prov} (assign real per-claim provenance)")
+
+        # CITATION-GROUNDING gate — distinctive claims absent from every cited source. A `reviewed`
+        # page asserting an ungrounded env var / CLI flag is a fabricated/misattributed citation: a
+        # hard ERROR (the SSO_HTTPS_CIPHER_SUITES class). Draft pages get a WARNING to verify.
+        if fm.get("type") in ("topic", "entity", "question"):
+            ungrounded = ungrounded_citations(text, fm)
+            if ungrounded:
+                shown = ", ".join(ungrounded[:6]) + ("…" if len(ungrounded) > 6 else "")
+                msg = (f"{rel}: citation grounding — {len(ungrounded)} distinctive token(s) in no cited "
+                       f"source ({shown}) — possible fabricated/misattributed citation")
+                if reviewed:
+                    errors.append(msg)
+                else:
+                    warnings.append(msg + "; verify or tag (inferred)")
 
         # tag checks (Pass 2 — validated against _meta/taxonomy.md)
         if tagmod is not None:

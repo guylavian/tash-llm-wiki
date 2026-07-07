@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-migrating-server]]"
   - "[[rhbk-26-6-migrating-operator]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [migration, server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RHBK database schema auto-migration
@@ -54,7 +56,9 @@ kc.sh start --spi-connections-jpa-quarkus-migration-export=<path>/<file.sql>
   default `recreate` upgrade strategy — see [[operator-cr-migration]].
 - Migrating the **embedded database** managed by the RH-SSO 7.6 Operator is **not
   supported**; convert it to an external user-provisioned database first.
-- Always back up the database before migrating; auto-migration is one-way.
+- Always back up the database before migrating; auto-migration is one-way (inferred —
+  the migration checklist lists "Database backup was created" as a precondition, but
+  the cited notes don't state the one-way/no-rollback characterization explicitly).
 
 ## See also
 - [[server-config-migration]]

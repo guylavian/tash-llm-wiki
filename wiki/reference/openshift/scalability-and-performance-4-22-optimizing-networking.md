@@ -1,0 +1,120 @@
+---
+title: "Optimizing networking"
+type: reference
+domain: openshift
+slug: scalability-and-performance-4-22-optimizing-networking
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/scalability_and_performance/optimizing-networking
+version: 4.22
+family: scalability_and_performance
+documentKind: "Documentation"
+---
+
+# Optimizing networking
+
+[id="optimizing-networking"]
+= Optimizing networking
+
+[role="_abstract"]
+To tunnel traffic between nodes, use Generic Network Virtualization Encapsulation (Geneve). You can tune the network by using network interface controller (NIC) offloads.
+
+Geneve provides benefits over VLANs, such as an increase in networks from 4096 to over 16 million, and layer 2 connectivity across physical networks. This allows for all pods behind a service to communicate with each other, even if they are running on different systems.
+
+Cloud, virtual, and bare-metal environments running OpenShift Container Platform can use a high percentage of the capabilities of a network interface card (NIC) with minimal tuning. Production clusters using OVN-Kubernetes with Geneve tunneling can handle high-throughput traffic effectively and scale up (for example, utilizing 100 Gbps NICs) and scale out (for example, adding more NICs) without requiring special configuration.
+
+In some high-performance scenarios where maximum efficiency is critical, targeted performance tuning can help optimize CPU usage, reduce overhead, and ensure that you are making full use of the NIC's capabilities.
+
+For environments where maximum throughput and CPU efficiency are critical, you can further optimize performance with the following strategies:
+
+* Validate network performance by using tools such as `iPerf3` and `k8s-netperf`. By using these tools, you can benchmark throughput, latency, and packets-per-second (PPS) across pod and node interfaces.
+
+* Evaluate OVN-Kubernetes User Defined Networking (UDN) routing techniques, such as border gateway protocol (BGP).
+
+* Use Geneve-offload capable network adapters. Geneve-offload moves the packet checksum calculation and associated CPU overhead off of the system CPU and onto dedicated hardware on the network adapter. This frees up CPU cycles for use by pods and applications, so that users can use the full bandwidth of their network infrastructure.
+
+[role="_additional-resources"]
+[id="additional-resources_{context}"]
+== Additional resources
+
+* OVN-Kubernetes
+
+// Optimizing the MTU for your network
+// Module included in the following assemblies:
+//
+// * scalability_and_performance/optimization/optimizing-networking.adoc
+
+[id="optimizing-mtu_{context}"]
+= Optimizing the MTU for your network
+
+[role="_abstract"]
+You can optimize the MTU value of your network so that your network is optimized for throughput or low latency.
+
+There are two important maximum transmission units (MTUs): the network interface controller (NIC) MTU and the cluster network MTU.
+
+The NIC MTU is configured at the time of OpenShift Container Platform installation, and you can also change the MTU of a cluster as a postinstallation task. For more information, see "Changing cluster network MTU".
+
+For a cluster that uses the OVN-Kubernetes plugin, the MTU must be at least `100` bytes less than the maximum supported value of the NIC of your network. If you are optimizing for throughput, choose the largest possible value, such as `8900`. If you are optimizing for lowest latency, choose a lower value.
+
+[IMPORTANT]
+====
+If your cluster uses the OVN-Kubernetes plugin and the network uses a NIC to send and receive unfragmented jumbo frame packets over the network, you must specify `9000` bytes as the MTU value for the NIC so that pods do not fail.
+====
+
+[role="_additional-resources"]
+.Additional resources
+
+* Changing cluster network MTU
+
+// Recommended practices for installing large scale clusters
+// Module included in the following assemblies:
+//
+// * scalability_and_performance/recommended-install-practices.adoc
+
+[id="recommended-install-practices_{context}"]
+= Recommended practices for installing large-scale clusters
+
+[role="_abstract"]
+When installing large clusters or scaling the cluster to larger node counts, set the cluster network `cidr` accordingly in your `install-config.yaml` file before you install the cluster.
+
+.Example `install-config.yaml` file with a network configuration for a cluster with a large node count
+[source,yaml]
+----
+apiVersion: v1
+metadata:
+  name: cluster-name
+# ...
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: 10.0.0.0/16
+  networkType: OVNKubernetes
+  serviceNetwork:
+  - 172.30.0.0/16
+# ...
+----
+** The default cluster network `cidr` `10.128.0.0/14` cannot be used if the cluster size is more than 500 nodes. The `cidr` must be set to `10.128.0.0/12` or `10.128.0.0/10` to support larger node counts beyond 500 nodes.
+
+// Impact of IPsec
+// Module included in the following assemblies:
+//
+// * scalability_and_performance/optimization/optimizing-networking.adoc
+
+[id="ipsec-impact_{context}"]
+= Impact of IPsec
+
+[role="_abstract"]
+Encrypting and decrypting node hosts uses CPU power so performance is affected both in throughput and CPU usage on the nodes when encryption is enabled, regardless of the IP security system being used. To account for performance overhead, review the impact of enabling IPsec.
+
+IPSec encrypts traffic at the IP payload level, before it hits the NIC, protecting fields that would otherwise be used for NIC offloading. This means that some NIC acceleration features might not be usable when IPSec is enabled. This situation leads to decreased throughput and increased CPU usage.
+
+[role="_additional-resources"]
+[id="optimizing-networking-additional-resources"]
+== Additional resources
+
+* Specifying advanced network configuration
+
+* Cluster Network Operator configuration
+
+* Improving cluster stability in high latency environments using worker latency profiles

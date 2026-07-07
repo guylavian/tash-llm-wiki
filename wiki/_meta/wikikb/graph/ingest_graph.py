@@ -61,7 +61,7 @@ def extract_node(state):
     tok = state.get("current")
     messages = [{"role": "system", "content": "Summarize the source into durable, cited wiki facts."},
                 {"role": "user", "content": "Source token: %s" % tok}]
-    resp = llm.complete(messages)
+    resp = llm.complete_routed(messages, tier="cheap")   # extract is the cheap leaf -> small model
     text = llm.text_of(resp) if resp is not None else None
     drafts = dict(state.get("drafts", {}))
     drafts[tok] = {"source": tok, "mode": "llm" if text else "extractive",

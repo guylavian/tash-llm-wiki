@@ -13,10 +13,12 @@ source_notes:
   - "[[rhbk-26-6-overview-2]]"
   - "[[rhbk-26-6-service-overview]]"
   - "[[rhbk-26-6-resource-server-overview]]"
-provenance: needs-review
+provenance_extracted: 12
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [authz, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Fine-grained authorization (Authorization Services)
@@ -50,7 +52,7 @@ Creating a resource server seeds: a **default resource** (`Type urn:my-resource-
 A resource server's full config (resources+scopes, policies, permissions) can be exported as JSON from the client **Export** tab and re-imported, useful for seeding or updating environments.
 
 ## Standards basis
-Built on OAuth2 and **User-Managed Access (UMA) 2.0**. RHBK extends OAuth2 so access tokens (the [[requesting-party-token|RPT]]) are issued after evaluating policies; UMA adds person-to-person/person-to-organization sharing via [[permission-ticket|permission tickets]]. Authorization decisions ride on tokens, so this composes with [[tokens-and-sessions]] and [[oidc-token-validation]].
+Built on OAuth2 and **User-Managed Access (UMA) 2.0**. RHBK extends OAuth2 so access tokens (the [[requesting-party-token|RPT]]) are issued after evaluating policies; UMA adds person-to-person/person-to-organization sharing via [[permission-ticket|permission tickets]]. Authorization decisions ride on tokens, so this composes with [[tokens-and-sessions]] and [[oidc-token-validation]] (inferred).
 
 ## Contradictions / caveats
 - The guide's chapter bodies are essentially stable across RHBK **26.0, 26.2, 26.4, 26.6** (`--primary` resolves to 26.6; bodies shown are identical to 26.0). No behavioral divergence is documented between these minors for the core resource/policy/permission model.

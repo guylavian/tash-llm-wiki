@@ -17,7 +17,7 @@ provenance:
   inferred: 1
 tags: [migration]
 status: draft
-updated: 2026-06-23
+updated: 2026-07-02
 ---
 
 # RHSSO / RHBK connection problems with OpenShift 3
@@ -170,7 +170,7 @@ Note: OpenShift 3 as an IdP in RHSSO was **developer preview / technology previe
 | `ref:rhsso-7-6-performing-advanced-procedures.md` | RH-SSO 7.6 Performing Advanced Procedures — template deployment, admin account creation, TEMPLATE parameter mapping |
 | `ref:rhsso-7-6-introduction-to-red-hat-single-sign-on-for-openshift.md` | RH-SSO 7.6 Introduction — TLS termination modes, OCP 3 vs 4 template differences |
 
-### Wiki pages (`[[slug]]`)
+### Wiki pages
 
 | Page | Notes |
 |---|---|

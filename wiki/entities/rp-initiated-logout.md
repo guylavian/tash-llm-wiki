@@ -10,8 +10,11 @@ provenance_extracted: 9
 provenance_inferred: 3
 provenance_ambiguous: 0
 tags: [security, endpoint]
+symptoms:
+  - "end session endpoint not found"
+  - "405"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # RP-Initiated Logout

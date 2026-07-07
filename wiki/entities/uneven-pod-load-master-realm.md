@@ -10,9 +10,11 @@ sources:
   - guide:high_availability_guide
 source_notes:
   - "[[doc-7142577]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 0
+provenance_ambiguous: 0
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Uneven pod load / LOGIN_ERROR flood behind Kong/NGINX ingress

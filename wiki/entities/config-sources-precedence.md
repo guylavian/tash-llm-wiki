@@ -6,10 +6,12 @@ slug: config-sources-precedence
 summary: "RHBK reads options from four sources; when the same option is set in more than one, the highest-priority source wins."
 sources:
   - guide:server_configuration_guide
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Configuration sources and precedence
@@ -33,7 +35,9 @@ Related formatting facts:
 - The KeyStore source is the recommended place for **sensitive** runtime options (e.g. `db-password`). Type defaults to `PKCS12`; secrets use the `PBE` algorithm.
 
 ## Contradictions / caveats
-- This 4-source model and ordering is consistent across RHBK 26.0–26.6 (quoted here from 26.4).
+- This 4-source model and ordering is consistent across RHBK 26.0–26.6 (quoted here from
+  26.4; only the 26.4 note was checked directly, so 26.0/26.2/26.6 consistency is
+  inferred).
 - Build options must **not** be stored in the KeyStore — they are persisted in plain text into the image. See [[build-vs-runtime-options]].
 
 ## See also

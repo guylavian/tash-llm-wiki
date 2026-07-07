@@ -9,10 +9,12 @@ sources:
   - kb:operator_guide/rolling-updates-
 source_notes:
   - "[[rhbk-26-6-rolling-updates]]"
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [operator]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Operator rolling updates (`spec.update`)

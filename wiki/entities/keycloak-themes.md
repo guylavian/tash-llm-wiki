@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-2-themes]]"
   - "[[rhbk-26-2-theme-react]]"
-provenance: needs-review
+provenance_extracted: 13
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [spi]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Themes & theme SPI
@@ -60,7 +62,7 @@ Re-enable in production (caching significantly affects performance). To purge th
 
 - The React-based Admin/Account console theming (Theme Resource SPI for React templates) is documented in the **Themes based on React** chapter and evolves between releases; the classic Freemarker theming model above is stable across RHBK 26.0–26.6.
 - The bundled-themes JAR version string tracks the RHBK release (e.g. `26.2.15.redhat-00001`).
-- Overriding HTML templates can break on upgrade — re-check overridden templates after each RHBK upgrade.
+- Overriding HTML templates can break on upgrade — re-check overridden templates after each RHBK upgrade (inferred general upgrade-hygiene advice, not a specific doc claim).
 
 ## See also
 - [[spi-provider-model]]

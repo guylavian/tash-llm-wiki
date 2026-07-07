@@ -9,10 +9,12 @@ sources:
   - kb:admin_cli
 source_notes:
   - "[[rhbk-26-4-admin-cli]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [users]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Roles and groups
@@ -48,8 +50,8 @@ using `--gname Group` (or `--gid`):
 kcadm.sh add-roles -r demorealm --gname Group --cclientid realm-management --rolename create-client --rolename view-users
 ```
 Users inherit the group's role assignments. Admin permissions over realm resources are
-themselves expressed as client roles of the `realm-management` client — see
-[[realm-resource-access]].
+themselves expressed as client roles of the `realm-management` client (inferred
+cross-reference to a separate chapter) — see [[realm-resource-access]].
 
 ## Contradictions / caveats
 - Bodies sourced are RHBK **26.0**; the role/group CLI surface (`get-roles`,

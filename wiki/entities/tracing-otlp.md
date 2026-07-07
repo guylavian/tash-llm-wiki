@@ -9,10 +9,12 @@ sources:
   - kb:tracing-
 source_notes:
   - "[[rhbk-26-6-tracing]]"
-provenance: needs-review
+provenance_extracted: 15
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [observability]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Distributed tracing (OTLP exporter and sampling)

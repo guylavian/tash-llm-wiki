@@ -11,8 +11,14 @@ provenance_extracted: 18
 provenance_inferred: 4
 provenance_ambiguous: 0
 tags: [security, profile]
+symptoms:
+  - "invalid_request"
+  - "invalid_grant"
+  - "invalid_client"
+  - "use_dpop_nonce"
+  - "invalid_token"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # FAPI 2.0 Security Profile
@@ -137,9 +143,10 @@ The profile explicitly models five attacker classes and states which controls de
 Out of scope: TLS breakage, compromised device/browser, weak RNG, implementation bugs, phishing.
 
 ## See also
+- [[token-introspection]] — FAPI RS validation via introspection; `cnf` carries the bound-token thumbprint
 
 - [[fapi-oauth21-profiles]]
-- [[dpop-sender-constraining]]
+- [[dpop]]
 - [[mtls-bound-tokens]]
 - [[pkce]]
 - [[bff-token-handler]]

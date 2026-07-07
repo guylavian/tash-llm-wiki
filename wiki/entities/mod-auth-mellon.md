@@ -6,10 +6,12 @@ slug: mod-auth-mellon
 summary: "`mod_auth_mellon` is an Apache HTTP Server module that turns httpd into a SAML 2.0 Service Provider, letting RHBK/Keycloak secure any application sitting behind that web server without embedding a Keycloak adapter in the app itself"
 sources:
   - guide:securing_applications_and_services_guide
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [brokering]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # mod_auth_mellon (Apache SAML SP module)
@@ -43,9 +45,10 @@ as request environment variables / headers.
 
 - This integration path is documented primarily in the **RH-SSO 7.x** Securing
   Applications and Services Guide; the WildFly/EAP SAML Galleon feature pack is the
-  in-app alternative. RHBK 26.x drops the bundled Java adapters (see
-  [[adapter-migration]]), which makes proxy-level SP options like `mod_auth_mellon`
-  more relevant for legacy apps.
+  in-app alternative. RHBK 26.x drops the bundled Java adapters (inferred — this
+  page's cited sources describe the Galleon pack but not the adapter-removal
+  history; see [[adapter-migration]]), which makes proxy-level SP options like
+  `mod_auth_mellon` more relevant for legacy apps.
 - **Token exchange does not support SAML clients/IdPs** — a SAML SP cannot
   participate in the OAuth2 token-exchange flow (see [[token-exchange]]).
 - `mod_auth_mellon` is a third-party Apache module, not shipped or supported as part

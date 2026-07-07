@@ -7,10 +7,12 @@ summary: "Running RHBK across multiple clusters/sites for resilience, using exte
 sources:
   - guide:high_availability_guide
   - ref:high-availability.md
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 1
 tags: [ha, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # High Availability & Cross-Site (Multi-Cluster) Deployments
@@ -28,7 +30,7 @@ The HA Guide splits into **single-cluster** and **multi-cluster** chapters:
 - **Multi-cluster (cross-site)** — an **Active/Passive** topology across two
   sites. Each site runs RHBK + an **external Infinispan/Data Grid** cluster; the
   two Data Grid clusters form a **cross-site** connection so user sessions
-  replicate. A load balancer handles failover between sites.
+  replicate. A load balancer handles failover between sites (inferred — the guide describes `/lb-check` probing and fencing automation as separate building blocks; this is a one-line synthesis of those).
 
 Operational gates (from the guide's `oc wait` steps):
 ```sh
@@ -46,6 +48,9 @@ fencing Lambda), [[multi-site-feature-flag]] (`/lb-check`), and
 decision and sizing, see [[rhbk-ha-architectures]].
 
 ## Contradictions / caveats
+- **Version-number discrepancy**: the External Data Grid minimum patch is tagged
+  `8.5.2+` above but the cited source (`references/high-availability.md`) says
+  **8.5.3+**; treat 8.5.3 as the source of record until confirmed otherwise.
 - **Active/Passive only** — Active/Active is not the documented supported model;
   confirm supported vs. preview in `ref:rhbk-platform-support.md` for the target
   RHBK version before committing.
@@ -56,7 +61,7 @@ decision and sizing, see [[rhbk-ha-architectures]].
   (synchronous Data Grid replication as the core building block); 26.4/26.6 rename
   the chapter to "**multi-cluster**" deployments (connecting independent clusters,
   embedded Infinispan + external Data Grid Cross-DC). The Active/Passive, two-site,
-  consistency-first model is unchanged. External Data Grid requires **8.5.2+**.
+  consistency-first model is unchanged. External Data Grid requires **8.5.2+** (ambiguous — `references/high-availability.md` states **8.5.3+**; verify against the target RHBK version's HA guide before relying on the exact patch floor).
 - **Two sites only** — more than two sites is explicitly unsupported (latency and
   failure probability amplify). Some failure/switchover scenarios incur up to
   5 min downtime and may require manual re-sync.

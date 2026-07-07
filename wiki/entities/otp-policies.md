@@ -9,10 +9,12 @@ sources:
   - kb:configuring-authentication_server_administration_guide
 source_notes:
   - "[[rhbk-26-4-configuring-authentication-server-administration-guide]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [authn]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # OTP policies (TOTP / HOTP)
@@ -45,13 +47,15 @@ HOTP-only:
 - **Initial counter** — starting counter value.
 
 OTP is wired into login via the Conditional OTP sub-flow in [[authentication-flows]];
-it only prompts when the user has an OTP credential configured.
+it only prompts when the user has an OTP credential configured (inferred — synthesized
+from the authentication-flows material, not stated in this OTP policy chapter itself).
 
 ## Contradictions / caveats
 - Bodies sourced are RHBK **26.0**; OTP policy options are consistent in 26.2/26.4
   primary results.
 - The default hash algorithm `SHA1` is for compatibility; prefer `SHA256`/`SHA512`
-  for new realms (see [[security-hardening-checklist]]).
+  for new realms (inferred recommendation — the guide lists SHA256/SHA512 as "more
+  secure" but does not itself prescribe them; see [[security-hardening-checklist]]).
 
 ## See also
 - [[authentication-flows]]

@@ -9,10 +9,12 @@ sources:
   - kb:authorization_services_guide/policy_evaluation_overview
 source_notes:
   - "[[rhbk-26-6-policy-evaluation-overview]]"
-provenance: needs-review
+provenance_extracted: 4
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [authz]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Policy evaluation tool
@@ -28,7 +30,7 @@ Click **Evaluate** to see the resulting decision per the configured [[decision-s
 
 ## Contradictions / caveats
 - Stable across RHBK **26.0–26.6**.
-- It simulates the PDP only; it does not exercise the live [[policy-enforcer]] / network path, so adapter- or token-context-specific behavior still needs an end-to-end test.
+- It simulates the PDP only; it does not exercise the live [[policy-enforcer]] / network path, so adapter- or token-context-specific behavior still needs an end-to-end test (inferred — this limitation is not stated in the source chapter, it follows from what the tool is described as doing).
 
 ## See also
 - [[authorization-policy-types]]

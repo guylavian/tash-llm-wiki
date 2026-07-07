@@ -10,10 +10,12 @@ sources:
   - guide:server_administration_guide
 source_notes:
   - "[[doc-7128299]]"
-provenance: needs-review
+provenance_extracted: 5
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [brokering]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Intermittent AD identity-provider link loss (account-merge prompts)
@@ -40,7 +42,9 @@ Applies to RHBK 26.x with an Active Directory identity provider / federated link
 ## Contradictions / caveats
 Distinguish from LDAP *user federation* UUID config: this is about the
 **brokering** (IdP) mapper's username template, not the LDAP provider's UUID
-attribute. See [[ldap-user-federation]] for the federation side.
+attribute. See [[ldap-user-federation]] for the federation side. (inferred —
+this distinction is not made in the cited kb:7128299 source; it is added here
+to prevent confusion with the separate LDAP federation UUID setting.)
 
 ## See also
 - [[ldap-user-federation]]

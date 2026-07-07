@@ -10,10 +10,12 @@ sources:
   - guide:server_configuration_guide
 source_notes:
   - "[[doc-7142778]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [ha]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Oracle JDBC failover broken over TCPS at RHBK startup
@@ -40,7 +42,7 @@ before DB authentication.
 startup logs (that is the affected version), drop in the corrected JAR in the
 providers directory, and restart.
 
-Air-gap: stage the corrected driver JAR in your internal mirror before deploying.
+Air-gap: stage the corrected driver JAR in your internal mirror before deploying (inferred).
 
 Applies to RHBK 26.0.x / 26.2.x / 26.4.x with Oracle (JDBC thin, TCPS/TLS).
 

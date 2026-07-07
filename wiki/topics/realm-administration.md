@@ -9,10 +9,12 @@ sources:
   - kb:configuring-realms
 source_notes:
   - "[[rhbk-26-4-configuring-realms]]"
-provenance: needs-review
+provenance_extracted: 11
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [realm, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Realm administration

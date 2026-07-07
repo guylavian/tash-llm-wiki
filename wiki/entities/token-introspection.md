@@ -10,8 +10,13 @@ provenance_extracted: 14
 provenance_inferred: 3
 provenance_ambiguous: 0
 tags: [tokens, security, endpoint]
+symptoms:
+  - "\"active\": false"
+  - "invalid_token"
+  - "400 Bad Request"
+  - "415 Unsupported Media Type"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Token Introspection
@@ -85,7 +90,7 @@ For confidential back-end services calling each other, introspection integrates 
 - [[jwt-validation-pitfalls]] — `typ: at+jwt` confusion and why signature validity alone is not sufficient
 - [[client-authentication-methods]] — how the resource server authenticates to the introspection endpoint
 - [[mtls-bound-tokens]] — sender-constraining that supplements introspection for proof-of-possession
-- [[dpop-sender-constraining]] — DPoP as an alternative sender-constraint mechanism
+- [[dpop]] — DPoP as an alternative sender-constraint mechanism
 - [[oidc-endpoints]] — where the introspection endpoint appears in discovery metadata
 - [[authorization-server-metadata-discovery]] — `introspection_endpoint` field in AS metadata
 - [[back-channel-logout]] — back-channel logout drives revocations that introspection must reflect

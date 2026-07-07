@@ -1,0 +1,81 @@
+---
+title: "Removing an additional network"
+type: reference
+domain: openshift
+slug: networking-4-22-removing-additional-network
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/networking/removing-additional-network
+version: 4.22
+family: networking
+documentKind: "Documentation"
+---
+
+# Removing an additional network
+
+[id="remove-additional-network"]
+= Removing an additional network
+
+[role="_abstract"]
+To clean up unused network configurations or free up network resources in OpenShift Container Platform, you can remove an additional network attachment. Delete the `NetworkAttachmentDefinition` custom resource to remove the secondary network from your cluster.
+
+// Module included in the following assemblies:
+//
+// * networking/multiple_networks/remove-additional-network.adoc
+
+[id="nw-multus-delete-network_{context}"]
+= Removing a secondary NetworkAttachmentDefinition custom resource
+
+[role="_abstract"]
+To clean up unused network configurations or free up network resources in OpenShift Container Platform, you can remove a secondary `NetworkAttachmentDefinition` CR. Edit the Cluster Network Operator CR and delete the `NetworkAttachmentDefinition` CR to remove the secondary network from your cluster.
+
+When a secondary network is removed from the cluster, it is not removed from any pods that it is attached to.
+
+.Prerequisites
+
+* Install the OpenShift CLI (`oc`).
+* Log in as a user with `cluster-admin` privileges.
+
+.Procedure
+
+. Edit the Cluster Network Operator (CNO) in your default text editor by running the following command:
++
+[source,terminal]
+----
+$ oc edit networks.operator.openshift.io cluster
+----
+
+. Modify the custom resource (CR) by removing the configuration that the CNO created from the `additionalNetworks` collection for the secondary network that you want to remove.
++
+[source,yaml]
+----
+apiVersion: operator.openshift.io/v1
+kind: Network
+metadata:
+  name: cluster
+spec:
+  additionalNetworks: []
+----
++
+--
+where:
+
+`spec.additionalNetworks`:: Specifies the secondary network attachment definition that you want to remove from the `additionalNetworks` collection. If you are removing the configuration mapping for the only secondary network attachment definition in the `additionalNetworks` collection, you must specify an empty collection.
+--
+
+. Remove the `NetworkAttachmentDefinition` CR from the network of your cluster by entering the following command:
++
+[source,terminal]
+----
+$ oc delete net-attach-def <name_of_network_attachment_definition>
+----
++
+Replace `<name_of_network_attachment_definition>` with the name of the `NetworkAttachmentDefinition` CR that you want to remove.
+
+. Save your changes and quit the text editor to commit your changes.
+
+. Optional: Confirm that the secondary network CR was deleted by running the following command:
++
+[source,terminal]
+----
+$ oc get network-attachment-definition --all-namespaces
+----

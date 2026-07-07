@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-2-operate-synchronize]]"
   - "[[rhbk-26-2-concepts-multi-site]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [ha]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Cross-Site Synchronization & Split-Brain Recovery
@@ -58,7 +60,8 @@ loss" guarantee does not hold for a subsequent failure.
   the cache set for your version before clearing.
 - Taking a site offline / online in the LB is a related but separate operation
   (the AWS Lambda automates the fencing decision; manual `operate-site-offline` /
-  `operate-site-online` chapters cover doing it by hand).
+  `operate-site-online` chapters cover doing it by hand) (inferred — drawn from the
+  load-balancer-failover material, not this chapter's cited sources).
 - Wording shifted "multi-site" (26.0/26.2) → "multi-cluster" (26.4/26.6); the CLI
   steps are stable.
 

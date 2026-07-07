@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-client-registration]]"
   - "[[rhbk-26-6-oidc-layers]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [clients]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Client Registration Service
@@ -35,7 +37,8 @@ Initial Access Tokens and Registration Access Tokens.**
 - **Initial Access Token** — issued by an admin (Admin Console → Clients →
   Initial Access Token tab). Lets an otherwise-unprivileged caller create new
   clients. Without realm-management roles and without an Initial Access Token,
-  registration attempts get `403 Forbidden`.
+  registration attempts get `403 Forbidden` (inferred — the exact status code isn't
+  stated in the cited chapters; it follows from the described permission model).
 - **Registration Access Token** — returned when a client is created; lets the
   caller later read/update/delete *that one* client's configuration without admin
   rights.

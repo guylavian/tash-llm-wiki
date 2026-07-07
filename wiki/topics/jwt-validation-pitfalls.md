@@ -13,8 +13,11 @@ provenance_extracted: 28
 provenance_inferred: 5
 provenance_ambiguous: 0
 tags: [tokens, security, anti-pattern]
+symptoms:
+  - "alg:none"
+  - "invalid_token"
 status: reviewed
-updated: 2026-06-18
+updated: 2026-07-02
 ---
 
 # JWT Validation Pitfalls
@@ -142,7 +145,7 @@ A downstream service acting as a resource server has the same full validation ob
 - [[token-introspection]]
 - [[state-and-nonce]]
 - [[bff-token-handler]]
-- [[dpop-sender-constraining]]
+- [[dpop]]
 - [[mtls-bound-tokens]]
 - [[service-to-service-client-credentials]]
 - [[bearer-token-usage]]

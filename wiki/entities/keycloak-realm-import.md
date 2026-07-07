@@ -9,10 +9,12 @@ sources:
   - kb:operator_guide/realm-import-
 source_notes:
   - "[[rhbk-26-6-realm-import]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [operator]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # KeycloakRealmImport CR
@@ -73,7 +75,7 @@ Only Secrets are supported. Placeholder replacement exposes **all** env vars
 
 - The "delete the CR after import to clean up the Job/Pod" guidance is called out
   explicitly from **26.6**; behavior (create-only) is consistent across 26.0–26.6.
-- Anyone able to create/edit `KeycloakRealmImport` CRs should be a namespace admin.
+- Anyone able to create/edit `KeycloakRealmImport` CRs should be a namespace admin (inferred — follows from the placeholder-privilege note above, not stated directly).
 
 ## See also
 - [[keycloak-cr]]

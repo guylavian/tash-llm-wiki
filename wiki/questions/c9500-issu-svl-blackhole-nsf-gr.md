@@ -7,14 +7,29 @@ summary: "On a Catalyst 9500 StackWise Virtual pair, ISSU caused ~90-second traf
 sources:
   - note:_sources/cisco-ios-xe/ospf-routing.md
   - note:_sources/cisco-ios-xe/bgp-routing.md
-provenance_extracted: 0
-provenance_inferred: 1
+  - kb:cisco-bgp-configuring-a-basic-bgp-network
+  - kb:cisco-ospf-ospf-nonstop-routing
+  - kb:cisco-bgp-bgp-nsf-awareness
+  - kb:cisco-bgp-bgp-graceful-restart-per-neighbor
+provenance_extracted: 4
+provenance_inferred: 8
 provenance_ambiguous: 0
-status: reviewed
-updated: 2026-06-22
+symptoms:
+  - "~90 s traffic blackhole during ISSU / SSO switchover"
+  - "OSPF/BGP adjacencies flap during a StackWise Virtual switchover"
+  - "routes withdrawn despite standby reloading and rejoining cleanly"
+status: draft
+updated: 2026-07-02
 ---
 
 # Catalyst 9500 StackWise Virtual ISSU — why it blackholed traffic despite the standby joining cleanly
+
+> ⚠️ **Out of corpus coverage** — the `cisco-ios-xe` domain holds `conceptual` config-guide
+> material only; this is a **scenarios / break-fix** question and that tier is **not ingested**.
+> The OSPF/BGP protocol mechanics below are grounded in the cited notes, but the ISSU / StackWise
+> Virtual / NSF / SSO / Graceful Restart diagnosis and fix are **synthesis, not a confirmed
+> root cause** — verify against the Cisco Catalyst 9500 Software Upgrade and Downgrade Guide
+> for your IOS-XE release.
 
 **You had an ISSU procedure issue *and* a configuration gap — but the *primary cause of the ~90 s blackhole* is that OSPF NSF and BGP Graceful Restart were not configured. The ISSU reload+switchover worked mechanically (the standby reloaded and rejoined), but without NSF/GR the routing protocols tore down adjacencies during the control-plane switchover, withdrawing all routes and blackholing traffic until reconvergence completed.**
 
@@ -35,7 +50,7 @@ When the chassis roles swap (step 3), every routing-protocol process on the devi
 
 - **OSPF** — the new active's OSPF process comes up and sends Hellos with an empty neighbor list. Without OSPF NSF configured, neighbors see their own Router ID missing from the Hello's neighbor list and immediately declare the adjacency DOWN (they don't wait for the dead interval — this is a non-NSF restart detection behavior). All routes learned from this router are flushed. (Inferred — see [[ospf]] for OSPF adjacency mechanics.)
 
-- **BGP** — the TCP session (port 179) drops when the control plane restarts. Without BGP Graceful Restart, the neighbor immediately withdraws all routes received from this peer. The 90-second window matches the default BGP hold timer (90 s = 3 × 30 s keepalive), meaning BGP sessions stayed down approaching the hold time before re-establishing and exchanging routes again. (Inferred — see [[bgp]] for BGP session mechanics.)
+- **BGP** — the TCP session (port 179) drops when the control plane restarts. Without BGP Graceful Restart, the neighbor immediately withdraws all routes received from this peer. Note the IOS-XE defaults are a 60 s keepalive and a 180 s hold timer (kb:cisco-bgp-configuring-a-basic-bgp-network) — so a ~90 s outage is *shorter* than hold-timer expiry: it is consistent with the neighbor detecting the TCP session drop at switchover (immediate withdrawal) followed by tens of seconds of session re-establishment and full table exchange, not with waiting out the hold time. (Inferred — see [[bgp]] for BGP session mechanics.)
 
 - **Traffic blackhole** — once the routing table entries pointing to this device are withdrawn by neighbors, traffic transiting the pair has no valid forwarding entry. Forwarding resumes only after OSPF adjacencies reach FULL and BGP sessions re-exchange the full table — a process that takes tens of seconds on a non-trivial network.
 
@@ -99,7 +114,7 @@ Pre-ISSU checklist:
 |-------|---------|-----------|
 | Redundancy mode | `show redundancy states` | `Mode = SSO` |
 | Stack status | `show switch` | Both members present, standby hot |
-| ISSU readiness | `show platform software ISSU` | ISSU-compatible state (or `issu run` readiness) |
+| ISSU readiness | `show issu state detail` (inferred — not in ingested sources) | ISSU-compatible state |
 | OSPF NSF | `show ip ospf` | `NSF support enabled` or equivalent |
 | BGP GR | `show bgp <ASN> neighbors` | Graceful Restart capability in the exchanged capabilities |
 | Install state | `show install summary` | Clean state (no stuck activation) |
@@ -107,8 +122,8 @@ Pre-ISSU checklist:
 ## Contradictions / caveats
 
 - This wiki's `cisco-ios-xe` domain covers OSPF and BGP protocol mechanics but has not yet been extended to cover ISSU, StackWise Virtual, NSF/SSO, or Graceful Restart. The behavioral analysis above is based on IOS-XE design documentation and is directionally correct, but the exact NLR and feature-name surface can vary between IOS-XE releases (16.x vs 17.x). Always consult the **Cisco Catalyst 9500 Software Upgrade and Downgrade Guide** for your specific release.
-- Some early Catalyst 9500 IOS-XE releases (particularly early 16.x trains) had platform ISSU limitations that may not be present on 17.x. Verify ISSU support with `show platform software ISSU` before the upgrade.
-- If you are running a `Cisco Catalyst 9500-32C` or the earlier 9500 series hardware, there are specific ISSU caveats around stack (StackWise-480 vs StackWise Virtual) — the 9500 supports StackWise Virtual via the C9500-SV-LIC license, but ISSU behavior on specific hardware SKUs varies.
+- Some early Catalyst 9500 IOS-XE releases (particularly early 16.x trains) had platform ISSU limitations that may not be present on 17.x. Verify ISSU support with `show issu state detail` before the upgrade (inferred — ISSU commands are not in this wiki's ingested sources; confirm against the upgrade guide).
+- If you are running a `Cisco Catalyst 9500-32C` or the earlier 9500 series hardware, there are specific ISSU caveats around stack (StackWise-480 vs StackWise Virtual) — StackWise Virtual requires a Network Advantage license, not a separate add-on SKU (inferred), and ISSU behavior on specific hardware SKUs varies.
 
 ## See also
 
@@ -124,7 +139,8 @@ Pre-ISSU checklist:
 | ID | Title |
 |----|-------|
 | `note:_sources/cisco-ios-xe/ospf-routing.md` | IP Routing: OSPF Configuration Guide (IOS XE 16) — OSPF adjacency mechanics used to infer restart-detection behavior |
-| `note:_sources/cisco-ios-xe/bgp-routing.md` | IP Routing: BGP Configuration Guide (IOS XE 16) — BGP session mechanics and hold-timer defaults used to infer withdrawal behavior |
+| `note:_sources/cisco-ios-xe/bgp-routing.md` | IP Routing: BGP Configuration Guide (IOS XE 16) — BGP session mechanics used to infer withdrawal behavior |
+| `kb:cisco-bgp-configuring-a-basic-bgp-network` | Configuring a Basic BGP Network — default BGP timers (60 s keepalive / 180 s hold) |
 
 ### Wiki
 
@@ -136,3 +152,11 @@ Pre-ISSU checklist:
 | [[cisco-ios-xe-implementation-review]] | topic | Symptom→cause MOC for IOS XE routing/switching issues |
 
 **Caveat:** The `cisco-ios-xe` domain does not yet have synthesis pages covering ISSU, StackWise Virtual, NSF/SSO, or Graceful Restart. The protocol-level analysis is grounded in the existing OSPF/BGP pages and the underlying source notes; the ISSU/NSF/GR procedural guidance draws on IOS-XE platform documentation that has not yet been ingested into this wiki. Verify all ISSU-specific commands against the **Cisco Catalyst 9500 Software Upgrade and Downgrade Guide** for your IOS-XE release.
+
+## Sources
+<!-- crosslink:begin (generated by crosslink.py — do not edit) -->
+- [[cisco-bgp-configuring-a-basic-bgp-network|Configuring a Basic BGP Network]]
+- [[cisco-ospf-ospf-nonstop-routing|OSPF Nonstop Routing]]
+- [[cisco-bgp-bgp-nsf-awareness|BGP NSF Awareness]]
+- [[cisco-bgp-bgp-graceful-restart-per-neighbor|BGP Graceful Restart per Neighbor]]
+<!-- crosslink:end -->

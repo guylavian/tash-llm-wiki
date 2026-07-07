@@ -256,6 +256,60 @@ def complete(messages, model=None, **kw):
         return None
 
 
+# ---------- optional 32B→7B routing + fallback — delegated to litellm.Router (OSS, not hand-rolled) -
+
+def _router(cfg):
+    """Build a litellm.Router for the two-model routing lever, or None when not applicable.
+
+    Routing + fallback is the OSS lib's job (model groups + `fallbacks`), NOT re-implemented here.
+    Returns None — so complete_routed() degrades to the single-model complete() — unless BOTH
+    `model_small` and `model_large` are configured. Lazy import + the same air-gap/telemetry guards
+    as complete(); never raises (returns None on any error)."""
+    small, large = cfg.get("model_small"), cfg.get("model_large")
+    if not (small and large):
+        return None                                   # one model (the default) -> no-op, today's path
+    api_base = cfg.get("api_base")
+    for m in (small, large):                           # both endpoints pass the loopback gate first
+        try:
+            _enforce_local(m, _effective_api_base(m, api_base))
+        except RemoteBlocked:
+            return None
+    try:
+        import litellm
+        from litellm import Router
+        litellm.telemetry = False
+        litellm.suppress_debug_info = True
+        def _params(m):
+            p = {"model": m, "api_base": _effective_api_base(m, api_base)}
+            if _provider_of(m) == "openai" and not os.environ.get("OPENAI_API_KEY"):
+                p["api_key"] = "sk-noop"               # local vLLM/LM-Studio: dummy key pre-socket
+            return p
+        return Router(
+            model_list=[{"model_name": "cheap", "litellm_params": _params(small)},
+                        {"model_name": "hard", "litellm_params": _params(large)}],
+            fallbacks=[{"cheap": ["hard"]}, {"hard": ["cheap"]}],  # a down deployment degrades, not fails
+            telemetry=False)
+    except Exception:
+        return None
+
+
+def complete_routed(messages, tier=None, **kw):
+    """Tier-routed completion: tier='cheap' -> small model, else the large/default model. Routing and
+    cross-model FALLBACK are handled by litellm.Router (OSS). When only one model is configured (or
+    litellm/Router is absent), this is exactly complete() — today's single-model behavior. None on
+    any failure (the embed.dense_rank contract)."""
+    if mode() == "off" or not have_library():
+        return None
+    router = _router(load_config())
+    if router is None:
+        return complete(messages, **kw)               # single-model degrade — unchanged path
+    group = "cheap" if tier in ("cheap", "small", "extract") else "hard"
+    try:
+        return router.completion(model=group, messages=messages, **kw)
+    except Exception:
+        return complete(messages, **kw)               # last-ditch single-model degrade
+
+
 def text_of(resp):
     """Extract the assistant text from a LiteLLM response, or None (defensive)."""
     try:

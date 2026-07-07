@@ -9,10 +9,12 @@ sources:
   - kb:user-storage-federation
 source_notes:
   - "[[rhbk-26-4-user-storage-federation]]"
-provenance: needs-review
+provenance_extracted: 5
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [federation]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # LDAP Storage Mode & Edit Mode
@@ -34,7 +36,7 @@ RHBK's database and (b) whether changes write back to LDAP.**
 
 ## Caveats
 - `WRITABLE` requires the bind account to have write permission in the directory.
-- `UNSYNCED` + Import ON means RHBK and LDAP can drift — the local copy diverges.
+- `UNSYNCED` + Import ON means RHBK and LDAP can drift — the local copy diverges (inferred consequence of the UNSYNCED description, not stated as a drift warning in the source).
 - Wording stable across RHBK 26.0–26.6 (`Chapter 4. Using external storage`).
 
 ## See also

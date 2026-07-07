@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-health]]"
   - "[[rhbk-26-6-configuration-metrics]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Management interface (port 9000)
@@ -23,7 +25,7 @@ updated: 2026-06-16
 
 ## Why a separate port
 
-Keeping health and metrics off the main ports lets you firewall the management interface independently and avoid exposing operational data to application clients. By default:
+Keeping health and metrics off the main ports lets you firewall the management interface independently and avoid exposing operational data to application clients (inferred rationale, not stated as such in the source). By default:
 
 - [[health-endpoints]] (`/health/started`, `/health/live`, `/health/ready`, `/health`) — present when `health-enabled=true`.
 - [[server-metrics-endpoint]] (`/metrics`, OpenMetrics text) — present when `metrics-enabled=true`.

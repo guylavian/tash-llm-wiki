@@ -18,10 +18,12 @@ sources:
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_msad_user_account_control_mapper.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_role_mapper.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_user_attribute_mapper.md (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 13
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [federation, iac]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # LDAP / user federation & LDAP mappers (Terraform)
@@ -78,7 +80,10 @@ resource "keycloak_ldap_user_federation" "ldap_user_federation" {
 
 **`keycloak_custom_user_federation`** is the escape hatch for non-LDAP sources: it wires a deployed User Storage SPI implementation (identified by `provider_id` matching the `UserStorageProviderFactory`) into a realm, with caching and full/changed sync periods.
 
-## RHBK / migration / air-gap notes
+## RHBK / migration / air-gap notes (inferred — general Terraform/RHBK migration
+knowledge, not covered by this page's cited sources, which document only LDAP
+federation/mapper resource arguments; verify against [[terraform-keycloak-iac]]
+and the provider changelog.)
 
 - **Upstream, not Red Hat ground-truth.** These resources track upstream Keycloak. A brand-new RHBK federation/mapper option can lag in the provider; confirm a resource/argument exists for your pinned provider version before relying on it. The server behavior they drive (LDAP federation, mappers) is covered by the Red Hat corpus — see [[ldap-user-federation]] and [[ldap-mappers]].
 - **`mrparkers` → `keycloak/keycloak` source change.** Configs still referencing `mrparkers/keycloak` in `required_providers` must switch `source` to `keycloak/keycloak` and re-init. This is the #1 migration fix (see [[terraform-keycloak-iac]]).

@@ -13,8 +13,15 @@ provenance_extracted: 28
 provenance_inferred: 5
 provenance_ambiguous: 0
 tags: [tokens, security, procedure]
+symptoms:
+  - "invalid_token"
+  - "insufficient_scope"
+  - "alg:none"
+  - "WWW-Authenticate: Bearer error=\"invalid_token\""
+  - "HTTP 401"
+  - "HTTP 403"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Access Token Validation at the Resource Server
@@ -121,7 +128,7 @@ For service-to-service flows, both the calling service (as client) and the recei
 - [[bearer-token-usage]] — how clients must transmit tokens (RFC 6750 mechanics)
 - [[oidc-token-validation]] — OIDC ID Token validation (distinct from access-token validation)
 - [[issuer-identification-mixup]] — iss confusion across realms and multi-tenant AS
-- [[dpop-sender-constraining]] — sender-constraining access tokens beyond bearer
+- [[dpop]] — sender-constraining access tokens beyond bearer
 - [[mtls-bound-tokens]] — mTLS certificate-bound tokens as an alternative to plain bearer
 - [[back-channel-logout]] — pushing logout events to the RS for near-real-time revocation
 - [[rp-initiated-logout]] — front-channel logout complement

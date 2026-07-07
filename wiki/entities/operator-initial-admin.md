@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-advanced-configuration]]"
   - "[[rhbk-26-6-basic-deployment]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [operator]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # `bootstrapAdmin` & the `-initial-admin` Secret
@@ -34,7 +36,8 @@ oc get secret example-kc-initial-admin -o jsonpath='{.data.password}' | base64 -
 ```
 
 Use these for the Admin Console or Admin REST API. **Change the default credentials
-and enable MFA before production.**
+and enable MFA before production** (inferred general security-hygiene advice, not a
+direct doc quote).
 
 ## Explicit `bootstrapAdmin`
 

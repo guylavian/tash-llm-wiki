@@ -6,10 +6,12 @@ slug: tls-configuration
 summary: "RHBK serves HTTPS on port 8443 using either PEM cert/key files or a Java keystore; production must never expose plain HTTP endpoints."
 sources:
   - guide:server_configuration_guide
-provenance: needs-review
+provenance_extracted: 12
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # TLS / HTTPS configuration

@@ -9,10 +9,12 @@ sources:
   - kb:oidc-layers-
 source_notes:
   - "[[rhbk-26-6-oidc-layers]]"
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [clients]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # FAPI & OAuth 2.1 Client Profiles
@@ -54,7 +56,7 @@ Configure via `https-protocols` and `https-cipher-suites`; RHBK defaults to
 ## Contradictions / caveats
 - The **OAuth 2.1 spec is still a draft**, so the built-in OAuth 2.1 profiles can
   change between RHBK versions.
-- FAPI 2 profiles track **Draft** specifications.
+- FAPI 2 profiles track **Draft** specifications (inferred — the cited chapter states this explicitly only for OAuth 2.1 and Open Finance Brasil; FAPI 2's own draft status is a reasonable but unverified-in-this-chapter extrapolation).
 - Detailed Client Policy configuration lives in the Server Administration Guide,
   not this guide.
 

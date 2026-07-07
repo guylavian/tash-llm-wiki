@@ -79,5 +79,5 @@ A JARM JWT response or an `id_token` in a hybrid response carries a signed `iss`
 - [[oidc-token-validation]] — RHBK token validation overview
 - [[oidc-client-best-practices]] — RHBK client security recommendations
 - [[fapi2-security-profile]] — FAPI 2.0 mandates signed responses (JARM), an alternative to bare `iss`
-- [[dpop-sender-constraining]] — complements issuer binding with token sender-constraining
+- [[dpop]] — complements issuer binding with token sender-constraining
 - [[sso-implementation-review]] — MOC: SSO implementation review checklist

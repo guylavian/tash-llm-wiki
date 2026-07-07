@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-basic-deployment]]"
   - "[[rhbk-26-6-advanced-configuration]]"
-provenance: needs-review
+provenance_extracted: 16
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [operator]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Keycloak CR (`k8s.keycloak.org/v2alpha1`)

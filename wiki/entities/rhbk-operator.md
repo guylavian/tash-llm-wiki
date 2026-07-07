@@ -8,10 +8,12 @@ sources:
   - guide:high_availability_guide
   - ref:rhbk-operator.md
   - ref:rhbk-platform-support.md
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [operator]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RHBK Operator (Keycloak CR)

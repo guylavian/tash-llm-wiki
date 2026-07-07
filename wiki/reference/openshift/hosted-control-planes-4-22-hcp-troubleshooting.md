@@ -1,0 +1,1008 @@
+---
+title: "Troubleshooting {hcp}"
+type: reference
+domain: openshift
+slug: hosted-control-planes-4-22-hcp-troubleshooting
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/hosted_control_planes/hcp-troubleshooting
+version: 4.22
+family: hosted_control_planes
+documentKind: "Documentation"
+---
+
+# Troubleshooting {hcp}
+
+[id="hcp-troubleshooting"]
+= Troubleshooting {hcp}
+
+[role="_abstract"]
+If you encounter an issue with {hcp}, you can gather information about the hosted cluster, OpenShift Container Platform, or other components so that you can determine the root cause and take steps to resolve it.
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hosted-control-planes-troubleshooting_{context}"]
+= Gathering information to troubleshoot {hcp}
+
+[role="_abstract"]
+When you need to troubleshoot an issue with hosted clusters, you can gather information by running the `must-gather` command. The command generates output for the management cluster and the hosted cluster.
+
+The output for the management cluster contains the following content:
+
+* *Cluster-scoped resources:* These resources are node definitions of the management cluster.
+* *The `hypershift-dump` compressed file:* This file is useful if you need to share the content with other people.
+* *Namespaced resources:* These resources include all of the objects from the relevant namespaces, such as config maps, services, events, and logs.
+* *Network logs:* These logs include the OVN northbound and southbound databases and the status for each one.
+* *Hosted clusters:* This level of output involves all of the resources inside of the hosted cluster.
+
+The output for the hosted cluster contains the following content:
+
+* *Cluster-scoped resources:* These resources include all of the cluster-wide objects, such as nodes and CRDs.
+* *Namespaced resources:* These resources include all of the objects from the relevant namespaces, such as config maps, services, events, and logs.
+
+Although the output does not contain any secret objects from the cluster, it can contain references to the names of secrets.
+
+.Prerequisites
+
+* You must have `cluster-admin` access to the management cluster.
+
+* You need the `name` value for the `HostedCluster` resource and the namespace where the CR is deployed.
+
+* You must have the `hcp` command-line interface installed. For more information, see "Installing the {hcp} command-line interface".
+
+* You must have the OpenShift CLI (`oc`) installed.
+
+* You must ensure that the `kubeconfig` file is loaded and is pointing to the management cluster.
+
+.Procedure
+
+* To gather the output for troubleshooting, enter the following command:
++
+[source,terminal]
+----
+$ oc adm must-gather \
+  --image=registry.redhat.io/rhacm2/acm-must-gather-rhel9:v2.17 \
+  /usr/bin/gather hosted-cluster-namespace=HOSTEDCLUSTERNAMESPACE \
+  hosted-cluster-name=HOSTEDCLUSTERNAME \
+  --dest-dir=NAME ; tar -cvzf NAME.tgz NAME
+----
++
+where:
++
+--
+* The `hosted-cluster-namespace=HOSTEDCLUSTERNAMESPACE` parameter is optional. If you do not include it, the command runs as though the hosted cluster is in the default namespace, which is `clusters`.
+* If you want to save the results of the command to a compressed file, specify the `--dest-dir=NAME` parameter and replace `NAME` with the name of the directory where you want to save the results.
+--
+
+[role="_additional-resources"]
+.Additional resources
+* Installing the {hcp} command-line interface
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-must-gather-day-2_{context}"]
+= Gathering OpenShift Container Platform data for a hosted cluster
+
+[role="_abstract"]
+You can gather OpenShift Container Platform debugging information for a hosted cluster by using the {mce-short} web console or by using the CLI.
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-must-gather-cli_{context}"]
+= Gathering data for a hosted cluster by using the CLI
+
+You can gather OpenShift Container Platform debugging information for a hosted cluster by using the CLI.
+
+.Prerequisites
+
+* You must have `cluster-admin` access to the management cluster.
+
+* You need the `name` value for the `HostedCluster` resource and the namespace where the CR is deployed.
+
+* You must have the `hcp` command-line interface installed. For more information, see "Installing the {hcp} command-line interface".
+
+* You must have the OpenShift CLI (`oc`) installed.
+
+* You must ensure that the `kubeconfig` file is loaded and is pointing to the management cluster.
+
+.Procedure
+
+. Generate the `kubeconfig` file by entering the following command:
++
+[source,terminal]
+----
+$ hcp create kubeconfig --namespace <hosted_cluster_namespace> \
+  --name <hosted_cluster_name> > <hosted_cluster_name>.kubeconfig
+----
+
+. After you save the `kubeconfig` file, you can access the hosted cluster by entering the following example command:
++
+[source,terminal]
+----
+$ oc --kubeconfig <hosted_cluster_name>.kubeconfig get nodes
+----
+
+. . Collect the must-gather information by entering the following command:
++
+[source,terminal]
+----
+$ oc adm must-gather
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-must-gather-console_{context}"]
+= Gathering data for a hosted cluster by using the web console
+
+You can gather OpenShift Container Platform debugging information for a hosted cluster by using the {mce-short} web console.
+
+.Prerequisites
+
+* You must have `cluster-admin` access to the management cluster.
+
+* You need the `name` value for the `HostedCluster` resource and the namespace where the CR is deployed.
+
+* You must have the `hcp` command-line interface installed. For more information, see "Installing the {hcp} command-line interface".
+
+* You must have the OpenShift CLI (`oc`) installed.
+
+* You must ensure that the `kubeconfig` file is loaded and is pointing to the management cluster.
+
+.Procedure
+
+. In the web console, select *All Clusters* and select the cluster you want to troubleshoot.
+. In the upper-right corner, select *Download kubeconfig*.
+. Export the downloaded `kubeconfig` file.
+. Collect the must-gather information by entering the following command:
++
+[source,terminal]
+----
+$ oc adm must-gather
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-must-gather-dc_{context}"]
+= Entering the must-gather command in a disconnected environment
+
+[role="_abstract"]
+When you need to troubleshoot an issue in a disconnected environment, you can gather information by running the `must-gather` command. The command generates output for the management cluster and the hosted cluster.
+
+.Procedure
+
+. In a disconnected environment, mirror the Red{nbsp}Hat Operator catalog images into their mirror registry. For more information, see "Install on disconnected networks".
+
+. Run the following command to extract logs that reference the image from their mirror registry:
++
+[source,terminal]
+----
+REGISTRY=registry.example.com:5000
+IMAGE=$REGISTRY/rhacm2/acm-must-gather-rhel9:v2.17
+
+$ oc adm must-gather \
+  --image=$IMAGE /usr/bin/gather \
+  hosted-cluster-namespace=HOSTEDCLUSTERNAMESPACE \
+  hosted-cluster-name=HOSTEDCLUSTERNAME \
+  --dest-dir=./data
+----
+
+[role="_additional-resources"]
+.Additional resources
+* Install on disconnected networks
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-ocp-virt_{context}"]
+= Troubleshooting hosted clusters on {VirtProductName}
+
+[role="_abstract"]
+When you troubleshoot a hosted cluster on {VirtProductName}, start with the top-level `HostedCluster` and `NodePool` resources and then work down the stack until you find the root cause. The following steps can help you discover the root cause of common issues.
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-hc-stuck_{context}"]
+= HostedCluster resource is stuck in a partial state
+
+If a hosted control plane is not coming fully online because a `HostedCluster` resource is pending, identify the problem by checking prerequisites, resource conditions, and node and Operator status.
+
+.Procedure
+
+* Ensure that you meet all of the prerequisites for a hosted cluster on {VirtProductName}.
+* View the conditions on the `HostedCluster` and `NodePool` resources for validation errors that prevent progress.
+* By using the `kubeconfig` file of the hosted cluster, inspect the status of the hosted cluster:
+** View the output of the `oc get clusteroperators` command to see which cluster Operators are pending.
+** View the output of the `oc get nodes` command to ensure that worker nodes are ready.
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-no-nodes-reg_{context}"]
+= No worker nodes are registered
+
+If a hosted control plane is not coming fully online because the hosted control plane has no worker nodes registered, identify the problem by checking the status of various parts of the hosted control plane.
+
+.Procedure
+
+* View the `HostedCluster` and `NodePool` conditions for failures that indicate what the problem might be.
+* Enter the following command to view the KubeVirt worker node virtual machine (VM) status for the `NodePool` resource:
++
+[source,terminal]
+----
+$ oc get vm -n <namespace>
+----
+* If the VMs are stuck in the provisioning state, enter the following command to view the CDI import pods within the VM namespace for clues about why the importer pods have not completed:
++
+[source,terminal]
+----
+$ oc get pods -n <namespace> | grep "import"
+----
+* If the VMs are stuck in the starting state, enter the following command to view the status of the virt-launcher pods:
++
+[source,terminal]
+----
+$ oc get pods -n <namespace> -l kubevirt.io=virt-launcher
+----
++
+If the virt-launcher pods are in a pending state, investigate why the pods are not being scheduled. For example, not enough resources might exist to run the virt-launcher pods.
+* If the VMs are running but they are not registered as worker nodes, use the web console to gain VNC access to one of the affected VMs. The VNC output indicates whether the ignition configuration was applied. If a VM cannot access the hosted control plane ignition server on startup, the VM cannot be provisioned correctly.
+* If the ignition configuration was applied but the VM is still not registering as a node, see _Identifying the problem: Access the VM console logs_ to learn how to access the VM console logs during startup.
+
+[role="_additional-resources"]
+.Additional resources
+* Identifying the problem: Access the VM console logs
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+[id="hcp-ts-nodes-stuck_{context}"]
+= Worker nodes are stuck in the NotReady state
+
+During cluster creation, nodes enter the `NotReady` state temporarily while the networking stack is rolled out. This part of the process is normal. However, if this part of the process takes longer than 15 minutes, identify the problem by investigating the node object and pods.
+
+.Procedure
+
+. Enter the following command to view the conditions on the node object and determine why the node is not ready:
++
+[source,terminal]
+----
+$ oc get nodes -o yaml
+----
+
+. Enter the following command to look for failing pods within the cluster:
++
+[source,terminal]
+----
+$ oc get pods -A --field-selector=status.phase!=Running,status,phase!=Succeeded
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-ingress-not-online_{context}"]
+= Ingress and console cluster operators are not coming online
+
+If a hosted control plane is not coming fully online because the Ingress and console cluster Operators are not online, check the wildcard DNS routes and load balancer.
+
+.Procedure
+
+* If the cluster uses the default Ingress behavior, enter the following command to ensure that wildcard DNS routes are enabled on the OpenShift Container Platform cluster that the virtual machines (VMs) are hosted on:
++
+[source,terminal]
+----
+$ oc patch ingresscontroller -n openshift-ingress-operator \
+  default --type=json -p \
+  '[{ "op": "add", "path": "/spec/routeAdmission", "value": {wildcardPolicy: "WildcardsAllowed"}}]'
+----
+* If you use a custom base domain for the hosted control plane, complete the following steps:
+** Ensure that the load balancer is targeting the VM pods correctly.
+** Ensure that the wildcard DNS entry is targeting the load balancer IP address.
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-load-balancer-svcs_{context}"]
+= Load balancer services for the hosted cluster are not available
+
+If a hosted control plane is not coming fully online because the load balancer services are not becoming available, check events, details, and the Kubernetes Cluster Configuration Manager (KCCM) pod.
+
+.Procedure
+
+* Look for events and details that are associated with the load balancer service within the hosted cluster.
+* By default, load balancers for the hosted cluster are handled by the kubevirt-cloud-controller-manager within the hosted control plane namespace. Ensure that the KCCM pod is online and view its logs for errors or warnings. To identify the KCCM pod in the hosted control plane namespace, enter the following command:
++
+[source,terminal]
+----
+$ oc get pods -n <hosted_control_plane_namespace> \
+  -l app=cloud-controller-manager
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-pvcs-not-avail_{context}"]
+= Hosted cluster PVCs are not available
+
+If a hosted control plane is not coming fully online because the persistent volume claims (PVCs) for a hosted cluster are not available, check the PVC events and details, and component logs.
+
+.Procedure
+
+* Look for events and details that are associated with the PVC to understand which errors are occurring.
+
+* If a PVC is failing to attach to a pod, view the logs for the kubevirt-csi-node `daemonset` component within the hosted cluster to further investigate the problem. To identify the kubevirt-csi-node pods for each node, enter the following command:
++
+[source,terminal]
+----
+$ oc get pods -n openshift-cluster-csi-drivers -o wide \
+  -l app=kubevirt-csi-driver
+----
+
+* If a PVC cannot bind to a persistent volume (PV), view the logs of the kubevirt-csi-controller component within the hosted control plane namespace. To identify the kubevirt-csi-controller pod within the hosted control plane namespace, enter the following command:
++
+[source,terminal]
+----
+$ oc get pods -n <hcp namespace> -l app=kubevirt-csi-driver
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-vm-nodes_{context}"]
+= VM nodes are not correctly joining the cluster
+
+If a hosted control plane is not coming fully online because the VM nodes are not correctly joining the cluster, access the VM console logs.
+
+.Procedure
+
+* To access the VM console logs, complete the steps in How to get serial console logs for VMs part of OpenShift Virtualization Hosted Control Plane clusters.
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-rhcos_{context}"]
+= {op-system} image mirroring fails
+
+For {hcp} on {VirtProductName} in a disconnected environment, `oc-mirror` fails to automatically mirror the {op-system-first} image to the internal registry. When you create your first hosted cluster, the Kubevirt virtual machine does not boot, because the boot image is not available in the internal registry.
+
+To resolve this issue, manually mirror the {op-system} image to the internal registry.
+
+.Procedure
+
+. Get the internal registry name by running the following command:
++
+[source,terminal]
+----
+$ oc get imagecontentsourcepolicy -o json \
+  | jq -r '.items[].spec.repositoryDigestMirrors[0].mirrors[0]'
+----
+
+. Get a payload image by running the following command:
++
+[source,terminal]
+----
+$ oc get clusterversion version -ojsonpath='{.status.desired.image}'
+----
+
+. Extract the `0000_50_installer_coreos-bootimages.yaml` file that contains boot images from your payload image on the hosted cluster. Replace `<payload_image>` with the name of your payload image. Run the following command:
++
+[source,terminal]
+----
+$ oc image extract \
+  --file /release-manifests/0000_50_installer_coreos-bootimages.yaml \
+  <payload_image> --confirm
+----
+
+. Get the {op-system} image by running the following command:
++
+[source,terminal]
+----
+$ cat 0000_50_installer_coreos-bootimages.yaml | yq -r .data.stream \
+  | jq -r '.architectures.x86_64.images.kubevirt."digest-ref"'
+----
+
+. Mirror the {op-system} image to your internal registry. Replace `<rhcos_image>` with your {op-system} image; for example, `quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:d9643ead36b1c026be664c9c65c11433c6cdf71bfd93ba229141d134a4a6dd94`. Replace `<internal_registry>` with the name of your internal registry; for example, `virthost.ostest.test.metalkube.org:5000/localimages/ocp-v4.0-art-dev`. Run the following command:
++
+[source,terminal]
+----
+$ oc image mirror <rhcos_image> <internal_registry>
+----
+
+. Create a YAML file named `rhcos-boot-kubevirt.yaml` that defines the `ImageDigestMirrorSet` object. See the following example configuration:
++
+[source,yaml]
+----
+apiVersion: config.openshift.io/v1
+kind: ImageDigestMirrorSet
+metadata:
+  name: rhcos-boot-kubevirt
+spec:
+  repositoryDigestMirrors:
+    - mirrors:
+        - virthost.ostest.test.metalkube.org:5000/localimages/ocp-v4.0-art-dev <1>
+      source: quay.io/openshift-release-dev/ocp-v4.0-art-dev <2>
+----
++
+<1> Specify the name of your internal registry, for example, `virthost.ostest.test.metalkube.org:5000/localimages/ocp-v4.0-art-dev`.
+<2> Specify your {op-system} image without its digest, for example, `quay.io/openshift-release-dev/ocp-v4.0-art-dev`.
+
+. Apply the `rhcos-boot-kubevirt.yaml` file to create the `ImageDigestMirrorSet` object by running the following command:
++
+[source,terminal]
+----
+$ oc apply -f rhcos-boot-kubevirt.yaml
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-non-bm_{context}"]
+= Return non-bare-metal clusters to the late binding pool
+
+If you are using late binding managed clusters without `BareMetalHosts`, you must complete additional manual steps to delete a late binding cluster and return the nodes back to the Discovery ISO.
+
+For late binding managed clusters without `BareMetalHosts`, removing cluster information does not automatically return all nodes to the Discovery ISO.
+
+.Procedure
+
+To unbind the non-bare-metal nodes with late binding, complete the following steps:
+
+. Remove the cluster information. For more information, see _Removing a cluster from management_.
+
+. Clean the root disks.
+
+. Reboot manually with the Discovery ISO.
+
+[role="_additional-resources"]
+.Additional resources
+* Removing a cluster from management
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-bm_{context}"]
+= Troubleshooting hosted clusters on bare metal
+
+[role="_abstract"]
+If you encounter issues with {hcp} on bare metal, review the troubleshooting procedures to diagnose and resolve them.
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-bm-nodes-not-added_{context}"]
+= Nodes fail to be added to {hcp} on bare metal
+
+When you scale up a {hcp} cluster with nodes that were provisioned by using Assisted Installer, the host fails to pull the ignition with a URL that contains port 22642. That URL is invalid for {hcp} and indicates that an issue exists with the cluster.
+
+.Procedure
+
+. To determine the issue, review the assisted-service logs:
++
+[source,terminal]
+----
+$ oc logs -n multicluster-engine <assisted_service_pod_name> <1>
+----
++
+<1> Specify the Assisted Service pod name.
+
+. In the logs, find errors that resemble these examples:
++
+[source,terminal]
+----
+error="failed to get pull secret for update: invalid pull secret data in secret pull-secret"
+----
++
+[source,terminal]
+----
+pull secret must contain auth for \"registry.redhat.io\"
+----
+
+. To fix this issue, see "Add the pull secret to the namespace" in the {mce} documentation.
++
+[NOTE]
+====
+To use {hcp}, you must have {mce-short} installed, either as a standalone operator or as part of {rh-rhacm-title}. Because the operator has a close association with {rh-rhacm-title}, the documentation for the operator is published within that product's documentation. Even if you do not use {rh-rhacm-title}, the parts of its documentation that cover {mce-short} are relevant to {hcp}.
+====
+
+[role="_additional-resources"]
+.Additional resources
+* Add the pull secret to the namespace
+
+// Module included in the following assembly:
+//
+// * hosted_control_planes/index.adoc
+
+[id="hosted-restart-hcp-components_{context}"]
+= Restarting hosted control plane components
+
+If you are an administrator for {hcp}, you can use the `hypershift.openshift.io/restart-date` annotation to restart all control plane components for a particular `HostedCluster` resource. For example, you might need to restart control plane components for certificate rotation.
+
+.Procedure
+
+* To restart a control plane, annotate the `HostedCluster` resource by entering the following command:
++
+[source,terminal]
+----
+$ oc annotate hostedcluster \
+  -n <hosted_cluster_namespace> \
+  <hosted_cluster_name> \
+  hypershift.openshift.io/restart-date=$(date --iso-8601=seconds) <1>
+----
+<1> The control plane is restarted whenever the value of the annotation changes. The `date` command serves as the source of a unique string. The annotation is treated as a string, not a timestamp.
+
+.Verification
+
+After you restart a control plane, the following {hcp} components are typically restarted:
+
+[NOTE]
+====
+You might see some additional components restarting as a side effect of changes implemented by the other components.
+====
+
+* catalog-operator
+* certified-operators-catalog
+* cluster-api
+* cluster-autoscaler
+* cluster-policy-controller
+* cluster-version-operator
+* community-operators-catalog
+* control-plane-operator
+* hosted-cluster-config-operator
+* ignition-server
+* ingress-operator
+* konnectivity-agent
+* konnectivity-server
+* kube-apiserver
+* kube-controller-manager
+* kube-scheduler
+* machine-approver
+* oauth-openshift
+* olm-operator
+* openshift-apiserver
+* openshift-controller-manager
+* openshift-oauth-apiserver
+* packageserver
+* redhat-marketplace-catalog
+* redhat-operators-catalog
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hosted-control-planes-pause-reconciliation_{context}"]
+= Pausing the reconciliation of a hosted cluster and hosted control plane
+
+If you are a cluster instance administrator, you can pause the reconciliation of a hosted cluster and hosted control plane. You might want to pause reconciliation when you back up and restore an etcd database or when you need to debug problems with a hosted cluster or hosted control plane.
+
+.Procedure
+
+. To pause reconciliation for a hosted cluster and hosted control plane, populate the `pausedUntil` field of the `HostedCluster` resource.
++
+** To pause the reconciliation until a specific time, enter the following command:
++
+[source,terminal]
+----
+$ oc patch -n <hosted_cluster_namespace> \
+  hostedclusters/<hosted_cluster_name> \
+  -p '{"spec":{"pausedUntil":"<timestamp>"}}' \
+  --type=merge <1>
+----
++
+<1> Specify a timestamp in the RFC339 format, for example, `2024-03-03T03:28:48Z`. The reconciliation is paused until the specified time is passed.
++
+** To pause the reconciliation indefinitely, enter the following command:
++
+[source,terminal]
+----
+$ oc patch -n <hosted_cluster_namespace> \
+  hostedclusters/<hosted_cluster_name> \
+  -p '{"spec":{"pausedUntil":"true"}}' \
+  --type=merge
+----
++
+The reconciliation is paused until you remove the field from the `HostedCluster` resource.
++
+When the pause reconciliation field is populated for the `HostedCluster` resource, the field is automatically added to the associated `HostedControlPlane` resource.
+
+. To remove the `pausedUntil` field, enter the following patch command:
++
+[source,terminal]
+----
+$ oc patch -n <hosted_cluster_namespace> \
+  hostedclusters/<hosted_cluster_name> \
+  -p '{"spec":{"pausedUntil":null}}' \
+  --type=merge
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="scale-down-data-plane_{context}"]
+= Scaling down the data plane to zero
+
+[role="_abstract"]
+If you are not using the hosted control plane, to save the resources and cost you can scale down a data plane to zero.
+
+[NOTE]
+====
+Ensure you are prepared to scale down the data plane to zero. Because the workload from the worker nodes disappears after scaling down.
+====
+
+.Procedure
+
+. Set the `kubeconfig` file to access the hosted cluster by running the following command:
++
+[source,terminal]
+----
+$ export KUBECONFIG=<install_directory>/auth/kubeconfig
+----
+
+. Get the name of the `NodePool` resource associated to your hosted cluster by running the following command:
++
+[source,terminal]
+----
+$ oc get nodepool --namespace <hosted_cluster_namespace>
+----
+
+. Optional: To prevent the pods from draining, add the `nodeDrainTimeout` field in the `NodePool` resource by running the following command:
++
+[source,terminal]
+----
+$ oc edit nodepool <nodepool_name>  --namespace <hosted_cluster_namespace>
+----
++
+.Example output
+[source,yaml]
+----
+apiVersion: hypershift.openshift.io/v1alpha1
+kind: NodePool
+metadata:
+# ...
+  name: nodepool-1
+  namespace: clusters
+# ...
+spec:
+  arch: amd64
+  clusterName: clustername
+  management:
+    autoRepair: false
+    replace:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+      strategy: RollingUpdate
+    upgradeType: Replace
+  nodeDrainTimeout: 0s
+  nodeVolumeDetachTimeout: 0
+# ...
+----
+`spec.arch.clusterName`:: Defines the name of your hosted cluster.
+`spec.nodeDrainTimeout`:: Specifies the total amount of time that the controller spends to drain a node. By default, the `nodeDrainTimeout: 0s` setting blocks the node draining process. To allow the node draining process to continue for a certain period of time, you can set the value of the `nodeDrainTimeout` field; for example, `nodeDrainTimeout: 1m`.
+`spec.nodeVolumeDetachTimeout`:: Specifies the total amount of time that the controller spends detaching volumes from a node. By default, the `0` setting blocks the volume detachment process.
++
+[NOTE]
+====
+To prevent nodes from getting stuck when scaling down, set the `.spec.nodeDrainTimeout` and `.spec.nodeVolumeDetachTimeout` in the `NodePool` resource to a value greater than `0`. This setting forces nodes to be removed after the timeout specified in the field is reached, regardless of whether the node can be drained or the volumes can be detached.
+====
+
+. Scale down the `NodePool` resource associated to your hosted cluster by running the following command:
++
+[source,terminal]
+----
+$ oc scale nodepool/<nodepool_name> --namespace <hosted_cluster_namespace> \
+  --replicas=0
+----
++
+[NOTE]
+====
+After scaling down the data plan to zero, some pods in the control plane stay in the `Pending` status and the hosted control plane stays up and running. If necessary, you can scale up the `NodePool` resource.
+====
+
+. Optional: Scale up the `NodePool` resource associated to your hosted cluster by running the following command:
++
+[source,terminal]
+----
+$ oc scale nodepool/<nodepool_name> --namespace <hosted_cluster_namespace> --replicas=1
+----
++
+After rescaling the `NodePool` resource,  wait for couple of minutes for the `NodePool` resource to become available in a `Ready` state.
+
+.Verification
+
+* Verify that the value for the `nodeDrainTimeout` field is greater than `0s` by running the following command:
++
+[source,terminal]
+----
+$ oc get nodepool -n <hosted_cluster_namespace> <nodepool_name> -ojsonpath='{.spec.nodeDrainTimeout}'
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="agent-service-failure_{context}"]
+= Agent service failures and agents not joining the cluster
+
+In some cases, agents might fail to join the cluster after booting the machines with the boot artifacts. You can confirm this issue by checking the `agent.service` logs for the following error:
+
+----
+Error: copying system image from manifest list: Source image rejected: A signature was required, but no signature exists
+----
+
+[NOTE]
+====
+This issue occurs because image signature verification fails when no signature is present.
+As a workaround, you can disable signature verification by modifying the container policy.
+====
+
+.Procedure
+
+. Add the `ignitionConfigOverride` field in the `InfraEnv` manifest to override the `/etc/containers/policy.json` file. This disables signature verification for container images.
+
+. Replace the base64-encoded content in the `ignitionConfigOverride` with the required `/etc/containers/policy.json` configuration according to your image registries.
+
++
+.Example
+[source,json]
+----
+{
+    "default": [
+        {
+            "type": "insecureAcceptAnything"
+        }
+    ],
+    "transports": {
+        "docker": {
+            "<REGISTRY1>": [
+                {
+                    "type": "insecureAcceptAnything"
+                }
+            ],
+            "REGISTRY2": [
+                {
+                    "type": "insecureAcceptAnything"
+                }
+            ]
+        },
+        "docker-daemon": {
+            "": [
+                {
+                    "type": "insecureAcceptAnything"
+                }
+            ]
+        }
+    }
+}
+----
+
++
+.Example InfraEnv manifest with `ignitionConfigOverride`
+[source,yaml]
+----
+apiVersion: agent-install.openshift.io/v1beta1
+kind: InfraEnv
+metadata:
+  name: <hosted_cluster_name>
+  namespace: <hosted_control_plane_namespace>
+spec:
+  cpuArchitecture: s390x
+  pullSecretRef:
+    name: pull-secret
+  sshAuthorizedKey: <ssh_public_key>
+  ignitionConfigOverride: '{"ignition":{"version":"3.2.0"},"storage":{"files":[{"path":"/etc/containers/policy.json","mode":420,"overwrite":true,"contents":{"source":"data:text/plain;charset=utf-8;base64,ewogICAgImRlZmF1bHQiOiBbCiAgICAgICAgewogICAgICAgICAgICAidHlwZSI6ICJpbnNlY3VyZUFjY2VwdEFueXRoaW5nIgogICAgICAgIH0KICAgIF0sCiAgICAidHJhbnNwb3J0cyI6CiAgICAgICAgewogICAgICAgICAgICAiZG9ja2VyLWRhZW1vbiI6CiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgIiI6IFt7InR5cGUiOiJpbnNlY3VyZUFjY2VwdEFueXRoaW5nIn1dCiAgICAgICAgICAgICAgICB9CiAgICAgICAgfQp9"}}]}}'
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-internal-subnets_{context}"]
+= Troubleshooting internal subnets for hosted clusters
+
+If you encounter issues releated to subnets on {hcp}, the following information can help you determine the cause and find a resolution.
+
+The following known limitations exist related to internal subnets on hosted clusters:
+
+* IPv6 subnets are not supported.
+* The {hcp} command-line interface, `hcp`, might not have native flags for the subnet fields. Manual YAML editing or `oc patch` is required.
+* Modifying OVN subnets after you create a cluster triggers a rollout of OVN components, which might cause brief network disruptions.
+* You cannot modify OVN subnet configuration while a cluster update is in progress or scheduled.
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-ovnkubernetes_{context}"]
+= Configuring the ovnKubernetesConfig object fails with an error
+
+When you try to configure the `ovnKubernetesConfig` object on a hosted cluster by using a different network type, such as `OpenShiftSDN`, an error occurs because {hcp} works only with the `OVNKubernetes` network type.
+
+.Procedure
+
+* Verify the network type of your hosted cluster by entering the following command:
++
+[source,terminal]
+----
+$ oc get hostedcluster <hosted_cluster_name> -n <hosted_control_plane_namespace> \
+  -o jsonpath='{.spec.networking.networkType}'
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-identical-subnet-fields_{context}"]
+= Setting CIDR values in internal subnet fields
+
+If the `internalJoinSubnet` field and the `internalTransitSwitchSubnet` field are set to the same CIDR values, an error occurs.
+
+.Procedure
+
+* Use different subnets for each field, as shown in the following example:
++
+[source,yaml]
+----
+# ...
+ovnKubernetesConfig:
+  ipv4:
+    internalJoinSubnet: "100.99.0.0/16"
+    internalTransitSwitchSubnet: "100.69.0.0/16"
+# ...
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-subnet-cidr-format_{context}"]
+= Ensuring a valid IPv4 CIDR format
+
+If you do not specify subnets in a valid CIDR format, an error occurs.
+
+.Procedure
+
+* Ensure that the CIDR format follows the following format:
++
+[source,text]
+----
+X.X.X.X/Y
+----
++
+where:
++
+`X`:: is a value from `0` to `255`. The first octet must not be `0`.
+`Y`:: is a value from `0` to `30`.
+
+.Valid examples
+[source,text]
+----
+100.99.0.0/16
+192.168.1.0/24
+----
+
+.Invalid examples
+[source,text]
+----
+100.99.0.0
+256.1.1.0/16
+0.99.0.0/16
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-cidr-overlap_{context}"]
+= Avoiding an overlap between OVN subnets and CIDR values
+
+If the configured OVN subnets overlap with the machine classless inter-domain routing (CIDR), service CIDR, cluster network CIDR, or with each other, an error occurs.
+
+.Procedure
+
+* Use subnets that do not overlap with any network CIDR. You can use a CIDR calculator to verify that no overlaps exist.
++
+.Example of configuration with no overlaps
+[source,yaml]
+----
+spec:
+  networking:
+    machineCIDR: 10.0.0.0/16
+    serviceCIDR: 172.30.0.0/16
+    clusterNetwork:
+    - cidr: 10.128.0.0/14
+
+  operatorConfiguration:
+    clusterNetworkOperator:
+      ovnKubernetesConfig:
+        ipv4:
+          internalJoinSubnet: "100.99.0.0/16"
+          internalTransitSwitchSubnet: "100.69.0.0/16"
+----
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-nodes-not-ready_{context}"]
+= Resolving a stuck OVN rollout
+
+After you change an existing configuration, the OVN component rollout might take a long time or encounter issues.
+
+.Procedure
+
+. Check the status of the `ovnkube-node` DaemonSet rollout by entering the following command:
++
+[source,terminal]
+----
+$ oc rollout status daemonset/ovnkube-node \
+  -n openshift-ovn-kubernetes \
+  --kubeconfig=hosted-kubeconfig
+----
+
+. Check the pod logs for errors by entering the following command:
++
+[source,terminal]
+----
+$ oc logs -n openshift-ovn-kubernetes \
+  -l app=ovnkube-node \
+  --kubeconfig=hosted-kubeconfig
+----
+
+If the rollout is stuck, you might need to revert the configuration change.
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-connectivity_{context}"]
+= Troubleshooting connectivity for {hcp}
+
+[role="_abstract"]
+By using connectivity metrics, you can diagnose whether any issues are related to connectivity from a hosted control plane to a data plane.
+
+// Module included in the following assemblies:
+//
+// * hosted_control_planes/hcp-troubleshooting.adoc
+
+[id="hcp-ts-connect-data-plane_{context}"]
+= Troubleshooting connectivity from the control plane to the data plane
+
+[role="_abstract"]
+To diagnose connectivity issues from a hosted control plane to the compute nodes in a data plane, check the status of the `DataPlaneConnectionAvailable` condition.
+
+If the status of the `DataPlaneConnectionAvailable` condition is `True`, the control plane can successfully reach the data plane nodes through the `konnectivity-agent` pods. If the status is `False`, take the following steps to determine why the control plane cannot reach the data plane.
+
+.Procedure
+
+. Check the network policies that might block the `Konnectivity` service traffic.
+
+. Review the firewall rules between the control plane and the data plane.
+
+. View the status of the `konnectivity-agent` pods in the data plane.
+
+. In the control plane, review the `Konnectivity` server deployment.
+
+[role="_additional-resources"]
+.Additional resources
+* Connectivity monitoring for {hcp}

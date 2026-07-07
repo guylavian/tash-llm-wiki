@@ -13,10 +13,12 @@ source_notes:
   - "[[rhbk-26-6-migrating-providers]]"
   - "[[rhbk-26-6-migrating-themes]]"
   - "[[rhbk-26-6-other-changes]]"
-provenance: needs-review
+provenance_extracted: 12
+provenance_inferred: 0
+provenance_ambiguous: 2
 tags: [migration]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Migrating custom providers, themes & admin-client artifacts to RHBK
@@ -48,7 +50,9 @@ restart with the auto-build feature). See [[spi-provider-model]].
 - **Consolidated `KeycloakSession`:** `userLocalStorage()`, `userCache()`,
   `userStorageManager()`, `userFederatedStorage()` and the `*StorageManager()` /
   `*LocalStorage()` family are removed — use `users()` (note: now cache-aware).
-  For genuine local-storage access, cast via `LegacyDatastoreProvider`. Several
+  For genuine local-storage access, cast via `LegacyDatastoreProvider` (ambiguous —
+  see caveats: the 26.6 migration-guide note this page cites shows the cast target
+  as plain `DatastoreProvider`, not `LegacyDatastoreProvider`). Several
   deprecated stream/model methods removed and parameter ordering normalized
   (`RealmModel` first). See [[user-storage-spi]].
 - **New legacy modules:** data-store code moved to
@@ -68,8 +72,8 @@ restart with the auto-build feature). See [[spi-provider-model]].
 
 ### Admin client & other notable changes
 - **Admin client artifact renamed:** `keycloak-admin-client-jakarta` →
-  `keycloak-admin-client` (Jakarta default since 26.2.0); Java EE variant is now
-  `keycloak-admin-client-jee`.
+  `keycloak-admin-client` (Jakarta default since 26.2.0 — ambiguous, see caveats);
+  Java EE variant is now `keycloak-admin-client-jee`.
 - **Nashorn JS engine** is on the classpath by default — do **not** copy a JS
   engine when deploying [[javascript-providers-scripts]].
 - **"Never expires"** removed from client advanced-settings combos (was `-1`).
@@ -81,6 +85,20 @@ restart with the auto-build feature). See [[spi-provider-model]].
   removed-method migrations above apply only if you hit them.
 - Legacy-module casts (`LegacyDatastoreProvider`, `LegacyRealmModel`) work only
   when the legacy modules are part of the deployment.
+- **Ambiguous — `LegacyDatastoreProvider` vs `DatastoreProvider`:** the RHBK 26.0 and
+  26.2 migrating-providers notes show the cast as
+  `((LegacyDatastoreProvider) session.getProvider(DatastoreProvider.class))`, but the
+  26.4 and 26.6 notes (incl. the one cited on this page) show
+  `((DatastoreProvider) session.getProvider(DatastoreProvider.class))` — i.e. the
+  interface name in the cast itself appears to have been simplified/corrected
+  starting 26.4. Verify against the exact target version before copying the snippet.
+- **Ambiguous — Jakarta-default version number:** each per-version migration-guide
+  note self-referentially states the `keycloak-admin-client` rename "since version
+  X.Y.0" using its own version number (26.2 note says 26.2.0, 26.4 note says 26.4.0,
+  26.6 note says 26.6.0) — almost certainly an un-updated template string in the
+  docs rather than three separate renames. Treat 26.2.0 as the more credible
+  original date and re-verify against the actual 26.2 release notes if precision
+  matters.
 
 ## See also
 - [[spi-provider-model]]

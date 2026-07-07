@@ -13,8 +13,13 @@ provenance_extracted: 18
 provenance_inferred: 4
 provenance_ambiguous: 1
 tags: [clients, tokens, security, anti-pattern]
+symptoms:
+  - "431 Request Header Fields Too Large"
+  - "third-party cookie blocked"
+  - "JWT in localStorage"
+  - "Set-Cookie missing HttpOnly"
 status: reviewed
-updated: 2026-06-18
+updated: 2026-07-02
 ---
 
 # Token Storage in the Browser
@@ -98,13 +103,14 @@ The following are the concrete, observable failures a wrong implementation produ
 **OWASP cheat sheets are guidance, not a numbered standard.** Section references above are heading anchors. For numbered, auditable requirements use ASVS V3.4.* (cookie attributes) or ASVS V8.2.2 (data protection), or the IETF BBA draft.
 
 ## See also
+- [[tokens-and-sessions]] — server-side session lifecycle behind browser token storage
 
 - [[bff-token-handler]] — full BFF / Token Handler architecture; OAuth Agent cookie spec
 - [[refresh-token-rotation]] — rotation limits but does not eliminate persistent theft
 - [[cors-for-spa]] — CORS requirements for token endpoint and BFF APIs
 - [[pkce]] — PKCE requirement for all browser-based / public clients
 - [[state-and-nonce]] — CSRF and replay defenses at the protocol level
-- [[dpop-sender-constraining]] — sender-constrained tokens as an alternative to pure rotation
+- [[dpop]] — sender-constrained tokens as an alternative to pure rotation
 - [[mtls-bound-tokens]] — mTLS binding as the other sender-constraining mechanism
 - [[rp-initiated-logout]] — ensuring logout actually invalidates the server-side session
 - [[back-channel-logout]] — propagating logout when the browser is offline

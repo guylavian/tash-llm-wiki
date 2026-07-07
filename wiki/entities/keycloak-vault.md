@@ -6,10 +6,12 @@ slug: keycloak-vault
 summary: "RHBK ships two Vault SPI implementations — a plaintext file-based vault (ideal for Kubernetes/OpenShift mounted secrets) and a Java KeyStore-based vault — referenced from realm config via `${vault.<name>}` placeholders."
 sources:
   - guide:server_configuration_guide
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Using a vault
@@ -40,7 +42,7 @@ bin/kc.sh build --vault=keystore    # Java KeyStore-based
 
 ## Why use it
 
-Avoids plaintext secrets in `keycloak.conf`/CLI. Recommended for the HTTPS keystore password ([[tls-configuration]]) and the DB password ([[database-configuration]]). Distinct from — but complementary to — the KeyStore **config source** that holds sensitive runtime *options* (`kc.<key>`); see [[config-sources-precedence]].
+Avoids plaintext secrets in `keycloak.conf`/CLI. Recommended for the HTTPS keystore password ([[tls-configuration]]) and the DB password ([[database-configuration]]). Distinct from — but complementary to — the KeyStore **config source** that holds sensitive runtime *options* (`kc.<key>`); see [[config-sources-precedence]] (inferred cross-reference distinguishing two similarly-named mechanisms, not a single-source claim).
 
 ## Contradictions / caveats
 - Behavior stable across RHBK 26.0–26.6 (quoted from 26.4). The file-based vault is plaintext-on-disk by design — protect the mount.

@@ -9,6 +9,8 @@ sources:
   - ref:wiki/reference/active-directory/ad-ds-delegated-managed-service-accounts-overview.md
   - ref:wiki/reference/active-directory/ad-ds-schema-updates.md
   - ref:wiki/reference/keycloak/rhbk-26-4-configuring-authentication-server-administration-guide.md
+  - kb:ad-ds-configure-kerberos-delegation-group-managed-service-accounts
+  - kb:ad-ds-schema-updates
   - web:https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu/ (MS-SFU: Kerberos Protocol Extensions — Service for User and Constrained Delegation Protocol, fetched 2026-06-18)
   - web:https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/ (MS-ADTS: Active Directory Technical Specification, fetched 2026-06-18)
   - web:https://datatracker.ietf.org/doc/rfc4120/ (RFC 4120 — The Kerberos Network Authentication Service V5, fetched 2026-06-18)
@@ -18,7 +20,7 @@ provenance_inferred: 5
 provenance_ambiguous: 0
 tags: [federation]
 status: reviewed
-updated: 2026-06-18
+updated: 2026-07-02
 ---
 
 # Kerberos RBCD / S4U detailed — NTLM front-end, protocol transition, and the delegation authority shift
@@ -61,7 +63,7 @@ The answer lies in the **different KDC code paths** for the two delegation model
 
 - The KDC looks at the **requesting account (FE)**:
   1. Does FE have `msDS-AllowedToDelegateTo` with BE's SPN?
-  2. Is FE `TRUSTED_TO_AUTH_FOR_DELEGATION` (protocol transition) OR does the user's original TGS have the `TGT_FLG_FORWARDABLE` flag?
+  2. Is FE `TRUSTED_TO_AUTH_FOR_DELEGATION` (protocol transition) OR does the user's original TGS have the `TGT_FLG_FORWARDABLE` flag? (web:RFC 4120 §2 — Kerberos flag names; see step 67)
 - The KDC enforces the Kerberos chain-of-forwards rule: a delegation operation must be traceable back to a user-authenticated, forwardable TGT. This protects the user by requiring their explicit Kerberos participation (or an admin-granted `TRUSTED_TO_AUTH_FOR_DELEGATION` exemption).
 - If the evidence ticket is non-forwardable (as from S4U2Self without `TRUSTED_TO_AUTH_FOR_DELEGATION`) and no user TGS exists (NTLM auth), the KDC **rejects** the S4U2Proxy request.
 - This is consistent with the Kerberos protocol definition: RFC 4120 §5.4 defines the `FORWARDABLE` flag; delegation (TGS-REQ with `KDC_OPT_FORWARDED`) requires a forwardable TGT. (web:RFC 4120)
@@ -128,7 +130,7 @@ RBCD abuse is a well-documented Active Directory attack path:
    - They call S4U2Proxy to get a service ticket to BE's SPN in the DA's identity.
    - They use that ticket to access BE with Domain Admin privileges.
 
-3. **Why it's dangerous:** Because RBCD eliminates the `TRUSTED_TO_AUTH_FOR_DELEGATION` requirement, any attacker with write access to a computer's `msDS-AllowedToActOnBehalfOfOtherIdentity` can impersonate any user (including Domain Admins) to that computer. The attack is detectable by BloodHound (edge `AllowedToDelegate`) and by monitoring changes to `msDS-AllowedToActOnBehalfOfOtherIdentity` (Event ID 5136 on the attribute).
+3. **Why it's dangerous:** Because RBCD eliminates the `TRUSTED_TO_AUTH_FOR_DELEGATION` requirement, any attacker with write access to a computer's `msDS-AllowedToActOnBehalfOfOtherIdentity` can impersonate any user (including Domain Admins) to that computer. The attack is detectable by BloodHound (edge `AllowedToAct` — the RBCD edge; `AllowedToDelegate` is classic constrained delegation) and by monitoring changes to `msDS-AllowedToActOnBehalfOfOtherIdentity` (Event ID 5136 on the attribute).
 
 This dual nature — both a security improvement (decentralized resource authorization) and an attack surface — makes RBCD one of the most important delegation concepts to understand for AD security practitioners.
 
@@ -137,7 +139,7 @@ This dual nature — both a security improvement (decentralized resource authori
 ## Contradictions / caveats
 
 - The vault's harvested reference notes contain the classic delegation configuration (userAccountControl flags, msDS-AllowedToDelegateTo) and the schema definition of msDS-AllowedToActOnBehalfOfOtherIdentity, but do **not** contain the detailed MS-SFU protocol specification for S4U2Self/S4U2Proxy KDC processing rules. The fine-grained protocol behavior (e.g., the exact KDC code-path separation between classic and resource-based delegation, the forwardable-skip rule for RBCD) is drawn from the MS-SFU and MS-ADTS Open Specifications and from RFC 4120. These `web:` sources are authoritative for the protocol mechanics.
-- The RBCD attack vector described above is a well-known AD security finding documented in MITRE ATT&CK (T1558.003 — "Kerberoasting: Steal or Forge Tickets: Kerberos Delegation Abuse") and in the BloodHound attack-path catalog. The vault does not currently have a dedicated page on AD attack paths; this is flagged as a coverage gap.
+- The RBCD attack vector described above is a well-known AD security finding documented in the BloodHound attack-path catalog. MITRE ATT&CK has no single dedicated sub-technique for Kerberos delegation abuse; it sits in the T1558 (Steal or Forge Kerberos Tickets) / T1550 (Use Alternate Authentication Material) family context (note: T1558.003 is specifically Kerberoasting, a distinct technique, not delegation abuse). The vault does not currently have a dedicated page on AD attack paths; this is flagged as a coverage gap.
 
 ## See also
 - [[service-accounts-overview]] — gMSA, sMSA, dMSA, virtual accounts
@@ -167,3 +169,9 @@ This dual nature — both a security improvement (decentralized resource authori
 - **MS-ADTS** — *Active Directory Technical Specification*. Microsoft Open Specifications. Section 3.1.1.5.3 defines the KDC access check against the target computer's `msDS-AllowedToActOnBehalfOfOtherIdentity` security descriptor.
 - **RFC 4120** — *The Kerberos Network Authentication Service V5*. IETF. Defines the `FORWARDABLE` flag (§5.4), TGT delegation semantics (§5.4.1), and the standard KDC processing rules.
 - **Kerberos Authentication Overview** — Microsoft Learn. Overview of Windows Kerberos implementation, service tickets, delegation models, and gMSA support.
+
+## Sources
+<!-- crosslink:begin (generated by crosslink.py — do not edit) -->
+- [[ad-ds-configure-kerberos-delegation-group-managed-service-accounts|Configuring Kerberos Delegation for Group Managed Service Accounts]]
+- [[ad-ds-schema-updates|Schema updates in Windows Server]]
+<!-- crosslink:end -->

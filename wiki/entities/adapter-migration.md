@@ -9,10 +9,12 @@ sources:
   - kb:migrating-applications
 source_notes:
   - "[[rhbk-26-6-migrating-applications]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [migration]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Migrating RH-SSO 7.6 client adapters & OIDC/SAML apps
@@ -74,8 +76,9 @@ to follow:
   [[client-libraries-by-stack]].
 - **Adapters and server are now decoupled** (separate release cadences): upgrade
   the **server first**, then adapters. Adapter 6.x/7.x is *not* supported by RHBK.
+  (inferred)
 - The **keycloak-js** JavaScript adapter is **not** among the dropped adapters and
-  remains the supported browser option.
+  remains the supported browser option. (inferred)
 _Source: web:https://developers.redhat.com/articles/2024/04/23/migrate-sso-red-hat-build-keycloak and the upstream Keycloak 22 Migration Guide (fetched 2026-06-16). Treat as directional; confirm support specifics in `ref:rhbk-platform-support.md`._
 
 ## Contradictions / caveats

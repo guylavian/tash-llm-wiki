@@ -12,8 +12,13 @@ provenance_extracted: 28
 provenance_inferred: 5
 provenance_ambiguous: 0
 tags: [clients, security, profile]
+symptoms:
+  - "disallowed_useragent"
+  - "invalid_request"
+  - "invalid_client"
+  - "invalid_redirect_uri"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Native App OAuth 2.0 (RFC 8252 / OAuth 2.1)
@@ -102,7 +107,7 @@ The resource server has no special obligations specific to native apps beyond st
 - [[redirect-uri-validation]]
 - [[state-and-nonce]]
 - [[refresh-token-rotation]]
-- [[dpop-sender-constraining]]
+- [[dpop]]
 - [[bearer-token-usage]]
 - [[token-storage-browser]]
 - [[bff-token-handler]]

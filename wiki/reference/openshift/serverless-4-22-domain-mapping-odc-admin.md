@@ -1,0 +1,103 @@
+---
+title: "Domain mapping using the Administrator perspective"
+type: reference
+domain: openshift
+slug: serverless-4-22-domain-mapping-odc-admin
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/serverless/domain-mapping-odc-admin
+version: 4.22
+family: serverless
+documentKind: "Documentation"
+---
+
+# Domain mapping using the Administrator perspective
+
+[id="domain-mapping-odc-admin"]
+= Domain mapping using the Administrator perspective
+
+If you do not want to switch to the *Developer* perspective in the OpenShift Container Platform web console or use the Knative (`kn`) CLI or YAML files, you can use the *Administator* perspective of the OpenShift Container Platform web console.
+
+// domain mapping as an admin
+// Module included in the following assemblies:
+//
+// * serverless/knative_serving/serverless-custom-domains.adoc
+
+[id="serverless-domain-mapping-odc-admin_{context}"]
+= Mapping a custom domain to a service by using the Administrator perspective
+
+If you have cluster administrator permissions, you can create a `DomainMapping` custom resource (CR) by using the *Administrator* perspective in the OpenShift Container Platform web console.
+
+If you have cluster or dedicated administrator permissions, you can create a `DomainMapping` custom resource (CR) by using the *Administrator* perspective in the OpenShift Container Platform web console.
+
+.Prerequisites
+
+* You have logged in to the web console.
+* You are in the *Administrator* perspective.
+* You have installed the {ServerlessOperatorName}.
+* You have installed Knative Serving.
+* You have created a project or have access to a project with the appropriate roles and permissions to create applications and other workloads in OpenShift Container Platform.
+* You have created a Knative service and control a custom domain that you want to map to that service.
++
+[NOTE]
+====
+Your custom domain must point to the IP address of the OpenShift Container Platform cluster.
+====
+
+.Procedure
+
+. Navigate to *CustomResourceDefinitions* and use the search box to find the *DomainMapping* custom resource definition (CRD).
+
+. Click the *DomainMapping* CRD, then navigate to the *Instances* tab.
+
+. Click *Create DomainMapping*.
+
+. Modify the YAML for the `DomainMapping` CR so that it includes the following information for your instance:
++
+[source,yaml]
+----
+apiVersion: serving.knative.dev/v1alpha1
+kind: DomainMapping
+metadata:
+ name: <domain_name> <1>
+ namespace: <namespace> <2>
+spec:
+ ref:
+   name: <target_name> <3>
+   kind: <target_type> <4>
+   apiVersion: serving.knative.dev/v1
+----
+<1> The custom domain name that you want to map to the target CR.
+<2> The namespace of both the `DomainMapping` CR and the target CR.
+<3> The name of the target CR to map to the custom domain.
+<4> The type of CR being mapped to the custom domain.
++
+.Example domain mapping to a Knative service
+[source,yaml]
+----
+apiVersion: serving.knative.dev/v1alpha1
+kind: DomainMapping
+metadata:
+ name: custom-ksvc-domain.example.com
+ namespace: default
+spec:
+ ref:
+   name: example-service
+   kind: Service
+   apiVersion: serving.knative.dev/v1
+----
+
+.Verification
+
+* Access the custom domain by using a `curl` request. For example:
++
+.Example command
+[source,terminal]
+----
+$ curl custom-ksvc-domain.example.com
+----
++
+.Example output
+[source,terminal]
+----
+Hello OpenShift!
+----

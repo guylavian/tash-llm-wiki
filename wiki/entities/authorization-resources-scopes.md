@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-resource-overview]]"
   - "[[rhbk-26-6-overview-2]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [authz]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Authorization resources and scopes
@@ -41,7 +43,7 @@ A scope is "one of the potentially many verbs that can logically apply to a reso
 With Remote Resource Management enabled, resource servers register/update/delete/query resources remotely through the [[protection-api]] (Resource Registration Endpoint), and may set a user id so a resource belongs to that user.
 
 ## Contradictions / caveats
-- Bodies are consistent across RHBK **26.0–26.6**. The guide notes a forward-looking aspiration ("In the future… allow users to control their own resources") — owner self-service today is bounded to the UMA Account Console "My Resources" flow, not full self-management.
+- Bodies are consistent across RHBK **26.0–26.6**. The guide notes a forward-looking aspiration ("In the future… allow users to control their own resources") — owner self-service today is bounded to the UMA Account Console "My Resources" flow, not full self-management. (inferred — the "My Resources" Account Console flow is grounded in `reference/keycloak/rhbk-26-6-service-overview.md`, not among this page's cited sources.)
 
 ## See also
 - [[fine-grained-authorization]]

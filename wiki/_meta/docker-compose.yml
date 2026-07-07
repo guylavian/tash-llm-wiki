@@ -1,0 +1,40 @@
+# docker-compose.yml for Keycloak/RHBK Wiki with Kuzu TKG backend
+# Run from: wiki/_meta/
+# Command: docker compose up -d --build
+
+version: '3.8'
+
+services:
+  wiki:
+    build:
+      # Build context is parent directory (wiki/)
+      context: ..
+      # Dockerfile is in _meta/
+      dockerfile: _meta/Dockerfile
+    container_name: keycloak-wiki
+    volumes:
+      # Mount the entire wiki directory for live editing
+      - ..:/wiki
+      # Persist the TKG database
+      - tkg-data:/wiki/_meta/tkg
+      # Persist embeddings
+      - embeddings-data:/wiki/_meta/embeddings
+    environment:
+      # Enable Kuzu backend
+      - WIKI_TKG=kuzu
+      # Air-gap safety
+      - LITELLM_LOCAL_MODEL_COST_MAP=True
+      - GRAPHITI_TELEMETRY_ENABLED=False
+      - KUZU_DISABLE_TELEMETRY=1
+      - PYTHONDONTWRITEBYTECODE=1
+      # Optional: Enable local LLM (requires Ollama on host)
+      # - WIKI_LLM=local
+      # - WIKI_LLM_API_BASE=http://host.docker.internal:11434
+    # Keep container running for interactive commands
+    command: tail -f /dev/null
+    # Optional: Connect to host network to access Ollama
+    # network_mode: host
+
+volumes:
+  tkg-data:
+  embeddings-data:

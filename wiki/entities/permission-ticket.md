@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-service-overview]]"
   - "[[rhbk-26-6-overview-2]]"
-provenance: needs-review
+provenance_extracted: 7
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [authz]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Permission ticket and the UMA flow

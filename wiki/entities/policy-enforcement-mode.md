@@ -9,10 +9,12 @@ sources:
   - kb:authorization_services_guide/resource_server_overview
 source_notes:
   - "[[rhbk-26-6-resource-server-overview]]"
-provenance: needs-review
+provenance_extracted: 4
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [authz]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Policy enforcement mode
@@ -28,7 +30,7 @@ This is orthogonal to [[decision-strategies|Decision Strategy]] (which combines 
 
 ## Contradictions / caveats
 - Stable across RHBK **26.0–26.6**.
-- `Permissive` and `Disabled` weaken protection — combined with the always-grant **Default Resource** (`/*`) seeded at resource-server creation, they can silently expose everything. Narrow or remove the default resource first (see [[fine-grained-authorization]]).
+- `Permissive` and `Disabled` weaken protection — combined with the always-grant **Default Resource** (`/*`) seeded at resource-server creation, they can silently expose everything (inferred — a risk synthesis combining this chapter with the default-resource behavior documented elsewhere). Narrow or remove the default resource first (see [[fine-grained-authorization]]).
 
 ## See also
 - [[decision-strategies]]

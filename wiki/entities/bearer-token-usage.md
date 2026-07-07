@@ -11,8 +11,12 @@ provenance_extracted: 18
 provenance_inferred: 3
 provenance_ambiguous: 0
 tags: [tokens, security, anti-pattern]
+symptoms:
+  - "invalid_token"
+  - "insufficient_scope"
+  - "invalid_request"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Bearer Token Usage
@@ -67,14 +71,16 @@ RFC 6750 and RFC 9700 establish a hierarchy of transmission methods:
 - Reject tokens not addressed to this resource server (`aud` mismatch) even when the signature is valid — token-redirect / confused-deputy (inferred, spanning RFC 6750 §5.2 and RFC 9700 §4.10.2).
 - Enforce TLS all the way to the backend; do not accept tokens over a cleartext internal hop.
 
-For sender-constraining (DPoP / mTLS) that upgrades a bearer token to a proof-of-possession token, see [[dpop-sender-constraining]] and [[mtls-bound-tokens]].
+For sender-constraining (DPoP / mTLS) that upgrades a bearer token to a proof-of-possession token, see [[dpop]] and [[mtls-bound-tokens]].
 
 ## See also
+- [[pkce]] — public clients obtaining these tokens must use PKCE
+- [[oidc-client-best-practices]] — RHBK-specific client guidance for issuing the bearer tokens
 
 - [[access-token-validation-resource-server]]
 - [[audience-and-scope-checks]]
 - [[token-storage-browser]]
-- [[dpop-sender-constraining]]
+- [[dpop]]
 - [[mtls-bound-tokens]]
 - [[dpop]]
 - [[refresh-token-rotation]]

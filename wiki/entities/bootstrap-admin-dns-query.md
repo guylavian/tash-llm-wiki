@@ -10,10 +10,12 @@ sources:
   - guide:server_configuration_guide
 source_notes:
   - "[[doc-7128352]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # bootstrap-admin fails with "dns_query can not be null or empty"
@@ -46,6 +48,9 @@ Applies to RHBK 26.x using bootstrap-admin on the Infinispan Kubernetes stack.
 ## Contradictions / caveats
 This is a bootstrap-only workaround — do not leave `KC_CACHE=local` set for the
 clustered runtime (it disables distributed caching). See [[distributed-caches]].
+(inferred — kb:7128352 only describes the bootstrap-time workaround; the
+"disables distributed caching" consequence for a clustered runtime is added
+context, not stated in the cited source.)
 
 ## See also
 - [[kc-bootstrap-admin]]

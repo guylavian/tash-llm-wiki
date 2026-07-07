@@ -9,10 +9,12 @@ sources:
   - kb:operator_guide/advanced-configuration-
 source_notes:
   - "[[rhbk-26-6-advanced-configuration]]"
-provenance: needs-review
+provenance_extracted: 4
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [operator]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Secret & ConfigMap references

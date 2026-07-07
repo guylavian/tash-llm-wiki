@@ -106,7 +106,10 @@ def synthesize_node(state):
         {"role": "system", "content": "Answer the question using ONLY the provided context; cite note ids."},
         {"role": "user", "content": "Question: %s\n\nContext:\n%s" % (state["query"], ctx)},
     ]
-    resp = llm.complete(messages)
+    if llm.available():                              # config-only check (no socket) — so a blocking
+        print("· querying local model (WIKI_LLM=%s); a reasoning model can take 30-200s…"
+              % llm.mode(), file=sys.stderr, flush=True)   # the run doesn't look frozen
+    resp = llm.complete_routed(messages, tier="hard")   # quality leaf -> large model (routes only if 2 configured)
     answer = llm.text_of(resp) if resp is not None else None
     if not answer:                                   # None (gateway off) OR empty (e.g. a reasoning
         ids = ", ".join(cid for cid, _ in cands[:5]) or "(no candidates)"   # model cut off mid-think)

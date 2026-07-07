@@ -9,9 +9,11 @@ sources:
   - kb:keycloak-service-level-indicators-
 source_notes:
   - "[[rhbk-26-6-keycloak-service-level-indicators]]"
-provenance: needs-review
+provenance_extracted: 7
+provenance_inferred: 1
+provenance_ambiguous: 0
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Service Level Indicators and SLOs (PromQL)
@@ -56,7 +58,7 @@ These SLI graphs sit on top of the troubleshooting [[grafana-dashboards]].
 
 - The SLO target values are **examples only** — agree real targets with stakeholders.
 - Queries are Kubernetes/Prometheus blueprints; adapt label selectors (`container`, `namespace`, `pod`) for bare-metal — see [[grafana-dashboards]] for relabel config.
-- For alerting/live dashboards, convert heavy subquery expressions into recording rules to limit resource use.
+- For alerting/live dashboards, convert heavy subquery expressions into recording rules to limit resource use (inferred — general PromQL practice, not stated in the cited chapter).
 
 ## See also
 - [[observability-stack]]

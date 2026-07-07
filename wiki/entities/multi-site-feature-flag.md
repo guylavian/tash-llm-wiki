@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-2-deploy-keycloak-kubernetes]]"
   - "[[rhbk-26-6-multi-cluster-introduction]]"
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [ha, server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # The `multi-site` Feature Flag

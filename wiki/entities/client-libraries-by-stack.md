@@ -14,10 +14,12 @@ sources:
   - web:https://github.com/authts/react-oidc-context (fetched 2026-06-16)
 source_notes:
   - "[[rhbk-26-6-migrating-applications]]"
-provenance: needs-review
+provenance_extracted: 5
+provenance_inferred: 9
+provenance_ambiguous: 0
 tags: [clients]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # OIDC Client Libraries by Stack (Java / Node / SPA)
@@ -89,7 +91,8 @@ not Red Hat ground-truth** — verify versions against each project.
 | **`openid-client`** | Node | Maintained, certified | ✅ Preferred low-level Node RP (use directly or behind Passport) |
 | **`passport-keycloak-oauth2-oidc`** | Node | **Stale — last publish ~5 yrs ago** | ❌ Avoid for new/prod; prefer `passport-openidconnect`/`openid-client` |
 
-**Dominant 2025 pattern:** SPA does the OIDC login (PKCE, public client); the
+**Dominant 2025 pattern (inferred — synthesis across the web-sourced library survey
+above, not a single source):** SPA does the OIDC login (PKCE, public client); the
 Node/Java backend is a **resource server that only validates Bearer JWTs**
 ([[oidc-token-validation]]) — not its own redirect login. Extract client roles
 from `resource_access[clientId].roles`.

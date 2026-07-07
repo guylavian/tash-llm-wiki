@@ -1,0 +1,108 @@
+---
+title: "Enabling user permissions to clone data volumes across namespaces"
+type: reference
+domain: openshift
+slug: virt-4-22-virt-enabling-user-permissions-to-clone-datavolumes
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/virt/virt-enabling-user-permissions-to-clone-datavolumes
+version: 4.22
+family: virt
+documentKind: "Documentation"
+---
+
+# Enabling user permissions to clone data volumes across namespaces
+
+[id="virt-enabling-user-permissions-to-clone-datavolumes"]
+= Enabling user permissions to clone data volumes across namespaces
+
+[role="_abstract"]
+By default, users cannot clone resources between namespaces. To enable cloning, a user with the `cluster-admin` role must create and bind a cluster role that grants the required permissions.
+
+To enable a user to clone a virtual machine to another namespace, a user with the `cluster-admin` role must create a new cluster role. Bind this cluster role to a user to enable them to clone virtual machines to the destination namespace.
+
+// Module included in the following assemblies:
+//
+// * virt/storage/virt-enabling-user-permissions-to-clone-datavolumes.adoc
+
+[id="virt-creating-rbac-cloning-dvs_{context}"]
+= Creating RBAC resources for cloning data volumes
+
+[role="_abstract"]
+You can create a new cluster role that enables permissions for all actions for the `datavolumes` resource.
+
+.Prerequisites
+
+* You have installed the {oc-first}.
+* You must have cluster admin privileges.
+
+[NOTE]
+====
+If you are a non-admin user that is an administrator for both the source and target namespaces, you can create a `Role` instead of a `ClusterRole` where appropriate.
+====
+
+.Procedure
+
+. Create a `ClusterRole` manifest:
++
+[source,yaml]
+----
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: <datavolume_cloner>
+rules:
+- apiGroups: ["cdi.kubevirt.io"]
+  resources: ["datavolumes/source"]
+  verbs: ["*"]
+# ...
+----
++
+where:
++
+`<datavolume_cloner>`:: Specifies a unique name for the cluster role.
+
+. Create the cluster role in the cluster:
++
+[source,terminal]
+----
+$ oc create -f <datavolume_cloner.yaml>
+----
++
+where:
++
+`<datavolume_cloner.yaml>`:: Specifies the file name of the `ClusterRole` manifest created in the previous step.
+
+. Create a `RoleBinding` manifest that applies to both the source and destination namespaces and references
+the cluster role created in the previous step.
++
+[source,yaml]
+----
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: <allow_clone_to_user>
+  namespace: <source_namespace>
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: <destination_namespace>
+roleRef:
+  kind: ClusterRole
+  name: datavolume-cloner
+  apiGroup: rbac.authorization.k8s.io
+----
+** `metadata.name` specifies a unique name for the role binding.
+** `metadata.namespace` specifies the namespace for the source data volume.
+** `subjects.namespace` specifies the namespace to which the data volume is cloned.
+** `roleRef.name` specifies the name of the cluster role created in the previous step.
+
+. Create the role binding in the cluster:
++
+[source,terminal]
+----
+$ oc create -f <datavolume_cloner.yaml>
+----
++
+where:
++
+`<datavolume_cloner.yaml>`:: Specifies the file name of the `RoleBinding` manifest created in the previous step.

@@ -13,10 +13,12 @@ source_notes:
   - "[[rhbk-26-6-permission-overview]]"
   - "[[rhbk-26-6-policy-overview]]"
   - "[[rhbk-26-6-resource-server-overview]]"
-provenance: needs-review
+provenance_extracted: 7
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [authz]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Decision strategies and enforcement mode
@@ -24,7 +26,7 @@ updated: 2026-06-16
 **Decision strategies say how multiple positive/negative outcomes combine into one decision; enforcement mode says what happens when no policy applies at all.**
 
 ## Decision strategies
-Used in three places: on a [[authorization-permissions|permission]] (combine its policies), on an [[authorization-policy-types|aggregated policy]] (combine sub-policies), and resource-server-wide (resolve conflicts between permissions on the same resource/scope).
+Used in three places: on a [[authorization-permissions|permission]] (combine its policies), on an [[authorization-policy-types|aggregated policy]] (combine sub-policies), and resource-server-wide (resolve conflicts between permissions on the same resource/scope) (inferred — this three-context framing synthesizes across the three cited chapters, each of which documents its own context separately).
 
 - **Unanimous** — *default*. All must evaluate positive for the result to be positive.
 - **Affirmative** — at least one positive yields a positive result.
@@ -39,8 +41,8 @@ A resource-server setting controlling behavior when a requested resource has **n
 - **Disabled** — skip all policy evaluation; grant everything.
 
 ## Contradictions / caveats
-- The same `Unanimous`/`Affirmative`/`Consensus` names appear at policy, permission, and server scope — they are evaluated at *different levels*, so trace which one applies before debugging an unexpected grant/deny.
-- Stable across RHBK **26.0–26.6**.
+- The same `Unanimous`/`Affirmative`/`Consensus` names appear at policy, permission, and server scope — they are evaluated at *different levels*, so trace which one applies before debugging an unexpected grant/deny (inferred).
+- Stable across RHBK **26.0–26.6** (inferred — confirmed by diffing the 26.0/26.2/26.4/26.6 policy-overview chapters, not stated as such in any single chapter).
 
 ## See also
 - [[fine-grained-authorization]]

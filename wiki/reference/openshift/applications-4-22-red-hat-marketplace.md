@@ -1,0 +1,51 @@
+---
+title: "Using the Red Hat Marketplace"
+type: reference
+domain: openshift
+slug: applications-4-22-red-hat-marketplace
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/applications/red-hat-marketplace
+version: 4.22
+family: applications
+documentKind: "Documentation"
+---
+
+# Using the Red Hat Marketplace
+
+[id="red-hat-marketplace"]
+= Using the Red Hat Marketplace
+
+The Red Hat Marketplace is an open cloud marketplace that makes it easy to discover and access certified software for container-based environments that run on public clouds and on-premise.
+
+// Module included in the following assemblies:
+//
+// * applications/red-hat-marketplace.adoc
+
+[id="red-hat-marketplace-features_{context}"]
+= Red Hat Marketplace features
+
+Cluster administrators can use the Red Hat Marketplace to manage software on OpenShift Container Platform, give developers self-service access to deploy application instances, and correlate application usage against a quota.
+
+[id="marketplace-clusters_{context}"]
+== Connect OpenShift Container Platform clusters to the Marketplace
+
+Cluster administrators can install a common set of applications on OpenShift Container Platform clusters that connect to the Marketplace. They can also use the Marketplace to track cluster usage against subscriptions or quotas. Users that they add by using the Marketplace have their product usage tracked and billed to their organization.
+
+During the cluster connection process,
+a Marketplace Operator is installed that updates the image registry secret, manages the catalog, and reports application usage.
+
+[id="marketplace-install-applications_{context}"]
+== Install applications
+
+Cluster administrators can install Marketplace applications from within the software catalog in OpenShift Container Platform, or from the Marketplace web application.
+
+You can access installed applications from the web console by clicking *Ecosystem* -> *Installed Operators*.
+
+[id="marketplace-deploy_{context}"]
+== Deploy applications from different perspectives
+
+Developers can access newly installed capabilities and deploy Marketplace applications from the web console.
+
+For example, after a database Operator is installed, a developer can create an instance from the catalog within their project. Database usage is aggregated and reported to the cluster administrator.
+
+Cluster administrators can access Operator installation and application usage information. They can also launch application instances by browsing custom resource definitions (CRDs) in the *Installed Operators* list.

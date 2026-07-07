@@ -8,10 +8,12 @@ sources:
   - guide:server_administration_guide
   - guide:securing_applications_and_services_guide
   - ref:server-administration.md
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [tokens, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Tokens & Sessions
@@ -38,7 +40,8 @@ sessions and their timeouts are governed.**
   version — confirm in `ref:rhbk-platform-support.md` before relying on it in
   production.
 - Lifespan defaults differ between realm-level and client-level overrides; the
-  most specific (client) wins.
+  most specific (client) wins (inferred — general Keycloak override behavior,
+  not stated verbatim in this page's cited sources).
 
 ## See also
 - [[oidc-token-validation]]

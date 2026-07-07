@@ -10,10 +10,12 @@ sources:
   - guide:server_configuration_guide
 source_notes:
   - "[[doc-7126933]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Separate SSO and Admin Console hostnames without forced redirect
@@ -43,9 +45,11 @@ Applies to RHBK 26.x with distinct user/admin hostnames behind a reverse proxy.
 ## Contradictions / caveats
 Disabling strict hostname validation shifts responsibility for correct
 `Host`/`X-Forwarded-*` headers entirely to the proxy — misconfigured headers
-then surface as broken redirects or wrong issuer URLs.
+then surface as broken redirects or wrong issuer URLs (inferred — a consequence
+drawn from the reverse-proxy material, not stated in the cited KB solution).
 
 ## See also
+- [[hostname-v2]] — the hostname-v2 model that enables separate SSO/admin URLs
 - [[troubleshooting-index]]
 
 ## Sources

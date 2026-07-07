@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-configuration-metrics]]"
   - "[[rhbk-26-6-metrics-for-troubleshooting]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [observability]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Server metrics endpoint (/metrics) and histograms
@@ -55,7 +57,7 @@ The endpoint is `/metrics` on the [[management-port]], content type `application
 
 ## Contradictions / caveats
 
-- This native endpoint is the **supported** metrics path. The OpenTelemetry Metrics export (`telemetry-metrics-enabled`, Micrometer-to-OTel bridge) is **experimental** with differing semantic conventions — see [[opentelemetry-centralization]].
+- This native endpoint is the **supported** metrics path. The OpenTelemetry Metrics export (`telemetry-metrics-enabled`, Micrometer-to-OTel bridge) is **experimental** with differing semantic conventions (inferred — not in the two metrics chapters cited here; see [[opentelemetry-centralization]] for its own sourcing).
 - Histograms/percentile buckets increase scrape and storage load; enable only where you need heatmaps or fine SLO buckets.
 
 ## See also

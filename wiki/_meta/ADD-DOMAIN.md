@@ -78,7 +78,13 @@ lines.**
 - shape: notes-first                # or corpus-backed
 - sources: [_sources/<domain>/]     # + corpora/<domain>/ if corpus-backed
 - review-moc: <domain>-implementation-review
+- tiers-covered: [conceptual]       # coarse knowledge-tiers ingested: conceptual | support-kb | scenarios
 ```
+
+> **Don't skip `tiers-covered:`.** It is the coverage axis the QUERY **Confidence
+> gate** reads (arm H1): if a question's tier isn't in this list, the answer is
+> banner-flagged *Out of corpus coverage*. A new notes-first brain almost always
+> starts `[conceptual]` only — declare that honestly rather than over-claiming.
 
 Why it's load-bearing:
 - **`lint.py`** validates every page's `domain:` against the `- domain:` lines here
@@ -288,6 +294,89 @@ python3 -m wikikb manifest record note:_sources/cisco-ios-xe/ospf-routing.md \
 Result: a fully queryable brain. `route.py "ospf neighbor stuck in exstart"` →
 confident `cisco-ios-xe`; the query reads only `index.cisco-ios-xe.md`, lands on
 `[[ospf]]` / the review MOC's reverse index, and answers.
+
+---
+
+## Worked example, end to end — `openshift` (notes-first, corpus-backable)
+
+The fourth brain (Kubernetes-based OpenShift), added 2026-06-25. Goal: stand it up like
+keycloak, with a clear promotion path to the full harvested corpus.
+
+```bash
+# 1. taxonomy.md ## Domains: added the ### openshift block
+#      areas: [workloads, cluster-networking, cluster-storage, operators-olm,
+#              builds-images, cluster-auth, observability, security, troubleshooting, migration]
+#      shape: notes-first   tiers-covered: [conceptual]   review-moc: openshift-implementation-review
+# 2. taxonomy.md ## Areas: added 6 new area tokens (workloads … cluster-auth) with glosses
+
+# 3. raw tier (notes-first): README + 4 paraphrased concept notes
+mkdir -p _sources/openshift
+#   _sources/openshift/{README,kubernetes-workloads,kubernetes-networking,
+#                       kubernetes-storage,openshift-platform}.md
+
+# 4. seed synthesis: overview + 4 entities + the review MOC
+#   topics/openshift-overview.md
+#   topics/openshift-implementation-review.md     (rule→anti-pattern→symptom + reverse index;
+#                                                  symptoms: CrashLoopBackOff/ImagePullBackOff/Pending/503)
+#   entities/{kubernetes-pod,kubernetes-service,openshift-route,security-context-constraints}.md
+
+# 5. wire + index
+python3 -m wikikb crosslink --apply     # (no-op for notes-first: note:/web: don't resolve to kb)
+python3 -m wikikb index                 # -> wrote index.openshift.md (6 pages) + router line
+
+# 6. verify  (regenerate the eval goldens — a new domain adds one router line, so the
+#    per-query index-token proxy ticks up ~119 tok; RECALL is unchanged, this is a baseline bump)
+python3 -m wikikb evaluate         > eval/baseline.eval.out
+python3 -m wikikb evaluate --route > eval/baseline.eval.route.out
+python3 -m wikikb evaluate --graph > eval/baseline.eval.graph.out
+python3 _meta/tests/selftest.py         # only intentional [[wanted]] + MOC drift on openshift
+
+# 7. record (note: tier — manifest tracks kb:/web:, not note:, so record what applies)
+```
+
+> **The notes-first retrieval reality (verified by self-test).** `wikikb ask
+> --domain openshift` returns **no candidates** — the deterministic `ask`/`kb.search`
+> graph searches `reference/<domain>/` (the corpus tier) ONLY, which a notes-first
+> domain doesn't have. The working query path is the host-runtime one: **route →
+> read `index.openshift.md` → grep `_sources/openshift/` + the synthesis pages**, OR
+> build the optional dense/embedding index. This is the documented notes-first limit
+> (see *Known seams*) — promoting to corpus-backed (below) lights up the `ask` graph.
+
+**Promoted to corpus-backed — the "all the docs like keycloak" harvest (DONE 2026-06-26).**
+The openshift brain now carries **3,813 real doc bodies** in `reference/openshift/`:
+
+```bash
+# --- Kubernetes: Hugo MARKDOWN -> docs_to_corpus (the existing Markdown harvester) ---
+git clone --depth 1 --filter=blob:none --sparse https://github.com/kubernetes/website.git
+( cd website && git sparse-checkout set content/en/docs )            # 1,669 .md
+cp -R website/content/en/docs _sources/openshift/_raw/docs
+python3 -m wikikb docs_to_corpus --src _sources/openshift/_raw/docs \
+    --domain openshift --url-base https://kubernetes.io --apply       # -> 1,602 records
+
+# --- OpenShift: ASCIIDOC -> adoc_to_corpus (NEW harvester; resolves include:: inline) ---
+git clone --depth 1 -b enterprise-4.22 https://github.com/openshift/openshift-docs.git
+python3 -m wikikb adoc_to_corpus --src openshift-docs \
+    --domain openshift --version 4.22 --append --apply                # -> +2,211 assemblies
+
+# --- fold the combined corpus into immutable reference notes + integrity lock ---
+python3 -m wikikb corpus_to_vault --domain openshift --apply          # -> 3,813 reference notes
+#   flip shape: corpus-backed in taxonomy.md; crosslink --apply; index; regenerate eval goldens.
+```
+
+> **`adoc_to_corpus.py` (new, reusable for any Red Hat AsciiDoc docs repo).** The
+> Markdown `docs_to_corpus` can't parse AsciiDoc; `adoc_to_corpus` walks the book dirs,
+> treats each **assembly** (`= Title` page) as one record, **resolves its `include::modules/*.adoc[]`
+> inline** so the body is the complete published page (not a fragment), lightly de-AsciiDocs
+> the text (drops `ifdef`/attr-entries, flattens `xref:`/`link:`), and derives the
+> docs.redhat.com URL. Emits the same `corpora/<domain>/index.jsonl` + `bodies/` the proven
+> `corpus_to_vault` consumes. `--append` preserves an existing (e.g. Kubernetes) index.
+>
+> **Versions (4.8 → 4.22) and known-issues history** are an incremental **re-run per branch**:
+> `git clone -b enterprise-4.<n>` then `adoc_to_corpus … --version 4.<n> --append --apply`. We
+> harvested **4.22** (current) deliberately rather than all 15 minors — full multi-version bodies
+> are ~95% near-duplicate and would bloat the vault to 100k+ notes; keycloak likewise keeps only a
+> few RHBK versions and lets `crosslink` resolve `kb:` tokens to the newest. The OCP `release_notes`
+> assemblies carry the per-version known-issues history when you do want a specific older minor.
 
 ---
 

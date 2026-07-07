@@ -359,6 +359,25 @@ Goal: answer a question, and leave the wiki richer than you found it.
    > PROVENANCE (what to cite) is mandatory in the output.** Keep them distinct:
    > the cheap-first read path is unchanged, but the answer's provenance always
    > surfaces both tiers.
+
+   **Three anti-fabrication rules (a citation must EARN its place):**
+   - **Verify content, not just existence.** Before citing `kb:X`/`ref:X` for a
+     *specific* technical claim (an env var, flag, error code, default value), confirm
+     that note actually *contains* it — resolving the token to an existing note is not
+     enough. A real note cited for a claim it never makes is a **fabricated citation**
+     (the `SSO_HTTPS_CIPHER_SUITES` failure). `lint.py`'s **citation-grounding** check
+     is the backstop; don't rely on it — a distinctive claim you can't ground in a
+     read source must be tagged `(inferred)` or dropped.
+   - **Lead diagnostics with the observed signal.** For a break-fix/symptom question,
+     the *first* step is to read the actual error string / log line / metric — it
+     disambiguates the hypotheses. Never present one hypothesis as the confirmed root
+     cause when the user hasn't shared the discriminating evidence; give the ranked
+     hypotheses and the one observation that chooses between them.
+   - **Break-fix over a conceptual-only tier ⇒ banner + `status: draft`.** When the
+     question is `support-kb`/`scenarios` (an upgrade broke X, a known issue) but the
+     routed domain's `tiers-covered:` is `conceptual` only, the answer is synthesis,
+     not a confirmed fix — fire the **H1 out-of-coverage banner** and never file it
+     `status: reviewed`.
 5. **File the answer back**: create `questions/<slug>.md` with the question, the
    answer (**including the two-group References section**), and links into
    supporting pages. If answering surfaced a reusable fact, also run a
@@ -418,6 +437,16 @@ Run `python3 -m wikikb lint` (stdlib only, no network). It reports:
   (soft warning).
 - **Provenance drift** — `provenance: needs-review`, or `inferred ≥ extracted`
   (warning: verify the synthesis against the raw layer).
+- **Citation grounding** — a distinctive, fabrication-prone claim (an ENV/CONST
+  identifier like `FOO_BAR_BAZ`) asserted in the body but absent from the page's
+  **entire `domain:` reference corpus** *and* not tagged `(inferred)`/`(ambiguous)`
+  or carrying an inline `(web:/ref:/kb:)` cite. This is the **content** arm of the
+  citation contract (the provenance gate checks the *counts*; this checks that a
+  cited source actually contains the claim). On a `status: reviewed` page it is a
+  hard **ERROR** (the fabricated-citation class — e.g. citing a real note for an env
+  var the note never mentions); on a draft page, a warning to verify or tag. Crypto
+  cipher-suite constants and CLI flags are excluded (too noisy). Verified:
+  `selftest.py` #44.
 - **Stale stubs** — pages still `status: stub`.
 
 Add `--status` for the **audit / wiki-status** report (folds in the delta

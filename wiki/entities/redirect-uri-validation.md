@@ -12,8 +12,11 @@ provenance_extracted: 14
 provenance_inferred: 4
 provenance_ambiguous: 0
 tags: [security, clients, anti-pattern]
+symptoms:
+  - "invalid_redirect_uri"
+  - "redirect_uri_mismatch"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Redirect URI Validation

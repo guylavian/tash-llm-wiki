@@ -9,10 +9,12 @@ sources:
   - kb:migrating-server
 source_notes:
   - "[[rhbk-26-6-migrating-server]]"
-provenance: needs-review
+provenance_extracted: 12
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [migration, server-config, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Migrating the RH-SSO 7.6 server configuration to RHBK

@@ -11,10 +11,12 @@ sources:
   - ref:securing-apps-oidc-saml.md
 source_notes:
   - "[[rhbk-26-6-migrating-applications]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [clients, migration, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # SAML Clients & Migration (SP integration, adapters, air-gap)
@@ -52,13 +54,16 @@ after. See [[adapter-migration]] and [[rhsso-to-rhbk-migration]].
 ## SAML-specific gotchas
 - **Single Logout in a cluster:** with a non-replicating distributed cache, a SAML
   logout can hit a node lacking the SAML session-index→HTTP-session mapping →
-  failed logout. See [[oidc-logout]] and [[distributed-caches]] (and the SAML
-  Galleon feature pack note).
+  failed logout (inferred — confirmed against the SAML Galleon feature-pack
+  chapter, which isn't in this page's cited `sources:`). See [[oidc-logout]] and
+  [[distributed-caches]] (and the SAML Galleon feature pack note).
 - **Signing/encryption keys & metadata drift:** SP and IdP exchange entity
   descriptors with embedded certs; rotating realm keys ([[realm-keys-and-rotation]])
   means re-exporting/re-importing metadata on both sides.
 - **Bindings:** RHBK defaults to Redirect binding for IdP-initiated responses
-  unless POST/Artifact binding is set (identity-broker settings).
+  unless POST/Artifact binding is set (identity-broker settings) (inferred —
+  confirmed against the identity-broker chapter, not in this page's cited
+  `sources:`).
 
 ## Air-gap friendliness
 SAML is comparatively air-gap-friendly: integration is **metadata-file exchange**,

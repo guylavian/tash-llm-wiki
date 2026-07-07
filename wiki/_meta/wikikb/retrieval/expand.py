@@ -126,13 +126,47 @@ def graph_notes(domain, query, k=10, closure=False):
     return e["notes_closure"] if closure else e["notes_seed"]
 
 
+def _asof_filter(r, domain, asof_token):
+    """Drop reference notes whose CITES edge is version-temporal with valid_from > asof (the note
+    describes behavior introduced AFTER the as-of point). Structural/undated edges are NEVER filtered
+    (omit-not-fabricate: an undated note stays visible). Mutates r's note sets, returns a status line —
+    or None (no filtering) when the token can't resolve or the tkg layer is unavailable. Lazy imports so
+    `expand` stays a stdlib retrieval path when --as-of is absent (the eval golden depends on that)."""
+    from wikikb.tkg import versions, model, store
+    asof = versions.resolve_asof(asof_token)
+    if asof is None:
+        sys.stderr.write("note: could not resolve --as-of %r to a usable date; no temporal filtering.\n"
+                         % asof_token)
+        return None
+    try:
+        g = store.load_store() if store.store_exists() else model.build_graph()
+    except Exception as e:                                              # noqa: BLE001 — degrade, never crash retrieval
+        sys.stderr.write("note: tkg store unavailable (%s); no temporal filtering.\n" % e)
+        return None
+    # note-slug -> valid_from, from any version-temporal CITES edge targeting it (same note => same date).
+    src_valid = {e.dst: e.valid_from for e in g.edges
+                 if e.rel == "CITES" and e.kind == model.VERSION_TEMPORAL and e.valid_from}
+    dropped = {n for n in (r["notes_seed"] | r["notes_closure"])
+               if src_valid.get(n) and src_valid[n] > asof}
+    r["notes_seed"] -= dropped
+    r["notes_closure"] -= dropped
+    return ("--as-of %s (%s): filtered %d later-version note(s); structural/undated notes unaffected."
+            % (asof_token, asof, len(dropped)))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--domain", required=True)
     ap.add_argument("-k", type=int, default=10, help="number of page seeds (default 10)")
+    ap.add_argument("--as-of", dest="as_of", default=None,
+                    help="version or ISO date — drop reference notes introduced after this point (uses the tkg store)")
     ap.add_argument("query", nargs="+")
     args = ap.parse_args()
     r = expand(args.domain, " ".join(args.query), args.k)
+    if args.as_of:
+        line = _asof_filter(r, args.domain, args.as_of)
+        if line:
+            print(line)
     print("seeds (top-%d pages):  %s" % (args.k, ", ".join(r["seeds"][:args.k]) or "(none)"))
     print("1-hop neighbor pages: %s" % (", ".join(r["neighbors"]) or "(none)"))
     print("\nseed-source notes (primary, %d):" % len(r["notes_seed"]))

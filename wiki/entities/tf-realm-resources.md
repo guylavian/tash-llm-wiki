@@ -25,10 +25,12 @@ sources:
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/required_action.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/organization.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/workflow.md (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 24
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [iac]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Realm & realm-scoped resources (Terraform)
@@ -87,7 +89,7 @@ resource "keycloak_realm" "realm" {
 Six keystore resources manage the realm's signing/encryption key material. The
 `*_generated` variants (aes/ecdsa/hmac/rsa) have Keycloak generate the keys and
 share the same control knobs — `enabled`, `active`, `priority` — so `priority`
-plus a new `active` key is how you stage a key rotation. The two non-generated
+plus a new `active` key is how you stage a key rotation (inferred). The two non-generated
 ones import external material: `keycloak_realm_keystore_rsa` takes a PEM
 `private_key` + `certificate`, and `keycloak_realm_keystore_java_keystore` reads
 a Java keystore **file already present on the Keycloak server** (`keystore`,
@@ -98,7 +100,7 @@ These two model Keycloak's client-policies feature (FAPI-style governance):
 the **profile** is a named bundle of `executor` blocks (what to enforce), and the
 **policy** binds one or more `profiles` to a realm subject to ordered `condition`
 blocks (when to enforce). Neither supports `terraform import` today, so adopt them
-greenfield rather than importing existing server state.
+greenfield rather than importing existing server state (inferred).
 
 ### `keycloak_default_roles` — version-gated
 Requires Keycloak v13+. It manages the realm's composite "default-roles-<realm>"
@@ -127,15 +129,16 @@ to dig out of browser dev tools.
     enabled on the realm.
   - `keycloak_organization` → recent KC organizations feature.
   - `keycloak_workflow` → **KC 26.4+ and `--features=workflows`** (so RHBK 26.6 era,
-    not earlier RHBK releases). A brand-new feature like this can lag in the
-    provider — confirm the resource exists in your pinned provider version.
+    not earlier RHBK releases (inferred — mapping upstream KC version to RHBK release
+    train)). A brand-new feature like this can lag in the provider — confirm the
+    resource exists in your pinned provider version.
 - **Air-gapped:** with no internet, `terraform init` cannot reach the registry —
   the provider must come from a **local filesystem/network mirror**
   (`terraform providers mirror`, then a `provider_installation { filesystem_mirror }`
   block) and be pinned + checksum-verified. Several keystore resources also reference
   on-server files/secrets (`keycloak_realm_keystore_java_keystore`,
   `keycloak_realm_keystore_rsa`) — keep that key material out of VCS and out of
-  unencrypted state. See [[terraform-keycloak-iac]].
+  unencrypted state (inferred). See [[terraform-keycloak-iac]].
 
 ## See also
 - [[terraform-keycloak-iac]]

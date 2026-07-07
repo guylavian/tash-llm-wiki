@@ -36,6 +36,18 @@ def ask(query, domain=None, k=5, question_tier=None):
     return state
 
 
+def ask_graph(query, domain=None, k=5, question_tier=None):
+    """Same QUERY nodes as ask(), but orchestrated through the compiled LangGraph StateGraph (the
+    OPTIONAL online tier). Identical result to ask() — the graph is the substrate, not a better answer;
+    it exists so `/query` genuinely runs the StateGraph. Raises if langgraph is absent (run under the
+    venv that has it: wiki/_meta/.venv-online)."""
+    from wikikb.graph.query_graph import build_query_graph
+    init = {"query": query, "k": k, "question_tier": question_tier}
+    if domain:
+        init["domain"] = domain            # route_node honors a pre-set domain (same as ask())
+    return build_query_graph().invoke(init)
+
+
 def references(domain, used):
     """Resolve the cited reference-note ids -> {id, source} from their frontmatter (RH ground truth).
     These are the notes the answer was grounded in; the id is resolvable in the vault either way."""
@@ -49,20 +61,34 @@ def references(domain, used):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("query")
+    ap.add_argument("query", nargs="?",
+                    help="the question (or use --query-file to avoid shell-quoting issues)")
+    ap.add_argument("--query-file", dest="query_file",
+                    help="read the question from this file verbatim — robust against quotes/newlines "
+                         "in the query (the /query opencode command writes the question here)")
     ap.add_argument("--domain", help="skip routing and search this domain")
     ap.add_argument("--k", type=int, default=5, help="lexical candidates to retrieve (default 5)")
     ap.add_argument("--tier", dest="question_tier",
                     help="question tier for the H1 coverage gate (conceptual|support-kb|scenarios)")
     ap.add_argument("--json", action="store_true", help="structured output for agents")
+    ap.add_argument("--graph", action="store_true",
+                    help="orchestrate via the LangGraph StateGraph (optional online tier; needs "
+                         "langgraph). Same nodes/result as the default linear path.")
     args = ap.parse_args()
 
-    st = ask(args.query, domain=args.domain, k=args.k, question_tier=args.question_tier)
+    query = args.query
+    if args.query_file:
+        query = open(args.query_file, encoding="utf-8").read().strip()
+    if not query:
+        ap.error("provide a query argument or --query-file")
+
+    runner = ask_graph if args.graph else ask
+    st = runner(query, domain=args.domain, k=args.k, question_tier=args.question_tier)
     refs = references(st.get("domain"), st.get("used", []))
 
     if args.json:
         print(json.dumps({
-            "query": args.query,
+            "query": query,
             "domain": st.get("domain"),
             "confident": st.get("confident"),
             "thin": st.get("thin"),

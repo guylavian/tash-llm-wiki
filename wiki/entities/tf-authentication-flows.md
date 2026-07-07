@@ -11,10 +11,12 @@ sources:
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/authentication_execution_config.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/authentication_flow.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/authentication_subflow.md (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 7
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [authn, iac]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Authentication flows, executions & bindings (Terraform)
@@ -69,7 +71,11 @@ resource "keycloak_authentication_bindings" "example" {
 ### `keycloak_authentication_execution_config` — per-step settings
 For executions that take extra options (the canonical case is `identity-provider-redirector`), this attaches a named `config` map to a specific `execution_id`. Watch the import caveat: a wrong `execution_id` imports successfully, then the next apply replaces the config to fix it.
 
-## RHBK / migration / air-gap notes
+## RHBK / migration / air-gap notes (inferred — general Terraform/RHBK migration
+knowledge; not covered by this page's cited sources, which document provider
+resource arguments, not the provider's history or the RH-SSO→RHBK provider
+connection settings. Verify against [[terraform-keycloak-iac]] and the provider's
+own changelog before relying on these.)
 - **Provider source change:** these resources live in the official **`keycloak/keycloak`** provider, which replaced the legacy **`mrparkers/keycloak`**. A config still pointing at `mrparkers/keycloak` fails provider resolution — switch `required_providers` source and re-init. See [[terraform-keycloak-iac]].
 - **`base_path = "/auth"` (RH-SSO vs RHBK):** these resources drive the Admin REST API, so flow-building is version-agnostic, but the *provider connection* differs. Legacy **RH-SSO 7.x (Wildfly)** needs `base_path = "/auth"`; **RHBK (Quarkus)** must **omit** it. The API import paths quoted in the upstream docs show `/auth/admin/...`, which reflects that legacy prefix — on RHBK the path is `/admin/...`.
 - **Version-sensitive arguments (upstream-stated):** `priority` on executions and subflows is honored only on **Keycloak >= 25**; `first_broker_login_flow` binding requires **Keycloak 24+**. RHBK trails upstream OSS by versions, so verify these against your RHBK release before relying on them — this is community guidance, not an RHBK support statement.

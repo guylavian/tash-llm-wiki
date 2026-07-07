@@ -17,15 +17,18 @@ TOOLS = {
     "tags": "build",
     "corpus_to_vault": "corpus",
     "docs_to_corpus": "corpus",
+    "adoc_to_corpus": "corpus",
     "migrate_native": "corpus",
     "cost": "online",
     "llm": "online",
     "evaluate": "quality",
+    "faithfulness": "quality",
     "lint": "quality",
     "embed": "retrieval",
     "expand": "retrieval",
     "kb": "retrieval",
     "route": "retrieval",
+    "insights": "quality",
     "ask": "graph",        # QUERY pipeline -> one cited, gated answer (offline extractive / local LLM)
     "tkg": "tkg",          # the temporal-knowledge-graph CLI lives at wikikb/tkg/tkg.py
 }

@@ -13,10 +13,12 @@ sources:
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_permissions.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_service_account_role.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_service_account_realm_role.md (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 7
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [clients, iac]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # OpenID Connect clients (core) (Terraform)
@@ -53,7 +55,9 @@ resource "keycloak_openid_client" "example" {
 
 **`keycloak_openid_client_service_account_role` / `_service_account_realm_role`** wire a confidential client's service account into RBAC. Both require the target client to have `service_accounts_enabled = true`; the client-role variant additionally needs `client_id` (the role-providing client), while the realm-role variant takes only the role `role` name. This is the building block for the machine-to-machine pattern in [[client-authentication-methods]].
 
-## RHBK / migration / air-gap notes
+## RHBK / migration / air-gap notes (inferred — general Terraform/RHBK migration
+knowledge, not covered by this page's cited sources, which document only client/scope
+resource arguments; verify against [[terraform-keycloak-iac]] and the provider changelog.)
 
 - **Upstream, not Red Hat ground-truth.** These docs come from the community `keycloak/terraform-provider-keycloak` repo. Resource availability and arguments track upstream OSS Keycloak and may lead an RHBK release by versions — a brand-new RHBK server feature can lag in the provider, and vice-versa. Confirm the resource exists at your pinned provider/server version before relying on it.
 - **`mrparkers` → `keycloak/keycloak` source change.** The provider moved from `mrparkers/keycloak` to the official `keycloak/keycloak`. Configs still pointing at the old `source` hit provider-resolution errors on `init`; update `required_providers` and re-init. See [[terraform-keycloak-iac]].

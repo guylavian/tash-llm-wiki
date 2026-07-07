@@ -9,10 +9,12 @@ sources:
   - kb:grafana-dashboards-
 source_notes:
   - "[[rhbk-26-6-grafana-dashboards]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [observability]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Grafana dashboards for RHBK
@@ -47,7 +49,7 @@ Import via Grafana **New → Import → Upload dashboard JSON**, then pick the P
 ## Contradictions / caveats
 
 - Dashboards are sourced from an **external GitHub repo**, not bundled in the product image — plan for this in disconnected installs.
-- Branch selection is version-sensitive; using `main` against an older RHBK may reference metrics/labels that differ.
+- Branch selection is version-sensitive; using `main` against an older RHBK may reference metrics/labels that differ (inferred).
 
 ## See also
 - [[observability-stack]]

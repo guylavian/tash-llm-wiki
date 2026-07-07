@@ -3,13 +3,15 @@ title: Feature flags (enabling & disabling features)
 type: entity
 domain: keycloak
 slug: feature-flags
-summary: "Optional, preview, and deprecated functionality is toggled with the build-time `features` / `features-disabled` options."
+summary: "How do you turn Keycloak's optional, preview, or deprecated features on or off, and why does the change need a rebuild? Answers via the build-time `features` / `features-disabled` options, plus the versioned-name and build-vs-recreate caveats."
 sources:
   - guide:server_configuration_guide
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Feature flags
@@ -38,7 +40,7 @@ Names may be versioned (`feature:v1` — that exact version) or unversioned (`fe
 - **Deprecated (off by default, will be removed)**: `instagram-broker:v1`, `login:v1`, `logout-all-sessions:v1`, `passkeys-conditional-ui-authenticator:v1`.
 
 ## Contradictions / caveats
-- **These tables are version-specific.** The lists above are from **26.4**; default/preview/deprecated membership moves between 26.0/26.2/26.4/26.6 (e.g. token-exchange evolved from preview `token-exchange:v1` toward supported `token-exchange-standard:v2`). Always confirm against the matching guide.
+- **These tables are version-specific.** The lists above are from **26.4**; default/preview/deprecated membership moves between 26.0/26.2/26.4/26.6 (e.g. token-exchange evolved from preview `token-exchange:v1` toward supported `token-exchange-standard:v2`) (inferred — cross-version comparison spanning the 26.0/26.2/26.4/26.6 features chapters, not stated in the single 26.4 chapter cited). Always confirm against the matching guide.
 - Preview features may change or be removed and are unsupported for production.
 - `hostname:v2` is a default-on feature — see [[hostname-v2]].
 

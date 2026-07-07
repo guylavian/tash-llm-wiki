@@ -6,10 +6,12 @@ slug: database-configuration
 summary: "RHBK stores realm/user/client data in a relational database selected by the build-time `db` option, with connection details (`db-url-host`, `db-username`, `db-password`) set at runtime."
 sources:
   - guide:server_configuration_guide
-provenance: needs-review
+provenance_extracted: 7
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Database configuration
@@ -18,7 +20,7 @@ updated: 2026-06-16
 
 ## Supported vendors (`db` values)
 
-`mariadb`, `mssql`, `mysql`, `oracle`, `postgres`, `dev-mem`, `dev-file`. Hosted variants are also supported: EnterpriseDB Advanced, Amazon Aurora PostgreSQL, Azure SQL Database, Azure SQL Managed Instance. The default is **`dev-file`** — development only, **not** supported for production and must be replaced before deploying.
+`mariadb`, `mssql`, `mysql`, `oracle`, `postgres`, `dev-mem` (inferred — not found in the cited chapter's vendor table, but a documented upstream dev-mode value), `dev-file`. Hosted variants are also supported: EnterpriseDB Advanced, Amazon Aurora PostgreSQL, Azure SQL Database, Azure SQL Managed Instance. The default is **`dev-file`** — development only, **not** supported for production and must be replaced before deploying.
 
 Tested versions (26.4): PostgreSQL 17 (14–17 supported), MySQL 8.4, MariaDB 11.8, Oracle 23.5/19c, MS SQL 2022. Using a DB version outside the documented range is unsupported even if the Hibernate dialect allows it.
 
@@ -37,7 +39,7 @@ db-password=change_me
 db-url-host=keycloak-postgres
 ```
 
-then `kc.sh build` and `kc.sh start --optimized`. The non-optimized one-shot form is `kc.sh start --db postgres --db-url-host ... --db-username ... --db-password ...`, but it exposes the password on the command line and is not recommended — use `keycloak.conf`, env vars, or the KeyStore/vault for the password. Default schema is `keycloak` (override with `db-schema`).
+then `kc.sh build` and `kc.sh start --optimized`. The non-optimized one-shot form is `kc.sh start --db postgres --db-url-host ... --db-username ... --db-password ...`, but it exposes the password on the command line and is not recommended — use `keycloak.conf`, env vars, or the KeyStore/vault for the password (inferred — general secrets-handling guidance, not a verbatim caveat in the cited chapter). Default schema is `keycloak` (override with `db-schema`).
 
 ## Contradictions / caveats
 - Supported-version tables drift per release — the list above is from **26.4**; check the matching guide for 26.0/26.2/26.6.

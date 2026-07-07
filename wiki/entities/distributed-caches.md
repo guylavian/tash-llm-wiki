@@ -9,10 +9,12 @@ sources:
   - guide:high_availability_guide
   - ref:high-availability.md
   - ref:server-configuration.md
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [ha]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Distributed Caches (Infinispan) in RHBK
@@ -57,10 +59,10 @@ Grid cluster (cross-site).**
   on-demand; you can make the cache the source of truth (lower DB load) but must
   set ≥2 owners + unlimited entries, and **all sessions are lost if every pod
   restarts**.
-- Flush via kcadm: `clear-realm-cache` / `clear-user-cache` / `clear-keys-cache`.
+- Flush via kcadm: `clear-realm-cache` / `clear-user-cache` / `clear-keys-cache` (inferred — these commands live in the Admin CLI chapter of the Server Administration Guide, not one of this page's cited sources; verified present in the corpus but not in a cited chapter).
 - Cache wording is stable 26.0→26.6; cross-DC blueprint detail varies by version
   (search the High-Availability-guide chapters in `reference/keycloak/` — QUERY op
-  in [`CLAUDE.md`](../CLAUDE.md)).
+  in [`CLAUDE.md`](../CLAUDE.md)) (inferred — cross-version comparison).
 
 For the external-cache deployment mechanics (Operator, Cross-DC, remote-store CR
 options) see [[external-data-grid-operator]]. For making the cache the source of

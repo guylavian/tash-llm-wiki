@@ -9,10 +9,12 @@ sources:
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/providers
 source_notes:
   - "[[rhbk-26-6-providers]]"
-provenance: needs-review
+provenance_extracted: 7
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [spi]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Overriding built-in providers (order & provider id)
@@ -42,7 +44,7 @@ kc.sh build --spi-user-cache--infinispan--enabled=false
 
 ## Contradictions / caveats
 
-- Behavior is consistent across RHBK 26.0–26.6. The `--spi-<spi>--provider=` default-selection syntax applies to single-implementation provider types only; multiple-implementation types (e.g. `EventListener`) are selected by id at lookup time instead. See [[spi-provider-model]].
+- Behavior is consistent across RHBK 26.0–26.6. The `--spi-<spi>--provider=` default-selection syntax applies to single-implementation provider types only; multiple-implementation types (e.g. `EventListener`) are selected by id at lookup time instead (inferred — general SPI-model knowledge, not stated verbatim in this chapter). See [[spi-provider-model]].
 
 ## See also
 - [[spi-provider-model]]

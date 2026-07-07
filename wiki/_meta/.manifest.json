@@ -1,10 +1,10 @@
 {
-  "generated": "2026-06-22",
+  "generated": "2026-07-02",
   "sources": {
     "guide:authorization_services_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "authorization-permissions",
         "authorization-policy-types",
@@ -22,17 +22,22 @@
     "guide:high_availability_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
+        "active-active-invalid-grant-token-refresh",
+        "active-passive-failover-sessions-lost",
         "active-passive-session-consistency-failover",
         "distributed-caches",
         "external-data-grid-operator",
         "ha-cross-site",
         "ha-load-balancer-failover",
+        "logout-session-lifecycle-active-passive",
         "multi-site-feature-flag",
+        "passthrough-roundrobin-login-loop",
         "rhbk-db-connection-pool",
         "rhbk-ha-architectures",
         "rhbk-operator",
+        "rhbk-oscp-scaling-resources",
         "session-persistence-volatile",
         "site-synchronization",
         "uneven-pod-load-master-realm"
@@ -41,7 +46,7 @@
     "guide:migration_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "adapter-migration",
         "air-gapped-client-integration",
@@ -58,7 +63,7 @@
     "guide:observability_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "event-metrics",
         "grafana-dashboards",
@@ -75,7 +80,7 @@
     "guide:operator_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "additional-options",
         "air-gapped-client-integration",
@@ -93,13 +98,14 @@
         "operator-resources",
         "operator-rolling-updates",
         "operator-scheduling",
-        "operator-secret-references"
+        "operator-secret-references",
+        "rhbk-oscp-scaling-resources"
       ]
     },
     "guide:release_notes": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "rhbk-default-password-hash"
       ]
@@ -107,21 +113,24 @@
     "guide:securing_applications_and_services_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "angular-spa-oidc-best-practice",
         "client-authentication-methods",
+        "client-credentials-burst-token-expired",
         "client-libraries-by-stack",
         "client-registration-cli",
         "client-registration-service",
         "dpop",
         "fapi-oauth21-profiles",
+        "logout-session-lifecycle-active-passive",
         "mod-auth-mellon",
         "oidc-client-best-practices",
         "oidc-endpoints",
         "oidc-grant-types",
         "oidc-logout",
         "oidc-token-validation",
+        "require-dpop-bound-tokens",
         "securing-apps-oidc-saml",
         "spa-resource-server-implementation-review",
         "token-exchange",
@@ -131,21 +140,26 @@
     "guide:server_administration_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "ad-idp-link-loss-objectguid",
         "admin-console-confidential-lockout",
         "authentication-flows",
         "brute-force-detection",
+        "client-credentials-burst-token-expired",
         "identity-brokering",
+        "identity-brokering-external-oidc-idp",
         "kcadm-cli",
         "ldap-import-vs-noimport",
         "ldap-mappers",
+        "ldap-password-change-propagation-delay",
         "ldap-storage-mode",
         "ldap-user-federation",
+        "logout-session-lifecycle-active-passive",
         "managing-users-credentials",
         "oidc-token-validation",
         "otp-policies",
+        "parallel-user-import-silent-failure",
         "password-policies",
         "realm-administration",
         "realm-import-export",
@@ -163,7 +177,7 @@
     "guide:server_configuration_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "bootstrap-admin-dns-query",
         "build-vs-runtime-options",
@@ -175,8 +189,10 @@
         "hostname-v2",
         "kc-bootstrap-admin",
         "keycloak-vault",
+        "logout-session-lifecycle-active-passive",
         "management-interface",
         "oracle-jdbc-failover",
+        "passthrough-roundrobin-login-loop",
         "persistent-sessions-db-cleanup",
         "production-checklist",
         "reverse-proxy-configuration",
@@ -188,8 +204,9 @@
     "guide:server_developer_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
+        "identity-brokering-external-oidc-idp",
         "javascript-providers-scripts",
         "keycloak-session-spi",
         "keycloak-themes",
@@ -200,10 +217,18 @@
         "vault-spi"
       ]
     },
+    "guide:server_installation_and_configuration_guide": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "passthrough-roundrobin-login-loop"
+      ]
+    },
     "kb:7073090": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "operator-proxy-port-required",
         "troubleshooting-index"
@@ -212,7 +237,7 @@
     "kb:7126933": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "separate-sso-admin-hostnames",
         "troubleshooting-index"
@@ -221,7 +246,7 @@
     "kb:7128299": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "ad-idp-link-loss-objectguid",
         "troubleshooting-index"
@@ -230,7 +255,7 @@
     "kb:7128352": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "bootstrap-admin-dns-query",
         "troubleshooting-index"
@@ -239,7 +264,7 @@
     "kb:7135122": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "fips-startup-bouncycastle",
         "troubleshooting-index"
@@ -248,7 +273,7 @@
     "kb:7135124": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "fips-startup-bouncycastle",
         "troubleshooting-index"
@@ -257,7 +282,7 @@
     "kb:7135882": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "persistent-sessions-db-cleanup",
         "troubleshooting-index"
@@ -266,7 +291,7 @@
     "kb:7138771": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "admin-console-confidential-lockout",
         "troubleshooting-index"
@@ -275,7 +300,7 @@
     "kb:7141508": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "troubleshooting-index"
       ]
@@ -283,7 +308,7 @@
     "kb:7142577": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "troubleshooting-index",
         "uneven-pod-load-master-realm"
@@ -292,16 +317,993 @@
     "kb:7142778": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "oracle-jdbc-failover",
         "troubleshooting-index"
       ]
     },
+    "kb:about-network-policy": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "network-policy",
+        "openshift-networking"
+      ]
+    },
+    "kb:about-ovn-kubernetes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-networking",
+        "ovn-kubernetes"
+      ]
+    },
+    "kb:ad-ds-32k-pages-optional-feature": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-database-and-32k-pages"
+      ]
+    },
+    "kb:ad-ds-active-directory-domain-services-maximum-limits": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-ds-maximum-limits",
+        "cross-site-split-brain-pac-signing"
+      ]
+    },
+    "kb:ad-ds-active-directory-domain-services-overview": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "active-directory-overview"
+      ]
+    },
+    "kb:ad-ds-active-directory-functional-levels": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-functional-levels",
+        "upgrade-domain-controllers"
+      ]
+    },
+    "kb:ad-ds-active-directory-integrated-dns-zones": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-integrated-dns-zones",
+        "dns-for-ad-ds"
+      ]
+    },
+    "kb:ad-ds-active-directory-recycle-bin": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-admin-tools",
+        "ad-recycle-bin"
+      ]
+    },
+    "kb:ad-ds-active-directory-replication-concepts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-replication",
+        "global-catalog",
+        "knowledge-consistency-checker",
+        "site-links-and-replication-schedule",
+        "universal-group-membership-caching"
+      ]
+    },
+    "kb:ad-ds-ad-ds-deployment": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-ds-deployment"
+      ]
+    },
+    "kb:ad-ds-ad-ds-metadata-cleanup": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "demote-and-remove-dc"
+      ]
+    },
+    "kb:ad-ds-ad-forest-recovery-cleaning-metadata-of-removed-dcs": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-forest-recovery",
+        "ad-metadata-cleanup"
+      ]
+    },
+    "kb:ad-ds-ad-forest-recovery-cleanup": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "fsmo-transfer-vs-seize-dead-dc-twist"
+      ]
+    },
+    "kb:ad-ds-ad-forest-recovery-guide": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-forest-recovery"
+      ]
+    },
+    "kb:ad-ds-ad-forest-recovery-perform-initial-recovery": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "fsmo-transfer-vs-seize-dead-dc-twist"
+      ]
+    },
+    "kb:ad-ds-ad-forest-recovery-reset-the-krbtgt-password": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-forest-recovery",
+        "krbtgt-reset"
+      ]
+    },
+    "kb:ad-ds-ad-forest-recovery-seizing-operations-master-role": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-forest-recovery",
+        "fsmo-transfer-vs-seize-dead-dc-twist"
+      ]
+    },
+    "kb:ad-ds-advanced-ad-ds-management-using-active-directory-administrative-center-level-200": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-admin-tools"
+      ]
+    },
+    "kb:ad-ds-advanced-audit-policy-configuration": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "advanced-audit-policy"
+      ]
+    },
+    "kb:ad-ds-appendix-c-protected-accounts-and-groups-in-active-directory": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "protected-accounts-and-groups"
+      ]
+    },
+    "kb:ad-ds-attractive-accounts-for-credential-theft": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "credential-theft-and-attractive-accounts"
+      ]
+    },
+    "kb:ad-ds-audit-policy-recommendations": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "advanced-audit-policy",
+        "monitoring-ad-for-compromise"
+      ]
+    },
+    "kb:ad-ds-autonomy-vs-isolation": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "forest-design-models"
+      ]
+    },
+    "kb:ad-ds-avenues-to-compromise": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "credential-theft-and-attractive-accounts",
+        "reducing-ad-attack-surface",
+        "software-restriction-policies"
+      ]
+    },
+    "kb:ad-ds-best-practices-for-securing-active-directory": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "monitoring-ad-for-compromise",
+        "reducing-ad-attack-surface",
+        "secure-administrative-hosts",
+        "securing-active-directory",
+        "tiered-administration-model"
+      ]
+    },
+    "kb:ad-ds-changes-made-by-adprep": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "adprep-and-schema-updates"
+      ]
+    },
+    "kb:ad-ds-command-line-process-auditing": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "advanced-audit-policy"
+      ]
+    },
+    "kb:ad-ds-configure-kerberos-delegation-group-managed-service-accounts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kerberos-rbcd-s4u-delegation-detailed"
+      ]
+    },
+    "kb:ad-ds-configure-ldap-signing-certificates": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-signing-and-channel-binding"
+      ]
+    },
+    "kb:ad-ds-create-the-key-distribution-services-kds-root-key": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kds-root-key"
+      ]
+    },
+    "kb:ad-ds-creating-a-dns-infrastructure-design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dns-infrastructure-design"
+      ]
+    },
+    "kb:ad-ds-creating-a-domain-design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "domain-design"
+      ]
+    },
+    "kb:ad-ds-creating-a-site-design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-topology-design"
+      ]
+    },
+    "kb:ad-ds-creating-a-site-link-bridge-design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule"
+      ]
+    },
+    "kb:ad-ds-creating-a-site-link-design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule",
+        "site-topology-design"
+      ]
+    },
+    "kb:ad-ds-creating-an-organizational-unit-design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "organizational-unit-design"
+      ]
+    },
+    "kb:ad-ds-dc-locator": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dc-locator"
+      ]
+    },
+    "kb:ad-ds-dc-locator-performance-counters": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dc-locator"
+      ]
+    },
+    "kb:ad-ds-delegated-managed-service-accounts-overview": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "delegated-managed-service-accounts"
+      ]
+    },
+    "kb:ad-ds-delegated-managed-service-accounts-set-up-dmsa": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "delegated-managed-service-accounts",
+        "kds-root-key"
+      ]
+    },
+    "kb:ad-ds-delegating-administration-by-using-ou-objects": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "organizational-unit-design"
+      ]
+    },
+    "kb:ad-ds-demoting-domain-controllers-and-domains-level-200": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "demote-and-remove-dc"
+      ]
+    },
+    "kb:ad-ds-designing-the-logical-structure": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-logical-structure-design"
+      ]
+    },
+    "kb:ad-ds-designing-the-site-topology": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-replication",
+        "site-topology-design"
+      ]
+    },
+    "kb:ad-ds-determining-the-cost": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule"
+      ]
+    },
+    "kb:ad-ds-determining-the-interval": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule"
+      ]
+    },
+    "kb:ad-ds-determining-the-number-of-domains-required": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning",
+        "domain-design"
+      ]
+    },
+    "kb:ad-ds-determining-the-number-of-forests-required": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "forest-design-models"
+      ]
+    },
+    "kb:ad-ds-determining-the-schedule": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule"
+      ]
+    },
+    "kb:ad-ds-disjoint-namespace": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "disjoint-namespace"
+      ]
+    },
+    "kb:ad-ds-dns-and-ad-ds": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "disjoint-namespace",
+        "dns-for-ad-ds",
+        "dns-infrastructure-design"
+      ]
+    },
+    "kb:ad-ds-domain-wide-updates": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "adprep-and-schema-updates"
+      ]
+    },
+    "kb:ad-ds-enable-32k-pages-optional-feature": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-database-and-32k-pages"
+      ]
+    },
+    "kb:ad-ds-enabling-advanced-features-for-ad-ds": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-admin-tools"
+      ]
+    },
+    "kb:ad-ds-finding-additional-resources-for-windows-server-2008-active-directory-site-topology-design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning",
+        "site-topology-design"
+      ]
+    },
+    "kb:ad-ds-fine-grained-password-policies": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "fine-grained-password-policies"
+      ]
+    },
+    "kb:ad-ds-forest-design-models": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "forest-design-models"
+      ]
+    },
+    "kb:ad-ds-forest-wide-updates": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "adprep-and-schema-updates"
+      ]
+    },
+    "kb:ad-ds-group-managed-service-accounts-overview": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "group-managed-service-accounts",
+        "kds-root-key",
+        "service-accounts-overview"
+      ]
+    },
+    "kb:ad-ds-group-policy-overview": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "group-policy"
+      ]
+    },
+    "kb:ad-ds-how-ldap-server-cookies-are-handled": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-ds-maximum-limits"
+      ]
+    },
+    "kb:ad-ds-how-to-configure-spn": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "service-accounts-overview"
+      ]
+    },
+    "kb:ad-ds-identifying-forest-design-requirements": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-logical-structure-design"
+      ]
+    },
+    "kb:ad-ds-implementing-least-privilege-administrative-models": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "credential-theft-and-attractive-accounts",
+        "securing-active-directory",
+        "tiered-administration-model"
+      ]
+    },
+    "kb:ad-ds-implementing-secure-administrative-hosts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "secure-administrative-hosts",
+        "software-restriction-policies"
+      ]
+    },
+    "kb:ad-ds-install-a-windows-server-2012-active-directory-read-only-domain-controller-rodc-level-200": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "read-only-domain-controller"
+      ]
+    },
+    "kb:ad-ds-install-active-directory-domain-services-level-100": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-ds-deployment",
+        "install-promote-domain-controller"
+      ]
+    },
+    "kb:ad-ds-integrating-ad-ds-into-an-existing-dns-infrastructure": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dns-infrastructure-design"
+      ]
+    },
+    "kb:ad-ds-introduction-to-active-directory-domain-services-ad-ds-virtualization-level-100": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "virtualized-domain-controllers",
+        "vm-generation-id-safe-restore"
+      ]
+    },
+    "kb:ad-ds-join-computer-to-domain": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "windows-time-service"
+      ]
+    },
+    "kb:ad-ds-ldap-signing": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-signing-and-channel-binding"
+      ]
+    },
+    "kb:ad-ds-maintaining-a-more-secure-environment": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "reducing-ad-attack-surface"
+      ]
+    },
+    "kb:ad-ds-manage-fsmo-roles": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "fsmo-roles"
+      ]
+    },
+    "kb:ad-ds-manage-group-managed-service-accounts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "service-accounts-overview"
+      ]
+    },
+    "kb:ad-ds-managing-rid-issuance": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "fsmo-transfer-vs-seize-dead-dc-twist",
+        "rid-issuance-management"
+      ]
+    },
+    "kb:ad-ds-mapping-design-requirements-to-forest-design-models": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "forest-design-models"
+      ]
+    },
+    "kb:ad-ds-monitoring-active-directory-for-signs-of-compromise": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "advanced-audit-policy",
+        "monitoring-ad-for-compromise"
+      ]
+    },
+    "kb:ad-ds-planning-domain-controller-placement": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning"
+      ]
+    },
+    "kb:ad-ds-planning-for-compromise": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "reducing-ad-attack-surface"
+      ]
+    },
+    "kb:ad-ds-planning-forest-root-domain-controller-placement": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning"
+      ]
+    },
+    "kb:ad-ds-planning-global-catalog-server-placement": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning",
+        "global-catalog",
+        "universal-group-membership-caching"
+      ]
+    },
+    "kb:ad-ds-planning-operations-master-role-placement": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning"
+      ]
+    },
+    "kb:ad-ds-raise-domain-forest-functional-levels": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-functional-levels"
+      ]
+    },
+    "kb:ad-ds-read-only-domain-controller-updates": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "read-only-domain-controller"
+      ]
+    },
+    "kb:ad-ds-reducing-the-active-directory-attack-surface": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "protected-accounts-and-groups",
+        "reducing-ad-attack-surface",
+        "tiered-administration-model"
+      ]
+    },
+    "kb:ad-ds-reviewing-dns-concepts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dns-infrastructure-design"
+      ]
+    },
+    "kb:ad-ds-reviewing-ou-design-concepts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "organizational-unit-design"
+      ]
+    },
+    "kb:ad-ds-reviewing-the-domain-models": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "domain-design"
+      ]
+    },
+    "kb:ad-ds-schema-updates": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kerberos-rbcd-s4u-delegation-detailed"
+      ]
+    },
+    "kb:ad-ds-securing-domain-controllers-against-attack": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "secure-administrative-hosts",
+        "software-restriction-policies"
+      ]
+    },
+    "kb:ad-ds-selecting-the-forest-root-domain": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dns-infrastructure-design",
+        "domain-design"
+      ]
+    },
+    "kb:ad-ds-service-administrator-scope-of-authority": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "forest-design-models"
+      ]
+    },
+    "kb:ad-ds-setting-site-link-properties": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule"
+      ]
+    },
+    "kb:ad-ds-spn-and-upn-uniqueness": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "spn-and-upn-uniqueness"
+      ]
+    },
+    "kb:ad-ds-support-for-using-hyper-v-replica-for-virtualized-domain-controllers": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "virtualized-domain-controllers",
+        "vm-generation-id-safe-restore"
+      ]
+    },
+    "kb:ad-ds-tpm-key-attestation": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-certificate-services",
+        "certificate-templates"
+      ]
+    },
+    "kb:ad-ds-troubleshooting-active-directory-replication-problems": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cross-site-split-brain-pac-signing"
+      ]
+    },
+    "kb:ad-ds-understand-default-user-accounts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "default-user-accounts",
+        "security-principals"
+      ]
+    },
+    "kb:ad-ds-understand-fsmo-roles": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "active-directory-overview",
+        "fsmo-roles",
+        "fsmo-transfer-vs-seize-dead-dc-twist",
+        "windows-time-service"
+      ]
+    },
+    "kb:ad-ds-understand-security-groups": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "security-groups",
+        "security-principals"
+      ]
+    },
+    "kb:ad-ds-understand-security-identifiers": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "default-user-accounts",
+        "security-identifiers-sid"
+      ]
+    },
+    "kb:ad-ds-understand-security-principals": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "security-groups",
+        "security-identifiers-sid",
+        "security-principals",
+        "special-identity-groups"
+      ]
+    },
+    "kb:ad-ds-understand-service-accounts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "delegated-managed-service-accounts",
+        "group-managed-service-accounts",
+        "service-accounts-overview"
+      ]
+    },
+    "kb:ad-ds-understand-special-identities-groups": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "special-identity-groups"
+      ]
+    },
+    "kb:ad-ds-understanding-active-directory-site-topology": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-topology-design"
+      ]
+    },
+    "kb:ad-ds-understanding-the-active-directory-logical-model": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-logical-structure-design"
+      ]
+    },
+    "kb:ad-ds-upgrade-domain-controllers": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-functional-levels",
+        "adprep-and-schema-updates",
+        "upgrade-domain-controllers"
+      ]
+    },
+    "kb:ad-ds-use-active-directory-administrative-center-powershell-history": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-admin-tools"
+      ]
+    },
+    "kb:ad-ds-using-the-organizational-domain-forest-model": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "domain-design"
+      ]
+    },
+    "kb:ad-ds-virtualized-domain-controller-architecture": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "vdc-cloning",
+        "virtualized-domain-controllers",
+        "vm-generation-id-safe-restore",
+        "windows-time-service"
+      ]
+    },
+    "kb:ad-ds-virtualized-domain-controller-deployment-and-configuration": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "vdc-cloning",
+        "virtualized-domain-controllers"
+      ]
+    },
+    "kb:ad-ds-virtualized-domain-controller-troubleshooting": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "vdc-cloning"
+      ]
+    },
+    "kb:ad-ds-virtualized-domain-controllers-hyper-v": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "virtualized-domain-controllers",
+        "vm-generation-id-safe-restore",
+        "windows-time-service"
+      ]
+    },
+    "kb:ad-ds-what-s-new-in-active-directory-domain-services-installation-and-removal": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-ds-deployment",
+        "adprep-and-schema-updates",
+        "install-promote-domain-controller"
+      ]
+    },
     "kb:admin_cli": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "kcadm-cli",
         "managing-users-credentials",
@@ -314,15 +1316,23 @@
     "kb:admin_permissions": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "realm-resource-access"
+      ]
+    },
+    "kb:application-security-checklist": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "security-context-constraints"
       ]
     },
     "kb:assembly-managing-clients_server_administration_guide": {
       "first_ingested": "2026-06-18",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "spa-resource-server-implementation-review"
       ]
@@ -330,15 +1340,103 @@
     "kb:assembly-managing-users_server_administration_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "managing-users-credentials"
+      ]
+    },
+    "kb:assign-memory-resource": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-implementation-review"
+      ]
+    },
+    "kb:authentication-4-22-bound-service-account-tokens": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "service-accounts"
+      ]
+    },
+    "kb:authentication-4-22-configuring-internal-oauth": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-auth-and-rbac",
+        "openshift-implementation-review",
+        "openshift-oauth"
+      ]
+    },
+    "kb:authentication-4-22-managing-oauth-access-tokens": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-oauth"
+      ]
+    },
+    "kb:authentication-4-22-osd-admin-roles": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-rbac"
+      ]
+    },
+    "kb:authentication-4-22-understanding-and-creating-service-accounts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-auth-and-rbac",
+        "service-accounts"
+      ]
+    },
+    "kb:authentication-4-22-understanding-and-managing-pod-security-admission": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-auth-and-rbac",
+        "openshift-implementation-review",
+        "pod-security-admission"
+      ]
+    },
+    "kb:authentication-4-22-understanding-identity-provider": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-auth-and-rbac",
+        "openshift-oauth"
+      ]
+    },
+    "kb:authentication-4-22-using-rbac": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-rbac",
+        "openshift-auth-and-rbac",
+        "openshift-implementation-review"
+      ]
+    },
+    "kb:authentication-4-22-using-service-accounts-in-applications": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "service-accounts"
       ]
     },
     "kb:authorization_services_guide/enforcer_overview": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "policy-enforcer"
       ]
@@ -346,7 +1444,7 @@
     "kb:authorization_services_guide/overview": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "authorization-resources-scopes",
         "fine-grained-authorization",
@@ -358,7 +1456,7 @@
     "kb:authorization_services_guide/permission_overview": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "authorization-permissions",
         "decision-strategies"
@@ -367,7 +1465,7 @@
     "kb:authorization_services_guide/policy_evaluation_overview": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "policy-evaluation-tool"
       ]
@@ -375,7 +1473,7 @@
     "kb:authorization_services_guide/policy_overview": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "authorization-policy-types",
         "decision-strategies"
@@ -384,7 +1482,7 @@
     "kb:authorization_services_guide/resource_overview": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "authorization-resources-scopes"
       ]
@@ -392,7 +1490,7 @@
     "kb:authorization_services_guide/resource_server_overview": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "decision-strategies",
         "fine-grained-authorization",
@@ -402,7 +1500,7 @@
     "kb:authorization_services_guide/service_overview": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "fine-grained-authorization",
         "permission-ticket",
@@ -413,16 +1511,224 @@
     "kb:authz-client-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "client-authentication-methods",
         "spa-resource-server-implementation-review"
       ]
     },
+    "kb:build-strategies": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-builds-and-images",
+        "openshift-overview"
+      ]
+    },
+    "kb:caching": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "active-passive-failover-sessions-lost"
+      ]
+    },
+    "kb:change-default-storage-class": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "storage-class"
+      ]
+    },
+    "kb:cisco-bgp-bgp-graceful-restart-per-neighbor": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "c9500-issu-svl-blackhole-nsf-gr"
+      ]
+    },
+    "kb:cisco-bgp-bgp-multiple-cluster-ids": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "bgp-route-reflector"
+      ]
+    },
+    "kb:cisco-bgp-bgp-nsf-awareness": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "c9500-issu-svl-blackhole-nsf-gr"
+      ]
+    },
+    "kb:cisco-bgp-bgp-support-for-4-byte-asn": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "bgp"
+      ]
+    },
+    "kb:cisco-bgp-cisco-bgp-overview": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "bgp",
+        "bgp-path-attributes",
+        "bgp-route-reflector",
+        "cisco-ios-xe-implementation-review",
+        "cisco-ios-xe-overview",
+        "redistribute-ospf-into-ebgp"
+      ]
+    },
+    "kb:cisco-bgp-configuring-a-basic-bgp-network": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "bgp",
+        "c9500-issu-svl-blackhole-nsf-gr",
+        "redistribute-ospf-into-ebgp"
+      ]
+    },
+    "kb:cisco-bgp-configuring-internal-bgp-features": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "bgp",
+        "bgp-path-attributes",
+        "bgp-route-reflector",
+        "cisco-ios-xe-implementation-review"
+      ]
+    },
+    "kb:cisco-bgp-connecting-to-a-service-provider-using-external-bgp": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "bgp-path-attributes"
+      ]
+    },
+    "kb:cisco-bgp-removing-private-as-numbers-from-the-as-path-in-bgp": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "bgp"
+      ]
+    },
+    "kb:cisco-lanswitch-configuring-routing-between-vlans": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "vlans-and-trunking"
+      ]
+    },
+    "kb:cisco-lanswitch-configuring-routing-between-vlans-with-ieee-802-1q-encapsulation": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "vlans-and-trunking"
+      ]
+    },
+    "kb:cisco-lanswitch-etherchannel-flow-based-limited-1-1-redundancy": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "etherchannel",
+        "mixed-speed-port-channel"
+      ]
+    },
+    "kb:cisco-lanswitch-flow-based-per-port-channel-load-balancing": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "etherchannel",
+        "mixed-speed-port-channel"
+      ]
+    },
+    "kb:cisco-lanswitch-spanning-tree-protocol": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cisco-ios-xe-implementation-review",
+        "cisco-ios-xe-overview",
+        "spanning-tree-protocol"
+      ]
+    },
+    "kb:cisco-ospf-configuring-ospf": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cisco-ios-xe-implementation-review",
+        "cisco-ios-xe-ospfneighbordown",
+        "cisco-ios-xe-overview",
+        "ospf",
+        "static-and-default-routes"
+      ]
+    },
+    "kb:cisco-ospf-ospf-nonstop-routing": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "c9500-issu-svl-blackhole-nsf-gr"
+      ]
+    },
+    "kb:cisco-pi-basic-ip-routing": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cisco-administrative-distance",
+        "cisco-ios-xe-implementation-review",
+        "cisco-ios-xe-overview",
+        "redistribute-ospf-into-ebgp",
+        "route-redistribution-and-route-maps",
+        "static-and-default-routes"
+      ]
+    },
+    "kb:cisco-pi-netflow-policy-routing": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "policy-based-routing"
+      ]
+    },
+    "kb:cisco-pi-policy-based-routing": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "policy-based-routing"
+      ]
+    },
+    "kb:cisco-pi-sgt-based-pbr": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "policy-based-routing"
+      ]
+    },
     "kb:client-registration-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "client-registration-service"
       ]
@@ -430,15 +1736,23 @@
     "kb:client-registration-cli-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "client-registration-cli"
+      ]
+    },
+    "kb:cluster-ip-allocation": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-service"
       ]
     },
     "kb:concepts-memory-and-cpu-sizing": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "session-persistence-volatile"
       ]
@@ -446,28 +1760,76 @@
     "kb:concepts-multi-site": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
+        "active-active-invalid-grant-token-refresh",
+        "active-passive-failover-sessions-lost",
         "active-passive-session-consistency-failover",
         "rhbk-ha-architectures",
         "session-persistence-volatile",
         "site-synchronization"
       ]
     },
+    "kb:concepts-pod-security-admission": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-auth-and-rbac",
+        "pod-security-admission"
+      ]
+    },
+    "kb:concepts-pod-security-standards": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "pod-security-admission"
+      ]
+    },
+    "kb:concepts-rbac-good-practices": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-rbac"
+      ]
+    },
+    "kb:concepts-service-accounts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-auth-and-rbac",
+        "openshift-implementation-review",
+        "service-accounts"
+      ]
+    },
     "kb:configuration-metrics-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "management-port",
         "observability-stack",
         "server-metrics-endpoint"
       ]
     },
+    "kb:configure-liveness-readiness-startup-probes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-pod",
+        "liveness-readiness-startup-probes",
+        "openshift-overview",
+        "openshift-workloads"
+      ]
+    },
     "kb:configuring-authentication_server_administration_guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "authentication-flows",
         "otp-policies",
@@ -480,7 +1842,7 @@
     "kb:configuring-realms": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "realm-administration",
         "realm-import-export",
@@ -488,10 +1850,70 @@
         "step-up-authentication"
       ]
     },
+    "kb:create-images": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-scc-root-crashloopbackoff-route-503",
+        "security-context-constraints"
+      ]
+    },
+    "kb:creating-advanced-routes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-route"
+      ]
+    },
+    "kb:creating-basic-routes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-route"
+      ]
+    },
+    "kb:cron-jobs": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-workloads"
+      ]
+    },
+    "kb:csi-driver-v1": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "csi-driver",
+        "openshift-storage"
+      ]
+    },
+    "kb:customizing-s2i-images": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "buildconfig-s2i",
+        "openshift-builds-and-images"
+      ]
+    },
+    "kb:daemonset": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-daemonset",
+        "openshift-workloads"
+      ]
+    },
     "kb:deploy-aws-accelerator-fencing-lambda": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "ha-load-balancer-failover"
       ]
@@ -499,16 +1921,18 @@
     "kb:deploy-aws-accelerator-loadbalancer": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
+        "active-active-invalid-grant-token-refresh",
         "ha-load-balancer-failover"
       ]
     },
     "kb:deploy-infinispan-kubernetes-crossdc": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
+        "active-active-invalid-grant-token-refresh",
         "active-passive-session-consistency-failover",
         "external-data-grid-operator"
       ]
@@ -516,27 +1940,82 @@
     "kb:deploy-keycloak-kubernetes": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
+        "active-active-invalid-grant-token-refresh",
         "external-data-grid-operator",
         "multi-site-feature-flag",
         "rhbk-db-connection-pool"
       ]
     },
+    "kb:deployment": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-deployment",
+        "kubernetes-pod",
+        "openshift-workloads"
+      ]
+    },
+    "kb:deployment-strategies": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-workloads"
+      ]
+    },
+    "kb:dns-operator": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cluster-dns",
+        "openshift-networking"
+      ]
+    },
+    "kb:dns-pod-service": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cluster-dns",
+        "kubernetes-service"
+      ]
+    },
     "kb:dpop-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "dpop",
         "oidc-logout",
+        "require-dpop-bound-tokens",
         "spa-resource-server-implementation-review"
+      ]
+    },
+    "kb:dynamic-provisioning": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "csi-driver",
+        "openshift-storage"
+      ]
+    },
+    "kb:endpoint-slices": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-service"
       ]
     },
     "kb:event-metrics-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "event-metrics"
       ]
@@ -544,7 +2023,7 @@
     "kb:exemplars-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "metrics-exemplars"
       ]
@@ -552,7 +2031,7 @@
     "kb:grafana-dashboards-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "grafana-dashboards"
       ]
@@ -560,7 +2039,7 @@
     "kb:health-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "health-endpoints",
         "management-port",
@@ -570,15 +2049,33 @@
     "kb:health-checks-multi-site": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "ha-load-balancer-failover"
+      ]
+    },
+    "kb:horizontal-pod-autoscale": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "horizontal-pod-autoscaler",
+        "openshift-implementation-review",
+        "openshift-workloads"
+      ]
+    },
+    "kb:horizontal-pod-autoscaler-v2": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "horizontal-pod-autoscaler"
       ]
     },
     "kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2/html/server_developer_guide/theme_react": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "keycloak-themes"
       ]
@@ -586,7 +2083,7 @@
     "kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2/html/server_developer_guide/themes": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "keycloak-themes"
       ]
@@ -594,7 +2091,7 @@
     "kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/providers": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "javascript-providers-scripts",
         "keycloak-session-spi",
@@ -605,7 +2102,7 @@
     "kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/user-storage-spi": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "spi-provider-model",
         "user-storage-spi"
@@ -614,7 +2111,7 @@
     "kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/vault-spi": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "vault-spi"
       ]
@@ -622,31 +2119,133 @@
     "kb:identity_broker": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
-        "identity-brokering"
+        "identity-brokering",
+        "identity-brokering-external-oidc-idp"
+      ]
+    },
+    "kb:image-streams-manage": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "image-streams",
+        "openshift-builds-and-images"
+      ]
+    },
+    "kb:ingress": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-ingress",
+        "openshift-networking"
+      ]
+    },
+    "kb:ingress-controllers": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-ingress"
+      ]
+    },
+    "kb:ingress-operator": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-scc-root-crashloopbackoff-route-503",
+        "openshift-route"
       ]
     },
     "kb:javascript-adapter-": {
       "first_ingested": "2026-06-18",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "spa-resource-server-implementation-review"
+      ]
+    },
+    "kb:job": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-workloads"
       ]
     },
     "kb:keycloak-service-level-indicators-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "service-level-indicators"
+      ]
+    },
+    "kb:machine-configs-configure": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-overview"
+      ]
+    },
+    "kb:machine-configuration-4-22-index": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "machine-config",
+        "openshift-implementation-review",
+        "openshift-operators-and-olm"
+      ]
+    },
+    "kb:machine-configuration-4-22-machine-configs-configure": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "machine-config"
+      ]
+    },
+    "kb:manage-resources-containers": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-pod",
+        "openshift-implementation-review",
+        "openshift-workloads",
+        "resource-requests-limits"
+      ]
+    },
+    "kb:managing-deployment-processes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-workloads"
+      ]
+    },
+    "kb:managing-security-context-constraints": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-pod",
+        "ocp-scc-root-crashloopbackoff-route-503",
+        "openshift-auth-and-rbac",
+        "openshift-implementation-review",
+        "openshift-overview",
+        "security-context-constraints"
       ]
     },
     "kb:metrics-for-troubleshooting-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "server-metrics-endpoint"
       ]
@@ -654,7 +2253,7 @@
     "kb:migrating-applications": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "adapter-migration",
         "angular-spa-oidc-best-practice",
@@ -667,7 +2266,7 @@
     "kb:migrating-keycloak": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "rhsso-to-rhbk-migration"
       ]
@@ -675,7 +2274,7 @@
     "kb:migrating-operator": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "database-auto-migration",
         "operator-cr-migration",
@@ -685,7 +2284,7 @@
     "kb:migrating-providers": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "custom-provider-migration",
         "rhsso-to-rhbk-custom-providers-spis",
@@ -695,7 +2294,7 @@
     "kb:migrating-server": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "database-auto-migration",
         "quarkus-config-migration",
@@ -706,7 +2305,7 @@
     "kb:migrating-themes": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "custom-provider-migration",
         "rhsso-to-rhbk-custom-providers-spis",
@@ -716,7 +2315,7 @@
     "kb:mitigating_security_threats": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "brute-force-detection",
         "password-policies",
@@ -726,17 +2325,41 @@
     "kb:multi-cluster-introduction": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
+        "active-active-invalid-grant-token-refresh",
+        "active-passive-failover-sessions-lost",
         "multi-site-feature-flag",
+        "passthrough-roundrobin-login-loop",
         "rhbk-db-connection-pool",
         "rhbk-ha-architectures"
+      ]
+    },
+    "kb:network-policies": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "network-policy",
+        "ocp-scc-root-crashloopbackoff-route-503",
+        "openshift-implementation-review",
+        "openshift-networking",
+        "openshift-overview"
+      ]
+    },
+    "kb:nw-configuring-routes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-scc-root-crashloopbackoff-route-503",
+        "openshift-route"
       ]
     },
     "kb:oidc-layers-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "angular-spa-oidc-best-practice",
         "client-authentication-methods",
@@ -753,7 +2376,7 @@
     "kb:operate-synchronize": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "active-passive-session-consistency-failover",
         "site-synchronization"
@@ -762,7 +2385,7 @@
     "kb:operator_guide/advanced-configuration-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "additional-options",
         "keycloak-cr",
@@ -779,7 +2402,7 @@
     "kb:operator_guide/basic-deployment-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "keycloak-cr",
         "operator-advanced-config",
@@ -791,7 +2414,7 @@
     "kb:operator_guide/customizing-keycloak-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "custom-keycloak-image"
       ]
@@ -799,7 +2422,7 @@
     "kb:operator_guide/installation-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "operator-deployment",
         "operator-olm-install"
@@ -808,7 +2431,7 @@
     "kb:operator_guide/realm-import-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "keycloak-realm-import"
       ]
@@ -816,16 +2439,70 @@
     "kb:operator_guide/rolling-updates-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "operator-pod-template",
         "operator-rolling-updates"
       ]
     },
+    "kb:operators-4-22-olm-installing-operators-in-namespace": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "operator-lifecycle-manager"
+      ]
+    },
+    "kb:operators-4-22-olm-troubleshooting-operator-issues": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cluster-operators",
+        "openshift-operators-and-olm",
+        "operator-lifecycle-manager"
+      ]
+    },
+    "kb:operators-4-22-olm-understanding-olm": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-implementation-review",
+        "openshift-operators-and-olm",
+        "operator-lifecycle-manager"
+      ]
+    },
+    "kb:operators-4-22-olm-understanding-operatorgroups": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-operators-and-olm",
+        "operator-lifecycle-manager"
+      ]
+    },
+    "kb:operators-4-22-olm-upgrading-operators": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "operator-lifecycle-manager"
+      ]
+    },
+    "kb:operators-4-22-olm-what-operators-are": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-operators-and-olm",
+        "operator-lifecycle-manager"
+      ]
+    },
     "kb:other-changes": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "custom-provider-migration",
         "rhsso-to-rhbk-custom-providers-spis",
@@ -835,24 +2512,327 @@
     "kb:overview-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "securing-apps-oidc-saml",
         "spa-resource-server-implementation-review"
       ]
     },
+    "kb:persistent-volume": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-storage",
+        "persistent-volume-claim"
+      ]
+    },
+    "kb:persistent-volume-claim": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-storage",
+        "persistent-volume-claim"
+      ]
+    },
+    "kb:persistent-volumes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-implementation-review",
+        "openshift-overview",
+        "openshift-storage",
+        "persistent-volume-claim"
+      ]
+    },
+    "kb:pod-security-standards": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "security-context-constraints"
+      ]
+    },
+    "kb:pod-v1": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-pod",
+        "ocp-scc-root-crashloopbackoff-route-503",
+        "openshift-implementation-review"
+      ]
+    },
+    "kb:rhbk-26-0-concepts-memory-and-cpu-sizing": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "rhbk-oscp-scaling-resources"
+      ]
+    },
+    "kb:rhbk-26-0-concepts-multi-site": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-password-change-propagation-delay"
+      ]
+    },
+    "kb:rhbk-26-0-concepts-threads": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "rhbk-oscp-scaling-resources"
+      ]
+    },
+    "kb:rhbk-26-0-user-storage-federation": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-password-change-propagation-delay"
+      ]
+    },
+    "kb:rhbk-26-2-concepts-multi-site": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-password-change-propagation-delay"
+      ]
+    },
+    "kb:rhbk-26-2-deploy-keycloak-kubernetes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "rhbk-oscp-scaling-resources"
+      ]
+    },
+    "kb:rhbk-26-4-admin-rest-api": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "parallel-user-import-silent-failure"
+      ]
+    },
+    "kb:rhbk-26-4-assembly-managing-clients-server-administration-guide": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "client-credentials-burst-token-expired"
+      ]
+    },
+    "kb:rhbk-26-4-assembly-managing-users-server-administration-guide": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "parallel-user-import-silent-failure"
+      ]
+    },
+    "kb:rhbk-26-4-caching": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-password-change-propagation-delay",
+        "parallel-user-import-silent-failure"
+      ]
+    },
+    "kb:rhbk-26-4-db": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "parallel-user-import-silent-failure"
+      ]
+    },
+    "kb:rhbk-26-4-managing-user-sessions": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "client-credentials-burst-token-expired",
+        "rhbk-26-6-client-credentials-refresh-invalid-grant"
+      ]
+    },
+    "kb:rhbk-26-4-migration-changes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "client-credentials-burst-token-expired"
+      ]
+    },
+    "kb:rhbk-26-4-multi-cluster-introduction": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-password-change-propagation-delay"
+      ]
+    },
+    "kb:rhbk-26-4-sso-protocols": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "client-credentials-burst-token-expired",
+        "rhbk-26-6-client-credentials-refresh-invalid-grant"
+      ]
+    },
+    "kb:rhbk-26-4-user-storage-federation": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-password-change-propagation-delay"
+      ]
+    },
+    "kb:rhbk-26-4-user-storage-spi": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-password-change-propagation-delay",
+        "parallel-user-import-silent-failure"
+      ]
+    },
+    "kb:rhbk-26-6-getting-started-scaling-and-tuning": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "rhbk-oscp-scaling-resources"
+      ]
+    },
+    "kb:rhbk-26-6-migrating-operator": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-411-412-upgrade-rhsso-tls"
+      ]
+    },
+    "kb:rhbk-26-6-migration-changes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "rhbk-26-6-client-credentials-refresh-invalid-grant"
+      ]
+    },
+    "kb:rhbk-26-6-multi-cluster-introduction": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "rhbk-oscp-scaling-resources"
+      ]
+    },
+    "kb:rhbk-26-6-oidc-layers": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "rhbk-26-6-client-credentials-refresh-invalid-grant"
+      ]
+    },
+    "kb:securing-routes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-networking",
+        "openshift-route",
+        "route-tls-termination"
+      ]
+    },
+    "kb:security-platform": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "security-context-constraints"
+      ]
+    },
+    "kb:service": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-service",
+        "ocp-scc-root-crashloopbackoff-route-503",
+        "openshift-implementation-review",
+        "openshift-networking",
+        "openshift-overview"
+      ]
+    },
+    "kb:service-v1": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-service"
+      ]
+    },
     "kb:single-cluster-introduction": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
+        "passthrough-roundrobin-login-loop",
         "rhbk-ha-architectures"
+      ]
+    },
+    "kb:statefulset": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-pod",
+        "kubernetes-statefulset",
+        "openshift-implementation-review",
+        "openshift-workloads"
+      ]
+    },
+    "kb:static-pods": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-pod"
+      ]
+    },
+    "kb:storage-class": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-storage",
+        "storage-class"
+      ]
+    },
+    "kb:storage-classes": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-storage",
+        "storage-class"
       ]
     },
     "kb:telemetry-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "observability-stack",
         "opentelemetry-centralization"
@@ -861,7 +2841,7 @@
     "kb:token-exchange-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "token-exchange"
       ]
@@ -869,21 +2849,82 @@
     "kb:tracing-": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "observability-stack",
         "tracing-otlp"
       ]
     },
+    "kb:troubleshooting-operator-issues": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-implementation-review"
+      ]
+    },
+    "kb:understanding-buildconfigs": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "buildconfig-s2i",
+        "openshift-builds-and-images"
+      ]
+    },
+    "kb:understanding-persistent-storage": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-implementation-review"
+      ]
+    },
+    "kb:updating-4-22-how-updates-work": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cluster-operators",
+        "openshift-implementation-review",
+        "openshift-operators-and-olm"
+      ]
+    },
     "kb:user-storage-federation": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "ldap-import-vs-noimport",
         "ldap-mappers",
+        "ldap-password-change-propagation-delay",
         "ldap-storage-mode",
         "ldap-user-federation"
+      ]
+    },
+    "kb:using-service-accounts-in-applications": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "security-context-constraints"
+      ]
+    },
+    "kb:virtual-ips": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-service"
+      ]
+    },
+    "kb:what-deployments-are": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-deployment",
+        "openshift-workloads"
       ]
     },
     "note:_sources/cisco-ios-xe/bgp-routing.md": {
@@ -943,27 +2984,158 @@
         "cross-site-split-brain-pac-signing"
       ]
     },
+    "ref:doc-2342861": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-411-412-upgrade-rhsso-tls"
+      ]
+    },
     "ref:high-availability.md": {
       "first_ingested": "2026-06-17",
       "hash": "sha256:5daaf752888506c9",
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
+        "active-active-invalid-grant-token-refresh",
+        "active-passive-failover-sessions-lost",
         "distributed-caches",
-        "ha-cross-site"
+        "ha-cross-site",
+        "logout-session-lifecycle-active-passive"
       ]
     },
     "ref:migration-upgrading.md": {
       "first_ingested": "2026-06-17",
       "hash": "sha256:1f8d05a8ab2bed5c",
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "rhsso-to-rhbk-migration"
+      ]
+    },
+    "ref:networking-4-22-creating-advanced-routes": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-411-412-upgrade-rhsso-tls"
+      ]
+    },
+    "ref:networking-4-22-securing-routes": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-411-412-upgrade-rhsso-tls"
+      ]
+    },
+    "ref:reference/active-directory/ad-ds-ad-forest-recovery-cleanup.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "fsmo-transfer-vs-seize-dead-dc-twist"
+      ]
+    },
+    "ref:reference/active-directory/ad-ds-ad-forest-recovery-perform-initial-recovery.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "fsmo-transfer-vs-seize-dead-dc-twist"
+      ]
+    },
+    "ref:reference/active-directory/ad-ds-ad-forest-recovery-seizing-operations-master-role.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "fsmo-transfer-vs-seize-dead-dc-twist"
+      ]
+    },
+    "ref:reference/active-directory/ad-ds-understand-fsmo-roles.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "fsmo-transfer-vs-seize-dead-dc-twist"
+      ]
+    },
+    "ref:references/securing-apps-oidc-saml.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
+      ]
+    },
+    "ref:rhbk-26-0-assembly-managing-clients-server-administration-guide.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "require-dpop-bound-tokens"
+      ]
+    },
+    "ref:rhbk-26-2-assembly-managing-clients-server-administration-guide.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "require-dpop-bound-tokens"
+      ]
+    },
+    "ref:rhbk-26-2-reverseproxy": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "passthrough-roundrobin-login-loop"
+      ]
+    },
+    "ref:rhbk-26-4-assembly-managing-clients-server-administration-guide.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "require-dpop-bound-tokens"
+      ]
+    },
+    "ref:rhbk-26-4-features.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "require-dpop-bound-tokens"
+      ]
+    },
+    "ref:rhbk-26-4-identity-broker.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "identity-brokering-external-oidc-idp"
+      ]
+    },
+    "ref:rhbk-26-6-identity-brokering-apis.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "identity-brokering-external-oidc-idp"
+      ]
+    },
+    "ref:rhbk-26-6-single-cluster-introduction": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "passthrough-roundrobin-login-loop"
       ]
     },
     "ref:rhbk-operator.md": {
       "first_ingested": "2026-06-17",
       "hash": "sha256:0c478b622f470acd",
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "air-gapped-client-integration",
         "operator-deployment",
@@ -974,7 +3146,7 @@
     "ref:rhbk-platform-support.md": {
       "first_ingested": "2026-06-17",
       "hash": "sha256:3695fce5819bd010",
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "3scale-rhsso-support",
         "air-gapped-client-integration",
@@ -996,7 +3168,7 @@
     "ref:rhbk-troubleshooting-kb.md": {
       "first_ingested": "2026-06-17",
       "hash": "sha256:8485914ba0e8e130",
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "ad-idp-link-loss-objectguid",
         "admin-console-confidential-lockout",
@@ -1004,29 +3176,56 @@
         "fips-startup-bouncycastle",
         "operator-proxy-port-required",
         "oracle-jdbc-failover",
+        "parallel-user-import-silent-failure",
         "persistent-sessions-db-cleanup",
         "separate-sso-admin-hostnames",
         "troubleshooting-index",
         "uneven-pod-load-master-realm"
       ]
     },
+    "ref:rhsso-7-4-operating-mode": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "passthrough-roundrobin-login-loop"
+      ]
+    },
+    "ref:rhsso-7-4-reference": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "passthrough-roundrobin-login-loop"
+      ]
+    },
     "ref:securing-apps-oidc-saml.md": {
       "first_ingested": "2026-06-17",
       "hash": "sha256:4e08c52a370bbe4f",
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "ldap-user-federation",
+        "logout-session-lifecycle-active-passive",
         "oidc-client-best-practices",
         "oidc-token-validation",
         "saml-clients-and-migration",
         "spa-resource-server-implementation-review"
       ]
     },
+    "ref:security-4-22-tls-security-profiles": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-411-412-upgrade-rhsso-tls"
+      ]
+    },
     "ref:server-administration.md": {
       "first_ingested": "2026-06-17",
       "hash": "sha256:9793c3f57b9e97cc",
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
+        "logout-session-lifecycle-active-passive",
         "spa-resource-server-implementation-review",
         "tokens-and-sessions"
       ]
@@ -1034,16 +3233,112 @@
     "ref:server-configuration.md": {
       "first_ingested": "2026-06-17",
       "hash": "sha256:e0a67a130bd6af25",
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "distributed-caches",
         "kc-bootstrap-admin"
       ]
     },
+    "ref:wiki/reference/active-directory/ad-ds-configure-kerberos-delegation-group-managed-service-accounts.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kerberos-rbcd-s4u-delegation-detailed"
+      ]
+    },
+    "ref:wiki/reference/active-directory/ad-ds-delegated-managed-service-accounts-overview.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kerberos-rbcd-s4u-delegation-detailed"
+      ]
+    },
+    "ref:wiki/reference/active-directory/ad-ds-schema-updates.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kerberos-rbcd-s4u-delegation-detailed"
+      ]
+    },
+    "ref:wiki/reference/keycloak/rhbk-26-0-token-exchange.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
+      ]
+    },
+    "ref:wiki/reference/keycloak/rhbk-26-2-migration-changes.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
+      ]
+    },
+    "ref:wiki/reference/keycloak/rhbk-26-2-token-exchange.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
+      ]
+    },
+    "ref:wiki/reference/keycloak/rhbk-26-4-configuring-authentication-server-administration-guide.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kerberos-rbcd-s4u-delegation-detailed"
+      ]
+    },
+    "ref:wiki/reference/keycloak/rhbk-26-4-features.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
+      ]
+    },
+    "ref:wiki/reference/keycloak/rhbk-26-4-token-exchange.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
+      ]
+    },
+    "ref:wiki/reference/keycloak/rhbk-26-6-deprecated.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
+      ]
+    },
+    "ref:wiki/reference/keycloak/rhbk-26-6-dpop.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
+      ]
+    },
+    "ref:wiki/reference/keycloak/rhbk-26-6-token-exchange.md": {
+      "first_ingested": "2026-07-02",
+      "hash": "MISSING",
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
+      ]
+    },
     "web:https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "cors-for-spa",
         "jwt-validation-pitfalls",
@@ -1054,7 +3349,7 @@
     "web:https://cheatsheetseries.owasp.org/cheatsheets/OAuth2_Cheat_Sheet.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "sso-implementation-review"
       ]
@@ -1062,7 +3357,7 @@
     "web:https://curity.io/resources/learn/the-bff-pattern/": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "bff-token-handler",
         "token-storage-browser"
@@ -1071,15 +3366,39 @@
     "web:https://curity.io/resources/learn/token-handler-overview/": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "bff-token-handler"
+      ]
+    },
+    "web:https://datatracker.ietf.org/doc/rfc4120/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kerberos-rbcd-s4u-delegation-detailed"
+      ]
+    },
+    "web:https://datatracker.ietf.org/doc/rfc6749/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "rhbk-26-6-client-credentials-refresh-invalid-grant"
+      ]
+    },
+    "web:https://datatracker.ietf.org/doc/rfc7662/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "rhbk-26-6-client-credentials-refresh-invalid-grant"
       ]
     },
     "web:https://datatracker.ietf.org/doc/rfc9700/": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "angular-spa-oidc-best-practice",
         "client-libraries-by-stack",
@@ -1090,15 +3409,41 @@
     "web:https://developers.redhat.com/articles/2024/04/23/migrate-sso-red-hat-build-keycloak": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "client-libraries-by-stack"
+      ]
+    },
+    "web:https://docs.redhat.com/en/documentation/openshift_container_platform/4.22": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-overview",
+        "openshift-route",
+        "security-context-constraints"
+      ]
+    },
+    "web:https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/authentication/managing-security-context-constraints": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-scc-root-crashloopbackoff-route-503"
+      ]
+    },
+    "web:https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/authentication/understanding-and-managing-pod-security-admission": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-scc-root-crashloopbackoff-route-503"
       ]
     },
     "web:https://github.com/authts/react-oidc-context": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "client-libraries-by-stack"
       ]
@@ -1106,7 +3451,7 @@
     "web:https://github.com/keycloak/terraform-provider-keycloak": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "terraform-keycloak-iac"
       ]
@@ -1114,15 +3459,1049 @@
     "web:https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "client-libraries-by-stack"
+      ]
+    },
+    "web:https://kubernetes.io/docs/concepts/security/pod-security-admission/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ocp-scc-root-crashloopbackoff-route-503"
+      ]
+    },
+    "web:https://kubernetes.io/docs/concepts/services-networking/service/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-service"
+      ]
+    },
+    "web:https://kubernetes.io/docs/concepts/workloads/pods/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kubernetes-pod"
+      ]
+    },
+    "web:https://kubernetes.io/docs/home/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "openshift-overview"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kerberos-rbcd-s4u-delegation-detailed"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kerberos-rbcd-s4u-delegation-detailed"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/32k-pages-optional-feature": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-database-and-32k-pages"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/Introduction-to-Active-Directory-Domain-Services-AD-DS-Virtualization-Level-100": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "virtualized-domain-controllers",
+        "vm-generation-id-safe-restore"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/active-directory-functional-levels": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-functional-levels",
+        "upgrade-domain-controllers"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/configure-ldap-signing-certificates": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-signing-and-channel-binding"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/dc-locator-performance-counters": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dc-locator"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/AD-DS-Deployment": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-ds-deployment"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/Demoting-Domain-Controllers-and-Domains--Level-200-": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "demote-and-remove-dc"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/Domain-Wide-Updates": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "adprep-and-schema-updates"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/Install-Active-Directory-Domain-Services--Level-100-": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-ds-deployment",
+        "install-promote-domain-controller"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/RODC/Forest-Wide-Updates": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "adprep-and-schema-updates"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/RODC/Install-a-Windows-Server-2012-Active-Directory-Read-Only-Domain-Controller--RODC---Level-200-": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "read-only-domain-controller"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/RODC/Read-Only-Domain-Controller-Updates": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "read-only-domain-controller"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/What-s-New-in-Active-Directory-Domain-Services-Installation-and-Removal": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-ds-deployment",
+        "adprep-and-schema-updates",
+        "install-promote-domain-controller"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/ad-ds-metadata-cleanup": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "demote-and-remove-dc"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/adprep/Changes-Made-by-Adprep": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "adprep-and-schema-updates"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/upgrade-domain-controllers": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-functional-levels",
+        "adprep-and-schema-updates",
+        "upgrade-domain-controllers"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/enable-32K-pages-optional-feature": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-database-and-32k-pages"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/adac/Advanced-AD-DS-Management-Using-Active-Directory-Administrative-Center--Level-200-": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-admin-tools"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/adac/active-directory-recycle-bin": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-recycle-bin"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/adac/use-active-directory-administrative-center-powershell-history": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-admin-tools"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/replication/Active-Directory-Replication-Concepts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "global-catalog",
+        "knowledge-consistency-checker",
+        "site-links-and-replication-schedule",
+        "universal-group-membership-caching"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/replication/active-directory-replication-concepts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cross-site-split-brain-pac-signing"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/Support-for-using-Hyper-V-Replica-for-virtualized-domain-controllers": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "virtualized-domain-controllers",
+        "vm-generation-id-safe-restore"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/Virtualized-Domain-Controller-Architecture": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "vdc-cloning",
+        "virtualized-domain-controllers",
+        "vm-generation-id-safe-restore"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/Virtualized-Domain-Controller-Deployment-and-Configuration": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "vdc-cloning",
+        "virtualized-domain-controllers"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/virtualized-domain-controller-architecture": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "windows-time-service"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/virtualized-domain-controllers-hyper-v": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "virtualized-domain-controllers",
+        "vm-generation-id-safe-restore"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/ldap-signing": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ldap-signing-and-channel-binding"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/Managing-RID-Issuance": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "rid-issuance-management"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/component-updates/Command-line-process-auditing": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "advanced-audit-policy"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/component-updates/SPN-and-UPN-uniqueness": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "spn-and-upn-uniqueness"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/dc-locator": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dc-locator"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/delegated-managed-service-accounts/delegated-managed-service-accounts-overview": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "delegated-managed-service-accounts"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/delegated-managed-service-accounts/delegated-managed-service-accounts-set-up-dmsa": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "delegated-managed-service-accounts",
+        "kds-root-key"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-cleaning-metadata-of-removed-dcs": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-metadata-cleanup"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-guide": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-forest-recovery",
+        "cross-site-split-brain-pac-signing"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-reset-the-krbtgt-password": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cross-site-split-brain-pac-signing",
+        "krbtgt-reset"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-managed-service-accounts/group-managed-service-accounts/create-the-key-distribution-services-kds-root-key": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kds-root-key"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-managed-service-accounts/group-managed-service-accounts/group-managed-service-accounts-overview": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "group-managed-service-accounts",
+        "kds-root-key"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-managed-service-accounts/group-managed-service-accounts/group-managed-service-accounts/group-managed-service-accounts-overview": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "service-accounts-overview"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-managed-service-accounts/group-managed-service-accounts/group-managed-service-accounts/manage-group-managed-service-accounts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "service-accounts-overview"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/how-to-configure-spn": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "service-accounts-overview"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/troubleshoot/Troubleshooting-Active-Directory-Replication-Problems": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "cross-site-split-brain-pac-signing"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-default-user-accounts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "default-user-accounts",
+        "security-principals"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-fsmo-roles": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "windows-time-service"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "security-groups",
+        "security-principals"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "default-user-accounts",
+        "security-identifiers-sid"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-principals": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "security-groups",
+        "security-identifiers-sid",
+        "security-principals",
+        "special-identity-groups"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-service-accounts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "delegated-managed-service-accounts",
+        "group-managed-service-accounts",
+        "service-accounts-overview"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-special-identities-groups": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "special-identity-groups"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/virtual-dc/Virtualized-Domain-Controller-Troubleshooting": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "vdc-cloning"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Active-Directory-Integrated-DNS-Zones": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-integrated-dns-zones"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Autonomy-vs.-Isolation": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "forest-design-models"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Creating-a-DNS-Infrastructure-Design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dns-infrastructure-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Creating-a-Domain-Design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "domain-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Creating-a-Site-Design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-topology-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Creating-a-Site-Link-Bridge-Design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Creating-a-Site-Link-Design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule",
+        "site-topology-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Creating-an-Organizational-Unit-Design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "organizational-unit-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/DNS-and-AD-DS": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "disjoint-namespace",
+        "dns-infrastructure-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Delegating-Administration-by-Using-OU-Objects": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "organizational-unit-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Designing-the-Logical-Structure": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-logical-structure-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Designing-the-Site-Topology": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-topology-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Determining-the-Cost": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Determining-the-Interval": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Determining-the-Number-of-Domains-Required": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning",
+        "domain-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Determining-the-Number-of-Forests-Required": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "forest-design-models"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Determining-the-Schedule": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Disjoint-Namespace": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "disjoint-namespace"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Enabling-Advanced-Features-for-AD-DS": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-admin-tools"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Finding-Additional-Resources-for-Windows-Server-2008-Active-Directory-Site-Topology-Design": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning",
+        "site-topology-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Forest-Design-Models": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "forest-design-models"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Identifying-Forest-Design-Requirements": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-logical-structure-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Integrating-AD-DS-into-an-Existing-DNS-Infrastructure": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dns-infrastructure-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Mapping-Design-Requirements-to-Forest-Design-Models": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "forest-design-models"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Planning-Domain-Controller-Placement": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Planning-Forest-Root-Domain-Controller-Placement": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Planning-Global-Catalog-Server-Placement": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning",
+        "global-catalog",
+        "universal-group-membership-caching"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Planning-Operations-Master-Role-Placement": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "capacity-and-placement-planning"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Reviewing-DNS-Concepts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dns-infrastructure-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Reviewing-OU-Design-Concepts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "organizational-unit-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Reviewing-the-Domain-Models": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "domain-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Selecting-the-Forest-Root-Domain": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dns-infrastructure-design",
+        "domain-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Service-Administrator-Scope-of-Authority": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "forest-design-models"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Setting-Site-Link-Properties": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-links-and-replication-schedule"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Understanding-Active-Directory-Site-Topology": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "site-topology-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Understanding-the-Active-Directory-Logical-Model": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-logical-structure-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/Using-the-Organizational-Domain-Forest-Model": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "domain-design"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/active-directory-domain-services-maximum-limits": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-ds-maximum-limits"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/raise-domain-forest-functional-levels": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-functional-levels"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Appendix-C--Protected-Accounts-and-Groups-in-Active-Directory": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "protected-accounts-and-groups"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Attractive-Accounts-for-Credential-Theft": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "credential-theft-and-attractive-accounts"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Audit-Policy-Recommendations": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "advanced-audit-policy",
+        "monitoring-ad-for-compromise"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Avenues-to-Compromise": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "credential-theft-and-attractive-accounts",
+        "reducing-ad-attack-surface",
+        "software-restriction-policies"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Best-Practices-for-Securing-Active-Directory": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "monitoring-ad-for-compromise",
+        "reducing-ad-attack-surface",
+        "secure-administrative-hosts",
+        "tiered-administration-model"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Implementing-Least-Privilege-Administrative-Models": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "credential-theft-and-attractive-accounts",
+        "tiered-administration-model"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Implementing-Secure-Administrative-Hosts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "secure-administrative-hosts",
+        "software-restriction-policies"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Maintaining-a-More-Secure-Environment": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "reducing-ad-attack-surface"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Monitoring-Active-Directory-for-Signs-of-Compromise": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "advanced-audit-policy",
+        "monitoring-ad-for-compromise"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Planning-for-Compromise": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "reducing-ad-attack-surface"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Reducing-the-Active-Directory-Attack-Surface": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "protected-accounts-and-groups",
+        "reducing-ad-attack-surface",
+        "tiered-administration-model"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/Securing-Domain-Controllers-Against-Attack": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "secure-administrative-hosts",
+        "software-restriction-policies"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/advanced-audit-policy-configuration": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "advanced-audit-policy"
+      ]
+    },
+    "web:https://learn.microsoft.com/en-us/windows-server/security/kerberos/kerberos-authentication-overview": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "kerberos-rbcd-s4u-delegation-detailed"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "windows-server-identity-coverage-gaps"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/ad-cs/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-certificate-services",
+        "certificate-templates",
+        "certification-authority-types"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/ad-ds/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "active-directory-implementation-review",
+        "active-directory-overview",
+        "fsmo-roles"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/ad-ds/get-started/replication/active-directory-replication-concepts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-replication"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/ad-ds/manage/group-policy/group-policy-overview": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "group-policy"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/ad-ds/manage/how-to/fine-grained-password-policies": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "fine-grained-password-policies"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/ad-ds/plan/active-directory-integrated-dns-zones": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dns-for-ad-ds"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/ad-ds/plan/designing-the-site-topology": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "ad-replication"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/ad-ds/plan/dns-and-ad-ds": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "dns-for-ad-ds"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/ad-ds/plan/security-best-practices/best-practices-for-securing-active-directory": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "securing-active-directory"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "securing-active-directory"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/laps/": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "windows-laps"
+      ]
+    },
+    "web:https://learn.microsoft.com/windows-server/identity/laps/laps-concepts": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "laps-password-encryption"
       ]
     },
     "web:https://oneuptime.com/blog/post/2026-02-23-how-to-handle-terraform-in-air-gapped-environments/view": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "terraform-keycloak-iac"
       ]
@@ -1130,7 +4509,7 @@
     "web:https://openid.net/specs/fapi-2_0-attacker-model.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "fapi2-security-profile"
       ]
@@ -1138,7 +4517,7 @@
     "web:https://openid.net/specs/fapi-security-profile-2_0-final.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "fapi2-security-profile",
         "mtls-bound-tokens"
@@ -1147,7 +4526,7 @@
     "web:https://openid.net/specs/openid-connect-core-1_0.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "redirect-uri-validation",
         "state-and-nonce"
@@ -1156,7 +4535,7 @@
     "web:https://openid.net/specs/openid-connect-discovery-1_0.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "authorization-server-metadata-discovery"
       ]
@@ -1164,7 +4543,7 @@
     "web:https://openid.net/specs/openid-connect-rpinitiated-1_0.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "back-channel-logout",
         "rp-initiated-logout"
@@ -1173,7 +4552,7 @@
     "web:https://owasp.org/API-Security/editions/2023/en/0x11-t10/": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "access-token-validation-resource-server",
         "audience-and-scope-checks",
@@ -1183,7 +4562,7 @@
     "web:https://owasp.org/www-project-application-security-verification-standard/": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "cors-for-spa",
         "sso-implementation-review",
@@ -1193,7 +4572,7 @@
     "web:https://owasp.org/www-project-web-security-testing-guide/": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "jwt-validation-pitfalls",
         "state-and-nonce"
@@ -1202,7 +4581,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/authentication_execution.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1210,7 +4589,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/authentication_flow.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1218,7 +4597,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/authentication_subflow.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1226,7 +4605,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/client_description_converter.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1234,7 +4613,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/generic_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1242,7 +4621,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/group.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1250,7 +4629,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/openid_client.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1258,7 +4637,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/openid_client_authorization_policy.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1266,7 +4645,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/openid_client_scope.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1274,7 +4653,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/openid_client_service_account_user.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1282,7 +4661,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/organization.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1290,7 +4669,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/realm.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1298,7 +4677,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/realm_keys.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1306,7 +4685,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/role.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1314,7 +4693,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/saml_client.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1322,7 +4701,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/saml_client_installation_provider.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1330,7 +4709,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/saml_client_scope.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1338,7 +4717,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/user.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1346,7 +4725,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/user_realm_roles.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1354,7 +4733,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/workflow.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-data-sources"
       ]
@@ -1362,7 +4741,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/attribute_importer_identity_provider_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1370,7 +4749,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/attribute_to_role_identity_provider_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1378,7 +4757,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/authentication_bindings.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-authentication-flows"
       ]
@@ -1386,7 +4765,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/authentication_execution.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-authentication-flows"
       ]
@@ -1394,7 +4773,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/authentication_execution_config.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-authentication-flows"
       ]
@@ -1402,7 +4781,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/authentication_flow.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-authentication-flows"
       ]
@@ -1410,7 +4789,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/authentication_subflow.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-authentication-flows"
       ]
@@ -1418,7 +4797,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/custom_identity_provider_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1426,7 +4805,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/custom_user_federation.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1434,7 +4813,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/default_groups.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -1442,7 +4821,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/default_roles.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -1450,7 +4829,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/generic_client_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1458,7 +4837,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/generic_client_role_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -1466,7 +4845,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/generic_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1474,7 +4853,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/generic_role_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -1482,7 +4861,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/group.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -1490,7 +4869,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/group_memberships.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -1498,7 +4877,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/group_permissions.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -1506,7 +4885,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/group_roles.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -1514,7 +4893,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/hardcoded_attribute_identity_provider_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1522,7 +4901,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/hardcoded_attribute_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1530,7 +4909,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/hardcoded_group_identity_provider_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1538,7 +4917,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/hardcoded_role_identity_provider_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1546,7 +4925,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/identity_provider_token_exchange_scope_permission.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1554,7 +4933,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/kubernetes_identity_provider.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1562,7 +4941,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_custom_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1570,7 +4949,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_full_name_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1578,7 +4957,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_group_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1586,7 +4965,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_hardcoded_attribute_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1594,7 +4973,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_hardcoded_group_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1602,7 +4981,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_hardcoded_role_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1610,7 +4989,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_msad_lds_user_account_control_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1618,7 +4997,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_msad_user_account_control_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1626,7 +5005,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_role_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1634,7 +5013,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_user_attribute_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1642,7 +5021,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/ldap_user_federation.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-ldap-federation"
       ]
@@ -1650,7 +5029,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/oidc_facebook_identity_provider.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1658,7 +5037,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/oidc_github_identity_provider.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1666,7 +5045,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/oidc_google_identity_provider.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1674,7 +5053,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/oidc_identity_provider.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1682,7 +5061,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/oidc_microsoft_identity_provider.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1690,7 +5069,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/oidc_openshift_v4_identity_provider.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -1698,7 +5077,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_audience_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1706,7 +5085,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_audience_resolve_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1714,7 +5093,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-openid-client"
       ]
@@ -1722,7 +5101,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_aggregate_policy.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1730,7 +5109,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_authorization_client_scope_policy.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1738,7 +5117,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_authorization_permission.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1746,7 +5125,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_authorization_resource.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1754,7 +5133,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_authorization_scope.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1762,7 +5141,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_client_policy.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1770,7 +5149,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_default_scopes.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-openid-client"
       ]
@@ -1778,7 +5157,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_group_policy.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1786,7 +5165,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_optional_scopes.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-openid-client"
       ]
@@ -1794,7 +5173,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_permissions.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-openid-client"
       ]
@@ -1802,7 +5181,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_regex_policy.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1810,7 +5189,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_role_policy.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1818,7 +5197,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_scope.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-openid-client"
       ]
@@ -1826,7 +5205,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_service_account_realm_role.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-openid-client"
       ]
@@ -1834,7 +5213,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_service_account_role.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-openid-client"
       ]
@@ -1842,7 +5221,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_time_policy.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1850,7 +5229,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_user_policy.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-client-authorization"
       ]
@@ -1858,7 +5237,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_full_name_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1866,7 +5245,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_group_membership_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1874,7 +5253,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_hardcoded_claim_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1882,7 +5261,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_hardcoded_role_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1890,7 +5269,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_sub_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1898,7 +5277,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_user_attribute_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1906,7 +5285,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_user_client_role_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1914,7 +5293,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_user_property_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1922,7 +5301,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_user_realm_role_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1930,7 +5309,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_user_session_note_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -1938,7 +5317,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/organization.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -1946,7 +5325,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -1954,7 +5333,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_client_policy_profile.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -1962,7 +5341,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_client_policy_profile_policy.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -1970,7 +5349,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_default_client_scopes.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -1978,7 +5357,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_events.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -1986,7 +5365,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_keystore_aes_generated.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -1994,7 +5373,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_keystore_ecdsa_generated.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -2002,7 +5381,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_keystore_hmac_generated.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -2010,7 +5389,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_keystore_java_keystore.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -2018,7 +5397,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_keystore_rsa.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -2026,7 +5405,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_keystore_rsa_generated.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -2034,7 +5413,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_localization.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -2042,7 +5421,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_optional_client_scopes.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -2050,7 +5429,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/realm_user_profile.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -2058,7 +5437,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/required_action.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -2066,7 +5445,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/role.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -2074,7 +5453,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_client.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-saml-clients"
       ]
@@ -2082,7 +5461,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_client_default_scopes.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-saml-clients"
       ]
@@ -2090,7 +5469,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_client_scope.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-saml-clients"
       ]
@@ -2098,7 +5477,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_identity_provider.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -2106,7 +5485,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_user_attribute_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -2114,7 +5493,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_user_property_protocol_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-protocol-mappers"
       ]
@@ -2122,7 +5501,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/spiffe_identity_provider.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -2130,7 +5509,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/user.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -2138,7 +5517,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/user_groups.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -2146,7 +5525,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/user_roles.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -2154,7 +5533,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/user_template_importer_identity_provider_mapper.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-identity-providers"
       ]
@@ -2162,7 +5541,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/users_permissions.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-roles-groups-users"
       ]
@@ -2170,7 +5549,7 @@
     "web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/workflow.md": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "tf-realm-resources"
       ]
@@ -2178,7 +5557,7 @@
     "web:https://registry.terraform.io/providers/keycloak/keycloak/latest/docs": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "terraform-keycloak-iac"
       ]
@@ -2186,7 +5565,7 @@
     "web:https://www.angulararchitects.io/blog/oauth2-with-spring-angular-keycloak-spring-for-resource-server/": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "client-libraries-by-stack"
       ]
@@ -2194,7 +5573,7 @@
     "web:https://www.ietf.org/archive/id/draft-ietf-oauth-browser-based-apps-26.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "bff-token-handler",
         "cors-for-spa",
@@ -2206,7 +5585,7 @@
     "web:https://www.ietf.org/archive/id/draft-ietf-oauth-browser-based-apps-26.txt": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "sso-implementation-review"
       ]
@@ -2214,9 +5593,9 @@
     "web:https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-15.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
-        "dpop-sender-constraining",
+        "dpop",
         "native-app-oauth",
         "pkce",
         "redirect-uri-validation",
@@ -2228,7 +5607,7 @@
     "web:https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-15.txt": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "sso-implementation-review"
       ]
@@ -2236,7 +5615,7 @@
     "web:https://www.keycloak.org/docs/latest/securing_apps/index.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "bff-token-handler",
         "service-to-service-client-credentials"
@@ -2245,17 +5624,25 @@
     "web:https://www.rfc-editor.org/rfc/rfc6749": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "access-token-validation-resource-server",
         "bearer-token-usage",
         "service-to-service-client-credentials"
       ]
     },
+    "web:https://www.rfc-editor.org/rfc/rfc7009": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
+      ]
+    },
     "web:https://www.rfc-editor.org/rfc/rfc7636": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "pkce",
         "spa-resource-server-implementation-review"
@@ -2264,9 +5651,10 @@
     "web:https://www.rfc-editor.org/rfc/rfc7662": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "access-token-validation-resource-server",
+        "client-credentials-burst-token-expired",
         "token-introspection",
         "token-revocation"
       ]
@@ -2274,7 +5662,7 @@
     "web:https://www.rfc-editor.org/rfc/rfc8252": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "native-app-oauth"
       ]
@@ -2282,15 +5670,23 @@
     "web:https://www.rfc-editor.org/rfc/rfc8414": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "authorization-server-metadata-discovery"
+      ]
+    },
+    "web:https://www.rfc-editor.org/rfc/rfc8693": {
+      "first_ingested": "2026-07-02",
+      "hash": null,
+      "last_seen": "2026-07-02",
+      "pages": [
+        "token-exchange-rhbk-detailed"
       ]
     },
     "web:https://www.rfc-editor.org/rfc/rfc8705": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "mtls-bound-tokens"
       ]
@@ -2298,10 +5694,11 @@
     "web:https://www.rfc-editor.org/rfc/rfc9068": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "access-token-validation-resource-server",
         "audience-and-scope-checks",
+        "client-credentials-burst-token-expired",
         "jwt-validation-pitfalls",
         "spa-resource-server-implementation-review"
       ]
@@ -2309,7 +5706,7 @@
     "web:https://www.rfc-editor.org/rfc/rfc9207": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "issuer-identification-mixup"
       ]
@@ -2317,19 +5714,20 @@
     "web:https://www.rfc-editor.org/rfc/rfc9449": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
-        "dpop-sender-constraining"
+        "dpop",
+        "token-exchange-rhbk-detailed"
       ]
     },
     "web:https://www.rfc-editor.org/rfc/rfc9700": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "audience-and-scope-checks",
         "bearer-token-usage",
-        "dpop-sender-constraining",
+        "dpop",
         "issuer-identification-mixup",
         "jwt-validation-pitfalls",
         "native-app-oauth",
@@ -2344,7 +5742,7 @@
     "web:https://www.terraform.io/docs/cli/commands/providers/mirror.html": {
       "first_ingested": "2026-06-17",
       "hash": null,
-      "last_seen": "2026-06-18",
+      "last_seen": "2026-07-02",
       "pages": [
         "terraform-keycloak-iac"
       ]

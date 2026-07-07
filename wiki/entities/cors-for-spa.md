@@ -12,8 +12,11 @@ provenance_extracted: 12
 provenance_inferred: 4
 provenance_ambiguous: 0
 tags: [clients, security, concept]
+symptoms:
+  - "blocked by CORS policy"
+  - "No 'Access-Control-Allow-Origin' header"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # CORS for SPA OAuth Clients
@@ -89,7 +92,7 @@ The `Origin` request header is trivially spoofed by non-browser clients. It must
 - [[oidc-client-best-practices]] — RHBK-specific SPA client hardening
 - [[securing-apps-oidc-saml]] — RHBK adapter and JS client configuration
 - [[client-libraries-by-stack]] — per-stack client library choices that affect how CORS calls are made
-- [[dpop-sender-constraining]] — sender-constraining as an alternative mitigation when CORS alone cannot prevent token exfiltration
+- [[dpop]] — sender-constraining as an alternative mitigation when CORS alone cannot prevent token exfiltration
 - [[bearer-token-usage]] — how `Authorization: Bearer` interacts with CORS preflight requirements
 - [[fapi2-security-profile]] — higher-assurance profile that builds on these baseline controls
 - [[sso-implementation-review]] — MOC: implementation review checklist

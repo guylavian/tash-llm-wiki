@@ -9,10 +9,12 @@ sources:
   - kb:mitigating_security_threats
 source_notes:
   - "[[rhbk-26-4-mitigating-security-threats]]"
-provenance: needs-review
+provenance_extracted: 11
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [security, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Security hardening checklist
@@ -55,7 +57,10 @@ updated: 2026-06-16
   in 26.2/26.4 primary results. OAuth 2.1 / FAPI client-policy specifics evolve across
   26.0/26.2/26.4/26.6 — verify against your version.
 - Passwords are stored hashed (Argon2 default, or PBKDF2-HMAC-SHA512 under FIPS), never
-  in cleartext — see [[password-policies]].
+  in cleartext (inferred — the cited "Mitigating security threats" chapter only
+  states PBKDF2-HMAC-SHA512; the Argon2-default / FIPS-fallback detail is
+  cross-referenced from the FIPS troubleshooting notes, not this page's cited
+  source) — see [[password-policies]].
 
 ## See also
 - [[realm-administration]]

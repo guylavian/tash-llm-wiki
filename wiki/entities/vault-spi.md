@@ -9,10 +9,12 @@ sources:
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/vault-spi
 source_notes:
   - "[[rhbk-26-6-vault-spi]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config, spi]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Vault SPI
@@ -21,7 +23,7 @@ updated: 2026-06-16
 
 ## Purpose
 
-Lets RHBK resolve secret references (e.g. LDAP bind credentials, SMTP passwords, IdP client secrets) from an external vault rather than storing them inline. You implement the vault `Provider`/`ProviderFactory` pair in the `org.keycloak.vault` package and package it like any other extension. The bundled `files-plaintext` provider serves as the implementation template.
+Lets RHBK resolve secret references (e.g. LDAP bind credentials, SMTP passwords, IdP client secrets) from an external vault rather than storing them inline (inferred — these example secret kinds are not enumerated in the cited chapter; they're typical `${vault.key}` consumers described elsewhere in the corpus). You implement the vault `Provider`/`ProviderFactory` pair in the `org.keycloak.vault` package and package it like any other extension. The bundled `files-plaintext` provider serves as the implementation template.
 
 Deployment follows the standard flow — JAR into `providers/`, then `kc.sh build`. See [[spi-provider-model]] for packaging and the single-vs-multiple-implementation rules.
 

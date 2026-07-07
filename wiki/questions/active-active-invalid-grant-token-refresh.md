@@ -230,7 +230,7 @@ The "no data loss" guarantee only holds in a non-degraded state. After any cross
 - **kb:deploy-aws-accelerator-loadbalancer** (rhbk-26-2-deploy-aws-accelerator-loadbalancer) — Chapter 11. AWS Global Accelerator load balancer blueprint: weight 128 to both sites, `/lb-check` health probe
 - **kb:operate-synchronize** (rhbk-26-2-operate-synchronize) — Chapter 15. Synchronizing sites: manual re-sync procedure
 - **rhbk-26-6-migration-changes** (rhbk-26-6-migration-changes) — §2.2.10: default clock-skew increased to 10 seconds for JWT `iat` checks
-- **kb:configuring-distributed-caches** (rhbk-26-4-caching) — Chapter 10. Configuring distributed caches: `persistent-user-sessions` forced ON when `multi-site` enabled; sessions cache type
+- **kb:caching** (rhbk-26-4-caching) — Chapter 10. Configuring distributed caches: `persistent-user-sessions` forced ON when `multi-site` enabled; sessions cache type
 - **doc-7135882** — gated KB: volatile sessions behavior and cleanup
 
 ### Wiki (cross-linked synthesis pages)

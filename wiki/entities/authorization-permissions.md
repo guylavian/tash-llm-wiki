@@ -9,10 +9,12 @@ sources:
   - kb:authorization_services_guide/permission_overview
 source_notes:
   - "[[rhbk-26-6-permission-overview]]"
-provenance: needs-review
+provenance_extracted: 5
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [authz]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Authorization permissions
@@ -29,11 +31,11 @@ Protects one or more whole resources with a set of policies. Fields: Name, Descr
 Protects specific **Scopes** (optionally restricted to one **Resource**; if no resource is chosen, all scopes are available) with a set of policies. Use this for per-action granularity rather than per-resource.
 
 ## Decision Strategy on a permission
-Each permission carries a [[decision-strategies|Decision Strategy]] (`Unanimous` default, `Affirmative`, or `Consensus`) that combines the outcomes of its associated policies into the permission's decision. This is separate from the resource-server-wide Decision Strategy that resolves conflicts *between* permissions on the same resource/scope.
+Each permission carries a [[decision-strategies|Decision Strategy]] (`Unanimous` default, `Affirmative`, or `Consensus`) that combines the outcomes of its associated policies into the permission's decision. This is separate from the resource-server-wide Decision Strategy that resolves conflicts *between* permissions on the same resource/scope. (inferred — the resource-server-wide Decision Strategy concept is grounded in `reference/keycloak/rhbk-26-6-resource-server-overview.md`, which is not among this page's cited sources.)
 
 ## Contradictions / caveats
 - Stable across RHBK **26.0–26.6**.
-- Watch the layered strategies: per-policy **Logic** → per-permission **Decision Strategy** → resource-server **Decision Strategy**. A conflict where one permission grants and another denies the same scope resolves per the *server* strategy (`Affirmative` grants, `Unanimous` denies).
+- Watch the layered strategies: per-policy **Logic** → per-permission **Decision Strategy** → resource-server **Decision Strategy**. A conflict where one permission grants and another denies the same scope resolves per the *server* strategy (`Affirmative` grants, `Unanimous` denies). (inferred — the Affirmative/Unanimous conflict example is from `rhbk-26-6-resource-server-overview.md`, an uncited source for this page.)
 
 ## See also
 - [[fine-grained-authorization]]

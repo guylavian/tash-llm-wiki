@@ -9,10 +9,12 @@ sources:
   - kb:user-storage-federation
 source_notes:
   - "[[rhbk-26-4-user-storage-federation]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [clients, federation]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # LDAP Mappers

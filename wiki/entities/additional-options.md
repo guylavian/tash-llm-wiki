@@ -3,15 +3,17 @@ title: additionalOptions (Keycloak CR escape hatch)
 type: entity
 domain: keycloak
 slug: additional-options
-summary: "The `spec.additionalOptions` field on the [[keycloak-cr]] — a key/value escape hatch for any server option that has no first-class field on the CR"
+summary: "How do you pass a Keycloak server option through the Operator when the [[keycloak-cr]] exposes no dedicated field for it (including SPI/provider options)? Use `spec.additionalOptions` as a key/value escape hatch, and know which caveats (secret refs, build- vs runtime options) apply."
 sources:
   - guide:operator_guide
   - kb:operator_guide/advanced-configuration-
 source_notes:
   - "[[rhbk-26-6-advanced-configuration]]"
-provenance: needs-review
+provenance_extracted: 4
+provenance_inferred: 1
+provenance_ambiguous: 0
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # `additionalOptions`
@@ -49,6 +51,8 @@ spec:
 - **Ignored with optimized custom images**: when `spec.image` is set, every
   build-time option passed via a dedicated field **or** `additionalOptions` is
   ignored — bake build-time config into the image instead ([[custom-keycloak-image]]).
+  (inferred — grounded in `reference/keycloak/rhbk-26-6-customizing-keycloak.md`,
+  not in this page's cited advanced-configuration source.)
 - Secret-referenced options live in the **same namespace** as the CR; the Operator
   polls ~every minute and does a **rolling restart** when a referenced Secret/
   ConfigMap changes ([[operator-secret-references]]).
@@ -57,6 +61,10 @@ spec:
 
 - Consistent across 26.0–26.6; the management-interface example
   (`http-management-relative-path`) appears in the 26.x advanced-config chapter.
+- The "ignored with optimized custom images" caveat is cross-referenced from a
+  different chapter (`rhbk-26-6-customizing-keycloak.md`) than this page's
+  cited source; add that note as an explicit `sources:` entry if this page is
+  promoted to `reviewed`.
 
 ## See also
 - [[keycloak-cr]]

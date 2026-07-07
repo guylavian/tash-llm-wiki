@@ -3,16 +3,18 @@ title: Authorization policy types
 type: entity
 domain: keycloak
 slug: authorization-policy-types
-summary: "Policies define the *conditions* that must be satisfied to grant access, decoupled from what they protect — generic, reusable, and combinable. A [[authorization-permissions|permission]] binds one or more policies to a resource/scope."
+summary: "Which built-in policy types can you use to express an access condition in Keycloak fine-grained authorization (User, Role, Group, Client, Client-scope, Regex, Time, Aggregate, JS), and how do the per-policy Logic field and the permission's decision strategy combine them into a grant/deny?"
 sources:
   - guide:authorization_services_guide
   - kb:authorization_services_guide/policy_overview
 source_notes:
   - "[[rhbk-26-6-policy-overview]]"
-provenance: needs-review
+provenance_extracted: 11
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [authz]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Authorization policy types
@@ -33,14 +35,14 @@ Each built-in type is backed by a policy provider (the SPI lets you add your own
 - **Aggregated** — a "policy of policies": combine existing policies and apply a [[decision-strategies|decision strategy]] (Unanimous/Affirmative/Consensus) across them. Circular references are rejected. Implements the divide-and-conquer reuse model.
 
 ## JavaScript policy deployment
-JS policies **cannot be uploaded** via the Console by default. Deploy them in a JAR (JavaScript Providers); deployed scripts then appear as selectable policy providers. The default `Default Policy` ("only from realm") is a JS policy that always calls `$evaluation.grant()`.
+JS policies **cannot be uploaded** via the Console by default. Deploy them in a JAR (JavaScript Providers); deployed scripts then appear as selectable policy providers. The default `Default Policy` ("only from realm") is a JS policy that always calls `$evaluation.grant()`. (inferred — the `Default Policy` name/behavior is grounded in `doc-7072930.md` and older getting-started notes, not in this page's cited `rhbk-26-6-policy-overview.md`.)
 
 ## ABAC safety note
 If a JS/ABAC policy trusts a user attribute, ensure that attribute is **read-only** so users cannot grant themselves access (Threat model mitigation).
 
 ## Contradictions / caveats
-- Type set and semantics are stable across RHBK **26.0–26.6**.
-- Role policies are token-scoped by default; **Fetch Roles** changes that to a server-side user lookup — a meaningful behavioral toggle when tokens are minimized.
+- Type set and semantics are stable across RHBK **26.0–26.6**. (inferred)
+- Role policies are token-scoped by default; **Fetch Roles** changes that to a server-side user lookup — a meaningful behavioral toggle when tokens are minimized. (inferred — the framing/implication is synthesis on top of the extracted Fetch Roles fact.)
 - Per-policy **Logic** (positive/negative) is distinct from a permission's [[decision-strategies|Decision Strategy]]; do not conflate them.
 
 ## See also

@@ -493,6 +493,94 @@ for _verb in (("ingest", "--stdout"), ("graph-status",), ("cross-domain-query",)
         break
 check("tkg: all five CLI verbs run via `python -m wikikb tkg ...` (exit 0)", _v_ok, _v_bad)
 
+# 40b. tkg supersession (rule R3, deterministic): _successor_slug picks the same-family strictly-newer
+# candidate under a url_tail (a primary that lags a newer harvest is flagged), returns None for the newest,
+# ignores a different family, and every Source node carries the superseded_by attr (None ⇒ current).
+_sup_err = ""
+try:
+    from wikikb.tkg import model as _sm
+    _cands = [{"slug": "g-26-0", "version": "26.0", "primary": False, "family": "rhbk"},
+              {"slug": "g-26-2", "version": "26.2", "primary": True, "family": "rhbk"},
+              {"slug": "g-26-4", "version": "26.4", "primary": False, "family": "rhbk"},
+              {"slug": "g-7-6", "version": "7.6", "primary": False, "family": "rhsso"}]
+    _sup_ok = (_sm._successor_slug(_cands, "rhbk", "26.2") == "g-26-4"      # lagging primary -> successor
+               and _sm._successor_slug(_cands, "rhbk", "26.4") is None      # newest -> nothing supersedes
+               and _sm._successor_slug(_cands, "rhsso", "7.6") is None)     # cross-family ignored
+    _sg = _sm.build_graph()
+    _sup_attr = all("superseded_by" in n.attrs for n in _sg.nodes.values() if n.label == "Source")
+except Exception as _e:                                                     # noqa: BLE001
+    _sup_ok = _sup_attr = False
+    _sup_err = repr(_e)
+check("tkg: supersession _successor_slug derives same-family newer note; Source nodes carry superseded_by",
+      _sup_ok and _sup_attr, _sup_err or "successor logic or attr missing")
+
+# 40c. expand --as-of (M1 temporal wiring): _asof_filter drops a version-temporal note introduced AFTER
+# the as-of point but NEVER a structural/undated note (omit-not-fabricate). Uses the tkg store/in-memory
+# build; expand() itself is untouched so the eval golden stays byte-identical.
+_af_err = ""
+try:
+    from wikikb.retrieval import expand as _ex
+    _later = "rhbk-26-6-multi-cluster-introduction"   # version-temporal, valid_from 2026-06-03
+    _struct = "zzz-undated-structural-note"            # not in the graph -> undated -> never filtered
+    _r = {"notes_seed": {_later, _struct}, "notes_closure": {_later, _struct}}
+    _af_line = _ex._asof_filter(_r, "keycloak", "26.0")   # 26.0 -> 2024-11-21, before 2026-06-03
+    _af_ok = (_af_line is not None and _later not in _r["notes_seed"] and _struct in _r["notes_seed"])
+except Exception as _e:                                                     # noqa: BLE001
+    _af_ok = False
+    _af_err = repr(_e)
+check("expand --as-of filters a later-version note, never a structural one (M1)", _af_ok, _af_err)
+
+# 41. Faithfulness eval: module imports clean, cases file is valid JSONL, and the scoring logic
+# is stdlib-safe (no LLM needed for the infrastructure check). The full eval run with WIKI_LLM=local
+# is the separate faithfulness_probe.py (analogous to gate_probe.py vs selftest.py).
+from wikikb.quality import faithfulness as _ff
+_faith_cases = os.path.join(META, "eval", "faithfulness_cases.jsonl")
+_faith_ok = os.path.isfile(_faith_cases)
+_faith_n = 0
+if _faith_ok:
+    try:
+        _faith_cases_loaded = _ff.load_cases(_faith_cases)
+        _faith_n = len(_faith_cases_loaded)
+        _faith_ok = _faith_n > 0
+    except Exception as _e:
+        _faith_ok = False
+        _faith_err = repr(_e)
+check("faithfulness eval: module imports + cases valid (%d cases)" % _faith_n, _faith_ok, "")
+
+# 42. Phase-5 routing lever (litellm.Router, OSS): complete_routed exists and DEGRADES to a no-op
+# when <2 models are configured — single-model config must build no Router (today's behavior). Pure
+# config check; opens no socket and needs no litellm (env off -> _router returns None either way).
+from wikikb.online import llm as _llm
+_route_ok = hasattr(_llm, "complete_routed") and _llm._router({"model": "ollama/x"}) is None \
+    and _llm._router({"model_small": "ollama/s"}) is None        # one of the pair missing -> no-op
+check("llm routing: complete_routed degrades to single-model when <2 models configured", _route_ok, "")
+
+# 43. openshift brain (ADD DOMAIN): declared in taxonomy, has a routing index, and its raw notes-first
+# tier is grep-retrievable. The whole-loop proof that the new domain stands up like the others.
+_tax = open(os.path.join(META, "taxonomy.md"), encoding="utf-8").read()
+_osh_idx = os.path.join(WIKI, "index.openshift.md")
+_osh_decl = "- domain: openshift" in _tax
+_osh_indexed = os.path.isfile(_osh_idx) and "openshift-overview" in open(_osh_idx, encoding="utf-8").read()
+_osh_src = os.path.isdir(os.path.join(WIKI, "_sources", "openshift"))
+_osh_refdir = os.path.join(WIKI, "reference", "openshift")
+_osh_corpus = os.path.isdir(_osh_refdir) and len([f for f in os.listdir(_osh_refdir)
+                                                  if f.endswith(".md")]) > 1000   # corpus-backed
+import importlib as _il
+_adoc_ok = _il.util.find_spec("wikikb.corpus.adoc_to_corpus") is not None
+check("openshift domain: declared + indexed + corpus-backed (>1000 ref notes) + adoc harvester present",
+      _osh_decl and _osh_indexed and _osh_src and _osh_corpus and _adoc_ok, "")
+
+# 44. Citation-grounding gate: a distinctive env-var-shaped claim absent from the domain corpus is
+# flagged (the SSO_HTTPS_CIPHER_SUITES fabrication class), and a claim tagged (inferred) is skipped.
+# This is the CONTENT arm of the citation contract, complementing the provenance-COUNT gate (H2/H3).
+from wikikb.quality import lint as _lint
+_fab = _lint.ungrounded_citations("# T\n\nSet the `FAKE_NONEXISTENT_ENVVAR_XYZ` variable to enable it.\n",
+                                  {"domain": "keycloak"})
+_skip = _lint.ungrounded_citations("# T\n\nSet `FAKE_NONEXISTENT_ENVVAR_XYZ` (inferred).\n",
+                                   {"domain": "keycloak"})
+check("citation grounding: flags ungrounded env-var claim, skips (inferred)",
+      ("FAKE_NONEXISTENT_ENVVAR_XYZ" in _fab) and not _skip, repr((_fab, _skip)))
+
 failed = [n for n, ok, _ in checks if not ok]
 print(f"\n{len(checks) - len(failed)}/{len(checks)} checks passed")
 sys.exit(1 if failed else 0)

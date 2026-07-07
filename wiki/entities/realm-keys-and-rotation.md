@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-4-configuring-realms]]"
   - "[[rhbk-26-4-admin-cli]]"
-provenance: needs-review
+provenance_extracted: 12
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [realm]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Realm keys and rotation
@@ -78,7 +80,7 @@ See [[kcadm-cli]].
 - Bodies sourced are RHBK **26.0**; the Keys chapter is present and consistent in
   26.2/26.4 primary results. Specific JWS algorithms beyond RSA/EC/AES (e.g. EdDSA)
   are version-dependent — confirm against the exact RHBK version (26.0/26.2/26.4/26.6).
-- `clear-keys-cache` only flushes the key cache; it does not rotate keys.
+- `clear-keys-cache` only flushes the key cache; it does not rotate keys (inferred — not covered by the cited chapters).
 
 ## See also
 - [[realm-administration]]

@@ -10,10 +10,12 @@ sources:
   - guide:operator_guide
 source_notes:
   - "[[doc-7073090]]"
-provenance: needs-review
+provenance_extracted: 5
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [operator, server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RHBK Operator fails "Proxy port is required!"

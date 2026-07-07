@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-oidc-layers]]"
   - "[[rhbk-26-6-overview-2]]"
-provenance: needs-review
+provenance_extracted: 11
+provenance_inferred: 3
+provenance_ambiguous: 0
 tags: [clients, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Securing Apps — OIDC vs SAML, Clients & Protocol Flows
@@ -36,11 +38,15 @@ SAML 2.0. Picking a protocol:
 - **SAML 2.0** — XML-based, browser-redirect/POST assertions. RHBK calls SAML
   Service Providers **clients** too. Choose it mainly to integrate with existing
   enterprise SAML SPs (e.g. via [[mod-auth-mellon]] or the SAML Galleon feature
-  pack for WildFly/EAP). Token exchange does **not** support SAML clients/IDPs.
+  pack for WildFly/EAP). Token exchange does **not** support SAML clients/IDPs
+  (inferred — not stated verbatim in this page's cited sources; consistent with
+  token exchange being an OAuth2/OIDC-only grant type).
 
 The guide's strong recommendation: leverage the OIDC/SAML support already in your
 language, framework, or reverse proxy. Use a **Keycloak client adapter** only as
-a last resort when the ecosystem lacks the protocol.
+a last resort when the ecosystem lacks the protocol (inferred — this is this
+page's paraphrase of the guide's overall stance, not a single verbatim
+sentence).
 
 ## Clients and registration
 
@@ -54,7 +60,9 @@ action. Client types split by whether they can keep a secret:
   endpoints. See [[client-authentication-methods]].
 - **Public clients** — SPAs and native/mobile apps that cannot store a secret;
   must rely on redirect-based flows hardened with PKCE (and optionally
-  [[dpop]]). The JavaScript adapter `keycloak-js` always requires a public client.
+  [[dpop]]). The JavaScript adapter `keycloak-js` always requires a public client
+  (inferred — not stated verbatim in cited sources; follows from `keycloak-js`
+  running entirely in the browser, unable to hold a secret).
 
 A **service account** is a client that obtains tokens on its own behalf
 (client-credentials grant), for background/machine-to-machine work.
@@ -96,6 +104,8 @@ tokens via [[dpop]] further harden public clients.
   validation**; RHBK only enforces the authorization-server side.
 
 ## See also
+- [[sso-implementation-review]] — standards-layer review of these client settings
+- [[token-revocation]] — revocation endpoint exposed to secured apps
 - [[oidc-endpoints]]
 - [[oidc-grant-types]]
 - [[client-authentication-methods]]

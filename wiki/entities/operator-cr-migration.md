@@ -9,10 +9,12 @@ sources:
   - kb:migrating-operator
 source_notes:
   - "[[rhbk-26-6-migrating-operator]]"
-provenance: needs-review
+provenance_extracted: 11
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [migration, operator]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RH-SSO Operator → RHBK Operator (CR) migration
@@ -60,8 +62,9 @@ for anything missing (e.g. SPI config) and an `unsupported.podTemplate`
 
 ## Contradictions / caveats
 - Upstream Keycloak Operator CRs are compatible with the RHBK Operator (only a
-  reinstall is needed) — unlike RH-SSO 7.6 CRs, which are not. See
-  [[rhsso-to-rhbk-migration]].
+  reinstall is needed) — unlike RH-SSO 7.6 CRs, which are not (inferred — not
+  stated in the cited migrating-operator chapter, which covers only the RH-SSO
+  7.6 → RHBK path). See [[rhsso-to-rhbk-migration]].
 - `podTemplate` is Technology Preview — prefer first-class CR fields (e.g.
   `spec.imagePullSecrets` over `spec.unsupported.podTemplate.spec.imagePullSecrets`).
 

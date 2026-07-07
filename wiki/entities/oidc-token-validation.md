@@ -8,10 +8,12 @@ sources:
   - guide:securing_applications_and_services_guide
   - guide:server_administration_guide
   - ref:securing-apps-oidc-saml.md
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [clients, tokens]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # OIDC Token Validation — JWKS vs. Introspection
@@ -34,11 +36,17 @@ verification via JWKS, or an online call to the token introspection endpoint.**
 - **Tradeoff:** a network round-trip per validation.
 
 ## Guidance
-- Use **JWKS** for high-throughput APIs with short token lifespans (pair with
-  [[tokens-and-sessions]] lifespan tuning).
-- Use **introspection** when immediate revocation matters or for opaque tokens.
+- Use **JWKS** for high-throughput APIs with short token lifespans (inferred
+  recommendation synthesized from the tradeoffs above, not a direct doc quote; pair
+  with [[tokens-and-sessions]] lifespan tuning).
+- Use **introspection** when immediate revocation matters. Note that RHBK access
+  tokens are **JWTs by default**, so local JWKS validation is the normal path;
+  introspection is *required* only for **opaque / lightweight access tokens** — a
+  separate opt-in feature (e.g. the lightweight access token client setting) that
+  strips the token down to an opaque reference the RS cannot validate offline.
 
 ## See also
+- [[sso-implementation-review]] — the standards-layer review of these validation rules
 - [[tokens-and-sessions]]
 - [[oidc-endpoints]]
 - [[dpop]]

@@ -6,10 +6,12 @@ slug: reverse-proxy-configuration
 summary: "Behind a proxy/load balancer, RHBK must be told which forwarding headers to trust via `proxy-headers`; misconfiguration causes 403s or opens spoofing vulnerabilities."
 sources:
   - guide:server_configuration_guide
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Reverse proxy configuration

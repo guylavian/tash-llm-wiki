@@ -9,10 +9,12 @@ sources:
   - kb:event-metrics-
 source_notes:
   - "[[rhbk-26-6-event-metrics]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [observability]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # User event metrics (keycloak_user_events_total)
@@ -37,9 +39,9 @@ The feature is `user-event-metrics`. Counters are **per instance** and **reset o
 - `event-metrics-user-events` limits which event types are counted, e.g. `--event-metrics-user-events=login,logout`. (See the Server Administration Guide for the list of event types.)
 
 The emitted series looks like:
-`keycloak_user_events_total{client_id="...",error="",event="login",idp="",realm="master"} 1.0` — with `error` populated for failures (e.g. `invalid_user_credentials`).
+`keycloak_user_events_total{client_id="...",error="",event="login",idp="",realm="master"} 1.0` — with `error` populated for failures (e.g. `invalid_user_credentials`) (inferred — confirmed present in the corpus's "Metrics for troubleshooting" chapter, not the event-metrics chapter cited by this page).
 
-This counter powers the **capacity planning** Grafana dashboard (see [[grafana-dashboards]]) and supports [[metrics-exemplars]].
+This counter powers the **capacity planning** Grafana dashboard (see [[grafana-dashboards]]) and supports [[metrics-exemplars]] (inferred — cross-page synthesis linking this chapter to the dashboards/exemplars chapters).
 
 ## Contradictions / caveats
 

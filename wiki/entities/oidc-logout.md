@@ -11,10 +11,12 @@ sources:
 source_notes:
   - "[[rhbk-26-6-oidc-layers]]"
   - "[[rhbk-26-6-dpop]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [clients]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Logout (OIDC & SAML)
@@ -38,8 +40,9 @@ logout) rather than the legacy adapter logout mechanisms.
 SAML SPs perform Single Logout. In multi-cluster deployments special handling is
 needed: with a non-replicating distributed cache a SAML logout request can land
 on a node that lacks the SAML session-index→HTTP-session mapping, causing an
-unsuccessful logout — see [[distributed-caches]] and the SAML Galleon feature
-pack. Adapters expose a `logoutPage` to control where the user lands after
+unsuccessful logout (inferred — grounded in the SAML Galleon feature-pack chapter,
+which is not among this page's cited sources) — see [[distributed-caches]] and the
+SAML Galleon feature pack. Adapters expose a `logoutPage` to control where the user lands after
 logout.
 
 ## DPoP and logout

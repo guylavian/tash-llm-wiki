@@ -1,0 +1,230 @@
+---
+title: "Configuring an egress service"
+type: reference
+domain: openshift
+slug: networking-4-22-configuring-egress-traffic-for-vrf-loadbalancer-services
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/networking/configuring-egress-traffic-for-vrf-loadbalancer-services
+version: 4.22
+family: networking
+documentKind: "Documentation"
+---
+
+# Configuring an egress service
+
+[id="configuring-egress-traffic-loadbalancer-services"]
+= Configuring an egress service
+
+[role="_abstract"]
+As a cluster administrator, you can configure egress traffic for pods behind a load balancer service by using an egress service.
+
+You can use the `EgressService` custom resource (CR) to manage egress traffic in the following ways:
+
+* Assign a load balancer service IP address as the source IP address for egress traffic for pods behind the load balancer service.
++
+Assigning the load balancer IP address as the source IP address in this context is useful to present a single point of egress and ingress. For example, in some scenarios, an external system communicating with an application behind a load balancer service can expect the source and destination IP address for the application to be the same.
++
+[NOTE]
+====
+When you assign the load balancer service IP address to egress traffic for pods behind the service, OVN-Kubernetes restricts the ingress and egress point to a single node. This limits the load balancing of traffic that MetalLB typically provides.
+====
+
+* Assign the egress traffic for pods behind a load balancer to a different network than the default node network.
++
+This is useful to assign the egress traffic for applications behind a load balancer to a different network than the default network. Typically, the different network is implemented by using a VRF instance associated with a network interface.
+
+// Describe the CR and provide an example.
+// Module included in the following assemblies:
+//
+// * networking/ovn_kubernetes_network_provider/configuring-egress-traffic-for-vrf-loadbalancer-services.adoc
+
+[id="nw-egress-service-ovn-cr_{context}"]
+= Egress service custom resource
+
+[role="_abstract"]
+You can define the configuration for an egress service in an `EgressService` custom resource.
+
+The following YAML describes the fields for the configuration of an egress service:
+
+[source,yaml]
+----
+apiVersion: k8s.ovn.org/v1
+kind: EgressService
+metadata:
+  name: <egress_service_name>
+  namespace: <namespace>
+spec:
+  sourceIPBy: <egress_traffic_ip>
+  nodeSelector:
+    matchLabels:
+      node-role.kubernetes.io/<role>: ""
+  network: <egress_traffic_network>
+----
+
+where:
+
+`metadata.name`:: Specifies the name for the egress service. The name of the `EgressService` resource must match the name of the load-balancer service that you want to modify.
+`metadata.namespace`:: Specifies the namespace for the egress service. The namespace for the `EgressService` must match the namespace of the load-balancer service that you want to modify. The egress service is namespace-scoped.
+`spec.sourceIPBy`:: Specifies the source IP address of egress traffic for pods behind a service. Valid values are `LoadBalancerIP` or `Network`. Use the `LoadBalancerIP` value to assign the `LoadBalancer` service ingress IP address as the source IP address for egress traffic. Specify `Network` to assign the network interface IP address as the source IP address for egress traffic.
+`spec.nodeSelector`:: Optional parameter. If you use the `LoadBalancerIP` value for the `sourceIPBy` specification, a single node handles the `LoadBalancer` service traffic. Use the `nodeSelector` field to limit which node can be assigned this task. When a node is selected to handle the service traffic, OVN-Kubernetes labels the node in the following format: `egress-service.k8s.ovn.org/<svc-namespace>-<svc-name>: ""`. When the `nodeSelector` field is not specified, any node can manage the `LoadBalancer` service traffic.
+`spec.network`:: Optional parameter. Specifies the routing table ID for egress traffic. Ensure that the value matches the `route-table-id` ID defined in the `NodeNetworkConfigurationPolicy` resource. If you do not include the `network` specification, the egress service uses the default host network.
+
+.Example egress service specification
+[source,yaml]
+----
+apiVersion: k8s.ovn.org/v1
+kind: EgressService
+metadata:
+  name: test-egress-service
+  namespace: test-namespace
+spec:
+  sourceIPBy: "LoadBalancerIP"
+  nodeSelector:
+    matchLabels:
+      vrf: "true"
+  network: "2"
+----
+
+// Deploying an egress service
+// Module included in the following assemblies:
+//
+// * networking/ovn_kubernetes_network_provider/configuring-egress-traffic-for-vrf-loadbalancer-services.adoc
+
+[id="nw-egress-service-ovn_{context}"]
+= Deploying an egress service
+
+[role="_abstract"]
+You can deploy an egress service to manage egress traffic for pods behind a `LoadBalancer` service.
+
+The following example configures the egress traffic to have the same source IP address as the ingress IP address of the `LoadBalancer` service.
+
+.Prerequisites
+
+* Install the {oc-first}.
+* Log in as a user with `cluster-admin` privileges.
+* You configured MetalLB `BGPPeer` resources.
+
+.Procedure
+
+. Create an `IPAddressPool` CR with the desired IP for the service:
++
+.. Create a file, such as `ip-addr-pool.yaml`, with content like the following example:
++
+[source,yaml]
+----
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: example-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 172.19.0.100/32
+----
++
+.. Apply the configuration for the IP address pool by running the following command:
++
+[source,terminal]
+----
+$ oc apply -f ip-addr-pool.yaml
+----
+
+. Create `Service` and `EgressService` CRs:
++
+.. Create a file, such as `service-egress-service.yaml`, with content like the following example:
++
+[source,yaml,subs="+quotes,+macros"]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-service
+  namespace: example-namespace
+  annotations:
+    metallb.io/address-pool: example-pool
+spec:
+  selector:
+    app: example
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: k8s.ovn.org/v1
+kind: EgressService
+metadata:
+  name: example-service
+  namespace: example-namespace
+spec:
+  sourceIPBy: "LoadBalancerIP"
+  nodeSelector:
+    matchLabels:
+      node-role.kubernetes.io/worker: ""
+----
++
+where:
+
+`metadata.annotations.metallb.io/address-pool`:: Specifies the `LoadBalancer` service uses the IP address assigned by MetalLB from the `example-pool` IP address pool.
+`spec.sourceIPBy`:: This example uses the `LoadBalancerIP` value to assign the ingress IP address of the `LoadBalancer` service as the source IP address of egress traffic.
+`spec.nodeSelector`:: When you specify the `LoadBalancerIP` value, a single node handles the `LoadBalancer` service's traffic. In this example, only nodes with the `worker` label can be selected to handle the traffic. When a node is selected, OVN-Kubernetes labels the node in the following format `egress-service.k8s.ovn.org/<svc-namespace>-<svc-name>: ""`.
++
+[NOTE]
+====
+If you use the `sourceIPBy: "LoadBalancerIP"` setting, you must specify the load-balancer node in the `BGPAdvertisement` custom resource (CR).
+====
++
+.. Apply the configuration for the service and egress service by running the following command:
++
+[source,terminal]
+----
+$ oc apply -f service-egress-service.yaml
+----
+
+. Create a `BGPAdvertisement` CR to advertise the service:
++
+.. Create a file, such as `service-bgp-advertisement.yaml`, with content like the following example:
++
+[source,yaml]
+----
+apiVersion: metallb.io/v1beta1
+kind: BGPAdvertisement
+metadata:
+  name: example-bgp-adv
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - example-pool
+  nodeSelectors:
+  - matchLabels:
+      egress-service.k8s.ovn.org/example-namespace-example-service: ""
+----
++
+where:
+
+`spec.nodeSelectors.matchLabels`:: In the example, the `EgressService` CR configures the source IP address for egress traffic to use the load-balancer service IP address. Therefore, you must specify the load-balancer node for return traffic to use the same return path for the traffic originating from the pod.
+
+.Verification
+
+. Verify that you can access the application endpoint of the pods running behind the MetalLB service by running the following command:
++
+[source,terminal]
+----
+$ curl <external_ip_address>:<port_number>
+----
++
+`<external_ip_address>:<port_number`:: Update the external IP address and port number to suit your application endpoint.
+
+. If you assigned the `LoadBalancer` service's ingress IP address as the source IP address for egress traffic, verify this configuration by using tools such as `tcpdump` to analyze packets received at the external client.
+
+[role="_additional-resources"]
+.Additional resources
+
+* Exposing a service through a network VRF
+
+* Example: Network interface with a VRF instance node network configuration policy
+
+* Managing symmetric routing with MetalLB
+
+* About virtual routing and forwarding

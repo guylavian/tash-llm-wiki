@@ -6,10 +6,12 @@ slug: server-configuration
 summary: "Red Hat build of Keycloak is configured from four ordered sources and distinguishes build-time options (baked into an optimized image) from runtime options (applied at `start`)."
 sources:
   - guide:server_configuration_guide
-provenance: needs-review
+provenance_extracted: 13
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [server-config, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RHBK Server Configuration
@@ -45,7 +47,9 @@ The recommended optimized flow is `kc.sh build` followed by `kc.sh start --optim
 
 ## Going to production
 
-Production hardening pulls together the per-area chapters: [[tls-configuration]] for HTTPS, [[hostname-v2]] for public URLs, [[reverse-proxy-configuration]] for load balancers, [[database-configuration]] for a real DB (the default `dev-file` is dev-only), and [[distributed-caches]] for clustering. Other production knobs: `http-max-queued-requests` (load shedding; no limit by default → returns `503` over threshold) and IPv4/IPv6 stack selection via `JAVA_OPTS_APPEND` (`-Djava.net.preferIPv4Stack=true`, etc.). See the consolidated [[production-checklist]].
+Production hardening pulls together the per-area chapters (inferred — this
+grouping/framing is this page's own synthesis across chapters, not a single
+source's structure): [[tls-configuration]] for HTTPS, [[hostname-v2]] for public URLs, [[reverse-proxy-configuration]] for load balancers, [[database-configuration]] for a real DB (the default `dev-file` is dev-only), and [[distributed-caches]] for clustering. Other production knobs: `http-max-queued-requests` (load shedding; no limit by default → returns `503` over threshold) and IPv4/IPv6 stack selection via `JAVA_OPTS_APPEND` (`-Djava.net.preferIPv4Stack=true`, etc.). See the consolidated [[production-checklist]].
 
 ## Contradictions / caveats
 

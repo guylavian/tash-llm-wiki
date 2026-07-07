@@ -9,10 +9,12 @@ sources:
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_client.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_client_default_scopes.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/saml_client_scope.md (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 12
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [clients, iac]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # SAML clients (Terraform)
@@ -72,7 +74,7 @@ resource "keycloak_saml_client_default_scopes" "client_default_scopes" {
 ## RHBK / migration / air-gap notes
 - **Upstream caveat (read first):** these resources track upstream OSS Keycloak. The provider's support statement is community, not a Red Hat one; the *server behaviour* they drive is what the RHBK corpus covers ([[saml-clients-and-migration]]).
 - **`mrparkers` → `keycloak/keycloak` source change:** configs still pointing `required_providers` at `mrparkers/keycloak` fail provider resolution. Switch the source to the official `keycloak/keycloak` and re-init. See [[terraform-keycloak-iac]].
-- **`base_path = /auth` (RH-SSO vs RHBK):** the resources themselves don't change between RH-SSO and RHBK, but the **provider** block does — legacy **RH-SSO 7.x (Wildfly)** needs `base_path = "/auth"`, while **RHBK (Quarkus)** must omit it. A wrong `base_path` makes every SAML-client `apply` fail to reach the Admin API.
+- **`base_path = /auth` (RH-SSO vs RHBK):** the resources themselves don't change between RH-SSO and RHBK, but the **provider** block does — legacy **RH-SSO 7.x (Wildfly)** needs `base_path = "/auth"`, while **RHBK (Quarkus)** must omit it. A wrong `base_path` makes every SAML-client `apply` fail to reach the Admin API (inferred).
 - **Air-gapped network:** `terraform init` can't reach the registry, so the `keycloak/keycloak` provider must come from a **local filesystem/network mirror** (`terraform providers mirror`, then a `filesystem_mirror` install block). Mirror the runner's platform explicitly and verify the `*_SHA256SUMS`.
 - **Version sensitivity:** specific SAML arguments (e.g. encryption algorithm options) and resource availability depend on the provider release — pin a version and confirm an argument exists before relying on it rather than assuming parity with the latest RHBK feature set.
 

@@ -6,10 +6,12 @@ slug: management-interface
 summary: "Health (`/health`) and metrics (`/metrics`) are served on a separate management HTTP server (default port 9000) so they can be kept off the public-facing port."
 sources:
   - guide:server_configuration_guide
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [server-config]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Management interface (health & metrics)

@@ -40,12 +40,22 @@ tags: [federation, concept, v26.6]
 - `sites-topology` — sites, subnets, site links, DC locator, replication topology
 - `ad-certificate-services` — AD CS / PKI: CA roles, templates, enrollment, autoenrollment
 - `ad-authn` — Kerberos & NTLM authentication, SPNs, delegation, tickets
+- `deploy` — install/promote/demote lifecycle: DC promotion, adprep, capacity & placement planning
+- `logical-design` — forest/domain/OU design models, namespace design, disjoint namespaces
+- `virtualization` — virtualized DCs: VM-GenerationID, USN rollback, cloning, snapshot safety
 <!-- cisco-ios-xe areas (notes-first domain) -->
 - `routing-protocols` — dynamic IP routing: OSPF, BGP, EIGRP, IS-IS, RIP — adjacencies, metrics, path selection, authentication
 - `ip-routing` — protocol-independent forwarding: static routes, RIB/FIB, administrative distance, route maps, PBR, redistribution, BFD
 - `lan-switching` — VLANs, VTP, 802.1Q trunking, inter-VLAN routing, access/trunk ports
 - `spanning-tree` — STP/RSTP/MST, root-bridge election, PortFast, BPDU guard/filter, loop prevention
 - `etherchannel` — Layer-2/3 link aggregation, LACP/PAgP, load balancing, bundle consistency
+<!-- openshift / kubernetes areas (notes-first domain; promote to corpus-backed once docs are harvested) -->
+- `workloads` — pods, Deployments, StatefulSets, DaemonSets, Jobs/CronJobs, ReplicaSets, probes, scheduling, resource requests/limits
+- `cluster-networking` — Services, Ingress, OpenShift Routes, NetworkPolicy, OVN-Kubernetes/CNI, cluster DNS, load balancers
+- `cluster-storage` — PersistentVolumes/Claims, StorageClasses, CSI drivers, dynamic provisioning, volume modes
+- `operators-olm` — Operators, Operator Lifecycle Manager (OLM), ClusterOperators, MachineConfig, day-2 cluster management
+- `builds-images` — image streams, BuildConfigs, Source-to-Image (S2I), the internal registry, image pull/signature policy
+- `cluster-auth` — RBAC (Roles/Bindings), ServiceAccounts, OpenShift OAuth, Security Context Constraints (SCC), identity providers
 
 ## Kinds
 - `concept` — broad synthesis / how-something-works (usually topics/)
@@ -56,6 +66,7 @@ tags: [federation, concept, v26.6]
 - `endpoint` — an HTTP endpoint or protocol surface
 - `profile` — a client/security policy profile (FAPI, OAuth 2.1)
 - `procedure` — a step-by-step task
+- `how-to` — alias of `procedure` used by the active-directory import (prefer `procedure` for new pages)
 - `troubleshooting` — a diagnosis/fix page
 - `anti-pattern` — a page centered on a common wrong implementation (paired with the rule it violates); used by the upstream SSO-dev best-practice pages (Rule / Anti-pattern / Symptom framing)
 - `failure-mode` — a page centered on the observable fault/symptom a wrong implementation produces (the ticket you'd actually see)
@@ -104,10 +115,18 @@ tier* — the failure `provenance_*` counts cannot see.
 ### cisco-ios-xe
 - domain: cisco-ios-xe
 - areas: [routing-protocols, ip-routing, lan-switching, spanning-tree, etherchannel, security, troubleshooting]
-- shape: notes-first
-- sources: [_sources/cisco-ios-xe/]
+- shape: corpus-backed
+- sources: [reference/cisco-ios-xe/, _sources/cisco-ios-xe/]
 - review-moc: cisco-ios-xe-implementation-review
 - tiers-covered: [conceptual]   # config guides only
+
+### openshift
+- domain: openshift
+- areas: [workloads, cluster-networking, cluster-storage, operators-olm, builds-images, cluster-auth, observability, security, troubleshooting, migration]
+- shape: corpus-backed
+- sources: [reference/openshift/, corpora/openshift/, _sources/openshift/]   # 3,813 doc bodies: 1,602 Kubernetes (kubernetes/website) + 2,211 OpenShift 4.22 assemblies (openshift/openshift-docs, via adoc_to_corpus)
+- review-moc: openshift-implementation-review
+- tiers-covered: [conceptual]         # Kubernetes + OpenShift conceptual docs (4.22). Older OCP 4.8–4.21 + release-notes/known-issues history: re-run adoc_to_corpus per branch (see _meta/ADD-DOMAIN.md)
 
 <!-- Template — copy per new technology (placeholders are ignored by lint/index):
 ### <domain>

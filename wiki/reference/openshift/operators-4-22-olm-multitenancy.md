@@ -1,0 +1,108 @@
+---
+title: "Operators in multitenant clusters"
+type: reference
+domain: openshift
+slug: operators-4-22-olm-multitenancy
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/operators/olm-multitenancy
+version: 4.22
+family: operators
+documentKind: "Documentation"
+---
+
+# Operators in multitenant clusters
+
+[id="olm-multitenancy"]
+= Operators in multitenant clusters
+
+The default behavior for Operator Lifecycle Manager (OLM) aims to provide simplicity during Operator installation. However, this behavior can lack flexibility, especially in multitenant clusters. In order for multiple tenants on
+an OpenShift Container Platform
+a OpenShift Container Platform
+cluster to use an Operator, the default behavior of OLM requires that administrators install the Operator in *All namespaces* mode, which can be considered to violate the principle of least privilege.
+
+Consider the following scenarios to determine which Operator installation workflow works best for your environment and requirements.
+
+[role="_additional-resources"]
+.Additional resources
+* Common terms: Multitenant
+* Limitations for multitenant Operator management
+
+// Module included in the following assemblies:
+//
+// * operators/understanding/olm-multitenancy.adoc
+
+[id="olm-default-install-modes-behavior_{context}"]
+= Default Operator install modes and behavior
+
+When installing Operators with the web console as an administrator, you typically have two choices for the install mode, depending on the Operator's capabilities:
+
+Single namespace:: Installs the Operator in the chosen single namespace, and makes all permissions that the Operator requests available in that namespace.
+
+All namespaces:: Installs the Operator in the default `openshift-operators` namespace to watch and be made available to all namespaces in the cluster. Makes all permissions that the Operator requests available in all namespaces. In some cases, an Operator author can define metadata to give the user a second option for that Operator's suggested namespace.
+
+This choice also means that users in the affected namespaces get access to the Operators APIs, which can leverage the custom resources (CRs) they own, depending on their role in the namespace:
+
+* The `namespace-admin` and `namespace-edit` roles can read/write to the Operator APIs, meaning they can use them.
+* The `namespace-view` role can read CR objects of that Operator.
+
+For *Single namespace* mode, because the Operator itself installs in the chosen namespace, its pod and service account are also located there. For *All namespaces* mode, the Operator's privileges are all automatically elevated to cluster roles, meaning the Operator has those permissions in all namespaces.
+
+[role="_additional-resources"]
+.Additional resources
+* Adding Operators to a cluster
+* Install modes types
+
+// Module included in the following assemblies:
+//
+// * operators/understanding/olm-multitenancy.adoc
+
+[id="olm-multitenancy-solution_{context}"]
+= Recommended solution for multitenant clusters
+
+While a *Multinamespace* install mode does exist, it is supported by very few Operators. As a middle ground solution between the standard *All namespaces* and *Single namespace* install modes, you can install multiple instances of the same Operator, one for each tenant, by using the following workflow:
+
+// In OSD/ROSA, dedicated-admins can create projects, but not namespaces.
+. Create a namespace for the tenant Operator that is separate from the tenant's namespace.
+. Create a namespace for the tenant Operator that is separate from the tenant's namespace. You can do this by creating a project.
+
+. Create an Operator group for the tenant Operator scoped only to the tenant's namespace.
+. Install the Operator in the tenant Operator namespace.
+
+As a result, the Operator resides in the tenant Operator namespace and watches the tenant namespace, but neither the Operator's pod nor its service account are visible or usable by the tenant.
+
+This solution provides better tenant separation, least privilege principle at the cost of resource usage, and additional orchestration to ensure the constraints are met. For a detailed procedure, see "Preparing for multiple instances of an Operator for multitenant clusters".
+
+.Limitations and considerations
+
+This solution only works when the following constraints are met:
+
+* All instances of the same Operator must be the same version.
+* The Operator cannot have dependencies on other Operators.
+* The Operator cannot ship a CRD conversion webhook.
+
+[IMPORTANT]
+====
+You cannot use different versions of the same Operator on the same cluster. Eventually, the installation of another instance of the Operator would be blocked when it meets the following conditions:
+
+* The instance is not the newest version of the Operator.
+* The instance ships an older revision of the CRDs that lack information or versions that newer revisions have that are already in use on the cluster.
+====
+
+// In OSD/ROSA, tenants shouldn't be able to install Operators. Dedicated-admins can, but they can't grant non-admin users the ability to install their own Operators.
+[WARNING]
+====
+As an administrator, use caution when allowing non-cluster administrators to install Operators self-sufficiently, as explained in "Allowing non-cluster administrators to install Operators". These tenants should only have access to a curated catalog of Operators that are known to not have dependencies. These tenants must also be forced to use the same version line of an Operator, to ensure the CRDs do not change. This requires the use of namespace-scoped catalogs and likely disabling the global default catalogs.
+====
+
+[role="_additional-resources"]
+.Additional resources
+* Preparing for multiple instances of an Operator for multitenant clusters
+* Allowing non-cluster administrators to install Operators
+* Disabling the default OperatorHub catalog sources
+
+[id="olm-colocation_{context}"]
+== Operator colocation and Operator groups
+
+Operator Lifecycle Manager (OLM) handles OLM-managed Operators that are installed in the same namespace, meaning their `Subscription` resources are colocated in the same namespace, as related Operators. Even if they are not actually related, OLM considers their states, such as their version and update policy, when any one of them is updated.
+
+For more information on Operator colocation and using Operator groups effectively, see Operator Lifecycle Manager (OLM) -> Multitenancy and Operator colocation.

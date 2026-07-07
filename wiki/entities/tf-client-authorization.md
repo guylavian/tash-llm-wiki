@@ -18,10 +18,12 @@ sources:
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_time_policy.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/openid_client_user_policy.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/resources/identity_provider_token_exchange_scope_permission.md (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 12
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [authz, clients, iac]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Client authorization services (policies/permissions) (Terraform)
@@ -115,7 +117,10 @@ out — it is not bound to a client resource server but to an identity provider
 **Token Exchange** preview feature and so requires that preview feature be
 enabled on the server.
 
-## RHBK / migration / air-gap notes
+## RHBK / migration / air-gap notes (inferred — general Terraform/RHBK migration
+knowledge not covered by this page's cited sources, which document only provider
+resource arguments; verify against [[terraform-keycloak-iac]] and the provider
+changelog.)
 
 - **Upstream, not Red Hat ground-truth.** Everything here is from the
   community/upstream `keycloak/keycloak` provider docs. The RHBK support

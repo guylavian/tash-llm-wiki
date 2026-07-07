@@ -1,0 +1,822 @@
+---
+title: "Creating a network policy"
+type: reference
+domain: openshift
+slug: networking-4-22-creating-network-policy
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/networking/creating-network-policy
+version: 4.22
+family: networking
+documentKind: "Documentation"
+---
+
+# Creating a network policy
+
+[id="creating-network-policy"]
+= Creating a network policy
+
+[role="_abstract"]
+As a cluster administrator, you can create a network policy for a namespace.
+
+// Module included in the following assemblies:
+//
+// * networking/network_security/network_policy/creating-network-policy.adoc
+// * networking/network_security/network_policy/viewing-network-policy.adoc
+// * networking/network_security/network_policy/editing-network-policy.adoc
+// * post_installation_configuration/network-configuration.adoc
+// * microshift_networking/microshift-creating-network-policy.adoc
+// * microshift_networking/microshift-network-policy/microshift-editing-network-policy.adoc
+
+[id="nw-networkpolicy-object_{context}"]
+= Example NetworkPolicy object
+
+[role="_abstract"]
+Reference the example `NetworkPolicy` object to understand how to configure this object.
+
+[source,yaml]
+----
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-27107
+spec:
+  podSelector:
+    matchLabels:
+      app: mongodb
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: app
+    ports:
+    - protocol: TCP
+      port: 27017
+----
+
+where:
+
+`name`:: The name of the NetworkPolicy object.
+`spec.podSelector`:: A selector that describes the pods to which the policy applies.
+The policy object can only select pods in the project that defines the NetworkPolicy object.
+`ingress.from.podSelector`:: A selector that matches the pods from which the policy object allows ingress traffic. The selector matches pods in the same namespace as the NetworkPolicy.
+`ingress.ports`:: A list of one or more destination ports on which to accept traffic.
+
+// Module included in the following assemblies:
+//
+// * networking/multiple_networks/configuring-multi-network-policy.adoc
+// * networking/network_security/network_policy/creating-network-policy.adoc
+// * post_installation_configuration/network-configuration.adoc
+// * microshift_networking/microshift-creating-network-policy.adoc
+
+[id="nw-networkpolicy-create-cli_{context}"]
+= Creating a {name} policy using the CLI
+
+[role="_abstract"]
+To define granular rules describing ingress or egress network traffic allowed for namespaces in your cluster, you can create a {name} policy.
+
+[NOTE]
+====
+If you log in with a user with the `cluster-admin` role, then you can create a network policy in any namespace in the cluster.
+====
+
+.Prerequisites
+* Your cluster uses a network plugin that supports `NetworkPolicy` objects, such as the OVN-Kubernetes network plugin, with `mode: NetworkPolicy` set.
+* You installed the {oc-first}.
+* You logged in to the cluster with a user with `{role}` privileges.
+* You are working in the namespace that the {name} policy applies to.
+
+.Procedure
+
+. Create a policy rule.
++
+.. Create a `<policy_name>.yaml` file:
++
+[source,terminal]
+----
+$ touch <policy_name>.yaml
+----
++
+where:
++
+`<policy_name>`:: Specifies the {name} policy file name.
++
+.. Define a {name} policy in the created file. The following example denies ingress traffic from all pods in all namespaces. This is a fundamental policy, blocking all cross-pod networking other than cross-pod traffic allowed by the configuration of other Network Policies.
++
+[source,yaml]
+----
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: []
+----
+[source,yaml]
+----
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: deny-by-default
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for:<namespace_name>/<network_name>
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: []
+----
++
+where:
++
+`<network_name>`:: Specifies the name of a network attachment definition.
++
+The following example configuration allows ingress traffic  from all pods in the same namespace:
++
+[source,yaml]
+----
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-same-namespace
+spec:
+  podSelector:
+  ingress:
+  - from:
+    - podSelector: {}
+# ...
+----
+[source,yaml]
+----
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: allow-same-namespace
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for:<namespace_name>/<network_name>
+spec:
+  podSelector:
+  ingress:
+  - from:
+    - podSelector: {}
+# ...
+----
++
+where:
++
+`<network_name>`:: Specifies the name of a network attachment definition.
++
+The following example allows ingress traffic to one pod from a particular namespace. This policy allows traffic to pods that have the `pod-a` label from pods running in `namespace-y`.
++
+[source,yaml]
+----
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-traffic-pod
+spec:
+  podSelector:
+   matchLabels:
+      pod: pod-a
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+           kubernetes.io/metadata.name: namespace-y
+# ...
+----
+[source,yaml]
+----
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: allow-traffic-pod
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for:<namespace_name>/<network_name>
+spec:
+  podSelector:
+   matchLabels:
+      pod: pod-a
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+           kubernetes.io/metadata.name: namespace-y
+# ...
+----
++
+where:
++
+`<network_name>`:: Specifies the name of a network attachment definition.
++
+The following example configuration restricts traffic to a service. This policy when applied ensures every pod with both labels `app=bookstore` and `role=api` can only be accessed by pods with label `app=bookstore`. In this example the application could be a REST API server, marked with labels `app=bookstore` and `role=api`.
++
+This example configuration addresses the following use cases:
++
+* Restricting the traffic to a service to only the other microservices that need to use it.
+* Restricting the connections to a database to only permit the application using it.
++
+[source,yaml]
+----
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: api-allow
+spec:
+  podSelector:
+    matchLabels:
+      app: bookstore
+      role: api
+  ingress:
+  - from:
+      - podSelector:
+          matchLabels:
+            app: bookstore
+# ...
+----
+[source,yaml]
+----
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: api-allow
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for:<namespace_name>/<network_name>
+spec:
+  podSelector:
+    matchLabels:
+      app: bookstore
+      role: api
+  ingress:
+  - from:
+      - podSelector:
+          matchLabels:
+            app: bookstore
+# ...
+----
++
+where:
++
+`<network_name>`:: Specifies the name of a network attachment definition.
+
+. To create the {name} policy object, enter the following command. Successful output lists the name of the policy object and the `created` status.
++
+[source,terminal]
+----
+$ oc apply -f <policy_name>.yaml -n <namespace>
+----
++
+--
+where:
+
+`<policy_name>`:: Specifies the {name} policy file name.
+`<namespace>`:: Optional parameter. If you defined the object in a different namespace than the current namespace, the parameter specifices the namespace.
+--
++
+Successful output lists the name of the policy object and the `created` status.
+
++
+[NOTE]
+====
+If you log in to the web console with `cluster-admin` privileges, you have a choice of creating a network policy in any namespace in the cluster directly in YAML or from a form in the web console.
+====
+
+// Module included in the following assemblies:
+//
+// * networking/multiple_networks/configuring-multi-network-policy.adoc
+// * networking/network_security/network_policy/creating-network-policy.adoc
+// * microshift_networking/microshift-creating-network-policy.adoc
+
+[id="nw-networkpolicy-deny-all-multi-network-policy_{context}"]
+= Creating a default deny all {name} policy
+
+[role="_abstract"]
+The default deny all {name} policy blocks all cross-pod networking other than network traffic allowed by the configuration of other deployed network policies and traffic between host-networked pods.
+
+The steps in the procedure enforces a strong deny policy by applying a `deny-by-default` policy in the `my-project` namespace.
+
+[WARNING]
+====
+Without configuring a `NetworkPolicy` custom resource (CR) that allows traffic communication, the following policy might cause communication problems across your cluster.
+====
+
+.Prerequisites
+* Your cluster uses a network plugin that supports `NetworkPolicy` objects, such as the OVN-Kubernetes network plugin, with `mode: NetworkPolicy` set.
+* You installed the {oc-first}.
+* You logged in to the cluster with a user with `{role}` privileges.
+* You are working in the namespace that the {name} policy applies to.
+
+.Procedure
+
+. Create the following YAML that defines a `deny-by-default` policy to deny ingress from all pods in all namespaces. Save the YAML in the `deny-by-default.yaml` file:
++
+[source,yaml]
+----
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: deny-by-default
+  namespace: my-project
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for:<namespace_name>/<network_name>
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: []
+----
++
+where:
++
+`namespace`:: Specifies the namespace in which to deploy the policy. For example, the `my-project` namespace.
+`annotations`:: Specifies the name of namespace project followed by the network attachment definition name.
+`podSelector`:: If this field is empty, the configuration matches all the pods. Therefore, the policy applies to all pods in the `my-project` namespace.
+`policyTypes`:: Specifies a list of rule types that the `NetworkPolicy` relates to.
+`- Ingress`:: Specifies `Ingress` only `policyTypes`.
+`ingress`:: Specifies ingress rules. If not specified, all incoming traffic is dropped to all pods.
+[source,yaml]
+----
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: deny-by-default
+  namespace: my-project
+spec:
+  podSelector: {}
+  ingress: []
+----
++
+where:
++
+`namespace`:: Specifies the namespace in which to deploy the policy. For example, the `my-project` namespace.
+`podSelector`:: If this field is empty, the configuration matches all the pods. Therefore, the policy applies to all pods in the `my-project` namespace.
+`ingress`:: Where `[]` indicates that no `ingress` rules are specified. This causes incoming traffic to be dropped to all pods.
+
+. Apply the policy by entering the following command. Successful output lists the name of the policy object and the `created` status.
++
+[source,terminal]
+----
+$ oc apply -f deny-by-default.yaml
+----
+
+// Module included in the following assemblies:
+//
+// * networking/multiple_networks/configuring-multi-network-policy.adoc
+// * networking/network_security/network_policy/creating-network-policy.adoc
+
+[id="nw-networkpolicy-allow-external-clients_{context}"]
+= Creating a {name} policy to allow traffic from external clients
+
+[role="_abstract"]
+With the `deny-by-default` policy in place you can proceed to configure a policy that allows traffic from external clients to a pod with the label `app=web`.
+
+[NOTE]
+====
+If you log in with a user with the `cluster-admin` role, then you can create a network policy in any namespace in the cluster.
+====
+[NOTE]
+====
+Firewalled rules run before any `NetworkPolicy` is enforced.
+====
+
+Follow this procedure to configure a policy that allows external service from the public Internet directly or by using a Load Balancer to access the pod. Traffic is only allowed to a pod with the label `app=web`.
+
+.Prerequisites
+* Your cluster uses a network plugin that supports `NetworkPolicy` objects, such as the OVN-Kubernetes network plugin, with `mode: NetworkPolicy` set.
+* You installed the {oc-first}.
+* You logged in to the cluster with a user with `{role}` privileges.
+* You are working in the namespace that the {name} policy applies to.
+
+.Procedure
+
+. Create a policy that allows traffic from the public Internet directly or by using a load balancer to access the pod. Save the YAML in the `web-allow-external.yaml` file:
++
+[source,yaml]
+----
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+spec:
+  policyTypes:
+  - Ingress
+  podSelector:
+    matchLabels:
+      app: web
+  ingress:
+    - {}
+----
+[source,yaml]
+----
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: web-allow-external
+  namespace: default
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for:<namespace_name>/<network_name>
+spec:
+  policyTypes:
+  - Ingress
+  podSelector:
+    matchLabels:
+      app: web
+  ingress:
+    - {}
+----
+
+. Apply the policy by entering the following command. Successful output lists the name of the policy object and the `created` status.
++
+[source,terminal]
+----
+$ oc apply -f web-allow-external.yaml
+----
++
+This policy allows traffic from all resources, including external traffic as illustrated in the following diagram:
++
+image::292_OpenShift_Configuring_multi-network_policy_1122.png[Allow traffic from external clients]
+
+// Module included in the following assemblies:
+//
+// * networking/multiple_networks/configuring-multi-network-policy.adoc
+// * networking/network_security/network_policy/creating-network-policy.adoc
+// * microshift_networking/microshift-creating-network-policy.adoc
+
+[id="nw-networkpolicy-allow-traffic-from-all-applications_{context}"]
+= Creating a {name} policy allowing traffic to an application from all namespaces
+
+[role="_abstract"]
+You can configure a policy that allows traffic from all pods in all namespaces to a particular application.
+
+[NOTE]
+====
+If you log in with a user with the `cluster-admin` role, then you can create a network policy in any namespace in the cluster.
+====
+
+.Prerequisites
+* Your cluster uses a network plugin that supports `NetworkPolicy` objects, such as the OVN-Kubernetes network plugin, with `mode: NetworkPolicy` set.
+* You installed the {oc-first}.
+* You logged in to the cluster with a user with `{role}` privileges.
+* You are working in the namespace that the {name} policy applies to.
+
+.Procedure
+
+. Create a policy that allows traffic from all pods in all namespaces to a particular application. Save the YAML in the `web-allow-all-namespaces.yaml` file:
++
+[source,yaml]
+----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: web-allow-all-namespaces
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: web
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector: {}
+----
+[source,yaml]
+----
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: web-allow-all-namespaces
+  namespace: default
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for:<namespace_name>/<network_name>
+spec:
+  podSelector:
+    matchLabels:
+     app: web
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector: {}
+----
++
+where:
++
+`app`:: Applies the policy only to `app:web` pods in default namespace.
+`namespaceSelector`:: Selects all pods in all namespaces.
++
+[NOTE]
+====
+By default, if you do not specify a `namespaceSelector` parameter in the policy object, no namespaces get selected. This means the policy allows traffic only from the namespace where the network policy deployes.
+====
+
+. Apply the policy by entering the following command. Successful output lists the name of the policy object and the `created` status.
++
+[source,terminal]
+----
+$ oc apply -f web-allow-all-namespaces.yaml
+----
+
+.Verification
+
+. Start a web service in the `default` namespace by entering the following command:
++
+[source,terminal]
+----
+$ oc run web --namespace=default --image=nginx --labels="app=web" --expose --port=80
+----
+
+. Run the following command to deploy an `alpine` image in the `secondary` namespace and to start a shell:
++
+[source,terminal]
+----
+$ oc run test-$RANDOM --namespace=secondary --rm -i -t --image=alpine -- sh
+----
+
+. Run the following command in the shell and observe that the service allows the request:
++
+[source,terminal]
+----
+# wget -qO- --timeout=2 http://web.default
+----
++
+[source,terminal]
+----
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+----
+
+// Module included in the following assemblies:
+//
+// * networking/multiple_networks/configuring-multi-network-policy.adoc
+// * networking/network_security/network_policy/creating-network-policy.adoc
+// * microshift_networking/microshift-creating-network-policy.adoc
+
+[id="nw-networkpolicy-allow-traffic-from-a-namespace_{context}"]
+= Creating a {name} policy allowing traffic to an application from a namespace
+
+[role="_abstract"]
+You can configure a policy that allows traffic to a pod with the label `app=web` from a particular namespace.
+
+This configuration is useful in the following use cases:
+
+* Restrict traffic to a production database only to namespaces that have production workloads deployed.
+* Enable monitoring tools deployed to a particular namespace to scrape metrics from the current namespace.
+
+[NOTE]
+====
+If you log in with a user with the `cluster-admin` role, then you can create a network policy in any namespace in the cluster.
+====
+
+.Prerequisites
+* Your cluster uses a network plugin that supports `NetworkPolicy` objects, such as the OVN-Kubernetes network plugin, with `mode: NetworkPolicy` set.
+* You installed the {oc-first}.
+* You logged in to the cluster with a user with `{role}` privileges.
+* You are working in the namespace that the {name} policy applies to.
+
+[WARNING]
+====
+Do not apply the `network.openshift.io/policy-group: ingress` label to custom namespace or projects. This label is Operator-managed and reserved for OpenShift Container Platform networking functions. It should not be altered on system-created namespaces.
+
+Using this label can result in intermittent network connectivity drops, unintended application of system `NetworkPolicies` resource, or configuration drift as the operator attempts to reconcile the state. For custom traffic grouping, always use unique, user-defined labels as shown in the following procedure.
+====
+
+.Procedure
+
+. Create a policy that allows traffic from all pods in a particular namespaces with a label `purpose=production`. Save the YAML in the `web-allow-prod.yaml` file:
++
+[source,yaml]
+----
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: web-allow-prod
+  namespace: default
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for:<namespace_name>/<network_name>
+spec:
+  podSelector:
+    matchLabels:
+      app: web
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          purpose: production
+----
+[source,yaml]
+----
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: web-allow-prod
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: web
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          purpose: production
+----
++
+where:
++
+`app`:: Applies the policy only to `app:web` pods in the default namespace.
+`purpose`:: Restricts traffic to only pods in namespaces that have the label `purpose=production`.
+
+. Apply the policy by entering the following command. Successful output lists the name of the policy object and the `created` status.
++
+[source,terminal]
+----
+$ oc apply -f web-allow-prod.yaml
+----
+
+.Verification
+
+. Start a web service in the `default` namespace by entering the following command:
++
+[source,terminal]
+----
+$ oc run web --namespace=default --image=nginx --labels="app=web" --expose --port=80
+----
+
+. Run the following command to create the `prod` namespace:
++
+[source,terminal]
+----
+$ oc create namespace prod
+----
+
+. Run the following command to label the `prod` namespace:
++
+[source,terminal]
+----
+$ oc label namespace/prod purpose=production
+----
+
+. Run the following command to create the `dev` namespace:
++
+[source,terminal]
+----
+$ oc create namespace dev
+----
+
+. Run the following command to label the `dev` namespace:
++
+[source,terminal]
+----
+$ oc label namespace/dev purpose=testing
+----
+
+. Run the following command to deploy an `alpine` image in the `dev` namespace and to start a shell:
++
+[source,terminal]
+----
+$ oc run test-$RANDOM --namespace=dev --rm -i -t --image=alpine -- sh
+----
+
+. Run the following command in the shell and observe the reason for the blocked request. For example, expected output states `wget: download timed out`.
++
+[source,terminal]
+----
+# wget -qO- --timeout=2 http://web.default
+----
+
+. Run the following command to deploy an `alpine` image in the `prod` namespace and start a shell:
++
+[source,terminal]
+----
+$ oc run test-$RANDOM --namespace=prod --rm -i -t --image=alpine -- sh
+----
+
+. Run the following command in the shell and observe that the request is allowed:
++
+[source,terminal]
+----
+# wget -qO- --timeout=2 http://web.default
+----
++
+[source,terminal]
+----
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+----
+
+// Module included in the following assemblies:
+//
+// * networking/network_security/network_policy/creating-network-policy.adoc
+
+[id="nw-networkpolicy-create-ocm_{context}"]
+= Creating a network policy using {cluster-manager}
+
+[role="_abstract"]
+To define granular rules describing the ingress or egress network traffic allowed for namespaces in your cluster, you can create a network policy.
+
+.Prerequisites
+
+* You logged in to {cluster-manager-url}.
+* You created an OpenShift Container Platform cluster.
+* You configured an identity provider for your cluster.
+* You added your user account to the configured identity provider.
+* You created a project within your OpenShift Container Platform cluster.
+
+.Procedure
+
+. From {cluster-manager-url}, click the cluster you want to access.
+
+. Click *Open console* to navigate to the OpenShift web console.
+
+. Click your identity provider and give your credentials to log in to the cluster.
+
+. From the administrator perspective, under *Networking*, click *NetworkPolicies*.
+
+. Click *Create NetworkPolicy*.
+
+. Give a name for the policy in the *Policy name* field.
+
+. Optional: You can give the label and selector for a specific pod if this policy applies only to one or more specific pods. If you do not select a specific pod, then this policy will be applicable to all pods on the cluster.
+
+. Optional: You can block all ingress and egress traffic by using the *Deny all ingress traffic* or *Deny all egress traffic* checkboxes.
+
+. You can also add any combination of ingress and egress rules, allowing you to specify the port, namespace, or IP blocks you want to approve.
+
+. Add ingress rules to your policy:
+
+.. Select *Add ingress rule* to configure a new rule. This action creates a new *Ingress rule* row with an *Add allowed source* drop-down menu where you specify how to limit inbound traffic. The drop-down menu offers three options to limit your ingress traffic:
++
+*** *Allow pods from the same namespace* limits traffic to pods within the same namespace. You can specify the pods in a namespace, but leaving this option blank allows all of the traffic from pods in the namespace.
+
+*** *Allow pods from inside the cluster* limits traffic to pods within the same cluster as the policy. You can specify namespaces and pods from which you want to allow inbound traffic. Leaving this option blank allows inbound traffic from all namespaces and pods within this cluster.
+
+*** *Allow peers by IP block* limits traffic from a specified Classless Inter-Domain Routing (CIDR) IP block. You can block certain IPs with the exceptions option. Leaving the CIDR field blank allows all inbound traffic from all external sources.
+
+.. You can restrict all of your inbound traffic to a port. If you do not add any ports then all ports are accessible to traffic.
+
+. Add egress rules to your network policy:
+
+.. Select *Add egress rule* to configure a new rule. This action creates a new *Egress rule* row with an *Add allowed destination*"* drop-down menu where you specify how to limit outbound traffic. The drop-down menu offers three options to limit your egress traffic:
++
+*** *Allow pods from the same namespace* limits outbound traffic to pods within the same namespace. You can specify the pods in a namespace, but leaving this option blank allows all of the traffic from pods in the namespace.
+
+*** *Allow pods from inside the cluster* limits traffic to pods within the same cluster as the policy. You can specify namespaces and pods from which you want to allow outbound traffic. Leaving this option blank allows outbound traffic from all namespaces and pods within this cluster.
+
+*** *Allow peers by IP block* limits traffic from a specified CIDR IP block. You can block certain IPs with the exceptions option. Leaving the CIDR field blank allows all outbound traffic from all external sources.
+
+.. You can restrict all of your outbound traffic to a port. If you do not add any ports then all ports are accessible to traffic.
+
+[role="_additional-resources"]
+== Additional resources
+
+* Accessing the web console
+* Logging for egress firewall and network policy rules

@@ -9,10 +9,12 @@ sources:
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/user-storage-spi
 source_notes:
   - "[[rhbk-26-6-user-storage-spi]]"
-provenance: needs-review
+provenance_extracted: 17
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [federation, spi]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # User Storage SPI

@@ -9,10 +9,12 @@ sources:
   - kb:client-registration-cli-
 source_notes:
   - "[[rhbk-26-6-client-registration-cli]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [clients]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Client Registration CLI (kcreg)
@@ -46,7 +48,8 @@ With neither, operations fail with `403 Forbidden`.
 
 ## Contradictions / caveats
 - Stable across RHBK 26.0–26.6. This is the developer self-service tool; for
-  general admin automation use `kcadm.sh` instead.
+  general admin automation use `kcadm.sh` instead (inferred — `kcadm.sh` is not
+  mentioned in this chapter; the comparison is general RHBK tooling knowledge).
 
 ## See also
 - [[client-registration-service]]

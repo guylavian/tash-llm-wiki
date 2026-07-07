@@ -12,8 +12,10 @@ provenance_extracted: 14
 provenance_inferred: 4
 provenance_ambiguous: 0
 tags: [tokens, security, concept]
+symptoms:
+  - "invalid_token"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Audience and Scope Checks
@@ -85,7 +87,7 @@ The client selects which resource and scopes to request. Using RFC 8707 `resourc
 - [[access-token-validation-resource-server]]
 - [[jwt-validation-pitfalls]]
 - [[bearer-token-usage]]
-- [[dpop-sender-constraining]]
+- [[dpop]]
 - [[mtls-bound-tokens]]
 - [[token-introspection]]
 - [[token-revocation]]

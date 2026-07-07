@@ -9,10 +9,12 @@ sources:
   - kb:authorization_services_guide/service_overview
 source_notes:
   - "[[rhbk-26-6-service-overview]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [authz, tokens]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Requesting Party Token (RPT) and obtaining permissions
@@ -45,7 +47,7 @@ Without a ticket (UMA-less flow) you can pass `claim_token`/`claim_token_format`
 ## Contradictions / caveats
 - Stable across RHBK **26.0–26.6**.
 - An RPT is still an OAuth2 access token — its lifespan/validation follow [[tokens-and-sessions]] and [[oidc-token-validation]]. Use token introspection to read the permissions it carries.
-- The JS adapter wraps this grant via `authorize()`/`entitlement()` — see [[policy-enforcer]].
+- The JS adapter wraps this grant via `authorize()`/`entitlement()` — see [[policy-enforcer]] (inferred cross-reference, drawn from the enforcer chapter, not this one).
 
 ## See also
 - [[fine-grained-authorization]]

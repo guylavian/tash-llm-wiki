@@ -9,10 +9,12 @@ sources:
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/providers
 source_notes:
   - "[[rhbk-26-6-providers]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [spi, tokens]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # KeycloakSession & retrieving providers
@@ -34,7 +36,7 @@ Some provider types are retrieved with a `ComponentModel` argument, and a few (e
 
 - The session exposes context such as the current realm: `session.getContext().getRealm()` (e.g. a Theme Selector reading `getLoginTheme()`), and the HTTP request: `session.getContext().getHttpRequest()`.
 - Factories receive a session in `create(KeycloakSession ...)`; for User Storage providers the signature is `create(KeycloakSession, ComponentModel)`. See [[user-storage-spi]].
-- A single factory instance is shared server-wide and may hold state; provider instances are short-lived (per request/transaction).
+- A single factory instance is shared server-wide and may hold state; provider instances are short-lived (per request/transaction) (inferred — general SPI lifecycle pattern, not spelled out verbatim in the cited chapter).
 
 ## Contradictions / caveats
 

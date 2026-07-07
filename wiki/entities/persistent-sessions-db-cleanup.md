@@ -10,10 +10,12 @@ sources:
   - guide:server_configuration_guide
 source_notes:
   - "[[doc-7135882]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [tokens]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Expired sessions linger in PostgreSQL

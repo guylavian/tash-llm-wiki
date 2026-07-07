@@ -1,0 +1,69 @@
+---
+title: "Triggers overview"
+type: reference
+domain: openshift
+slug: serverless-4-22-serverless-triggers
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/serverless/serverless-triggers
+version: 4.22
+family: serverless
+documentKind: "Documentation"
+---
+
+# Triggers overview
+
+[id="serverless-triggers"]
+= Triggers overview
+
+If you are using a Knative broker for Apache Kafka, you can configure the delivery order of events from triggers to event sinks. See Configuring event delivery ordering for triggers.
+
+// event delivery config
+// Module included in the following assemblies:
+//
+// * /serverless/develop/serverless-triggers.adoc
+
+[id="trigger-event-delivery-config_{context}"]
+= Configuring event delivery ordering for triggers
+
+If you are using a Kafka broker, you can configure the delivery order of events from triggers to event sinks.
+
+.Prerequisites
+
+* The {ServerlessOperatorName}, Knative Eventing, and Knative broker implementation for Apache Kafka are installed on your OpenShift Container Platform cluster.
+* Kafka broker is enabled for use on your cluster, and you have created a Kafka broker.
+* You have created a project or have access to a project with the appropriate roles and permissions to create applications and other workloads in OpenShift Container Platform.
+* You have installed the OpenShift (`oc`) CLI.
+
+.Procedure
+
+. Create or modify a `Trigger` object and set the `kafka.eventing.knative.dev/delivery.order` annotation:
++
+[source,yaml]
+----
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: <trigger_name>
+  annotations:
+     kafka.eventing.knative.dev/delivery.order: ordered
+...
+----
++
+The supported consumer delivery guarantees are:
++
+`unordered`:: An unordered consumer is a non-blocking consumer that delivers messages unordered, while preserving proper offset management.
++
+`ordered`:: An ordered consumer is a per-partition blocking consumer that waits for a successful response from the CloudEvent subscriber before it delivers the next message of the partition.
++
+The default ordering guarantee is `unordered`.
+
+. Apply the `Trigger` object:
++
+[source,terminal]
+----
+$ oc apply -f <filename>
+----
+
+[id="next-steps_serverless-triggers"]
+== Next steps
+* Configure event delivery parameters that are applied in cases where an event fails to be delivered to an event sink. See Examples of configuring event delivery parameters.

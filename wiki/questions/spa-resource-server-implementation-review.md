@@ -74,7 +74,7 @@ this specific stack.
   hard-coding them. See [[authorization-server-metadata-discovery]], [[oidc-endpoints]].
 - **Hardening when the data warrants it:** DPoP sender-constraining (full feature in
   **RHBK 26.6**) so a stolen in-memory token is useless without the browser-held key
-  ([[dpop-sender-constraining]], [[dpop]]); or move tokens out of the browser entirely
+  ([[dpop]]); or move tokens out of the browser entirely
   with a **BFF / token handler** ([[bff-token-handler]]); or bind a Client Policy to an
   OAuth-2.1 / FAPI profile ([[fapi-oauth21-profiles]], [[fapi2-security-profile]]).
 
@@ -169,7 +169,7 @@ wiki already synthesizes the point.
 - [[state-and-nonce]] — OIDC Core; RFC 9700; OWASP
 - [[refresh-token-rotation]] — OAuth 2.1 draft-15; RFC 9700; BBA draft-26
 - [[cors-for-spa]] — BBA draft-26; OWASP ASVS; OWASP cheat sheets
-- [[dpop-sender-constraining]] · [[dpop]] — RFC 9449; OAuth 2.1; RFC 9700
+- [[dpop]] — RFC 9449; OAuth 2.1; RFC 9700
 - [[rp-initiated-logout]] · [[back-channel-logout]] · [[oidc-logout]] — OIDC logout family (RP-initiated / back-channel / front-channel / session)
 - [[bearer-token-usage]] — RFC 6750; RFC 9700
 - [[service-to-service-client-credentials]] — RFC 6749/6750; RFC 9700; OAuth 2.1

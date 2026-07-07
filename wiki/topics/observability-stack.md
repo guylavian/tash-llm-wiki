@@ -15,10 +15,12 @@ source_notes:
   - "[[rhbk-26-6-health]]"
   - "[[rhbk-26-6-configuration-metrics]]"
   - "[[rhbk-26-6-tracing]]"
-provenance: needs-review
+provenance_extracted: 13
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [observability, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RHBK observability stack — health, metrics, tracing, OpenTelemetry
@@ -37,7 +39,7 @@ By default health and metrics are served on the **management interface (port 900
 
 ## Centralization with OpenTelemetry
 
-Beyond the native Prometheus endpoint, RHBK can push all three signals to a single **OpenTelemetry collector** using global `telemetry-*` options (endpoint, service name, protocol, headers, resource attributes). This lets one OTLP collector receive Logs, Metrics, and Traces with no added deployment overhead. The OTel feature is **enabled by default**, but at least one component (e.g. Traces) must be turned on for anything to be exported. See [[opentelemetry-centralization]].
+Beyond the native Prometheus endpoint, RHBK can push all three signals to a single **OpenTelemetry collector** using global `telemetry-*` options (endpoint, service name, protocol, headers, resource attributes). This lets one OTLP collector receive Logs, Metrics, and Traces with no added deployment overhead (inferred — a synthesis across the telemetry/health/metrics/tracing chapters, not a single stated conclusion). The OTel feature is **enabled by default**, but at least one component (e.g. Traces) must be turned on for anything to be exported. See [[opentelemetry-centralization]].
 
 Note the maturity split:
 - **Traces** via OTLP are the mature, fully-described path (Tech Preview in 26.0, GA-grade by 26.4+).

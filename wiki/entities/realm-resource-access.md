@@ -11,9 +11,11 @@ sources:
 source_notes:
   - "[[rhbk-26-4-admin-permissions]]"
   - "[[rhbk-26-4-admin-cli]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 1
+provenance_ambiguous: 0
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Managing access to realm resources
@@ -39,7 +41,7 @@ The account a `kcadm.sh` session uses must hold the appropriate role (e.g. the
   (26.0/26.2/26.4/26.6) — a newer Admin Permissions / Admin Fine-Grained Permissions
   model may apply; verify against your exact version.
 - Prefer per-realm `realm-management` roles over master-realm accounts to follow least
-  privilege (see [[security-hardening-checklist]]).
+  privilege (inferred recommendation; see [[security-hardening-checklist]]).
 
 ## See also
 - [[roles-and-groups]]

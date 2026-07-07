@@ -9,10 +9,12 @@ sources:
   - kb:https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/providers
 source_notes:
   - "[[rhbk-26-6-providers]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [spi]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # JavaScript providers (scripts) & the JAR constraint
@@ -54,7 +56,7 @@ Deploy like any other provider: copy the JAR to `providers/` then run `kc.sh bui
 ## Contradictions / caveats
 
 - **Technology Preview across RHBK 26.0–26.6** — disabled by default, not fully supported for production. Confirm support status for your exact RHBK release before relying on it.
-- This is the only constraint that forbids loose `.js` deployment: even a one-line mapper must ship inside a JAR with `keycloak-scripts.json`. (Earlier WildFly-era RH-SSO allowed uploading scripts via the admin console; that path is gone in RHBK.)
+- This is the only constraint that forbids loose `.js` deployment: even a one-line mapper must ship inside a JAR with `keycloak-scripts.json`. (Earlier WildFly-era RH-SSO allowed uploading scripts via the admin console; that path is gone in RHBK — inferred, not stated in the cited 26.6 dev guide chapter.)
 - For non-preview customization of the same four points, write a compiled Java provider against the corresponding SPI instead — see [[spi-provider-model]].
 
 ## See also

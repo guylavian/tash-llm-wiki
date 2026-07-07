@@ -1,0 +1,193 @@
+---
+title: "Custom domains for applications"
+type: reference
+domain: openshift
+slug: applications-4-22-rosa-config-custom-domains-applications
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/applications/rosa-config-custom-domains-applications
+version: 4.22
+family: applications
+documentKind: "Documentation"
+---
+
+# Custom domains for applications
+
+[id="rosa-config-custom-domains-applications"]
+= Custom domains for applications
+
+[role="_abstract"]
+You can configure a custom domain for your applications. Custom domains are specific wildcard domains that can be used with OpenShift Container Platform applications.
+
+[WARNING]
+====
+Starting with OpenShift Container Platform 4.14, the Custom Domain Operator is deprecated. To manage Ingress in OpenShift Container Platform 4.14, use the Ingress Operator. The functionality is unchanged for OpenShift Container Platform 4.13 and earlier versions.
+====
+
+// Module included in the following assembly for ROSA:
+//
+// * applications/deployments/rosa-config-custom-domains-applications.adoc
+
+[id="rosa-applications-config-custom-domains_{context}"]
+= Configuring custom domains for applications
+
+[role="_abstract"]
+The top-level domains (TLDs) are owned by the customer that is operating the OpenShift Container Platform cluster. The Custom Domains Operator sets up a new ingress controller with a custom certificate as a second day operation. The public DNS record for this ingress controller can then be used by an external DNS to create a wildcard CNAME record for use with a custom domain.
+
+[NOTE]
+====
+Custom API domains are not supported because Red Hat controls the API domain. However, customers can change their application domains. For private custom domains with a private `IngressController`, set `.spec.scope` to `Internal` in the `CustomDomain` CR.
+====
+
+.Prerequisites
+
+* A user account with `dedicated-admin` privileges
+* A unique domain or wildcard domain, such as `*.apps.<company_name>.io`
+* A custom certificate or wildcard custom certificate, such as `CN=*.apps.<company_name>.io`
+* Access to a cluster with the latest version of the `oc` CLI installed
+
+[IMPORTANT]
+Do not use the reserved names `default` or `apps*`, such as `apps` or `apps2`, in the `metadata/name:` section of the `CustomDomain` CR.
+
+.Procedure
+
+. Create a new TLS secret from a private key and a public certificate, where `fullchain.pem` and `privkey.pem` are your public or private wildcard certificates.
++
+.Example
+[source,terminal]
+----
+$ oc create secret tls <name>-tls --cert=fullchain.pem --key=privkey.pem -n <my_project>
+----
+
+. Create a new `CustomDomain` custom resource (CR):
++
+.Example `<company_name>-custom-domain.yaml`
+[source,yaml]
+----
+apiVersion: managed.openshift.io/v1alpha1
+kind: CustomDomain
+metadata:
+  name: <company_name>
+spec:
+  domain: apps.<company_name>.io
+  scope: External
+  loadBalancerType: Classic
+  certificate:
+    name: <name>-tls
+    namespace: <my_project>
+  routeSelector:
+    matchLabels:
+     route: acme
+  namespaceSelector:
+    matchLabels:
+     type: sharded
+----
++
+--
+where:
+
+`spec.domain`:: Specifies the custom domain.
+`spec.loadBalancerType`:: Specifies the type of load balancer for your custom domain. This type can be the default `classic` or `NLB` if you use a network load balancer.
+`spec.certificate.name`:: Specifies the secret created in the previous step.
+`spec.routeSelector`:: Optional. Filters the set of routes serviced by the CustomDomain ingress. If no value is provided, the default is no filtering.
+`spec.namespaceSelector`:: Optional. Filters the set of namespaces serviced by the CustomDomain ingress. If no value is provided, the default is no filtering.
+--
+
+. Apply the CR:
++
+.Example
+[source,terminal]
+----
+$ oc apply -f <company_name>-custom-domain.yaml
+----
+
+. Get the status of your newly created CR:
++
+[source,terminal]
+----
+$ oc get customdomains
+----
++
+.Example output
+[source,terminal]
+----
+NAME               ENDPOINT                                                    DOMAIN                       STATUS
+<company_name>     xxrywp.<company_name>.cluster-01.opln.s1.openshiftapps.com  *.apps.<company_name>.io     Ready
+----
+
+. Using the endpoint value, add a new wildcard CNAME record set to your managed DNS provider, such as Route53.
+. Using the endpoint value, add a new wildcard CNAME record set to your managed DNS provider, such as Route53, Azure DNS, or Google DNS.
+
++
+.Example
++
+[source,terminal]
+----
+*.apps.<company_name>.io -> xxrywp.<company_name>.cluster-01.opln.s1.openshiftapps.com
+----
+
+. Create a new application and expose it:
++
+.Example
+[source,terminal]
+----
+$ oc new-app --docker-image=docker.io/openshift/hello-openshift -n my-project
+----
++
+[source,terminal]
+----
+$ oc create route <route_name> --service=hello-openshift hello-openshift-tls --hostname hello-openshift-tls-my-project.apps.<company_name>.io -n my-project
+----
++
+[source,terminal]
+----
+$ oc get route -n my-project
+----
++
+[source,terminal]
+----
+$ curl https://hello-openshift-tls-my-project.apps.<company_name>.io
+Hello OpenShift!
+----
+
+.Troubleshooting
+* Error creating TLS secret
+* Troubleshooting: CustomDomain in NotReady state
+
+// Module included in the following assembly for ROSA:
+//
+// * applications/deployments/rosa-config-custom-domains-applications.adoc
+
+[id="rosa-applications-renew-custom-domains_{context}"]
+= Renewing a certificate for custom domains
+
+[role="_abstract"]
+You can renew certificates with the Custom Domains Operator (CDO) by using the `oc` CLI tool.
+
+//s a customer of OSD/ROSA, I would like instructions on how to renew certificates with Custom Domains Operator (CDO).
+.Prerequisites
+* You have the latest version `oc` CLI tool installed.
+
+.Procedure
+. Create new secret
++
+[source,terminal]
+----
+$ oc create secret tls <secret-new> --cert=fullchain.pem --key=privkey.pem -n <my_project>
+----
+
+. Patch CustomDomain CR
++
+[source,terminal]
+----
+$ oc patch customdomain <company_name> --type='merge' -p '{"spec":{"certificate":{"name":"<secret-new>"}}}'
+----
+
+. Delete old secret
++
+[source,terminal]
+----
+$ oc delete secret <secret-old> -n <my_project>
+----
+
+.Troubleshooting
+* Error creating TLS secret

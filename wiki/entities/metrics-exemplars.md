@@ -9,10 +9,12 @@ sources:
   - kb:exemplars-
 source_notes:
   - "[[rhbk-26-6-exemplars]]"
-provenance: needs-review
+provenance_extracted: 9
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [observability]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Metrics exemplars (linking metrics to traces)

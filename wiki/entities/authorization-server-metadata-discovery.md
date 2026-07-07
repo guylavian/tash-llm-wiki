@@ -11,8 +11,12 @@ provenance_extracted: 28
 provenance_inferred: 4
 provenance_ambiguous: 0
 tags: [security, clients, endpoint]
+symptoms:
+  - "Unable to find a signing key"
+  - "kid not found"
+  - "invalid_signature"
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-02
 ---
 
 # Authorization Server Metadata Discovery
@@ -121,7 +125,7 @@ The issuer identifier is the binding anchor for multi-AS deployments. Each disco
 - [[refresh-token-rotation]]
 - [[access-token-validation-resource-server]]
 - [[audience-and-scope-checks]]
-- [[dpop-sender-constraining]]
+- [[dpop]]
 - [[mtls-bound-tokens]]
 - [[cors-for-spa]]
 - [[service-to-service-client-credentials]]

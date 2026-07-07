@@ -23,10 +23,12 @@ source_notes:
   - "[[rhbk-26-6-migrating-themes]]"
   - "[[rhbk-26-6-migrating-keycloak]]"
   - "[[rhbk-26-6-other-changes]]"
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [migration, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RH-SSO 7.x → Red Hat Build of Keycloak Migration
@@ -58,7 +60,9 @@ surfaces:
 
 ### Two migration directions
 This guide actually folds in **three** source→target paths, all of which funnel
-through the same Quarkus/DB-migration machinery:
+through the same Quarkus/DB-migration machinery (inferred — this three-way
+framing is this page's own synthesis across the migration-guide chapters, not
+stated as such in any one source):
 
 1. **RH-SSO 7.6 → RHBK** — the largest jump (EAP→Quarkus, new Operator, dropped
    adapters). The bulk of this page.
@@ -73,9 +77,11 @@ through the same Quarkus/DB-migration machinery:
 
 ## Downstream-product impact
 - **3scale:** 3scale 2.14 still requires RH-SSO **7.6**, not RHBK — RHBK becomes
-  the supported 3scale IdP only in a future 3scale release. See
+  the supported 3scale IdP only in a future 3scale release (inferred — not found
+  in this page's cited sources; verify against the 3scale supported-config matrix
+  before relying on it). See
   [[3scale-rhsso-support]]. Sequence the migration so a 3scale dependency doesn't
-  strand you on RH-SSO.
+  strand you on RH-SSO (inferred).
 
 ## Contradictions / caveats
 - Confirm supported source/target versions and feature parity in

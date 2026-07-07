@@ -162,6 +162,7 @@ See [[client-libraries-by-stack]] for the full comparison and citations.
   ([[dpop]]). Token-exchange support status also varies by version.
 
 ## See also
+- [[securing-apps-oidc-saml]] — the RHBK adapter/endpoint reference these practices apply to
 - [[tokens-and-sessions]]
 - [[oidc-grant-types]]
 - [[client-authentication-methods]]

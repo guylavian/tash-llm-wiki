@@ -9,10 +9,12 @@ sources:
   - kb:mitigating_security_threats
 source_notes:
   - "[[rhbk-26-4-mitigating-security-threats]]"
-provenance: needs-review
+provenance_extracted: 6
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [authn]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Brute force detection
@@ -46,11 +48,13 @@ Failures)` (integer division). *Linear* increments once count ≥ Max Login Fail
 Brute-force lockout makes the server vulnerable to **denial-of-service**: an attacker who
 knows account names can deliberately trigger lockouts. Combine with a strong
 [[password-policies]] and OTP rather than relying on lockout alone. Authentication
-sessions can also be capped (see [[security-hardening-checklist]]).
+sessions can also be capped (see [[security-hardening-checklist]]) (inferred — the
+session-cap cross-reference is not stated in the mitigating-security-threats chapter).
 
 ## Contradictions / caveats
-- Bodies sourced are RHBK **26.0**; defaults and the two wait strategies are consistent
-  in 26.2/26.4 primary results.
+- Bodies sourced are RHBK **26.4** (not 26.0 as the old sources: comment implied); defaults
+  and the two wait strategies were verified directly against the 26.4 note (inferred that
+  26.2/26.6 match — not independently re-checked here).
 - The DoS exposure is inherent to lockout; consider permanent lockout only with an
   admin re-enable process in place.
 

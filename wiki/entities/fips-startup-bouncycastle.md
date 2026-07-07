@@ -12,9 +12,11 @@ sources:
 source_notes:
   - "[[doc-7135122]]"
   - "[[doc-7135124]]"
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 1
+provenance_ambiguous: 0
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # FIPS startup failures — Bouncy Castle libs and Argon2 admin login
@@ -51,9 +53,10 @@ new user, then delete the old Argon2-hashed admin.
 Applies to RHBK 26.x in FIPS mode.
 
 ## Contradictions / caveats
-These two are independent — a clean BC-jar install can still hit the Argon2
-login failure, and vice versa. Fix both when standing up FIPS on an existing
-realm.
+These two are independent (inferred — synthesis linking the two separate KB
+solutions, which do not reference each other) — a clean BC-jar install can
+still hit the Argon2 login failure, and vice versa. Fix both when standing up
+FIPS on an existing realm.
 
 ## See also
 - [[kc-bootstrap-admin]]

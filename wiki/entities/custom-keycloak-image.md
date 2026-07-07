@@ -9,9 +9,11 @@ sources:
   - kb:operator_guide/customizing-keycloak-
 source_notes:
   - "[[rhbk-26-6-customizing-keycloak]]"
-provenance: needs-review
+provenance_extracted: 7
+provenance_inferred: 3
+provenance_ambiguous: 0
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Custom / pre-optimized RHBK images
@@ -25,7 +27,8 @@ on every Pod start.**
 With the default image the server performs a **costly re-augmentation every time a
 Pod starts**. A custom image with augmentation (and any build-time config /
 extensions) baked in at build time avoids that delay — important for fast scaling
-and for air-gapped registries ([[operator-olm-install]]).
+and for air-gapped registries ([[operator-olm-install]]) (inferred — the air-gap
+angle isn't stated in this chapter, it follows from the general custom-image benefit).
 
 ## Providing the image
 
@@ -48,7 +51,9 @@ spec:
   ignored — bake them into the image.
 - The Operator is unaware of config inside the image. Use the CR for anything the
   Operator must reflect in Services/probes — namely TLS/HTTP(S) settings and
-  [[keycloak-truststores]] (so the Operator probes the right scheme).
+  [[keycloak-truststores]] (so the Operator probes the right scheme) (inferred —
+  the truststore/probe-scheme detail isn't spelled out in this chapter; the chapter
+  only says TLS/HTTP(S) settings must go through the CR).
 
 ## Non-optimized custom image
 
@@ -68,7 +73,9 @@ spec:
   and Ch. 6 in 26.6 (a rolling-updates chapter was inserted) — same content.
 - Changing the image tag triggers a **recreate** update by default; use
   [[operator-rolling-updates]] (`Auto`, or experimental `rolling-updates:v2`) to
-  avoid downtime when only the theme/provider/build-time config changed.
+  avoid downtime when only the theme/provider/build-time config changed (inferred —
+  this rolling-update behavior is documented in the separate rolling-updates chapter,
+  not the one cited on this page).
 
 ## See also
 - [[keycloak-cr]]

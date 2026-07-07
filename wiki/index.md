@@ -19,8 +19,9 @@ _A native [[wiki.base]] view — it reads page frontmatter directly and updates 
 _Per-domain routing indexes (generated). A QUERY routes here first, then opens the relevant index below to stay inside the model's context window._
 
 - [active-directory](index.active-directory.md) — 69 pages · [[_ref-active-directory|221 reference notes]] · review lens [[active-directory-implementation-review]]
-- [cisco-ios-xe](index.cisco-ios-xe.md) — 15 pages · review lens [[cisco-ios-xe-implementation-review]]
-- [keycloak](index.keycloak.md) — 167 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
+- [cisco-ios-xe](index.cisco-ios-xe.md) — 17 pages · [[_ref-cisco-ios-xe|167 reference notes]] · review lens [[cisco-ios-xe-implementation-review]]
+- [keycloak](index.keycloak.md) — 178 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
+- [openshift](index.openshift.md) — 37 pages · [[_ref-openshift|3813 reference notes]] · review lens [[openshift-implementation-review]]
 <!-- index.py:domains:end -->
 
 ## Topics
@@ -206,7 +207,12 @@ _Per-domain routing indexes (generated). A QUERY routes here first, then opens t
 - [questions/passthrough-roundrobin-login-loop.md](./questions/passthrough-roundrobin-login-loop.md)
 - [questions/mixed-speed-port-channel.md](./questions/mixed-speed-port-channel.md)
 - [questions/parallel-user-import-silent-failure.md](./questions/parallel-user-import-silent-failure.md)
+- [questions/ocp-411-412-upgrade-rhsso-tls.md](./questions/ocp-411-412-upgrade-rhsso-tls.md)
 - [questions/rhbk-oscp-scaling-resources.md](./questions/rhbk-oscp-scaling-resources.md)
+- [questions/rhbk-26-6-client-credentials-refresh-invalid-grant.md](./questions/rhbk-26-6-client-credentials-refresh-invalid-grant.md)
+- [questions/require-dpop-bound-tokens.md](./questions/require-dpop-bound-tokens.md)
+- [questions/rhbk-upgrade-cadence.md](./questions/rhbk-upgrade-cadence.md)
+- [questions/identity-brokering-external-oidc-idp.md](./questions/identity-brokering-external-oidc-idp.md)
 
 ---
 _Seeded 2026-06-16. Grow it via the INGEST / QUERY operations in `CLAUDE.md`.

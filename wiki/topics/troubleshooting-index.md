@@ -29,10 +29,12 @@ source_notes:
   - "[[doc-7128299]]"
   - "[[doc-7142577]]"
   - "[[doc-7141508]]"
-provenance: needs-review
+provenance_extracted: 22
+provenance_inferred: 2
+provenance_ambiguous: 0
 tags: [concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RHBK Troubleshooting — index by area
@@ -91,7 +93,8 @@ Three public bodies across this area; truststore/LDAPS cert imports are gated.
   - `Algorithm constraints check failed ... RSA 1024 bit key` trusting LDAP cert — https://access.redhat.com/solutions/7132186
 
 ## LDAP / federation / Kerberos
-Six public LDAP/AD bodies — the richest public area after operator.
+Six public LDAP/AD bodies — the richest public area after operator (inferred —
+a comparative count across buckets, not a single-source claim).
 
 - [[ad-idp-link-loss-objectguid]] — sporadic AD link loss / merge prompts; switch
   the IdP username template to immutable `objectGUID` (kb:7128299, public).
@@ -108,7 +111,8 @@ Six public LDAP/AD bodies — the richest public area after operator.
   - `Cannot find key of appropriate type to decrypt AP REP - RC4` Kerberos — https://access.redhat.com/solutions/5494481
 
 ## Operator / OpenShift
-The largest bucket (218 solutions) — almost entirely gated; 4 public bodies.
+The largest bucket (218 solutions) — almost entirely gated; 4 public bodies
+(inferred — a comparative count across buckets, not a single-source claim).
 
 - [[operator-proxy-port-required]] — `Proxy port is required!`; add a port to the
   cluster-wide `Proxy` CR (kb:7073090, public).

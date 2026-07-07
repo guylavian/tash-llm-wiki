@@ -6,10 +6,12 @@ slug: production-checklist
 summary: "Going to production with `kc.sh start` means satisfying RHBK's secure-by-default requirements: TLS, an explicit hostname, a real database, a proxy/cluster topology, and observability kept internal."
 sources:
   - guide:server_configuration_guide
-provenance: needs-review
+provenance_extracted: 10
+provenance_inferred: 1
+provenance_ambiguous: 0
 tags: [concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # RHBK production configuration checklist
@@ -19,7 +21,7 @@ updated: 2026-06-16
 `kc.sh start` (production mode) is secure-by-default: HTTP is disabled, a hostname is expected, and HTTPS/TLS is expected — without these it refuses to start. The general production areas:
 
 1. **TLS** — enable HTTPS; never expose plain HTTP endpoints. Provide PEM or keystore certs and avoid plaintext keystore passwords. See [[tls-configuration]].
-2. **Hostname** — set an explicit `hostname` (or `hostname-strict false`) so URLs aren't derived from request headers. Best practice: expose the Admin REST API/Console on a separate hostname/context-path and block admin paths at the proxy. See [[hostname-v2]].
+2. **Hostname** — set an explicit `hostname` (or `hostname-strict false`) so URLs aren't derived from request headers. Best practice: expose the Admin REST API/Console on a separate hostname/context-path and block admin paths at the proxy (inferred — a recommendation synthesized from the hostname/reverse-proxy chapters, not a single stated conclusion). See [[hostname-v2]].
 3. **Reverse proxy** — set `proxy-headers` correctly (`forwarded`/`xforwarded`), restrict with `proxy-trusted-addresses`, proxy only `8443`/`8080` (never `9000`), and expose only the recommended paths. See [[reverse-proxy-configuration]].
 4. **Load shedding** — set `http-max-queued-requests` (no limit by default; over-threshold requests get `503`). Implement load shedding at the LB too.
 5. **Production database** — replace the dev-only `dev-file` DB with a supported vendor. See [[database-configuration]].

@@ -26,10 +26,12 @@ sources:
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/user.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/user_realm_roles.md (fetched 2026-06-16)
   - web:https://raw.githubusercontent.com/keycloak/terraform-provider-keycloak/main/docs/data-sources/workflow.md (fetched 2026-06-16)
-provenance: needs-review
+provenance_extracted: 19
+provenance_inferred: 4
+provenance_ambiguous: 0
 tags: [iac]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Data sources (read existing Keycloak objects) (Terraform)
@@ -99,7 +101,9 @@ data "keycloak_role" "admin" {
 
 **`keycloak_realm_keys`** is the one to reach for in audit/drift work — it enumerates a realm's signing/encryption keys with `status` and `algorithms` filters, exposing `kid`, `public_key`, `certificate` and `provider_priority`, which lets IaC assert on the active signing key without hard-coding it.
 
-## RHBK / migration / air-gap notes
+## RHBK / migration / air-gap notes (inferred — general Terraform/RHBK migration
+knowledge, not covered by this page's cited sources, which document only data-source
+arguments; verify against [[terraform-keycloak-iac]] and the provider changelog.)
 
 - **`mrparkers` → `keycloak/keycloak` source change.** These data sources only exist under the official `keycloak/keycloak` provider. Configs still pointing `required_providers` at the legacy `mrparkers/keycloak` must be switched and re-`init`ed. See [[terraform-keycloak-iac]].
 - **`base_path = "/auth"` (RH-SSO vs RHBK).** Data sources hit the Admin REST API through the provider's configured endpoint, so they inherit the context-path difference: legacy **RH-SSO 7.x (Wildfly)** needs `base_path = "/auth"`; **RHBK (Quarkus)** must leave it empty. A wrong `base_path` makes every data-source lookup 404, not just resources.
@@ -113,4 +117,5 @@ data "keycloak_role" "admin" {
 - All fetches succeeded; no resource above is undocumented.
 
 ## See also
+- [[realm-resource-access]] — realm-management roles these data sources read back
 - [[terraform-keycloak-iac]]

@@ -9,10 +9,12 @@ sources:
   - kb:configuring-authentication_server_administration_guide
 source_notes:
   - "[[rhbk-26-4-configuring-authentication-server-administration-guide]]"
-provenance: needs-review
+provenance_extracted: 8
+provenance_inferred: 0
+provenance_ambiguous: 0
 tags: [authn, concept]
 status: draft
-updated: 2026-06-16
+updated: 2026-07-02
 ---
 
 # Authentication flows, MFA, and step-up
