@@ -33,6 +33,20 @@ def ask(query, domain=None, k=5, question_tier=None):
         state.update(nodes.expand_node(state))
     state.update(nodes.gate_node(state))
     state.update(nodes.synthesize_node(state))
+    # QUERY-side anti-fabrication guard (deterministic, model-independent): an identifier asked
+    # about but absent from the entire domain corpus gets a leading NOT-FOUND verdict — the model
+    # never gets to define it from parametric memory (adjacent-real-substitution failure mode).
+    from wikikb.quality import lint
+    guard = lint.identifier_guard(query, state.get("domain"))
+    if guard:
+        lines = []
+        for gitem in guard:
+            near = ", ".join("`%s`" % n for n in gitem["nearest"]) or "none found"
+            lines.append("⚠️ `%s` does NOT appear anywhere in the `%s` reference corpus — treat it as "
+                         "non-existent; do not define it. Nearest real option(s): %s."
+                         % (gitem["token"], state.get("domain"), near))
+        state["guard"] = guard
+        state["answer"] = "\n".join(lines) + "\n\n" + state.get("answer", "")
     return state
 
 
@@ -93,6 +107,7 @@ def main():
             "confident": st.get("confident"),
             "thin": st.get("thin"),
             "banner": st.get("banner") or [],
+            "guard": st.get("guard") or [],
             "answer": st.get("answer", ""),
             "references": refs,
         }, indent=2, ensure_ascii=False))

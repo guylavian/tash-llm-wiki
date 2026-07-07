@@ -216,6 +216,14 @@ _DISTINCTIVE_RE = re.compile(r"\b[A-Z][A-Z0-9]{2,}(?:_[A-Z0-9]+)+\b")
 _INFERRED_RE = re.compile(r"\((?:inferred|ambiguous)\b|\((?:web|ref|kb|guide|note):", re.I)
 _CIPHERish = ("AES", "SHA", "GCM", "CHACHA", "POLY", "ECDHE", "ECDSA", "_RSA", "CBC", "_TLS_")
 _domain_token_cache = {}
+_domain_flag_cache = {}
+# CLI-flag shape (`--foo-bar`) — matched for QUERY guarding only (identifier_guard); page-body
+# grounding deliberately skips flags (too many tooling/markdown false positives — see note above).
+_FLAG_RE = re.compile(r"--[a-z][a-z0-9]*(?:-[a-z0-9]+)+\b")
+# hyphenated-word shape WITHOUT the -- prefix — corpus prose often names options bare
+# ("configurable via the tracing-sampler-ratio option"); membership-only, never for suggestions.
+_HYPHENWORD_RE = re.compile(r"\b[a-z][a-z0-9]*(?:-[a-z0-9]+)+\b")
+_domain_hyphen_cache = {}
 
 
 def _strip_fm_body(text):
@@ -244,8 +252,53 @@ def domain_corpus_tokens(domain):
                 continue
             for m in _DISTINCTIVE_RE.finditer(body):
                 toks.add(m.group(0).lower())
+            _domain_flag_cache.setdefault(domain, set()).update(
+                m.group(0)[2:] for m in _FLAG_RE.finditer(body))
+            _domain_hyphen_cache.setdefault(domain, set()).update(
+                m.group(0) for m in _HYPHENWORD_RE.finditer(body))
     _domain_token_cache[domain] = toks
+    _domain_flag_cache.setdefault(domain, set())
+    _domain_hyphen_cache.setdefault(domain, set())
     return toks
+
+
+def identifier_guard(query, domain):
+    """The QUERY-side anti-fabrication gate (deterministic, model-independent).
+
+    Extract distinctive identifiers from the *question* — env/CONST names and `--cli-flags` — and
+    check each against the domain's ENTIRE reference corpus in both spellings (KC_FOO_BAR <-> foo-bar).
+    Returns a list of {token, nearest} for identifiers that exist NOWHERE in the ground truth: the
+    caller must lead the answer with "does not exist" + the nearest real options instead of letting a
+    model define the token from its parametric memory (the adjacent-real-substitution failure mode:
+    retrieval surfaces the real neighbor, and a weak model silently transfers its semantics to the
+    asked-about name). [] when the domain has no corpus (notes-first) — unverifiable, so no claim."""
+    corpus = domain_corpus_tokens(domain)          # also fills the flag/hyphen caches
+    flags = _domain_flag_cache.get(domain, set())
+    hyphens = _domain_hyphen_cache.get(domain, set())
+    if not corpus and not flags:
+        return []
+    known = corpus | flags | hyphens | {t[3:].replace("_", "-") for t in corpus if t.startswith("kc_")} \
+        | {"kc_" + f.replace("-", "_") for f in flags} | {"kc_" + h.replace("-", "_") for h in hyphens}
+    # query-side env shape allows a 2-char first segment (KC_..., MS_...) — the page-body regex
+    # requires 3+ to stay high-precision over prose, but a *question* naming KC_FOO is deliberate.
+    env_q = re.compile(r"\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b")
+    suspects = [m.group(0) for m in env_q.finditer(query)] \
+        + [m.group(0) for m in _FLAG_RE.finditer(query)]
+    import difflib
+    out = []
+    for s in suspects:
+        if _is_distinctive_artifact(s):
+            continue
+        norm = s.lower().lstrip("-")
+        forms = {norm, norm.replace("_", "-"), norm.replace("-", "_"),
+                 ("kc_" + norm.replace("-", "_")) if not norm.startswith("kc_") else norm[3:].replace("_", "-")}
+        if forms & known:
+            continue
+        pool = list(flags) + [t.replace("_", "-") for t in corpus] \
+            + [h for h in hyphens if "-" in h[1:]]
+        near = difflib.get_close_matches(norm.replace("_", "-"), pool, n=3, cutoff=0.6)
+        out.append({"token": s, "nearest": near})
+    return out
 
 
 def ungrounded_citations(text, fm):
