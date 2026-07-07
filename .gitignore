@@ -23,3 +23,6 @@ dist/
 .corpora.bak/
 corpora/
 *.zip
+graphify-out/
+
+# Obsidian per-machine session state (app.json/core-plugins/graph are kept)

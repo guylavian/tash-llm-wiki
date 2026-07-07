@@ -194,7 +194,7 @@ sibling skill, its corpus lives in a different `reference/<domain>/` tree, or th
 This is not a suggestion; it is a gate. If any item fails, the answer is NOT final —
 go back and complete the missing step first, then respond.
 
-- [ ] Did I file a question page under `wiki/questions/` with full frontmatter
+- [ ] Did I file a question page under `questions/` with full frontmatter
       (title, slug, summary, sources, provenance counts, `status: draft`, date)?
       If not, do it now before responding.
 - [ ] Does every distinct factual claim in my answer have its OWN citation with a
@@ -240,4 +240,4 @@ one-time fixes:
   UNGRADED, never a pass. No retrieval/serving change may be tuned against the same
   bank that reports its acceptance number.
 
-<!-- source-digest: dac326129ff2ba57 -->
+<!-- source-digest: 9501ecdcaf876afb -->
