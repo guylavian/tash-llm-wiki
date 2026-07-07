@@ -25,6 +25,10 @@ from collections import defaultdict
 
 STOP = set("""a an the of in on for to and or is are was were be been it its this that with as by
 from at into over under about when what which how why do does did not no yes you your must can
+than more most less least same other another one two only also just very each every both any all
+some new old set sets setting get gets got use uses used using make makes made making need needs
+needed want wants way ways thing things read reads write writes has have had having will would
+should could may might shall between among within without across during after before while
 """.split())
 
 
@@ -83,7 +87,7 @@ def gold_ratio(answer, facts):
         if not ft:
             hit += 1
             continue
-        found = sum(1 for t in ft if t in low)
+        found = sum(1 for t in ft if t in low or t.rstrip("s") in low)
         if found / len(ft) >= 0.5:
             hit += 1
     return hit / len(facts)
