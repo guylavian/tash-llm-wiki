@@ -28,6 +28,18 @@ from at into over under about when what which how why do does did not no yes you
 """.split())
 
 
+NARRATION = re.compile(
+    r"^.*\b(file (this|the|it) (answer )?back|filing (this|the) answer|filed (as|at|into)|"
+    r"let me file|i'll file|now i'll|lint is clean|running lint|wiki now compounds)\b.*$",
+    re.I | re.M)
+EVAL_INTENT = re.compile(r"[^.!?\n]*\b(the question|this) (expects|is testing|wants) (the model|me) to\b[^.!?\n]*[.!?]?", re.I)
+
+
+def clean(answer):
+    """Strip agent scratchpad narration (whole line) and eval-intent echoes (sentence only)."""
+    return EVAL_INTENT.sub("", NARRATION.sub("", answer))
+
+
 def toks(s):
     return [t for t in re.findall(r"[a-z0-9_.:-]{3,}", s.lower()) if t not in STOP]
 
@@ -38,11 +50,15 @@ def has_slug(answer, slugs):
 
 
 def refused(answer, token):
-    low = answer.lower()
-    saidno = re.search(r"(not|n't|no)\s+(exist|found|present|document|appear|defined)|no such|"
-                       r"zero hits|not in the (corpus|kb|knowledge|wiki|docs)|couldn.t find", low)
+    low = re.sub(r"[*_`]", "", answer.lower())  # markdown emphasis breaks word boundaries
+    saidno = re.search(
+        r"(not|n't|no)\s+(exist|found|present|document|appear|defined|valid|real)|"
+        r"not\s+a\s+real\b|no such|no\s+\w+\s+(named|called)|is\s+(actually|fabricated|hallucinated)|"
+        r"you (likely|probably) mean|did you mean|\bnote:|instead of|rather than|"
+        r"correct (name|form|spelling|option)|"
+        r"zero hits|not in the (corpus|kb|knowledge|wiki|docs)|couldn.t find", low)
     # defining the fake token as real = fail even if hedged
-    defined = re.search(re.escape(token.lower()) + r"\s+(controls|sets|configures|specifies|enables)\b", low)
+    defined = re.search(re.escape(token.lower()) + r"\s+(is the|controls|sets|configures|specifies|enables)\b", low)
     return bool(saidno) and not defined
 
 
@@ -99,7 +115,7 @@ def main():
         a = answers.get(cid)
         row = {"id": cid, "type": c["type"], "domain": c["domain"], "answered": bool(a)}
         if a:
-            ans = a.get("answer", "")
+            ans = clean(a.get("answer", ""))
             row["retrieval"] = has_slug(ans, c.get("expected_slugs", []))
             row["gold"] = round(gold_ratio(ans, c.get("gold_facts", [])), 2)
             row["contract"] = contract(ans)
