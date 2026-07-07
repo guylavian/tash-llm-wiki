@@ -13,7 +13,7 @@ WIKI = META.parent                         # .../wiki
 ROOT = WIKI.parent                         # repo root
 
 REFERENCE = WIKI / "reference"             # in-vault corpus tier (reference/<domain>/)
-REFERENCES = ROOT / "references"           # curated reference guides
+REFERENCES = WIKI / "references"           # curated reference guides (ref: tier — folded into the vault 2026-07-07)
 EVAL = META / "eval"                       # eval + gate cases + committed goldens
 TAXONOMY = META / "taxonomy.md"
 MODELS = META / "models"                   # vendored embedding model(s) / tokenizers
