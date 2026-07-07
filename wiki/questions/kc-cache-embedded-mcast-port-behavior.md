@@ -11,6 +11,7 @@ provenance:
   extracted: 3
   inferred: 1
   ambiguous: 0
+tags: [ha]
 status: draft
 updated: 2026-07-05
 ---

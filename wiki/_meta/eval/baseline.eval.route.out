@@ -25,14 +25,14 @@ PAIRED exact -> paraphrase (same target; the lexical-recall gap):
   token-exchange     exact @2    ->  paraphrase @10  
 
 CONTEXT-TOKEN PROXY  (index + snippets skimmed + bodies actually opened; chars/4)
-  mean index    tokens :   8125
+  mean index    tokens :   9233
   mean snippet  tokens :    385  (5.9 candidates skimmed/case)
   mean opened-body tok :  67547  (1.41 full notes opened/case)
-  mean TOTAL ctx tokens:  76059   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
+  mean TOTAL ctx tokens:  77166   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
 
 ROUTING (Phase 1: skip global index.md on a confident route)
   confident skips      : 20/29 cases read only index.<domain>.md
-  index tokens skipped :  96780 total over the run (the Phase-1 saving)
+  index tokens skipped : 106000 total over the run (the Phase-1 saving)
 
 MISS BREAKDOWN @10 : 12 miss  =  9 graph-rescued (Phase 2)  +  3 still-missing (Phase 3)
   - [graph-rescued] active passive cross-site session replication keeps user session

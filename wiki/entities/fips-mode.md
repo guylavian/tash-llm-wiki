@@ -1,0 +1,63 @@
+---
+title: fips-mode — strict vs non-strict FIPS crypto mode
+type: entity
+domain: keycloak
+slug: fips-mode
+summary: "Controls whether BCFIPS runs in approved (strict) or non-approved (default) mode; strict mode mandates BCFKS keystores, ≥2048-bit RSA, ≥14-char passwords, and blocks PKCS12/JKS keystores and RSA1_5 JWE."
+sources:
+  - guide:server_configuration_guide
+provenance:
+  extracted: 8
+  inferred: 0
+  ambiguous: 0
+status: draft
+updated: 2026-07-07
+---
+
+# `fips-mode` — strict vs non-strict
+
+**The `--fips-mode` option is used together with `--features=fips` to choose between BouncyCastle FIPS non-approved mode (default) and approved (strict) mode.**
+
+## Body
+
+When `--features=fips` is enabled, `--fips-mode` defaults to `non-strict`, which runs BCFIPS in "non-approved mode" with the same relaxed algorithm and keystore constraints as the non-FIPS path (`rhbk-26-4-fips.md:79-83`).
+
+Pass `--fips-mode=strict` to enable BCFIPS "approved mode" — stricter crypto validation (`rhbk-26-4-fips.md:83-84`):
+
+| Area | Non-strict (default) | Strict |
+|---|---|---|
+| Default keystore type | PKCS12 | BCFKS |
+| PKCS12/JKS keystores | Supported | **Not supported** |
+| User passwords | Any length | ≥14 chars with PBKDF2 (112-bit minimum) |
+| RSA keys (realm/client/IdP) | ≥1024 bits | ≥2048 bits |
+| HMAC-SHA client secrets | Any length | ≥14 chars (112 bits) |
+| JWE with RSA1_5 | Allowed (deprecated) | **Blocked** (use RSA-OAEP) |
+| Password hashing | Argon2 available | PBKDF2 only (Argon2 disabled) |
+
+### Migrating to strict mode (`rhbk-26-4-fips.md:187-211`)
+
+- Convert or regenerate all keystores to BCFKS format
+- Ensure all RSA keys in realm keys, client keys, and IdP keys are ≥2048 bits
+- Set client secrets using `Signed JWT with Client Secret` to ≥14 characters
+- For pre-existing short passwords, start with `--spi-password-hashing--pbkdf2-sha512--max-padding-length=14`
+- Kerberos authenticators are auto-disabled; remove Kerberos user storage providers first
+
+### Container usage (`rhbk-26-4-fips.md:159-186`)
+
+In a containerized deployment, pass both flags at build time to create a FIPS-optimized image:
+
+```dockerfile
+RUN /opt/keycloak/bin/kc.sh build --features=fips --fips-mode=strict
+```
+
+The host must be FIPS-enabled; the container inherits FIPS mode from it.
+
+### CLI considerations (`rhbk-26-4-fips.md:148-158`)
+
+kcadm.sh/kcreg.sh on a FIPS host also need the BCFIPS jars copied to `bin/client/lib/` and a custom `java.security` properties file pointing at `keystore.type=bcfks`.
+
+## See also
+- [[fips-startup-bouncycastle]]
+- [[feature-flags]]
+- [[keycloak-truststores]]
+- [[tls-configuration]]

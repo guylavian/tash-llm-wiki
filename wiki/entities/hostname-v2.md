@@ -42,7 +42,8 @@ URLs come from: dynamic request data (`Host`, scheme, port, context path), proxy
 - If `--hostname` is not configured: `hostname-backchannel-dynamic` must be `false` and `hostname-strict` must be `false`.
 
 ## Contradictions / caveats
-- This is the **v2** model used throughout RHBK 26.0–26.6 (quoted from 26.4). The older v1 options (`hostname-url`, `hostname-path`, `frontend-url`, etc.) belong to removed v1 and should not be mixed in.
+- This is the **v2** model used throughout RHBK 26.0–26.6 (quoted from 26.4). The older v1 options (`hostname-url`, `hostname-path`, `hostname-strict-backchannel`, `frontend-url`, etc.) belong to removed v1 and should not be mixed in.
+- In v1, `hostname-strict-backchannel=true` (env `KC_HOSTNAME_STRICT_BACKCHANNEL`) forced backchannel URLs to match the frontend hostname; in v2, this is the default (`hostname-backchannel-dynamic=false`).
 - Edge TLS termination: combine `--hostname https://...` with `--http-enabled true` so the proxy can talk HTTP on `8080` while clients see HTTPS.
 
 ## See also

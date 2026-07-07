@@ -18,10 +18,10 @@ _A native [[wiki.base]] view — it reads page frontmatter directly and updates 
 ## Domains
 _Per-domain routing indexes (generated). A QUERY routes here first, then opens the relevant index below to stay inside the model's context window._
 
-- [active-directory](index.active-directory.md) — 69 pages · [[_ref-active-directory|221 reference notes]] · review lens [[active-directory-implementation-review]]
-- [cisco-ios-xe](index.cisco-ios-xe.md) — 17 pages · [[_ref-cisco-ios-xe|167 reference notes]] · review lens [[cisco-ios-xe-implementation-review]]
-- [keycloak](index.keycloak.md) — 178 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
-- [openshift](index.openshift.md) — 37 pages · [[_ref-openshift|3813 reference notes]] · review lens [[openshift-implementation-review]]
+- [active-directory](index.active-directory.md) — 78 pages · [[_ref-active-directory|221 reference notes]] · review lens [[active-directory-implementation-review]]
+- [cisco-ios-xe](index.cisco-ios-xe.md) — 21 pages · [[_ref-cisco-ios-xe|167 reference notes]] · review lens [[cisco-ios-xe-implementation-review]]
+- [keycloak](index.keycloak.md) — 204 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
+- [openshift](index.openshift.md) — 41 pages · [[_ref-openshift|3813 reference notes]] · review lens [[openshift-implementation-review]]
 <!-- index.py:domains:end -->
 
 ## Topics
@@ -142,6 +142,7 @@ _Per-domain routing indexes (generated). A QUERY routes here first, then opens t
 - [[reverse-proxy-configuration]] — proxy-headers, ports, sticky sessions, exposed paths
 - [[management-interface]] — health & metrics management server (server-config angle)
 - [[feature-flags]] — features / features-disabled, preview/deprecated categories
+- [[fips-mode]] — strict vs non-strict FIPS 140-2 crypto mode for kc.sh
 - [[keycloak-vault]] — file-based and KeyStore vaults for secrets
 - [[tf-realm-resources]] — Terraform: the realm & realm-scoped resources (events, localization, user profile, scopes, keystores)
 - [[tf-openid-client]] — Terraform: core OIDC clients, client scopes, scope permissions, service-account roles
@@ -199,6 +200,7 @@ _Per-domain routing indexes (generated). A QUERY routes here first, then opens t
 - [questions/token-exchange-rhbk-detailed.md](./questions/token-exchange-rhbk-detailed.md)
 - [questions/logout-session-lifecycle-active-passive.md](./questions/logout-session-lifecycle-active-passive.md)
 - [questions/active-passive-failover-sessions-lost.md](./questions/active-passive-failover-sessions-lost.md)
+- [questions/primary-ad-management-tools.md](./questions/primary-ad-management-tools.md)
 - [questions/fsmo-transfer-vs-seize-dead-dc-twist.md](./questions/fsmo-transfer-vs-seize-dead-dc-twist.md)
 - [questions/cross-site-split-brain-pac-signing.md](./questions/cross-site-split-brain-pac-signing.md)
 - [questions/c9500-issu-svl-blackhole-nsf-gr.md](./questions/c9500-issu-svl-blackhole-nsf-gr.md)
@@ -210,9 +212,26 @@ _Per-domain routing indexes (generated). A QUERY routes here first, then opens t
 - [questions/ocp-411-412-upgrade-rhsso-tls.md](./questions/ocp-411-412-upgrade-rhsso-tls.md)
 - [questions/rhbk-oscp-scaling-resources.md](./questions/rhbk-oscp-scaling-resources.md)
 - [questions/rhbk-26-6-client-credentials-refresh-invalid-grant.md](./questions/rhbk-26-6-client-credentials-refresh-invalid-grant.md)
+- [questions/temporary-admin-user-rhbk-first-start-recovery.md](./questions/temporary-admin-user-rhbk-first-start-recovery.md)
 - [questions/require-dpop-bound-tokens.md](./questions/require-dpop-bound-tokens.md)
 - [questions/rhbk-upgrade-cadence.md](./questions/rhbk-upgrade-cadence.md)
 - [questions/identity-brokering-external-oidc-idp.md](./questions/identity-brokering-external-oidc-idp.md)
+- [questions/rhbk-as-identity-broker.md](./questions/rhbk-as-identity-broker.md)
+- [questions/consistency-over-availability-two-site.md](./questions/consistency-over-availability-two-site.md)
+- [questions/ldaps-truststore-ad-settings.md](./questions/ldaps-truststore-ad-settings.md)
+- [questions/rhbk-ispn000541-dns-query-openshift.md](./questions/rhbk-ispn000541-dns-query-openshift.md)
+- [questions/kc-fips-mode-strict.md](./questions/kc-fips-mode-strict.md)
+- [questions/kc-hostname-strict-backchannel.md](./questions/kc-hostname-strict-backchannel.md)
+- [questions/hostname-admin-strict-env-var.md](./questions/hostname-admin-strict-env-var.md)
+- [questions/bgp-4-ios-xe.md](./questions/bgp-4-ios-xe.md)
+- [questions/vlan-trunking-ios-xe.md](./questions/vlan-trunking-ios-xe.md)
+- [questions/static-routes-default-routes-ios-xe.md](./questions/static-routes-default-routes-ios-xe.md)
+- [questions/rhbk-ldap-ad-user-federation.md](./questions/rhbk-ldap-ad-user-federation.md)
+- [questions/oauth-client-discovery-authorization-server-endpoints.md](./questions/oauth-client-discovery-authorization-server-endpoints.md)
+- [questions/mtls-certificate-binding-oauth2-tokens.md](./questions/mtls-certificate-binding-oauth2-tokens.md)
+- [questions/rhbk-customize-user-facing-pages.md](./questions/rhbk-customize-user-facing-pages.md)
+- [questions/what-do-ldap-mappers-do.md](./questions/what-do-ldap-mappers-do.md)
+- [questions/openshift-persistent-storage-pvc-dynamic-provisioning.md](./questions/openshift-persistent-storage-pvc-dynamic-provisioning.md)
 
 ---
 _Seeded 2026-06-16. Grow it via the INGEST / QUERY operations in `CLAUDE.md`.

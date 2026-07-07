@@ -15,6 +15,7 @@ provenance:
   extracted: 4
   inferred: 4
   ambiguous: 0
+tags: [migration]
 status: draft
 aliases: [upgrade cadence, release cycle, RHBK upgrades]
 updated: 2026-07-05
