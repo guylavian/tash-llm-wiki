@@ -1,6 +1,6 @@
 ---
-name: keycloak-admin
-description: Keycloak and Red Hat build of Keycloak (RHBK) administration — realm management, client/OAuth2/OIDC & SAML setup, user & credential management, roles & groups, identity brokering & federation (LDAP/AD), tokens & sessions, themes, fine-grained authorization, server configuration/operator/OpenShift deployment, HA, and RH-SSO→RHBK migration. Activate for Keycloak/RHBK Admin REST API / kcadm.sh operations, authentication setup, identity-provider configuration, and RHBK platform/support questions. Includes an OFFLINE reference distilled from the official Keycloak 26 docs and Red Hat RHBK 26.6 docs/KB, plus a bundled, searchable local knowledge base (1,840 RHBK/RH-SSO records, 800 full doc/solution bodies) queried with `_meta/wikikb/kb.py` (or grep) — no internet required.
+name: llm-wiki
+description: Multi-domain offline LLM knowledge wiki (keycloak / active-directory / openshift / cisco-ios-xe) — an Obsidian vault of LLM-maintained synthesis pages over immutable reference corpora, with the wikikb toolchain (retrieval, confidence gate, identifier guard, temporal knowledge graph, MCP server). Activate for Keycloak/RHBK administration (realms, clients, OAuth2/OIDC & SAML, federation/LDAP/AD, tokens, operator/OpenShift deployment, HA, RH-SSO→RHBK migration), Active Directory, OpenShift, and Cisco IOS-XE questions. Includes an OFFLINE reference distilled from official docs (Keycloak 26 / RHBK 26.6 docs+KB: 1,840 records, 800 full doc bodies) queried with `python3 -m wikikb kb` (or grep) — no internet required.
 allowed-tools:
   - Bash
   - Read
