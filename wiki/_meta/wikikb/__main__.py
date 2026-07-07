@@ -11,8 +11,10 @@ import sys
 # tool name -> subpackage
 TOOLS = {
     "backfill": "build",
+    "build": "build",      # the whole regen chain: tags -> crosslink -> index -> tkg -> lint
     "crosslink": "build",
     "index": "build",
+    "card": "build",         # QUERY protocol card generator (F4, 100k-budget plan)
     "manifest": "build",
     "tags": "build",
     "corpus_to_vault": "corpus",
@@ -22,8 +24,10 @@ TOOLS = {
     "cost": "online",
     "llm": "online",
     "evaluate": "quality",
+    "verify": "quality",   # answer-time source verification: numeric claims vs cited kb: notes
     "faithfulness": "quality",
     "lint": "quality",
+    "livebank": "quality",  # live-query bank: realistic SRE queries through the FULL serve path
     "embed": "retrieval",
     "expand": "retrieval",
     "kb": "retrieval",
@@ -31,6 +35,8 @@ TOOLS = {
     "insights": "quality",
     "ask": "graph",        # QUERY pipeline -> one cited, gated answer (offline extractive / local LLM)
     "tkg": "tkg",          # the temporal-knowledge-graph CLI lives at wikikb/tkg/tkg.py
+    "serve": "serve",      # stateless JSON API over the wiki for SRE/agent consumption (loopback default)
+    "mcp": "mcp",          # MCP (Model Context Protocol) stdio server for MCP-host consumption
 }
 
 

@@ -53,6 +53,16 @@ ROUTER_HINTS = {
         "rhbk", "keycloak", "kcadm", "kcreg", "quarkus", "infinispan", "openshift",
         "operator", "dpop", "pkce", "oidc", "saml", "realm", "kc.sh", "spi", "rh-sso",
     },
+    "openshift": {
+        "crashloopbackoff", "oomkilled", "imagepullbackoff", "scc", "securitycontextconstraints",
+        "buildconfig", "imagestream", "clusteroperator", "machineconfig", "olm", "s2i",
+        "kubelet", "oc", "etcd", "ingress", "route",
+    },
+    "cisco-ios-xe": {
+        "ospf", "eigrp", "bgp", "vlan", "etherchannel", "portchannel", "lacp", "hsrp", "vrrp",
+        "stackwise", "netconf", "restconf", "asdot", "asplain", "adjacency", "spanning-tree",
+        "trunk", "ios-xe",
+    },
 }
 
 _profiles = None

@@ -69,12 +69,12 @@ def note_ids(domain):
 def rank(domain, query):
     """Replay kb.py's default `search` ranking. Return [(note_id, body_len), ...] best-first."""
     terms = kb.toks(query)
+    pool = [r for r in records(domain) if r.get("body_status") == "fetched"]   # default search excludes gated
+    idf, avgdl = kb.build_idf(pool), kb.avg_dl(pool)   # once per query, faithful to kb.cmd_search
     scored = []
-    for r in records(domain):
-        if r.get("body_status") != "fetched":      # default search excludes gated pointers
-            continue
+    for r in pool:
         bt = kb.body_text(r)
-        sc = kb.score(r, terms, bt)
+        sc = kb.score(r, terms, bt, idf, avgdl)
         if sc > 0:
             scored.append((sc, r, bt))
     scored.sort(key=lambda x: (-x[0], -kb.vkey(x[1].get("version"))[0] if x[1].get("version") else 0))
@@ -219,6 +219,31 @@ def pct(n, d):
     return (100.0 * n / d) if d else 0.0
 
 
+def rec(rowset, k, key):
+    if key == "lex":
+        h = sum(1 for r in rowset if r["hit_rank"] and r["hit_rank"] <= k)
+    else:  # boolean recall flag (graph_hit / graph_hit_closure)
+        h = sum(1 for r in rowset if r[key])
+    return h, len(rowset)
+
+
+def mrr(rows):
+    """Mean reciprocal rank over the (unbounded) lexical hit_rank — 0 for a miss. Same rank
+    numbers the PAIRED section prints (e.g. dpop paraphrase @118), just averaged."""
+    if not rows:
+        return 0.0
+    return sum((1.0 / r["hit_rank"]) if r["hit_rank"] else 0.0 for r in rows) / len(rows)
+
+
+def precision_at5(rows):
+    """Mean precision@5 over the lexical top-5: (# of the top-5 ids that are in `expected`) / 5.
+    `expected` is already the expect_any_of set (e.g. the same guide chapter across RHBK
+    versions), so a case with several acceptable notes earns partial credit for each one surfaced."""
+    if not rows:
+        return 0.0
+    return sum(sum(1 for rid in r["top5"] if rid in r["expected"]) / 5.0 for r in rows) / len(rows)
+
+
 def report(rows, ks, kmax, verbose):
     n = len(rows)
     print("=" * 84)
@@ -236,13 +261,6 @@ def report(rows, ks, kmax, verbose):
                 print("        expected: %s" % ", ".join(r["expected"]))
                 print("        top5 lex: %s" % (", ".join(r["top5"]) or "(none)"))
 
-    def rec(rowset, k, key):
-        if key == "lex":
-            h = sum(1 for r in rowset if r["hit_rank"] and r["hit_rank"] <= k)
-        else:  # boolean recall flag (graph_hit / graph_hit_closure)
-            h = sum(1 for r in rowset if r[key])
-        return h, len(rowset)
-
     print("\nRECALL  (lexical -> +graph seed-sources -> +graph 1-hop closure)")
     for k in ks:
         hl, d = rec(rows, k, "lex")
@@ -254,6 +272,9 @@ def report(rows, ks, kmax, verbose):
             print("       graph-rescued (primary): %d   |   closure adds: %d" % (hg - hl, hc - hg))
         else:
             print("  @%-2d  lexical %2d/%-2d (%3.0f%%)" % (k, hl, d, pct(hl, d)))
+
+    print("\n  MRR (lexical, unbounded rank) : %.3f" % mrr(rows))
+    print("  precision@5 (lexical)         : %.3f" % precision_at5(rows))
 
     print("\n  by domain (lexical r@%d -> +graph):" % kmax)
     for dom in sorted({r["domain"] for r in rows}):
@@ -382,6 +403,8 @@ def main():
                     help="fail (exit 3) if the mean context-token proxy exceeds this budget")
     ap.add_argument("--budget-usd", type=float, default=None,
                     help="fail (exit 3) if mean measured generation $ exceeds this (needs --measure-llm; n/a offline)")
+    ap.add_argument("--min-recall", type=float, default=None,
+                    help="fail (exit 3) if the FINAL +closure r@kmax percentage is below this (0-100)")
     args = ap.parse_args()
 
     path = args.cases if os.path.isabs(args.cases) else os.path.join(WIKI, args.cases)
@@ -423,12 +446,12 @@ def main():
 
     # Phase-3 measured GENERATION cost — flag-gated, post-hoc (recall already finalized above and
     # never routed through this). Default run (no --measure-llm) prints nothing here -> byte-identical.
-    rec, measured_active = None, False
+    recorder, measured_active = None, False
     if args.measure_llm:
-        rec = cost.UsageRecorder()
-        measured_active = run_measure(rows, rec)
-        report_measure(rows, rec, measured_active)
-        rec.write_report()
+        recorder = cost.UsageRecorder()
+        measured_active = run_measure(rows, recorder)
+        report_measure(rows, recorder, measured_active)
+        recorder.write_report()
 
     # budget gate (BF-9): --budget-tokens vs the untruncated float proxy mean (report() displays it
     # floored via %6d); --budget-usd vs measured generation $ (only when --measure-llm produced priced
@@ -441,15 +464,24 @@ def main():
             print("\nBUDGET: %s" % e)
             sys.exit(3)
         if args.budget_usd is not None:
-            if measured_active and rec and rec.priced_calls:
+            if measured_active and recorder and recorder.priced_calls:
                 try:
-                    cost.check_budget(rec.usd / max(1, rec.calls), args.budget_usd, "gen-$")
+                    cost.check_budget(recorder.usd / max(1, recorder.calls), args.budget_usd, "gen-$")
                 except cost.BudgetExceeded as e:
                     print("\nBUDGET: %s" % e)
                     sys.exit(3)
             else:
                 print("\nBUDGET: --budget-usd is n/a (no measured generation $ — needs --measure-llm + a "
                       "priced model) — not enforced")
+
+    # min-recall gate: FINAL +closure r@kmax vs --min-recall (mirrors the --budget-tokens exit-3
+    # pattern). Default run (no --min-recall) prints nothing here — byte-identical.
+    if args.min_recall is not None:
+        hc, d = rec(rows, args.kmax, "graph_hit_closure")
+        closure_pct = pct(hc, d)
+        if closure_pct < args.min_recall:
+            print("\nMIN-RECALL: +closure r@%d = %.1f%% < required %.1f%%" % (args.kmax, closure_pct, args.min_recall))
+            sys.exit(3)
     sys.exit(0)
 
 

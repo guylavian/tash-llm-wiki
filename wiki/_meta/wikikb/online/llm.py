@@ -17,9 +17,9 @@ AIR-GAP CONTRACT (COUNCIL-DIRECTIVES.md BF-5/BF-6):
   - `available()` is config-only (lib + config + WIKI_LLM!=off); it does NOT probe a live socket.
     Use `--probe` for an active reachability check.
 
-Config: env vars (WIKI_LLM_MODEL / WIKI_LLM_API_BASE / WIKI_LLM_MAX_TOKENS / WIKI_LLM_TEMPERATURE)
-override an optional, gitignored `_meta/llm.config.yaml` (a tiny flat key:value subset — see
-llm.config.yaml.sample). Stdlib only; no PyYAML.
+Config: env vars (WIKI_LLM_MODEL / WIKI_LLM_API_BASE / WIKI_LLM_MAX_TOKENS / WIKI_LLM_TEMPERATURE /
+WIKI_LLM_MODEL_JUDGE) override an optional, gitignored `_meta/llm.config.yaml` (a tiny flat key:value
+subset — see llm.config.yaml.sample). Stdlib only; no PyYAML.
 
 Usage:
     python3 llm.py --status                 # which path is active (off / local / blocked / ready)
@@ -104,7 +104,8 @@ def load_config():
         except Exception:
             pass
     for key, env in (("model", "WIKI_LLM_MODEL"), ("api_base", "WIKI_LLM_API_BASE"),
-                     ("max_tokens", "WIKI_LLM_MAX_TOKENS"), ("temperature", "WIKI_LLM_TEMPERATURE")):
+                     ("max_tokens", "WIKI_LLM_MAX_TOKENS"), ("temperature", "WIKI_LLM_TEMPERATURE"),
+                     ("model_judge", "WIKI_LLM_MODEL_JUDGE")):
         v = os.environ.get(env)
         if v is not None:
             cfg[key] = v
@@ -259,12 +260,15 @@ def complete(messages, model=None, **kw):
 # ---------- optional 32B→7B routing + fallback — delegated to litellm.Router (OSS, not hand-rolled) -
 
 def _router(cfg):
-    """Build a litellm.Router for the two-model routing lever, or None when not applicable.
+    """Build a litellm.Router for the routing lever, or None when not applicable.
 
     Routing + fallback is the OSS lib's job (model groups + `fallbacks`), NOT re-implemented here.
     Returns None — so complete_routed() degrades to the single-model complete() — unless BOTH
-    `model_small` and `model_large` are configured. Lazy import + the same air-gap/telemetry guards
-    as complete(); never raises (returns None on any error)."""
+    `model_small` and `model_large` are configured (cheap/hard unchanged). A THIRD, optional "judge"
+    group is added on top ONLY when `model_judge` is ALSO configured and passes the same loopback
+    gate — it never gates cheap/hard. `judge` falls back to `hard` (a down judge degrades to the large
+    model). Lazy import + the same air-gap/telemetry guards as complete(); never raises (returns None
+    on any error)."""
     small, large = cfg.get("model_small"), cfg.get("model_large")
     if not (small and large):
         return None                                   # one model (the default) -> no-op, today's path
@@ -274,6 +278,12 @@ def _router(cfg):
             _enforce_local(m, _effective_api_base(m, api_base))
         except RemoteBlocked:
             return None
+    judge = cfg.get("model_judge")
+    if judge:
+        try:
+            _enforce_local(judge, _effective_api_base(judge, api_base))
+        except RemoteBlocked:
+            judge = None                                # judge is advisory-only: drop it, don't block cheap/hard
     try:
         import litellm
         from litellm import Router
@@ -284,26 +294,50 @@ def _router(cfg):
             if _provider_of(m) == "openai" and not os.environ.get("OPENAI_API_KEY"):
                 p["api_key"] = "sk-noop"               # local vLLM/LM-Studio: dummy key pre-socket
             return p
-        return Router(
-            model_list=[{"model_name": "cheap", "litellm_params": _params(small)},
-                        {"model_name": "hard", "litellm_params": _params(large)}],
-            fallbacks=[{"cheap": ["hard"]}, {"hard": ["cheap"]}],  # a down deployment degrades, not fails
-            telemetry=False)
+        model_list = [{"model_name": "cheap", "litellm_params": _params(small)},
+                      {"model_name": "hard", "litellm_params": _params(large)}]
+        fallbacks = [{"cheap": ["hard"]}, {"hard": ["cheap"]}]  # a down deployment degrades, not fails
+        if judge:
+            model_list.append({"model_name": "judge", "litellm_params": _params(judge)})
+            fallbacks.append({"judge": ["hard"]})       # a down judge degrades to the large model
+        return Router(model_list=model_list, fallbacks=fallbacks, telemetry=False)
     except Exception:
         return None
 
 
+def has_judge():
+    """True iff a distinct judge model is configured (`model_judge` / WIKI_LLM_MODEL_JUDGE), passes the
+    same loopback gate as small/large, AND the router would actually build one for it (cheap/hard must
+    also be configured — the judge group only exists inside that Router). Config-only, no socket —
+    mirrors available(). Advisory-only: callers use this to decide whether to ask the judge; it never
+    feeds the deterministic Confidence gate."""
+    if mode() == "off" or not have_library():
+        return False
+    cfg = load_config()
+    small, large, judge = cfg.get("model_small"), cfg.get("model_large"), cfg.get("model_judge")
+    if not (small and large and judge):
+        return False
+    try:
+        _enforce_local(judge, _effective_api_base(judge, cfg.get("api_base")))
+        return True
+    except RemoteBlocked:
+        return False
+
+
 def complete_routed(messages, tier=None, **kw):
-    """Tier-routed completion: tier='cheap' -> small model, else the large/default model. Routing and
-    cross-model FALLBACK are handled by litellm.Router (OSS). When only one model is configured (or
-    litellm/Router is absent), this is exactly complete() — today's single-model behavior. None on
-    any failure (the embed.dense_rank contract)."""
+    """Tier-routed completion: tier='cheap' -> small model, tier='judge' -> the judge model (if
+    configured), else the large/default model. Routing and cross-model FALLBACK are handled by
+    litellm.Router (OSS). When only one model is configured (or litellm/Router is absent), this is
+    exactly complete() — today's single-model behavior. Asking for tier='judge' when no `judge` group
+    was built (model_judge absent) raises inside the Router (no such model group) and is caught below,
+    degrading to the single-model complete() — never a crash. None on any failure (the embed.dense_rank
+    contract)."""
     if mode() == "off" or not have_library():
         return None
     router = _router(load_config())
     if router is None:
         return complete(messages, **kw)               # single-model degrade — unchanged path
-    group = "cheap" if tier in ("cheap", "small", "extract") else "hard"
+    group = "cheap" if tier in ("cheap", "small", "extract") else ("judge" if tier == "judge" else "hard")
     try:
         return router.completion(model=group, messages=messages, **kw)
     except Exception:

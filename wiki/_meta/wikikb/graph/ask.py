@@ -29,8 +29,11 @@ def ask(query, domain=None, k=5, question_tier=None):
         state["domain"] = domain
     state.update(nodes.route_node(state))
     state.update(nodes.retrieve_node(state))
-    if state.get("thin"):
-        state.update(nodes.expand_node(state))
+    # ALWAYS graph-expand (2026-07-05): the live-query bank proved expand-only-when-thin loses real
+    # answers — lexical/dense top-k misses notes that query-matched wiki pages directly cite (e.g.
+    # AD delegation/sizing facts). Seed-source notes are high-precision and appended after the
+    # ranked hits, so they add recall without displacing them. (Was: only when thin < 3 hits.)
+    state.update(nodes.expand_node(state))
     state.update(nodes.gate_node(state))
     state.update(nodes.synthesize_node(state))
     # QUERY-side anti-fabrication guard (deterministic, model-independent): an identifier asked
@@ -101,7 +104,7 @@ def main():
     refs = references(st.get("domain"), st.get("used", []))
 
     if args.json:
-        print(json.dumps({
+        out = {
             "query": query,
             "domain": st.get("domain"),
             "confident": st.get("confident"),
@@ -109,8 +112,13 @@ def main():
             "banner": st.get("banner") or [],
             "guard": st.get("guard") or [],
             "answer": st.get("answer", ""),
+            "cited": st.get("used", []),              # the REAL cited set (nodes.synthesize_node)
+            "grounding_fail": st.get("grounding_fail", False),
             "references": refs,
-        }, indent=2, ensure_ascii=False))
+        }
+        if st.get("judge_verdict") is not None:       # nullable: key present only when the judge ran
+            out["judge_verdict"] = st["judge_verdict"]  # (advisory) — omitted keeps old output byte-identical
+        print(json.dumps(out, indent=2, ensure_ascii=False))
         return
 
     print(st.get("answer", "(no answer)"))

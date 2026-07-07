@@ -135,8 +135,25 @@ def page_gate_verdict(fm):
     (faithfulness, as eval.py imports kb.py). `status` is ADDITIVE-ONLY: it can only
     ADD H3 — it can NEVER suppress H2. Synthesis MOCs (review_moc_slugs) are exempt from
     H2 ONLY — a MOC makes no source-grounded claims, so extracted==0 is correct for it;
-    H3 still applies to everyone."""
+    H3 still applies to everyone.
+
+    A page with NO provenance keys at all (`prov is None` — neither the flat
+    `provenance_extracted/inferred/ambiguous` keys nor a nested `provenance:` block) is NOT
+    gate-exempt: CLAUDE.md's contract reads "extracted = provenance_extracted (0 if absent)",
+    so fully-missing provenance IS extracted==0 — the strongest ungrounded signal there is, not
+    a free pass. It is treated exactly like an explicit `extracted: 0` for the H2/H3 arms below.
+
+    An entirely EMPTY `fm` (no keys at all — not even `title`/`domain`/`slug`) is a different
+    case: it is not "a real page missing its provenance", it is "no page frontmatter was
+    supplied" (e.g. `graph.nodes.gate_node`'s default `state.get('page_fm') or {}` when the
+    QUERY pipeline isn't threading a specific candidate page). H2/H3 are checks over a PAGE's
+    frontmatter and have nothing to evaluate there, so they stay silent — only H1 (the
+    tier-coverage arm, computed separately in `gate_banner`) applies to a page-less query."""
+    if not fm:
+        return []
     prov = provenance_of(fm)
+    if prov is None:
+        prov = {"extracted": 0, "inferred": 0}
     reviewed = fm.get("status") == "reviewed"
     is_moc = fm.get("slug") in review_moc_slugs()
     reasons = []
@@ -261,7 +278,6 @@ def domain_corpus_tokens(domain):
     _domain_hyphen_cache.setdefault(domain, set())
     return toks
 
-
 def identifier_guard(query, domain):
     """The QUERY-side anti-fabrication gate (deterministic, model-independent).
 
@@ -301,6 +317,7 @@ def identifier_guard(query, domain):
     return out
 
 
+
 def ungrounded_citations(text, fm):
     """Distinctive tokens asserted as fact in the body but absent from the page's ENTIRE domain
     reference corpus — i.e. nowhere in the ground truth (the fabricated-citation smell). Skips
@@ -322,6 +339,23 @@ def ungrounded_citations(text, fm):
     return bad
 
 
+# ---- H1 out-of-coverage banner check (filed questions) ----------------------------------------
+# A filed `type: question` page can DECLARE its tier (`question_tier:`), but the Confidence gate
+# (CLAUDE.md, Operation: QUERY) is a reader-facing contract — the banner text itself, not just the
+# frontmatter tag, must reach whoever reads the page body without re-deriving the gate. This checks
+# the OUTPUT, not just the input: a `question_tier` outside the domain's `tiers-covered:` must be
+# accompanied by an H1 banner line in the body. Lenient on markdown decoration (blockquote `> ⚠️` or
+# heading `# ⚠️` are both used in the wiki today) — strict on content (must mention "coverage").
+_BANNER_LINE_RE = re.compile(r"^[#>\s]*⚠️")
+
+
+def has_out_of_coverage_banner(text):
+    for line in _strip_fm_body(text).splitlines():
+        if _BANNER_LINE_RE.match(line) and "coverage" in line.lower():
+            return True
+    return False
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--strict", action="store_true")
@@ -340,6 +374,13 @@ def main():
     except Exception:  # noqa: BLE001
         tagmod, vocab, synonyms = None, set(), {}
         declared_domains = set()
+
+    # tiers-covered per domain (taxonomy.md), for the H1 filed-question banner check below
+    try:
+        from wikikb.quality import coverage as covmod
+        tiers_covered = covmod.load_tiers_covered()
+    except Exception:  # noqa: BLE001
+        tiers_covered = {}
 
     pages = {}
     for d, slug, path in page_files():
@@ -416,20 +457,22 @@ def main():
         # (ungrounded) and H3 reviewed AND inferred>=extracted (incoherent self-review).
         # `status` is ADDITIVE-ONLY — `reviewed` can NEVER suppress H2. The gate only
         # FLAGS; fixing a flagged page is a separate content pass, never an auto-edit.
+        # NOTE: prov is None (no provenance keys at all) is NOT a reason to skip the gate —
+        # page_gate_verdict() itself treats that as extracted==0 (H2 fires); the "missing
+        # provenance" warning below is a SEPARATE, softer signal and fires alongside it.
         prov = provenance_of(fm)
         reviewed = fm.get("status") == "reviewed"
         if prov is None:
             warnings.append(f"{rel}: no provenance (provenance_extracted/inferred/ambiguous)")
-        else:
-            for reason in page_gate_verdict(fm):
-                errors.append(f"{rel}: provenance gate — {reason}")
-            # soft drift (NOT a gate fail): grounded but synthesis-leaning, not reviewed
-            if isinstance(prov, dict):
-                ext, inf = prov.get("extracted", 0), prov.get("inferred", 0)
-                if not reviewed and ext > 0 and inf >= ext:
-                    warnings.append(f"{rel}: provenance drifts inferred>=extracted ({inf}>={ext}) — verify vs raw layer")
-            elif isinstance(prov, str) and prov in ("needs-review", "unknown") and not reviewed:
-                warnings.append(f"{rel}: provenance: {prov} (assign real per-claim provenance)")
+        for reason in page_gate_verdict(fm):
+            errors.append(f"{rel}: provenance gate — {reason}")
+        # soft drift (NOT a gate fail): grounded but synthesis-leaning, not reviewed
+        if isinstance(prov, dict):
+            ext, inf = prov.get("extracted", 0), prov.get("inferred", 0)
+            if not reviewed and ext > 0 and inf >= ext:
+                warnings.append(f"{rel}: provenance drifts inferred>=extracted ({inf}>={ext}) — verify vs raw layer")
+        elif isinstance(prov, str) and prov in ("needs-review", "unknown") and not reviewed:
+            warnings.append(f"{rel}: provenance: {prov} (assign real per-claim provenance)")
 
         # CITATION-GROUNDING gate — distinctive claims absent from every cited source. A `reviewed`
         # page asserting an ungrounded env var / CLI flag is a fabricated/misattributed citation: a
@@ -444,6 +487,18 @@ def main():
                     errors.append(msg)
                 else:
                     warnings.append(msg + "; verify or tag (inferred)")
+
+        # H1 OUT-OF-COVERAGE BANNER — a filed question (CLAUDE.md, Operation: LINT). A
+        # `question_tier` outside the routed domain's `tiers-covered:` means the answer rests on
+        # synthesis over an un-ingested tier (H1) — the reader-facing banner is mandatory, not
+        # optional, regardless of `status`.
+        if fm.get("type") == "question":
+            qtier = unquote(fm.get("question_tier", ""))
+            if qtier in ("support-kb", "scenarios"):
+                covered = tiers_covered.get(dom) or []
+                if qtier not in covered and not has_out_of_coverage_banner(text):
+                    errors.append(f"{rel}: question_tier '{qtier}' not in domain `{dom}`'s "
+                                  f"tiers-covered {covered} — missing H1 out-of-coverage banner")
 
         # tag checks (Pass 2 — validated against _meta/taxonomy.md)
         if tagmod is not None:

@@ -65,8 +65,10 @@ regenerable from a harvest; the synthesis is downstream of it.
 > `wiki/_meta/`. Run a tool with the dispatcher **`python3 -m wikikb <tool> …`** (e.g. `python3 -m wikikb
 > kb --domain keycloak search "…"`) **from `wiki/_meta/`** (or anywhere with `PYTHONPATH=<repo>/wiki/_meta`).
 > The dispatcher keeps the CLI stable regardless of which subpackage a tool lives in; the direct form
-> `python3 -m wikikb.<group>.<tool>` (e.g. `wikikb.retrieval.kb`) also works. Run the tests with
-> `python3 wiki/_meta/tests/selftest.py`. No `pip install` is needed — the air-gap "copy-and-run" model
+> `python3 -m wikikb.<group>.<tool>` (e.g. `wikikb.retrieval.kb`) also works. After any batch of page
+> writes, **`python3 -m wikikb build`** runs the whole regen chain in one verb (tags normalize/backfill
+> → crosslink --apply → index → tkg ingest → lint) so the routing index can't silently go stale. Run
+> the tests with `python3 wiki/_meta/tests/selftest.py`. No `pip install` is needed — the air-gap "copy-and-run" model
 > is preserved (`pip install -e .` from `wiki/_meta/` is an OPTIONAL convenience that adds `wikikb-<tool>`
 > console commands).
 
@@ -105,6 +107,7 @@ symptoms:            # OPTIONAL — only on failure-mode / troubleshooting pages
   - "ISPN000541.*dns_query"      #   signatures (error codes, log substrings, metric conditions).
   - "CrashLoopBackOff"           #   The SRE agent's lookup surface + the future embedding target.
 aliases: [alt name, acronym]      # OPTIONAL — alternate names for dedup / search (Obsidian-native)
+question_tier: conceptual | support-kb | scenarios   # OPTIONAL, type:question only — the Confidence gate's H1 tier classification for this filed question (CLAUDE.md, Operation: QUERY); lint.py errors if the tier isn't in the domain's tiers-covered and the body has no H1 banner line
 # tags: [federation, ldap]      # Pass 2 — controlled vocab from _meta/taxonomy.md (optional until then)
 status: stub | draft | reviewed
 updated: 2026-06-16             # ISO date; today is provided in context
@@ -424,6 +427,106 @@ silence the banner** — fix the *coverage* (ingest the missing tier via the `_r
 path → INGEST); the banner clears because its cause did. Build the mechanism; let the
 page be its first catch.
 
+### Query answering protocol (mandatory for every wiki-query answer)
+
+This per-answer contract applies to **every** question answered through the QUERY
+operation / `wiki-query` skill, regardless of phrasing or model confidence. It extends
+(never replaces) the two-group References contract, the anti-fabrication rules, and the
+Confidence gate above.
+
+1. **Search first, never complete from memory.** Even when the answer seems obvious,
+   grep the reference tier and read the relevant config/migration/deprecated notes
+   before writing anything. If the term/command/variable in question doesn't appear
+   anywhere in the corpus, **"it doesn't exist" is a valid and complete answer** — not
+   a reason to guess.
+2. **Derive the reasoning, don't stop at a single fact.** If the answer is "X doesn't
+   exist" or "X behaves this way," explain *why* — naming convention, a relevant
+   deprecated-file entry, a migration-changes note. An answer without structural
+   justification is a confident-sounding guess.
+3. **Distinguish what was asked from the actual correct approach.** If the question
+   embeds a false premise (a non-existent env var, a removed flag, outdated syntax),
+   don't just say "that doesn't work" — give the actual correct way to achieve what
+   the user was likely trying to do.
+4. **Cite at line granularity, not document granularity.** Every factual claim gets an
+   exact citation (`filename.md:XXX-YYY`), never a vague "per the docs." If sources
+   conflict or differ by version, state both with their respective versions. (The
+   answer still ends with the two-group References section — line cites are in-body,
+   References is the roll-up.)
+5. **Tag provenance explicitly on every claim** — `extracted` (directly quoted from a
+   source) vs `(inferred)` (your own derivation from multiple sources/principles, not
+   a direct quote — the same inline tag defined under "Per-claim provenance"). Any
+   inferred claim must be flagged in the chat summary as a reasonable inference, not
+   confirmed fact, so the user can request further verification if it's load-bearing.
+6. **File the answer back as a `questions/<slug>.md` page** (not just a chat reply),
+   with full frontmatter: title, slug, summary, sources, provenance counts,
+   `question_tier:`, `status:` (**default `draft`** — only promote to `reviewed` after
+   independent verification; the gate's filing rules above still bind), and `updated:`.
+   Link relevant existing pages with `[[slug]]`.
+7. **End with a short chat summary**: the answer in 1–2 lines, where the page was
+   filed, and which citations support it — so the user doesn't need to open the file
+   to know if it's trustworthy.
+
+If the search genuinely yields no clear answer after real effort, say so explicitly
+("not found in corpus — here's my best-effort hypothesis and why") rather than
+presenting a guess as settled fact.
+
+**Scope: this protocol is domain-agnostic.** It binds for EVERY domain declared in
+`_meta/taxonomy.md` (keycloak, openshift/kubernetes, active-directory, cisco-ios-xe, and
+any domain added later via ADD DOMAIN). A query is never exempt because its domain has a
+sibling skill, its corpus lives in a different `reference/<domain>/` tree, or the answer
+"seems general knowledge." If a question touches a wiki domain, the protocol is active.
+
+#### Final self-check (blocking — run before presenting ANY answer as complete)
+
+This is not a suggestion; it is a gate. If any item fails, the answer is NOT final —
+go back and complete the missing step first, then respond.
+
+- [ ] Did I file a question page under `wiki/questions/` with full frontmatter
+      (title, slug, summary, sources, provenance counts, `status: draft`, date)?
+      If not, do it now before responding.
+- [ ] Does every distinct factual claim in my answer have its OWN citation with a
+      specific line range — not one broad range covering multiple claims?
+- [ ] Did I tag each claim as extracted or `(inferred)`, and did I flag inferred
+      claims explicitly in the chat summary (not just in the filed page)?
+- [ ] Did I check whether the official/vendor documentation contains any explicit
+      warning, caveat, or "don't do this" note related to the exact
+      configuration/command in the question — not just the mechanical behavior, but
+      the surrounding guidance? If the corpus has a warnings/best-practices/caveats
+      section for this topic, it must be checked and surfaced if relevant.
+- [ ] If any of the above is not satisfied, do NOT present the answer as final —
+      go back and complete the missing step first.
+
+**The answer-producing layer owns this gate (multi-skill / subagent cases).** When a
+question matches several skills at once, or the research is delegated to a subagent
+(Explore/general-purpose dispatch), the protocol is NOT discharged by a sub-step having
+touched the wiki — **whichever layer writes the user-facing answer runs the Final
+self-check.** Two binding rules:
+- **Research subagents return protocol-grade findings**: instruct them to carry
+  per-claim `file.md:line` citations and extracted/`(inferred)` tags in their returned
+  text.
+- **Synthesis preserves, never compresses**: the final synthesis must keep the
+  subagent's line-level citations and provenance tags claim-by-claim — compressing
+  granular citations to file-level or dropping tags is a protocol violation even when
+  the underlying research was correct.
+
+### Validation independence — standing rule
+
+Adopted 2026-07-05 after the independent audit. These are process constraints, not
+one-time fixes:
+- **No same-family adversarial pass counts as independent.** The adversarial
+  reviewer must not be the implementer's model family; where a different family is
+  unavailable (air-gapped box: local Ollama models, or a human), the pass must be
+  labeled "same-family — NOT independent" in any sign-off it feeds.
+- **No self-adjudication.** A contested finding is decided by an uninvolved third
+  party (different family, or a documented human review) — never by the
+  system's architect/builder.
+- **Acceptance banks are blind and frozen.** Questions are authored without
+  visibility into current failure modes, committed to git BEFORE the first run, and
+  never edited after seeing results. Grading runs on the served **answer text** —
+  a case whose answer surface cannot contain the fact (extractive fallback) is
+  UNGRADED, never a pass. No retrieval/serving change may be tuned against the same
+  bank that reports its acceptance number.
+
 ## Operation: LINT
 
 Run `python3 -m wikikb lint` (stdlib only, no network). It reports:
@@ -447,6 +550,10 @@ Run `python3 -m wikikb lint` (stdlib only, no network). It reports:
   var the note never mentions); on a draft page, a warning to verify or tag. Crypto
   cipher-suite constants and CLI flags are excluded (too noisy). Verified:
   `selftest.py` #44.
+- **Missing H1 out-of-coverage banner** — a `type: question` page whose `question_tier:`
+  (`support-kb`/`scenarios`) is not in its domain's `tiers-covered:` (`_meta/taxonomy.md`) but
+  whose body has no `⚠️ ...coverage...` line — a hard **ERROR**: the reader-facing banner is
+  mandatory, not just the frontmatter tag.
 - **Stale stubs** — pages still `status: stub`.
 
 Add `--status` for the **audit / wiki-status** report (folds in the delta
@@ -455,6 +562,23 @@ manifest — see Operation: STATUS). `_meta/` and `_meta/.manifest.json` are
 
 Periodically (and after a batch ingest), lint and resolve: write wanted pages,
 link orphans from `index.md`, fill stubs, reconcile contradictions.
+
+## Operation: VERIFY (self-healing — the wrong-cached-number net)
+
+Run `python3 -m wikikb verify [--domain D | --page <slug>]` (stdlib, no network; also the last step
+of `wikikb build`, where a MISMATCH fails the build). For every numeric claim on a synthesis page
+(number + unit/rate in prose; `(inferred)`/`(ambiguous)`/`(upstream)`/`(scenario premise)`/web-cited
+lines and `question_tier: scenarios` incident pages are out of scope by design), it binds the claim's
+local ±5-word context to lines of the page's cited `kb:` notes and reports:
+- **VERIFIED** — a plausibly-bound source line carries the same number (lenient binding: confirmations
+  must not lose to a rarity bar).
+- **MISMATCH** (ERROR, exit 2) — distinctively-bound source lines carry a different number. This is
+  the 2026-07-05 sizing-incident class (a cached page served 120 client-credentials/s per vCPU against
+  a note saying 200 — which VERIFY then revealed to be a real 26.0-vs-26.2+ version contradiction).
+- **UNGROUNDED** (warn) — no source line binds; tag the claim `(inferred)` or add the grounding source.
+**Correction workflow:** read the quoted source line → fix the page against the source (version-
+attribute if sources disagree, per Contradictions/caveats) → bump `updated:` → `python3 -m wikikb
+build`. The incident fixture (`_meta/eval/fixtures/verify-sizing-incident.md`) keeps the class caught.
 
 ## Operation: STATUS (audit)
 
@@ -473,6 +597,44 @@ The scripts live under `wiki/_meta/wikikb/` (stdlib-only, air-gapped): `lint.py`
 `.skills/<op>/SKILL.md` packages and the `.opencode/command/<op>.md` runtime
 commands are **thin pointers back here** — keep the behavior described here, not
 duplicated there, so they can't drift.
+
+### Serving the wiki to agents
+
+`python3 -m wikikb serve [--port 8642] [--bind 127.0.0.1]` runs a stateless, stdlib-only
+JSON API (`wikikb/serve/serve.py`) over the same tools this file documents, so an SRE
+agent can hit the wiki over HTTP instead of shelling out per lookup: `GET /health`,
+`/route?q=`, `/search?domain=&q=`, `/ask?q=&domain=`, `/page/<slug>`, `/expand?domain=&q=`.
+Binds loopback (`127.0.0.1`) by default; binding a real interface is the operator's
+explicit `--bind` choice, not the tool's default.
+
+### Serving the wiki over MCP
+
+`python3 -m wikikb mcp` runs an MCP (Model Context Protocol) server over stdio
+(`wikikb/mcp/mcp.py`, newline-delimited JSON-RPC 2.0, pure stdlib, no sockets) so any MCP
+host can call the wiki as tools instead of shelling out or speaking HTTP. Register it with:
+`claude mcp add wikikb -- python3 -m wikikb mcp` (cwd `wiki/_meta/`, or set `PYTHONPATH`).
+Exposes four tools: `ask` (gated, cited answer — same shape as `ask --json`), `search`
+(top-k reference-note hits for a domain), `route` (domain routing), `read_page` (a wiki
+page's frontmatter + body by slug).
+
+### Operational lessons (this machine) — inherited by every session
+- **Max 3 concurrent subagents.** Higher concurrency caused agent stalls/crashes twice
+  (2026-07-04/05: a 7-agent validation wave lost 5 of 6 agents). Run validation and
+  implementation in waves of ≤3; resume a stalled agent via its transcript before rerunning.
+- **Dense retrieval needs `.venv-embed`'s interpreter.** Plain `python3` degrades to lexical-only
+  by design (lazy import). For hybrid search / dense-assisted `ask`, run under
+  `_meta/.venv-embed/bin/python`.
+- **Subagent team** lives in `.claude/agents/` (wiki-implementer, sre-validator,
+  adversarial-reviewer, researcher). Claude Code hot-reloads agent files in WATCHED directories,
+  but a `.claude/agents/` directory CREATED mid-session is not watched — the first session after
+  creating it must be restarted for the team to load by name (verified against the subagents doc,
+  2026-07-05). In-session workaround: dispatch `general-purpose` with the agent file injected as
+  the system prompt + the matching `model:`.
+- **`llm.config.yaml` gotcha:** a stale `api_base` (e.g. LM Studio's :1234) makes the gateway
+  silently return None. Env vars override: `WIKI_LLM_API_BASE=http://127.0.0.1:11434` for Ollama.
+- **Sign-off standard (raised 2026-07-05):** structural checks alone never sign off. Required:
+  two consecutive clean adversarial rounds AND a clean live-query bank run
+  (`_meta/eval/livebank.jsonl` through the full serve path with fact verification).
 
 ### Optional online tier (LiteLLM + LangGraph) — OFF by default, local-first
 
@@ -494,6 +656,12 @@ prose ops; the deterministic retrieval/eval/gate tools are unchanged.
   StateGraphs (the gate node imports `lint.gate_banner` — the SAME 5-arm Confidence gate `lint`
   enforces and the probes assert; no re-implementation). `langgraph` is imported inside the factory,
   so the modules import stdlib-safe and the graph is the optional online tier, not the default path.
+  **Table-safe context cap** — the synthesis context (`graph/nodes.py`) is assembled whole-line-only
+  up to `CTX_CHARS`; a cut that would clip a markdown table/list stops at the row boundary and
+  appends an explicit `[…context truncated mid-table — open <note> for the full table]` marker, so a
+  numeric row is never half-served silently (all `ask` surfaces — CLI/serve/mcp/LangGraph — share
+  this assembler). Numeric tables and rate/threshold values must be quoted VERBATIM from the page or
+  note in any host synthesis — table re-generation is where numbers get dropped.
 - **`python3 -m wikikb evaluate --measure-llm`** adds a measured generation tokens/$/latency block (prints `n/a (offline)`
   when the gateway is inactive); `--budget-tokens` / `--budget-usd` fail CI (exit 3) on a cost
   regression. **Recall never runs through the graph or the gateway.**
@@ -510,7 +678,7 @@ prose ops; the deterministic retrieval/eval/gate tools are unchanged.
   `cost_probe.py` is the O(1) cost/budget probe. Network stays disabled by default (`webfetch:false`);
   the only socket the tier may open is to the operator's local loopback model.
 
-### Temporal + cross-domain knowledge graph (`wikikb/tkg/`) — stdlib core, optional Graphiti/Kuzu backend
+### Temporal + cross-domain knowledge graph (`wikikb/tkg/`) — stdlib core, JSON store canonical
 
 A downstream, **regenerable graph view** of the vault for temporal and cross-domain questions. Obsidian
 stays the single source of truth; the graph is compiled from edges that *already exist*. Build it with
@@ -536,15 +704,11 @@ stays the single source of truth; the graph is compiled from edges that *already
   metadata is read **exclusively** from the immutable `reference/<domain>/` note frontmatter (a build-time
   assertion enforces the `reference/`-only path), so a synthesis page's **`updated:` can never become
   `valid_from`** — it is structurally unreachable, not merely discouraged.
-- **Optional Graphiti/Kuzu backend** (`tkg/graphiti_backend.py`, the `online/` precedent): keeps Graphiti's
-  bi-temporal *model* but drops its LLM extraction (R3). Enabled by `WIKI_TKG=kuzu` + `kuzu` installed, it
-  loads the already-built nodes/edges into an **embedded Kuzu** store via **raw `kuzu`** (never constructs a
-  `graphiti_core` client — whose `__init__` instantiates an LLM client — and never calls `add_episode`).
-  Temporal columns are named `valid_at`/`invalid_at` (Graphiti-schema-compatible). Lazy import inside
-  `connect()`; `available()` is `find_spec`-only (no import, no socket); absent/off ⇒ the **JSON store stays
-  canonical** and all five verbs are unaffected. The JSON store answers every query; Kuzu is a write-side
-  accelerator. `selftest.py` asserts importing the tier (incl. the backend) pulls no `kuzu`/`graphiti_core`,
-  the backend is off by default, the build is deterministic, the R4 invariant holds, and all five verbs run.
+- **Graphiti/Kuzu backend: REMOVED 2026-07-05.** The optional embedded-Kuzu write-side accelerator
+  (`tkg/graphiti_backend.py`) was deleted after upstream Kuzu was archived (Oct 2025; Graphiti itself
+  deprecated the backend) — it was verified inert here with zero consumers. The **JSON store under
+  `_meta/tkg/` is canonical** and answers every query; at this graph's size (~600 nodes) a dict scan is
+  milliseconds. `selftest.py` asserts the module stays gone and all five verbs run without it.
 
 ---
 

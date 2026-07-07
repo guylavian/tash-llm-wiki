@@ -148,7 +148,11 @@ def check_case(c, verbose=False):
     elif expect_gate == "out-of-coverage":
         gate_correct = any("out of coverage" in b.lower() for b in banner)
     else:
-        gate_correct = True  # unknown gate type, skip
+        # an unrecognized expect_gate label used to auto-pass silently — that let a typo'd case
+        # rot in the suite forever without ever being checked. Fail loud instead.
+        print("unknown expect_gate label %r (query=%r) — treating as FAILURE" % (expect_gate, query),
+              file=sys.stderr)
+        gate_correct = False
 
     result = {
         "query": query,

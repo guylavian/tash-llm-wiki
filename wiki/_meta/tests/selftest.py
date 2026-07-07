@@ -28,7 +28,7 @@ checks = []
 
 # package tools run via the `python -m wikikb <tool>` DISPATCHER — layout-independent, so the harness
 # need not know which subpackage a tool lives in (and won't break if a tool changes group). eval->evaluate.
-PKG_TOOLS = {"kb", "route", "expand", "embed", "cost", "llm", "lint", "manifest", "index", "crosslink",
+PKG_TOOLS = {"kb", "route", "expand", "embed", "cost", "llm", "lint", "manifest", "index", "crosslink", "livebank", "verify",
              "tags", "backfill", "corpus_to_vault", "docs_to_corpus", "migrate_native", "evaluate", "tkg"}
 
 
@@ -443,27 +443,34 @@ _pd = subprocess.run([PY, "-m", "wikikb", "kb", "domains"], capture_output=True,
 check("`python -m wikikb <tool>` dispatcher runs a tool (CWD-prepend, no install)",
       _pd.returncode == 0 and "keycloak" in _pd.stdout, (_pd.stdout + _pd.stderr)[-160:])
 
-# 38. tkg tier (air-gap): importing it AND the optional Graphiti/Kuzu backend pulls NO third-party
-# (kuzu/graphiti_core), and the backend is OFF by default (WIKI_TKG unset) — `available()` is config-only
-# and must not import kuzu. Mirrors the online/ probe.
+# 38. tkg tier (air-gap): the optional Graphiti/Kuzu backend was DELETED 2026-07-05 (Kuzu archived
+# upstream; the backend was verified inert with zero consumers — see wiki/CLAUDE.md). Assert the module
+# is actually GONE (not just unused), the remaining tkg tier still imports pulling NO third-party
+# (kuzu/graphiti_core), and `tkg graph-status` still runs clean without it — the JSON store is the sole
+# canonical backend now.
 _tkg_err = ""
 try:
     _saved_tkg = os.environ.pop("WIKI_TKG", None)
     import importlib as _il
-    for _m in ("wikikb.tkg", "wikikb.tkg.model", "wikikb.tkg.store", "wikikb.tkg.tkg",
-               "wikikb.tkg.versions", "wikikb.tkg.graphiti_backend"):
+    try:
+        _il.import_module("wikikb.tkg.graphiti_backend")
+        _gone = False
+    except ModuleNotFoundError:
+        _gone = True
+    for _m in ("wikikb.tkg", "wikikb.tkg.model", "wikikb.tkg.store", "wikikb.tkg.tkg", "wikikb.tkg.versions"):
         _il.import_module(_m)
-    from wikikb.tkg import graphiti_backend as _gb
     _no3p = "kuzu" not in sys.modules and "graphiti_core" not in sys.modules
-    _off = (_gb.available() is False) and ("kuzu" not in sys.modules)   # available() must not import kuzu
 except Exception as _e:                                                 # noqa: BLE001
-    _no3p = _off = False
+    _no3p = _gone = False
     _tkg_err = repr(_e)
 finally:
     if _saved_tkg is not None:
         os.environ["WIKI_TKG"] = _saved_tkg
-check("tkg: import (incl. backend) pulls no kuzu/graphiti_core; backend off when WIKI_TKG unset",
-      _no3p and _off, _tkg_err or "third-party imported / backend on by default")
+_rc_gs, _out_gs = run("tkg", "graph-status")
+check("tkg: graphiti_backend module is GONE; remaining tkg tier imports pull no kuzu/graphiti_core; "
+      "graph-status runs clean without it",
+      _gone and _no3p and _rc_gs == 0,
+      _tkg_err or "backend still importable / third-party leaked / graph-status rc=%d" % _rc_gs)
 
 # 39. tkg model: deterministic build + the R4 temporal invariant — structural edges carry NO dates;
 # version-temporal edges carry valid_from + precision and NEVER valid_until (no supersession inference).
@@ -566,6 +573,8 @@ _osh_refdir = os.path.join(WIKI, "reference", "openshift")
 _osh_corpus = os.path.isdir(_osh_refdir) and len([f for f in os.listdir(_osh_refdir)
                                                   if f.endswith(".md")]) > 1000   # corpus-backed
 import importlib as _il
+import importlib.util  # noqa: F401  # `_il.util` needs the submodule imported explicitly (was previously
+                                     # a side effect of graphiti_backend.py, deleted 2026-07-05)
 _adoc_ok = _il.util.find_spec("wikikb.corpus.adoc_to_corpus") is not None
 check("openshift domain: declared + indexed + corpus-backed (>1000 ref notes) + adoc harvester present",
       _osh_decl and _osh_indexed and _osh_src and _osh_corpus and _adoc_ok, "")
@@ -580,6 +589,337 @@ _skip = _lint.ungrounded_citations("# T\n\nSet `FAKE_NONEXISTENT_ENVVAR_XYZ` (in
                                    {"domain": "keycloak"})
 check("citation grounding: flags ungrounded env-var claim, skips (inferred)",
       ("FAKE_NONEXISTENT_ENVVAR_XYZ" in _fab) and not _skip, repr((_fab, _skip)))
+
+# 45. BM25 sanity: build_idf on a tiny 3-rec fixture — a rarer term (df=1) gets a strictly higher idf
+# than a term shared by every doc (df=3), and both stay non-negative (Lucene/ES smoothing never
+# goes negative, unlike the classic Robertson-Sparck-Jones form — see kb.build_idf's docstring).
+from wikikb.retrieval import kb as _kb
+_tiny_recs = [
+    {"title": "alpha widget", "abstract": "", "_body": "alpha widget shared term"},
+    {"title": "beta widget", "abstract": "", "_body": "beta widget shared term"},
+    {"title": "gamma widget", "abstract": "", "_body": "gamma widget shared term"},
+]
+_idf = _kb.build_idf(_tiny_recs)
+_rare, _common = _idf.get("alpha", -1.0), _idf.get("shared", -1.0)
+check("BM25 build_idf: rarer term (df=1) has strictly higher idf than a common term (df=3), both >= 0",
+      _rare > _common >= 0, f"rare(alpha)={_rare} common(shared)={_common}")
+
+# 46. evaluate --min-recall gates exactly like --budget-tokens: exit 3 on an unreachable bar, exit 0
+# on a trivial one. Default run (no --min-recall) is untouched — the gate only fires when passed.
+_rc_hi, _ = run("eval.py", "--min-recall", "99")
+_rc_lo, _ = run("eval.py", "--min-recall", "1")
+check("eval --min-recall gates (exit 3 unreachable / 0 trivial)", _rc_hi == 3 and _rc_lo == 0,
+      f"hi={_rc_hi} lo={_rc_lo}")
+
+# 47. Cite-parse unit (graph/nodes.synthesize_node): monkeypatch wikikb.online.llm IN-PROCESS (no fake
+# litellm needed — synthesize_node calls llm.complete_routed/llm.text_of directly) to cover the 3 real
+# paths offline can't exercise: a real cite parsed out of a bogus one, zero cites -> the model's prose
+# is WITHHELD entirely (2026-07 audit fix — grounding failure used to still serve the fabricated prose
+# behind a banner), and a None answer -> the deterministic extractive fallback.
+from wikikb.graph import nodes as _nodes
+from wikikb.online import llm as _llmmod
+_orig_complete_routed, _orig_text_of = _llmmod.complete_routed, _llmmod.text_of
+try:
+    _cite_cands = [("noteA", "body a"), ("noteB", "body b")]
+    _llmmod.complete_routed = lambda messages, tier=None, **kw: "FAKE_RESP"
+
+    _llmmod.text_of = lambda resp: "X [cite: noteA]. [cite: bogus]"
+    _o1 = _nodes.synthesize_node({"query": "q", "candidates": _cite_cands})
+    _c1 = _o1["used"] == ["noteA"] and _o1["grounding_fail"] is False
+
+    _llmmod.text_of = lambda resp: "no citations anywhere in this answer"
+    _o2 = _nodes.synthesize_node({"query": "q", "candidates": _cite_cands})
+    _c2 = (_o2["used"] == [] and _o2["grounding_fail"] is True
+           and _o2["answer"].startswith("⚠️ Ungrounded synthesis")
+           and "ungrounded synthesis withheld" in _o2["answer"]
+           and "noteA" in _o2["answer"] and "noteB" in _o2["answer"]
+           and "no citations anywhere in this answer" not in _o2["answer"])  # the fabricated prose must NOT reach the reader
+
+    _llmmod.text_of = lambda resp: None
+    _o3 = _nodes.synthesize_node({"query": "q", "candidates": _cite_cands})
+    _c3 = _o3["used"] == ["noteA", "noteB"] and "[extractive fallback" in _o3["answer"]
+finally:
+    _llmmod.complete_routed, _llmmod.text_of = _orig_complete_routed, _orig_text_of
+check("synthesize_node cite-parse: real cite drops bogus id, no-cite -> prose withheld (not served), None -> extractive",
+      _c1 and _c2 and _c3, f"c1={_c1} c2={_c2} c3={_c3}")
+
+# 47b. Loud fallback reason (2026-07 audit fix): when WIKI_LLM is meant to be active but the gateway
+# returns no answer (dead endpoint / empty content), the extractive fallback must say WHY instead of
+# staying silent about it — monkeypatch mode()/load_config()/complete_routed() to simulate "on but dead".
+_orig_mode, _orig_load_config = _llmmod.mode, _llmmod.load_config
+try:
+    _llmmod.complete_routed = lambda messages, tier=None, **kw: None      # gateway: dead endpoint
+    _llmmod.text_of = lambda resp: None
+    _llmmod.mode = lambda: "local"
+    _llmmod.load_config = lambda: {"model": "ollama/qwen2.5:3b", "api_base": "http://127.0.0.1:11434"}
+    _o4 = _nodes.synthesize_node({"query": "q", "candidates": _cite_cands})
+    _c4 = ("[extractive fallback" in _o4["answer"]
+           and "gateway returned no answer: http://127.0.0.1:11434" in _o4["answer"])
+finally:
+    _llmmod.complete_routed, _llmmod.text_of = _orig_complete_routed, _orig_text_of
+    _llmmod.mode, _llmmod.load_config = _orig_mode, _orig_load_config
+check("synthesize_node fallback names the reason when WIKI_LLM is on but the gateway is dead", _c4,
+      _o4.get("answer", "")[:120])
+
+# 48. lint H1-banner helper: has_out_of_coverage_banner is lenient on markdown decoration (blockquote
+# or heading) but strict on content — the ⚠️ line must mention "coverage".
+_plain_body = "# Title\n\nJust a normal paragraph, no banner here.\n"
+_bq_body = "# Title\n\n> ⚠️ **Out of corpus coverage** — verify against the primary source.\n"
+_heading_body = "# ⚠️ Out of corpus coverage\n\nBody text.\n"
+check("lint.has_out_of_coverage_banner: false on plain body, true on blockquote/heading banner",
+      not _lint.has_out_of_coverage_banner(_plain_body) and _lint.has_out_of_coverage_banner(_bq_body)
+      and _lint.has_out_of_coverage_banner(_heading_body), "")
+
+# 49. serve smoke: start `wikikb serve` on an ephemeral loopback port, poll /health up to ~5s, hit
+# /ask, then SIGINT and expect the clean exit serve.main()'s try/except KeyboardInterrupt gives — all
+# within 5s (kill + fail the check on timeout, never hang the suite).
+import json as _json
+import signal as _signal
+import socket as _socket
+import time as _time
+import urllib.request as _urlreq
+
+_srv_sock = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+_srv_sock.bind(("127.0.0.1", 0))
+_srv_port = _srv_sock.getsockname()[1]
+_srv_sock.close()
+_srv = subprocess.Popen([PY, "-m", "wikikb", "serve", "--port", str(_srv_port)],
+                        cwd=META, env=_ENV, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+_health_ok, _ask_ok, _exit_ok, _srv_detail = False, False, False, ""
+try:
+    _health = None
+    _deadline = _time.time() + 5
+    while _time.time() < _deadline and _health is None:
+        try:
+            with _urlreq.urlopen("http://127.0.0.1:%d/health" % _srv_port, timeout=0.5) as _r:
+                _health = _json.loads(_r.read().decode())
+        except Exception:
+            _time.sleep(0.2)
+    _health_ok = bool(_health) and _health.get("status") == "ok" and "keycloak" in (_health.get("domains") or [])
+    if _health_ok:
+        with _urlreq.urlopen(
+                "http://127.0.0.1:%d/ask?q=how+do+I+enable+dpop&domain=keycloak" % _srv_port, timeout=10) as _r:
+            _ask_ok = "answer" in _json.loads(_r.read().decode())
+    _srv.send_signal(_signal.SIGINT)
+    try:
+        _exit_ok = _srv.wait(timeout=5) == 0
+    except subprocess.TimeoutExpired:
+        _srv.kill()
+        _exit_ok = False
+except Exception as _e:                                    # noqa: BLE001
+    _srv_detail = "exception: %r" % _e
+finally:
+    if _srv.poll() is None:
+        _srv.kill()
+_srv_detail = _srv_detail or f"health_ok={_health_ok} ask_ok={_ask_ok} exit_ok={_exit_ok}"
+check("serve smoke: /health ok+keycloak, /ask has answer, SIGINT -> clean exit 0",
+      _health_ok and _ask_ok and _exit_ok, _srv_detail)
+
+# 50. mcp smoke: spawn `wikikb mcp` over stdio pipes and run the JSON-RPC handshake (initialize ->
+# notifications/initialized -> tools/list -> tools/call ask), then close stdin (EOF) and expect the
+# clean exit main()'s plain `for line in sys.stdin` loop gives — all bounded by a select-based
+# readline timeout so a hang never blocks the suite.
+import selectors as _selectors
+
+
+def _mcp_readline(proc, timeout=5):
+    sel = _selectors.DefaultSelector()
+    sel.register(proc.stdout, _selectors.EVENT_READ)
+    ready = sel.select(timeout)
+    sel.close()
+    return proc.stdout.readline() if ready else None
+
+
+_mcp = subprocess.Popen([PY, "-m", "wikikb", "mcp"], cwd=META, env=_ENV,
+                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+_mcp_init_ok, _mcp_list_ok, _mcp_ask_ok, _mcp_exit_ok, _mcp_detail = False, False, False, False, ""
+try:
+    _mcp.stdin.write(_json.dumps({"jsonrpc": "2.0", "id": 1, "method": "initialize"}) + "\n")
+    _mcp.stdin.flush()
+    _resp = _json.loads(_mcp_readline(_mcp) or "{}")
+    _mcp_init_ok = _resp.get("result", {}).get("serverInfo", {}).get("name") == "wikikb"
+
+    _mcp.stdin.write(_json.dumps({"jsonrpc": "2.0", "method": "notifications/initialized"}) + "\n")
+    _mcp.stdin.flush()
+
+    _mcp.stdin.write(_json.dumps({"jsonrpc": "2.0", "id": 2, "method": "tools/list"}) + "\n")
+    _mcp.stdin.flush()
+    _resp = _json.loads(_mcp_readline(_mcp) or "{}")
+    _mcp_list_ok = len(_resp.get("result", {}).get("tools", [])) == 4
+
+    _mcp.stdin.write(_json.dumps({
+        "jsonrpc": "2.0", "id": 3, "method": "tools/call",
+        "params": {"name": "ask", "arguments": {"question": "how do I enable dpop", "domain": "keycloak"}},
+    }) + "\n")
+    _mcp.stdin.flush()
+    _resp = _json.loads(_mcp_readline(_mcp, timeout=10) or "{}")
+    _mcp_text = (_resp.get("result", {}).get("content") or [{}])[0].get("text", "")
+    _mcp_ask_ok = "answer" in _json.loads(_mcp_text or "{}")
+
+    _mcp.stdin.close()
+    try:
+        _mcp_exit_ok = _mcp.wait(timeout=5) == 0
+    except subprocess.TimeoutExpired:
+        _mcp.kill()
+        _mcp_exit_ok = False
+except Exception as _e:                                    # noqa: BLE001
+    _mcp_detail = "exception: %r" % _e
+finally:
+    if _mcp.poll() is None:
+        _mcp.kill()
+_mcp_detail = _mcp_detail or (f"init_ok={_mcp_init_ok} list_ok={_mcp_list_ok} "
+                               f"ask_ok={_mcp_ask_ok} exit_ok={_mcp_exit_ok}")
+check("mcp smoke: initialize serverInfo.name=wikikb, tools/list has 4 tools, ask has answer, "
+      "EOF -> clean exit 0",
+      _mcp_init_ok and _mcp_list_ok and _mcp_ask_ok and _mcp_exit_ok, _mcp_detail)
+
+# 51. Judge tier (advisory-only, Brief J): has_judge() is False by default (no model_judge configured /
+# litellm absent here), and complete_routed(tier='judge') DEGRADES to the single-model complete() path
+# (no crash) when only cheap/hard are configured — the Router has no 'judge' model group to route to,
+# so router.completion(model='judge', ...) raises and is caught, falling back exactly like today. Fake
+# litellm injected in-process (same style as the cite-parse check #47), restored in `finally`.
+import types as _types
+from wikikb.online import llm as _llm
+_calls, _j_err = [], ""
+_has_judge_default = None
+_saved_litellm = sys.modules.get("litellm")
+_saved_load_cfg = _llm.load_config
+_saved_wiki_llm = os.environ.get("WIKI_LLM")
+try:
+    _has_judge_default = _llm.has_judge()      # real env: litellm absent -> False regardless of config
+
+    _fake = _types.ModuleType("litellm")
+    _fake.telemetry = True
+    _fake.suppress_debug_info = False
+    _fake.success_callback = []
+
+    def _fake_completion(**kw):
+        _calls.append(("single", kw))
+        return type("R", (), {"choices": [type("C", (), {"message": type("M", (), {"content": "single"})()})()]})()
+    _fake.completion = _fake_completion
+
+    class _FakeRouter:
+        def __init__(self, model_list, fallbacks, telemetry=False):
+            self.groups = {m["model_name"] for m in model_list}
+
+        def completion(self, model, messages, **kw):
+            _calls.append(("routed", model))
+            if model not in self.groups:
+                raise ValueError("no model group %r" % model)
+            return type("R", (), {"choices": [type("C", (), {
+                "message": type("M", (), {"content": "routed-" + model})()})()]})()
+    _fake.Router = _FakeRouter
+    sys.modules["litellm"] = _fake
+    os.environ["WIKI_LLM"] = "local"
+    _llm.load_config = lambda: {"model": "ollama/x", "model_small": "ollama/s", "model_large": "ollama/l"}
+
+    _resp = _llm.complete_routed([{"role": "user", "content": "x"}], tier="judge")
+    _j_ok = (_resp is not None and _llm.text_of(_resp) == "single"
+             and _calls[:1] == [("routed", "judge")] and len(_calls) == 2 and _calls[1][0] == "single")
+except Exception as _e:                                                    # noqa: BLE001
+    _j_ok = False
+    _j_err = repr(_e)
+finally:
+    _llm.load_config = _saved_load_cfg
+    if _saved_wiki_llm is None:
+        os.environ.pop("WIKI_LLM", None)
+    else:
+        os.environ["WIKI_LLM"] = _saved_wiki_llm
+    if _saved_litellm is None:
+        sys.modules.pop("litellm", None)
+    else:
+        sys.modules["litellm"] = _saved_litellm
+check("llm judge tier: has_judge() False by default; complete_routed(tier='judge') degrades to "
+      "single-model complete() when no judge group exists (no crash)",
+      _has_judge_default is False and _j_ok,
+      _j_err or f"has_judge_default={_has_judge_default} calls={_calls}")
+
+# NN. verify (self-healing core): the 2026-07-05 sizing-incident fixture MUST flag its wrong cached
+# number as MISMATCH (exit 2), and the real, corrected page + full corpus must be MISMATCH-clean
+# (exit 0). This is the wrong-cached-number regression net.
+_vf = subprocess.run([PY, "-m", "wikikb", "verify", "--file",
+                      os.path.join(META, "eval", "fixtures", "verify-sizing-incident.md")],
+                     capture_output=True, text=True, cwd=META, env=_clean_env)
+_vp = subprocess.run([PY, "-m", "wikikb", "verify", "--page", "rhbk-oscp-scaling-resources"],
+                     capture_output=True, text=True, cwd=META, env=_clean_env)
+check("verify: incident fixture -> MISMATCH exit 2; corrected sizing page -> exit 0",
+      _vf.returncode == 2 and "MISMATCH" in _vf.stdout and "120" in _vf.stdout
+      and _vp.returncode == 0,
+      f"fixture rc={_vf.returncode} page rc={_vp.returncode}")
+
+# NN. verify (FIX-A regression, 2026-07-05 audit): a claim hard-wrapped across a markdown line
+# break ("The default" / "`terminationGracePeriodSeconds` is 30 seconds") must still bind — the
+# claim's own physical line carried only ONE shared context token with the source, one short of
+# the >=2 lenient-bind floor, until paragraph-joining (FIX C) restored the full sentence. Must be
+# VERIFIED (grounded, exit 0), never UNGROUNDED/MISMATCH.
+_vg = subprocess.run([PY, "-m", "wikikb", "verify", "--page",
+                      "terminationgraceperiodseconds-zero-sigterm", "--json"],
+                     capture_output=True, text=True, cwd=META, env=_clean_env)
+try:
+    _vg_j = _json.loads(_vg.stdout)
+    _vg_ok = (_vg.returncode == 0 and _vg_j.get("verified", 0) >= 1
+              and _vg_j.get("mismatch", 0) == 0)
+except Exception:                                                          # noqa: BLE001
+    _vg_ok = False
+check("verify: cross-line-wrap claim (terminationGracePeriodSeconds:30s) binds -> VERIFIED",
+      _vg_ok, f"rc={_vg.returncode} out={_vg.stdout[:200]}")
+
+# NN. table-safe context cap: _assemble_context never clips a numeric table row mid-cell — the cut
+# is whole-line only, a clipped run gets the explicit mid-table marker, and the cap holds.
+from wikikb.graph import nodes as _tnodes
+_tbl = ("\n\n| Workload | Req/s | vCPU |\n|---|---|---|\n| Password login | 15 | 1 |\n"
+        "| Client credential grant | 200 | 1 |\n")
+_cut = _tbl.index("| Client credential grant | 200") + len("| Client credential grant | 20")
+_tbody = "x" * (8000 - len("[n1]\n") - _cut) + _tbl
+_tctx = _tnodes._assemble_context([("n1", _tbody)])
+_tt1 = len(_tctx) <= _tnodes.CTX_CHARS
+_tt2 = all(ln.rstrip().endswith("|") for ln in _tctx.splitlines() if ln.startswith("|"))
+_tt3 = "truncated mid-table" in _tctx and "n1" in _tctx.splitlines()[-1]
+_tt4 = _tnodes._assemble_context([("n1", "alpha"), ("n2", "beta")]) == "[n1]\nalpha\n\n[n2]\nbeta"
+check("table-safe ctx: whole-line cut, no partial pipe row, mid-table marker, all-fit byte-identical",
+      _tt1 and _tt2 and _tt3 and _tt4, f"t1={_tt1} t2={_tt2} t3={_tt3} t4={_tt4}")
+
+# NN+1. Fair-share context budgeting (2026-07 audit fix — confirmed failure: a 47k-char rank-1 note
+# starved out every other candidate, including the one holding the correct answer). Each candidate
+# must now get SOME context before any one of them gets all of it.
+_big_line = "context filler line with representative words and numbers 12345.\n"
+_huge_body = _big_line * 700                             # far bigger than any fair share of 8000 chars
+_small_fact = "THE ANSWER IS 42 (distinctive fact that must not be evicted)"
+_fs_ctx = _tnodes._assemble_context([("big1", _huge_body), ("small2", _small_fact)])
+_fs_small_present = "THE ANSWER IS 42" in _fs_ctx and "[small2]" in _fs_ctx
+_fs_big_present = "[big1]" in _fs_ctx and _big_line in _fs_ctx    # rank-1 got SOME real content, not zero
+_fs_capped = len(_fs_ctx) <= _tnodes.CTX_CHARS
+check("fair-share context budgeting: a huge rank-1 note no longer evicts a smaller candidate",
+      _fs_small_present and _fs_big_present and _fs_capped,
+      f"len={len(_fs_ctx)} small={_fs_small_present} big={_fs_big_present}")
+
+# NN. live-query bank (the acceptance gate raised 2026-07-05; regraded 2026-07-05 to grade the ANSWER
+# TEXT ONLY, not answer+candidate-bodies — see wikikb/quality/livebank.py). Run OFFLINE (WIKI_LLM
+# stripped by _clean_env), so every case hits the deterministic extractive fallback and has NO real
+# model prose to grade a fact claim against: every case is expected to land UNGRADED, never PASS/FAIL
+# on facts. What the offline run DOES still assert, unconditionally: exit 0, 100% of GATE checks
+# passing (expect_gate is graded independently of fact-grading and a mismatch is always a FAIL), and
+# zero graded-fact failures (a FAIL row whose gate_ok is True, i.e. the fact-grading path actually
+# failed something — impossible offline unless a case's answer stopped being an extractive/withheld
+# shape). UNGRADED is tolerated and reported explicitly, never counted as a pass.
+from wikikb.quality import livebank as _lbmod
+_lb = subprocess.run([PY, "-m", "wikikb", "livebank", "--ci", "--min-pass", "100", "--json"],
+                     capture_output=True, text=True, cwd=META, env=_clean_env)
+_lb_cases = len(_lbmod.load_cases())
+import json as _json_lb
+try:
+    _lb_json = _json_lb.loads(_lb.stdout)
+    _lb_results = _lb_json.get("results", [])
+except Exception:
+    _lb_json, _lb_results = {}, []
+_lb_gate_ok = all(r.get("gate_ok") for r in _lb_results) if _lb_results else False
+_lb_fact_fails = [r for r in _lb_results if r.get("outcome") == "FAIL" and r.get("gate_ok")]
+_lb_n_ungraded = sum(1 for r in _lb_results if r.get("outcome") == "UNGRADED")
+check("livebank: 24-case bank valid + ci subset offline -> exit 0, 100% GATE pass, zero graded-fact "
+      "failures (UNGRADED tolerated + reported)",
+      _lb.returncode == 0 and _lb_cases == 24 and bool(_lb_results) and _lb_gate_ok and not _lb_fact_fails,
+      f"rc={_lb.returncode} cases={_lb_cases} n_results={len(_lb_results)} gate_ok={_lb_gate_ok} "
+      f"fact_fails={[r['id'] for r in _lb_fact_fails]} ungraded={_lb_n_ungraded}")
 
 failed = [n for n, ok, _ in checks if not ok]
 print(f"\n{len(checks) - len(failed)}/{len(checks)} checks passed")

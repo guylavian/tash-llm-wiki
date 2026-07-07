@@ -43,13 +43,6 @@ class WikiState(TypedDict, total=False):
     k: int
 
 
-def _after_retrieve(state):
-    """Conditional edge: a thin lexical result graph-expands to rescue multi-hop misses; otherwise it
-    proceeds straight to the gate. This branch is the control-flow shape that makes LangGraph (not an
-    LCEL chain) the right primitive."""
-    return "expand" if state.get("thin") else "gate"
-
-
 def build_query_graph(checkpointer=None):
     """Compile the QUERY StateGraph. Raises RuntimeError when langgraph is absent — the graph is the
     OPTIONAL online tier; the default QUERY path is the host runtime over wiki/CLAUDE.md."""
@@ -67,7 +60,10 @@ def build_query_graph(checkpointer=None):
     g.add_node("synthesize", nodes.synthesize_node)
     g.set_entry_point("route")
     g.add_edge("route", "retrieve")
-    g.add_conditional_edges("retrieve", _after_retrieve, {"expand": "expand", "gate": "gate"})
+    # 2026-07-05: expand is now UNCONDITIONAL (was: only when thin) — the live-query bank proved
+    # expand-on-thin loses answers whose notes the query-matched wiki pages directly cite. The
+    # `thin` flag is still computed/threaded for observability.
+    g.add_edge("retrieve", "expand")
     g.add_edge("expand", "gate")
     g.add_edge("gate", "synthesize")
     g.add_edge("synthesize", END)

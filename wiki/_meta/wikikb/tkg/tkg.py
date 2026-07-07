@@ -7,9 +7,10 @@
     python3 -m wikikb tkg provenance-trace <slug>         # what a page rests on / what rests on a source
     python3 -m wikikb tkg temporal-query [--as-of V] [--domain D]
 
-The store is canonical and stdlib-built; the optional Graphiti/Kuzu backend (Phase 5) never enters this
-path. Phase 3 ships structural ingest + cross-domain + provenance; the temporal verbs report honestly
-that the temporal layer (tkg/versions.py) is a Phase 4 feature rather than fabricating dates.
+The JSON store is canonical and stdlib-built. The optional Graphiti/Kuzu backend was removed
+2026-07-05 (Kuzu was archived upstream; the backend was verified inert with zero consumers — see
+wiki/CLAUDE.md). Phase 3 ships structural ingest + cross-domain + provenance; the temporal verbs report
+honestly that the temporal layer (tkg/versions.py) is a Phase 4 feature rather than fabricating dates.
 """
 import argparse
 import sys
@@ -50,15 +51,6 @@ def cmd_ingest(args):
     if not xdom:
         print("  (no cross-domain wikilinks in the vault yet — sparse by content, not a bug; "
               "write [[links]] across domains to populate cross-domain-query)")
-    from wikikb.tkg import graphiti_backend  # lazy: the common path never imports the optional backend
-    if args.backend:
-        if graphiti_backend.available():
-            print("  backend: loaded into Kuzu → %s" % graphiti_backend.load_graph(g))
-        else:
-            print("  backend: --backend requested but " + graphiti_backend.status_str())
-    elif graphiti_backend.available():
-        print("  backend: available (WIKI_TKG=%s) — pass --backend to also load into Kuzu"
-              % graphiti_backend.mode())
 
 
 def cmd_status(args):
@@ -91,8 +83,6 @@ def cmd_status(args):
     for nid, dg in hubs:
         n = g.nodes.get(nid)
         print("    %-44s %3d  [%s]" % (nid, dg, n.label if n else "?"))
-    from wikikb.tkg import graphiti_backend  # lazy: status only; never pulls kuzu unless installed+enabled
-    print("  " + graphiti_backend.status_str())
 
 
 def cmd_cross_domain(args):
@@ -238,8 +228,6 @@ def main():
 
     p = sub.add_parser("ingest", help="build the graph from the vault → JSON store")
     p.add_argument("--stdout", action="store_true", help="dump JSON to stdout instead of writing the store")
-    p.add_argument("--backend", action="store_true",
-                   help="also load into the optional Kuzu backend (requires WIKI_TKG set + kuzu installed)")
     p.set_defaults(func=cmd_ingest)
 
     p = sub.add_parser("graph-status", help="node/edge/domain health snapshot")

@@ -13,10 +13,10 @@ Two design invariants make the tier honest and air-gap-safe:
     from the immutable `reference/<domain>/` note frontmatter — never from a synthesis page (the only
     files that carry `updated:`). `valid_from` is therefore unreachable from edit metadata by construction.
 
-This package exports ONLY stdlib symbols. The optional Graphiti/Kuzu accelerator (Phase 5) lives in
-`tkg.graphiti_backend` and is NEVER imported here or at any module scope — it is lazy-imported inside its
-own `connect()` factory, behind `WIKI_TKG` + `available()`, exactly like the `online/` tier. So a bare
-`import wikikb.tkg` opens no socket and pulls no third-party package.
+This package exports ONLY stdlib symbols and pulls in no third-party package. (The optional Graphiti/Kuzu
+accelerator that once lived in `tkg.graphiti_backend` was removed 2026-07-05 — Kuzu was archived
+upstream and the backend was verified inert with zero consumers; the JSON store is canonical. See
+wiki/CLAUDE.md.)
 """
 from wikikb.tkg.model import WikiNode, WikiEdge, WikiGraph, build_graph
 from wikikb.tkg.store import save_store, load_store

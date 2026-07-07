@@ -20,7 +20,7 @@ USAGE
 Flags for `search`: --kind {doc,solution,article,discussion} --guide <slug>
   --version <v> --family <f> --gated --primary --limit N --full
 """
-import argparse, os, re, sys
+import argparse, math, os, re, sys
 from collections import Counter
 
 from wikikb import paths
@@ -149,29 +149,78 @@ def vkey(v):
         return (0,)
 
 
-def score(r, terms, bt):
+# BM25 (Okapi) over 3 boosted fields (title x6, abstract x3, body x1), collapsed into ONE
+# saturating tf and ONE 6/3/1-weighted doc length so idf + length-norm see a single field rather
+# than re-deriving BM25F's per-field k1/b. K1/B are the standard defaults (Lucene/ES/rank_bm25).
+K1 = 1.5
+B = 0.75
+
+
+def build_idf(recs):
+    """term -> BM25 idf (Lucene/ES smoothing: log((N-df+0.5)/(df+0.5)+1) — always positive, unlike
+    the classic Robertson-Sparck-Jones form which goes negative for terms in >half the corpus).
+    df is the number of recs where the term appears anywhere in title|abstract|body (a per-doc SET
+    union, not a raw occurrence count). Call ONCE per query over the corpus being ranked — NEVER
+    per candidate doc, or this degenerates into the O(docs^2) mistake BM25 exists to avoid."""
+    N = len(recs)
+    df = Counter()
+    for r in recs:
+        terms = (set(toks(r.get("title"))) | set(toks(r.get("abstract"))) | set(toks(body_text(r))))
+        df.update(terms)
+    return {t: math.log((N - n + 0.5) / (n + 0.5) + 1) for t, n in df.items()}
+
+
+def _dl(r):
+    """6/3/1 field-boosted doc length — the SAME weights score()'s tf combination uses, so BM25's
+    length norm (dl/avgdl) compares like units."""
+    return (6 * len(toks(r.get("title"))) + 3 * len(toks(r.get("abstract")))
+            + len(toks(body_text(r))))
+
+
+def avg_dl(recs):
+    """Mean 6/3/1-weighted doc length over recs — BM25's avgdl. Call once per query, same corpus
+    as build_idf()."""
+    return (sum(_dl(r) for r in recs) / len(recs)) if recs else 0.0
+
+
+def score(r, terms, bt, idf=None, dl_stats=None):
+    """BM25-saturated relevance score. `idf`: term->idf from build_idf() over the corpus being
+    searched; `dl_stats`: avg_dl() over that same corpus. Both optional — absent `idf` means every
+    term defaults to idf=1.0 (plain saturated tf, no rarity weighting) and absent `dl_stats` means
+    this doc's own length stands in for avgdl (ratio 1 -> no length normalization), so a caller that
+    hasn't been updated to pass corpus stats still gets a sane score instead of a crash."""
     title = (r.get("title") or "").lower()
-    abs   = (r.get("abstract") or "").lower()
-    tc, ac, bc = Counter(toks(title)), Counter(toks(abs)), Counter(toks(bt))
+    abstract = (r.get("abstract") or "").lower()
+    tc, ac, bc = Counter(toks(title)), Counter(toks(abstract)), Counter(toks(bt))
+    idf = idf or {}
+    dl = 6 * sum(tc.values()) + 3 * sum(ac.values()) + sum(bc.values())
+    avgdl = dl_stats if dl_stats else (dl or 1)   # no dl_stats -> dl/avgdl == 1 (length-norm no-op)
     s, hit_terms = 0.0, 0
+    top_term, top_w = None, -1.0
     for t in terms:
-        h = tc.get(t, 0) * 6 + ac.get(t, 0) * 3 + bc.get(t, 0)
-        if h:
+        w = idf.get(t, 1.0)
+        if w > top_w:
+            top_w, top_term = w, t
+        tf = tc.get(t, 0) * 6 + ac.get(t, 0) * 3 + bc.get(t, 0)
+        if tf:
             hit_terms += 1
-        s += h
+            denom = tf + K1 * (1 - B + B * dl / avgdl)
+            s += w * (tf * (K1 + 1)) / denom
     if hit_terms == 0:
         return 0.0
-    if len(terms) >= 2 and hit_terms < max(1, (len(terms) + 1) // 2):
+    # IDF-aware escape hatch: a doc that misses the single most-discriminating query term entirely
+    # is probably an off-topic match padded out by common words (replaces the old raw hit-count
+    # ratio, which couldn't tell "misses the rare disambiguating term" from "misses a stopword").
+    if top_term is not None and not (tc.get(top_term, 0) or ac.get(top_term, 0) or bc.get(top_term, 0)):
         s *= 0.25
     phrase = " ".join(terms)
     if len(terms) >= 2:
         if phrase in title: s += 40
-        elif phrase in abs: s += 15
+        elif phrase in abstract: s += 15
         elif phrase in (bt or "").lower(): s += 8
     if r.get("primary"): s *= 1.30
     if r.get("family") == "rhsso": s *= 0.80
     if r.get("body_status") != "fetched": s *= 0.85
-    s += hit_terms * 2
     return s
 
 
@@ -199,10 +248,79 @@ def ref(r):
     return r.get("documentKind", "?")
 
 
+_ALIAS_CACHE = {}
+
+
+def _parse_bracket_list(raw):
+    """`aliases: [alt name, acronym]` frontmatter value -> ["alt name", "acronym"]. _split() hands
+    us the raw post-colon string with brackets still attached (its parser is single-line-only)."""
+    raw = (raw or "").strip()
+    if raw.startswith("[") and raw.endswith("]"):
+        raw = raw[1:-1]
+    return [x.strip() for x in raw.split(",") if x.strip()]
+
+
+def _load_alias_map(domain):
+    """domain -> [(alias_token_tuple, [canonical title+slug tokens]), ...], built once per process
+    by scanning wiki/{topics,entities}/ frontmatter for `domain:`-matching pages with an
+    `aliases:` list. Cached (pages don't change mid-process; lint's the place to catch stale
+    aliases, not every query)."""
+    if domain in _ALIAS_CACHE:
+        return _ALIAS_CACHE[domain]
+    out = []
+    for d in ("topics", "entities"):
+        full = os.path.join(WIKI, d)
+        if not os.path.isdir(full):
+            continue
+        for fn in sorted(os.listdir(full)):
+            if not fn.endswith(".md"):
+                continue
+            with open(os.path.join(full, fn), encoding="utf-8") as fh:
+                fm, _ = _split(fh.read())
+            if fm.get("domain") != domain or "aliases" not in fm:
+                continue
+            canon = list(dict.fromkeys(toks(fm.get("title") or "") + toks(fn[:-3])))
+            for alias in _parse_bracket_list(fm["aliases"]):
+                atoks = tuple(toks(alias))
+                if atoks:
+                    out.append((atoks, canon))
+    _ALIAS_CACHE[domain] = out
+    return out
+
+
+def expand_query_terms(domain, terms):
+    """Query-side alias expansion: if `terms` contains an alias phrase (contiguous token match)
+    from some page's `aliases:` list in this domain, ADD that page's title+slug tokens — never
+    remove or reorder the original terms. A query with no alias hit comes back as the SAME list
+    object, so it can never regress a query that doesn't touch an alias."""
+    amap = _load_alias_map(domain) if domain else []
+    if not amap:
+        return terms
+    n = len(terms)
+    extra = []
+    for atoks, canon in amap:
+        m = len(atoks)
+        if not m or m > n:
+            continue
+        if any(terms[i:i + m] == list(atoks) for i in range(n - m + 1)):
+            extra.extend(canon)
+    if not extra:
+        return terms
+    out = list(terms)
+    seen = set(out)
+    for t in extra:
+        if t not in seen:
+            out.append(t)
+            seen.add(t)
+    return out
+
+
 def cmd_search(recs, a):
     terms = toks(" ".join(a.query))
     if not terms:
         print("no query terms"); return
+    if a.domain and not a.all_domains:
+        terms = expand_query_terms(a.domain, terms)
     pool = recs
     if a.kind:
         want = KIND.get(a.kind.lower())
@@ -217,10 +335,11 @@ def cmd_search(recs, a):
         pool = [r for r in pool if r.get("primary")]
     if not a.gated:
         pool = [r for r in pool if r.get("body_status") == "fetched"]
+    idf, avgdl = build_idf(pool), avg_dl(pool)   # once per query, over the pool actually ranked
     scored = []
     for r in pool:
         bt = body_text(r)
-        sc = score(r, terms, bt)
+        sc = score(r, terms, bt, idf, avgdl)
         if sc > 0:
             scored.append((sc, r, bt))
     scored.sort(key=lambda x: (-x[0], -vkey(x[1].get("version"))[0] if x[1].get("version") else 0))

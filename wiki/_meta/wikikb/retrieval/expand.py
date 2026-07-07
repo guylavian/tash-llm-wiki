@@ -77,16 +77,25 @@ def load_pages():
 
 
 def rank_pages(domain, query):
-    """Lexical rank of synthesized pages in this domain (reusing kb.score). Returns slugs."""
+    """Lexical rank of synthesized pages in this domain (reusing kb.score/build_idf/avg_dl — pages
+    ARE their own corpus here, so idf/dl stats are computed over just this domain's page texts,
+    not the reference-note corpus kb.py ranks)."""
     terms = kb.toks(query)
     G = load_pages()
-    scored = []
+    pseudos = []
     for slug, p in G.items():
         if p["domain"] != domain:
             continue
         pseudo = {"title": p["title"], "abstract": p["summary"], "body_status": "fetched",
-                  "primary": False, "family": None, "version": None}
-        sc = kb.score(pseudo, terms, p["body"])
+                  "primary": False, "family": None, "version": None, "_body": p["body"]}
+        pseudos.append((slug, pseudo))
+    if not pseudos:
+        return []
+    pool = [ps for _, ps in pseudos]
+    idf, avgdl = kb.build_idf(pool), kb.avg_dl(pool)   # once per query, over this domain's pages
+    scored = []
+    for slug, pseudo in pseudos:
+        sc = kb.score(pseudo, terms, pseudo["_body"], idf, avgdl)
         if sc > 0:
             scored.append((sc, slug))
     scored.sort(key=lambda x: -x[0])
