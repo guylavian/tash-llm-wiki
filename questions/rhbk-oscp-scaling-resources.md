@@ -1,6 +1,7 @@
 ---
 title: How to scale RHBK on OpenShift — StatefulSet resources and PostgreSQL database resources
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: rhbk-oscp-scaling-resources
 summary: "Best-practice resource sizing for RHBK pods (CPU/memory), replica count/HPA, PostgreSQL connection pool, and database instance sizing on OpenShift, based on the RHBK High Availability Guide and Operator documentation."

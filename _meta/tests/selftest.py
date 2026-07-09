@@ -29,7 +29,8 @@ checks = []
 # package tools run via the `python -m wikikb <tool>` DISPATCHER — layout-independent, so the harness
 # need not know which subpackage a tool lives in (and won't break if a tool changes group). eval->evaluate.
 PKG_TOOLS = {"kb", "route", "expand", "embed", "cost", "llm", "lint", "manifest", "index", "crosslink", "livebank", "verify",
-             "tags", "backfill", "corpus_to_vault", "docs_to_corpus", "migrate_native", "evaluate", "tkg"}
+             "tags", "backfill", "corpus_to_vault", "docs_to_corpus", "pdf_to_corpus", "adoc_to_corpus", "migrate_native",
+             "evaluate", "tkg"}
 
 
 def run(name, *args, env=None):
@@ -212,6 +213,20 @@ check("count_tokens degrades to chars/4 heuristic (no tokenizer)",
 # 18. Phase-2 (BF-8/BF-9): the cost behaviour probe (budget gate + defensive response parsing).
 _rc_cp, _out_cp = run("cost_probe.py")
 check("cost_probe passes (budget + defensive parse)", _rc_cp == 0, _out_cp[-160:])
+
+# 18b. Phase-2 (upload trust boundary): the upload probe drives a REAL server over a REAL loopback
+# socket (disabled -> byte-identical 404; enabled -> happy path + traversal/oversize/non-PDF/duplicate
+# rejections), analogue of cost_probe.py above. Cleans up its own probe artifact in a `finally`.
+_rc_up, _out_up = run("upload_probe.py")
+check("upload_probe passes (disabled 404-identical + enabled trust-boundary checklist)",
+      _rc_up == 0, _out_up[-300:])
+
+# 18c. Phase-3 (fabricated-citation class): answer-side identifier grounding — a distinctive
+# identifier asserted in the ANSWER but absent from the cited context is flagged loudly (+
+# ungrounded_identifiers state field), never served silent. Analogue of gate_probe.py.
+_rc_fp, _out_fp = run("fabrication_probe.py")
+check("fabrication_probe passes (answer-side identifier grounding, query/context exemptions)",
+      _rc_fp == 0, _out_fp[-300:])
 
 # 19. Phase-2: llm is stdlib-safe and OFF by default (no litellm installed -> inactive, exit 0).
 _rc_llm, _out_llm = run("llm.py", "--status")
@@ -500,6 +515,26 @@ for _verb in (("ingest", "--stdout"), ("graph-status",), ("cross-domain-query",)
         break
 check("tkg: all five CLI verbs run via `python -m wikikb tkg ...` (exit 0)", _v_ok, _v_bad)
 
+# 40a. tkg ingest idempotence (regression guard): `tkg ingest` writes the JSON store wholesale
+# (store.save_store overwrites, never appends), so two consecutive real CLI ingests must report the
+# SAME node+edge counts — the doubling bug this used to guard against lived only in the REMOVED
+# Kuzu/Graphiti backend (checks #38/#39 already prove build_graph() is deterministic in-memory; this
+# is the cheap CLI-level tripwire over the actual write-to-disk path).
+_rc_i1, _out_i1 = run("tkg", "ingest")
+_rc_i2, _out_i2 = run("tkg", "ingest")
+
+
+def _tkg_counts(out):
+    _n = re.search(r"nodes:\s*(\d+)", out)
+    _e = re.search(r"edges:\s*(\d+)", out)
+    return (int(_n.group(1)) if _n else None, int(_e.group(1)) if _e else None)
+
+
+_counts1, _counts2 = _tkg_counts(_out_i1), _tkg_counts(_out_i2)
+check("tkg ingest idempotence: two consecutive `tkg ingest` runs report identical node+edge counts",
+      _rc_i1 == 0 and _rc_i2 == 0 and _counts1 == _counts2 and None not in _counts1,
+      f"rc1={_rc_i1} rc2={_rc_i2} counts1={_counts1} counts2={_counts2}")
+
 # 40b. tkg supersession (rule R3, deterministic): _successor_slug picks the same-family strictly-newer
 # candidate under a url_tail (a primary that lags a newer harvest is flagged), returns None for the newest,
 # ignores a different family, and every Source node carries the superseded_by attr (None ⇒ current).
@@ -578,6 +613,37 @@ import importlib.util  # noqa: F401  # `_il.util` needs the submodule imported e
 _adoc_ok = _il.util.find_spec("wikikb.corpus.adoc_to_corpus") is not None
 check("openshift domain: declared + indexed + corpus-backed (>1000 ref notes) + adoc harvester present",
       _osh_decl and _osh_indexed and _osh_src and _osh_corpus and _adoc_ok, "")
+
+# 43b. pdf_to_corpus harvester: pure-stdlib path (.txt wins over .pdf; image-only PDFs are a LOUD
+# skip, never an empty record), record matches the corpus_to_vault contract, page markers survive,
+# and the emitted url tail round-trips as a resolvable kb: crosslink token.
+import tempfile as _tf
+from wikikb.corpus import pdf_to_corpus as _p2c, corpus_to_vault as _c2v
+from wikikb.build import crosslink as _cx
+with _tf.TemporaryDirectory() as _td:
+    open(os.path.join(_td, "guide.txt"), "w").write("Guide Title Line\nbody one\fpage two body")
+    open(os.path.join(_td, "guide.pdf"), "wb").write(b"%PDF-1.4 garbage")   # .txt must win
+    open(os.path.join(_td, "scan.pdf"), "wb").write(b"%PDF-1.4 garbage")    # must be skipped loudly
+    _recs, _bodies, _skipped, _methods = _p2c.build(_td, "pdfx", "pdf://pdfx", "pdfx", "1", None, "doc", 0)
+    _r = _recs[0] if _recs else {}
+    _contract = all(k in _r for k in ("title", "url", "family", "documentKind", "abstract",
+                                      "body_status", "body_file")) and _r.get("body_status") == "fetched"
+    _body = _bodies.get(_r.get("body_file"), "")
+    _markers = "<!-- p.1 -->" in _body and "<!-- p.2 -->" in _body
+    with _tf.TemporaryDirectory() as _ref:
+        os.makedirs(os.path.join(_ref, "pdfx"))
+        _obt, _c2v.body_text = _c2v.body_text, lambda d, r: _bodies[r["body_file"]]
+        open(os.path.join(_ref, "pdfx", "pdfx-1-guide.md"), "w").write(
+            _c2v.render_note("pdfx", _r, "pdfx-1-guide"))
+        _c2v.body_text = _obt
+        _oref, _cx.REF = _cx.REF, _ref
+        _hit = _cx.resolve("kb:guide", "pdfx", _cx.build_ref_index())
+        _cx.REF = _oref
+    check("pdf_to_corpus: .txt precedence + loud skip + contract + page markers + kb: token resolves",
+          len(_recs) == 1 and _methods.get("guide") == "txt" and len(_skipped) == 1
+          and _skipped[0][0] == "scan" and _contract and _markers
+          and bool(_hit) and _hit["slug"] == "pdfx-1-guide",
+          f"recs={len(_recs)} methods={_methods} skipped={_skipped} hit={_hit}")
 
 # 44. Citation-grounding gate: a distinctive env-var-shaped claim absent from the domain corpus is
 # flagged (the SSO_HTTPS_CIPHER_SUITES fabrication class), and a claim tagged (inferred) is skipped.

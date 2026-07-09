@@ -1,6 +1,7 @@
 ---
 title: Mapping RH-SSO 7.6 standalone.xml to RHBK kc.sh options
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: standalone-xml-to-kc-sh-mapping
 summary: How each JBoss EAP standalone.xml subsystem (datasource, TLS, cache, hostname, truststore, vault, JVM) maps to the equivalent RHBK kc.sh --option.

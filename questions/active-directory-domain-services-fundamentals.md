@@ -1,6 +1,7 @@
 ---
 title: What is Active Directory Domain Services and what are its fundamental concepts?
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: active-directory-domain-services-fundamentals
 summary: "AD DS is Microsoft's directory service — a hierarchical, multi-master-replicated store of users, computers, and policy, hard-wired to DNS for locating DCs and to Kerberos/NTLM for authentication. Its fundamental concepts are: forest/domain/OU hierarchy, multi-master replication with five FSMO single-master roles, the security principal model (users/computers/groups with SIDs), Group Policy, DNS integration, and site topology for replication efficiency."

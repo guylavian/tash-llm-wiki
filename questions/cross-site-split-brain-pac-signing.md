@@ -1,6 +1,7 @@
 ---
 title: "Two DCs in different sites — split-brain replication delta + PAC signing errors: what happened and fix order"
 type: question
+question_tier: scenarios
 domain: active-directory
 slug: cross-site-split-brain-pac-signing
 summary: After an inter-site network partition (split-brain), two AD Domain Controllers diverged. When the network recovered, the replication delta produces Kerberos PAC signing errors because the divergent directory state causes PAC validation failures. Fix replication first — the PAC errors are a downstream symptom of inconsistent group/key state.
@@ -28,6 +29,8 @@ updated: 2026-07-02
 ---
 
 # Two DCs in different sites — split-brain replication delta + PAC signing errors
+
+> ⚠️ Out of corpus coverage — `active-directory` holds `conceptual` only; this is a `scenarios` question and that tier is not ingested; verify against the primary source.
 
 **After an inter-site network partition, two AD Domain Controllers independently accepted writes, producing divergent directory state. When the link came back, the replication delta causes Kerberos PAC (Privilege Attribute Certificate) signing errors because the group membership and security-identifier state the PAC encodes has not yet converged. Fix replication first — the PAC errors resolve as a downstream consequence.**
 

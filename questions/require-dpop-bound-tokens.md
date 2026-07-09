@@ -1,6 +1,7 @@
 ---
 title: How to require DPoP-bound tokens for a client in RHBK
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: require-dpop-bound-tokens
 summary: "Enable the 'Require DPoP bound tokens' switch under Capability config in the Admin Console, or use the dpop-bind-enforcer client policy executor for bulk/advanced enforcement; DPoP is supported (not preview) as of RHBK 26.4+."

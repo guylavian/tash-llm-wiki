@@ -1,6 +1,7 @@
 ---
 title: What does the FAPI 2.0 Security Profile mandate for high-value APIs?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: fapi-20-security-profile-mandates-high-value-apis
 tags: [clients, security]

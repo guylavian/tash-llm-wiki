@@ -1,6 +1,7 @@
 ---
 title: Phantom incident from double-encoded Alertmanager webhook obscures real Keycloak token-endpoint 401 surge (2026-06-25)
 type: question
+question_tier: scenarios
 domain: keycloak
 slug: phantom-incident-from-double-encoded-alertmanager-webhook-ob
 summary: Post-mortem — The network-blocking root cause is an escalating Keycloak token-endpoint failure: POST /realms/{realm}/protocol/{protoco
@@ -15,6 +16,8 @@ updated: 2026-06-25
 ---
 
 # Phantom incident from double-encoded Alertmanager webhook obscures real Keycloak token-endpoint 401 surge (2026-06-25)
+
+> ⚠️ Out of corpus coverage — `keycloak` holds `conceptual, support-kb` only; this is a `scenarios` question and that tier is not ingested; verify against the primary source.
 
 **Root cause.** The network-blocking root cause is an escalating Keycloak token-endpoint failure: POST /realms/{realm}/protocol/{protocol}/token is returning HTTP 401 (315 responses, growing during investigation), denying OAuth2/OIDC token issuance to clients. Services that depend on bearer-token authentication for cross-service network calls are blocked at the authentication layer. This condition was not alerted on because: (1) the Alertmanager webhook receiver has a JSON double-serialization bug that produced a phantom malformed incident (alerts[] empty, payload key is the literal string '{"alerts":[]}' rather than a parsed body), and (2) no PrometheusRule covers a sustained 401 rate on the token endpoint. A third contributing structural gap is that Prometheus has zero network telemetry scrape targets (no SNMP/BGP/node exporters), making all L2/L3 faults invisible to the monitoring stack.
 

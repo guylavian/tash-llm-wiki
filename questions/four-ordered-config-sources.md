@@ -1,6 +1,7 @@
 ---
 title: The four ordered configuration sources for RHBK
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: four-ordered-config-sources
 summary: "RHBK reads options from four sources in descending priority: CLI flags, env vars, config file, KeyStore."

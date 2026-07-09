@@ -1,6 +1,7 @@
 ---
 title: How to redistribute OSPF routes into eBGP on IOS XE
 type: question
+question_tier: support-kb
 domain: cisco-ios-xe
 slug: redistribute-ospf-into-ebgp
 summary: "Redistribute OSPFv2 routes into an eBGP process on Cisco IOS XE — the `redistribute ospf` command under `router bgp`, controlling which routes are injected with a route map, setting the MED, and the key gotchas (metric translation, eBGP next-hop reachability, static default caveat)."
@@ -23,6 +24,8 @@ updated: 2026-07-02
 ---
 
 # How to redistribute OSPF routes into eBGP on IOS XE
+
+> ⚠️ Out of corpus coverage — `cisco-ios-xe` holds `conceptual` only; this is a `support-kb` question and that tier is not ingested; verify against the primary source.
 
 **Configure `redistribute ospf <pid>` under `router bgp <asn>` to inject OSPF-learned routes into the BGP table, optionally filtered and rewritten by a route map — then BGP advertises them to eBGP peers subject to standard BGP export policy.**
 

@@ -20,6 +20,7 @@ TOOLS = {
     "corpus_to_vault": "corpus",
     "docs_to_corpus": "corpus",
     "adoc_to_corpus": "corpus",
+    "pdf_to_corpus": "corpus",
     "migrate_native": "corpus",
     "cost": "online",
     "llm": "online",

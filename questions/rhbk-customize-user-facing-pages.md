@@ -1,6 +1,7 @@
 ---
 title: Customizing the look of RHBK user-facing pages
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: rhbk-customize-user-facing-pages
 summary: "RHBK provides two theme systems — classic Freemarker templates (Login, Email, Welcome pages) and React-based npm packages (Admin Console, Account Console) — extensible via `theme.properties`, override templates, message bundles, and the Theme Selector/Theme Resource SPIs."

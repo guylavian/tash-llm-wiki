@@ -1,6 +1,7 @@
 ---
 title: "Active-Passive site failover with external Data Grid — why users got kicked out and had to re-login"
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: active-passive-failover-sessions-lost
 summary: "In an RHBK Active-Passive multi-site setup with external Data Grid, sessions lost on failover means one of the critical durability layers is missing or misconfigured: the `sessions` cache is NOT cross-site replicated, so session survival depends entirely on DB persistence + synchronous DB replication. The most common causes are (1) `multi-site` feature flag not enabled, (2) volatile sessions (`persistent-user-sessions` disabled), (3) database not synchronously replicated, or (4) a single Data Grid cluster instead of two with Cross-DC."

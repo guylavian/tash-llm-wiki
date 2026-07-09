@@ -1,6 +1,7 @@
 ---
 title: RHBK logs ISPN000541 with dns_query failures on OpenShift
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: rhbk-ispn000541-dns-query-openshift
 summary: "ISPN000541 / 'dns_query can not be null or empty' on OpenShift — almost always from kc.sh bootstrap-admin, not runtime. Fix: use --cache=local for the bootstrap run."

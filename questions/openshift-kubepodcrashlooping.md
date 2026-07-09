@@ -1,6 +1,7 @@
 ---
 title: CrashLoopBackOff: payments-api OOMKilled — memory limit exhausted (2026-06-28)
 type: question
+question_tier: scenarios
 domain: openshift
 slug: openshift-kubepodcrashlooping
 summary: Post-mortem — Container payments-api (namespace: payments, pod: payments-api-7d9c8f5b4-q2xkz) is being killed by the Linux OOM killer 
@@ -16,6 +17,8 @@ updated: 2026-06-28
 ---
 
 # CrashLoopBackOff: payments-api OOMKilled — memory limit exhausted (2026-06-28)
+
+> ⚠️ Out of corpus coverage — `openshift` holds `conceptual` only; this is a `scenarios` question and that tier is not ingested; verify against the primary source.
 
 **Root cause.** Container payments-api (namespace: payments, pod: payments-api-7d9c8f5b4-q2xkz) is being killed by the Linux OOM killer on every startup cycle because its memory working set (~255 MiB) is within 1 MiB of its configured hard memory limit (256 MiB). Kubernetes restarts the container per its restart policy, but the application re-grows to the same footprint and is killed again, producing CrashLoopBackOff with 247 recorded restarts. The memory request (128 MiB) is set at half the limit, so the pod schedules and starts normally — the failure only manifests at runtime when the working set saturates the limit.
 

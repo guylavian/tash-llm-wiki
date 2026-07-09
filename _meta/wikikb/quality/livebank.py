@@ -15,8 +15,10 @@ re-implementation) — and checks:
     reads is the answer, so that is the only thing a fact claim can be checked against).
   - expect_gate: "none" -> banner empty; "gate-note" -> a banner mentions the untiered/partial-coverage
     note (gate_node's "coverage gate not evaluated" line); "out-of-coverage" -> a real H1 banner
-    (lint.gate_banner's "out-of-coverage: ..." line). Matched on the distinguishing phrase rather than
-    the shared "(H1)" suffix so the two banners can't be confused for each other. ALWAYS graded,
+    (lint.gate_banner's "out-of-coverage: ..." line); "provisional" -> a real L-arm banner
+    (lint.gate_banner's "provisional: ..." line — live since 2026-07-09, when page_fm threading made
+    the full 5-arm gate fire on the ask path, not just H1). Matched on the distinguishing phrase rather
+    than the shared "(H1)" suffix so the banners can't be confused for each other. ALWAYS graded,
     fallback-answer or not — a gate mismatch is a FAIL regardless.
 
 Outcome per case is one of PASS / FAIL / UNGRADED:
@@ -94,6 +96,8 @@ def _gate_ok(banner, expect_gate):
         return any("coverage gate not evaluated" in b for b in low)
     if expect_gate == "out-of-coverage":
         return any("out-of-coverage" in b for b in low)
+    if expect_gate == "provisional":
+        return any("provisional" in b for b in low)
     print("unknown expect_gate label %r — treating as FAILURE" % expect_gate, file=sys.stderr)
     return False
 

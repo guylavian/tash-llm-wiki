@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-02",
+  "generated": "2026-07-09",
   "sources": {
     "guide:authorization_services_guide": {
       "first_ingested": "2026-06-17",
@@ -2563,6 +2563,15 @@
         "kubernetes-pod",
         "ocp-scc-root-crashloopbackoff-route-503",
         "openshift-implementation-review"
+      ]
+    },
+    "kb:red_hat_build_of_keycloak_features_and_concepts": {
+      "first_ingested": "2026-07-09",
+      "hash": null,
+      "last_seen": "2026-07-09",
+      "pages": [
+        "keycloak-overview",
+        "what-is-keycloak"
       ]
     },
     "kb:rhbk-26-0-concepts-memory-and-cpu-sizing": {

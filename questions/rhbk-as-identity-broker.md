@@ -1,6 +1,7 @@
 ---
 title: How does RHBK function as an identity broker?
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: rhbk-as-identity-broker
 summary: "RHBK acts as an intermediary between client applications and external identity providers (social, OIDC, SAML). It delegates authentication to the external IdP, validates the response, imports/links the user, and issues its own token — so clients never interact with the external IdP directly."

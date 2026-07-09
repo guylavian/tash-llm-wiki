@@ -1,6 +1,7 @@
 ---
 title: How OpenShift authenticates requests and what pod-admission gates control workloads
 type: question
+question_tier: conceptual
 domain: openshift
 slug: openshift-authentication-pod-admission-gates
 summary: "OpenShift authenticates requests via two distinct paths — human users through the internal OAuth server with a configured identity provider, and in-cluster workloads as ServiceAccounts using bound JWTs — then authorizes via Kubernetes RBAC; two independent pod-admission gates (SCC and Pod Security Admission) control what workloads are allowed to run."

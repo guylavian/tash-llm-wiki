@@ -1,6 +1,7 @@
 ---
 title: "OCP 4.11 → 4.12 master upgrade breaks RHSSO — HAProxy TLS error on re-encrypt route"
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: ocp-411-412-upgrade-rhsso-tls
 summary: "Diagnostic guide (provisional — break-fix tier not in corpus). After an OCP 4.11→4.12 control-plane upgrade the HAProxy router is rebuilt; the RH-SSO 7.6 Operator's default reencrypt Route does a second router→pod TLS handshake that can now fail. Two grounded mechanisms: (a) the router's effective Intermediate TLS profile may change across releases, (b) the 4.12-era router moved toward a RHEL 9 / OpenSSL 3 base that rejects SHA-1-signed certs and legacy renegotiation. Read the exact HAProxy error first — it disambiguates cipher vs cert/CA vs protocol."

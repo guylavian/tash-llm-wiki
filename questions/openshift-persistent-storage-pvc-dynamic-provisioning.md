@@ -1,6 +1,7 @@
 ---
 title: How OpenShift handles persistent storage, PVCs, and dynamic provisioning
 type: question
+question_tier: conceptual
 domain: openshift
 slug: openshift-persistent-storage-pvc-dynamic-provisioning
 summary: "OpenShift uses the standard Kubernetes PV/PVC/StorageClass model unmodified: a PVC requests storage by size/access-mode, a StorageClass drives dynamic provisioning through a CSI driver, and the control plane binds the two — no OpenShift-specific storage API surface exists beyond operational tooling."

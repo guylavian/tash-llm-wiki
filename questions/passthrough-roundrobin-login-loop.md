@@ -1,6 +1,7 @@
 ---
 title: "RHSSO 7.4 passthrough route + roundrobin balance — login loops and 'we never gave you a login page'"
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: passthrough-roundrobin-login-loop
 summary: "RHSSO 7.4 behind an OpenShift passthrough route broke when the route balance annotation was changed from the default source-IP stickiness to roundrobin. Login loops and 'we never gave you a login page' errors appeared intermittently even though Infinispan is configured and replicating. The primary cause is loss of session affinity during the authentication flow: with roundrobin, the browser's form-POST can land on a different pod than the one that served the login page, and that pod's remote Infinispan lookup for the `authenticationSessions` entry may fail under load or JGroups timing issues. This is primarily a route-stickiness problem, not an Infinispan replication failure or an RHSSO clustering defect, though both contribute secondarily."

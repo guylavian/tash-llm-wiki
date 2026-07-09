@@ -1,6 +1,7 @@
 ---
 title: "RH-SSO 7.6 → RHBK 26 — what happens to custom providers/SPIs, rebuild vs. carry over"
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: rhsso-to-rhbk-custom-providers-spis
 summary: "Custom SPI providers always require a recompile+rebuild for RHBK 26 (Jakarta EE 10, consolidated KeycloakSession, removed deps, new JAR-in-providers/ deployment with kc.sh build); the SPI/factory contract and most provider logic carry over unchanged, but EAR/WAR packaging, hot-deploy, the AngularJS Admin/Account console themes, and several APIs do not."

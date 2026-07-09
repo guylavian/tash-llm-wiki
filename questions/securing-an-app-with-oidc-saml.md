@@ -1,6 +1,7 @@
 ---
 title: How do you secure an application using RHBK's OIDC or SAML support?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: securing-an-app-with-oidc-saml
 summary: "Register the app as a *client* in an RHBK realm and have it speak OpenID Connect (preferred for new apps) or SAML 2.0, using the framework's native OIDC/SAML library — not a Keycloak adapter."

@@ -34,11 +34,14 @@ import os
 import re
 
 from wikikb import paths
+from wikikb.build.tags import load_domains
+from wikikb.corpus.pdf_to_corpus import slugify
 META = str(paths.META)
 WIKI = str(paths.WIKI)
 ROOT = str(paths.ROOT)
 REFERENCES = str(paths.REFERENCES)
 MANIFEST = str(paths.MANIFEST)
+CORPORA = os.path.join(ROOT, "corpora")
 
 PAGE_DIRS = ("topics", "entities", "questions")
 FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
@@ -150,6 +153,37 @@ def cmd_record(args):
     print("Recorded %s -> pages: %s" % (tok, ", ".join(entry["pages"]) or "(none)"))
 
 
+def pending_raw_pdfs():
+    """domain -> sorted list of PDF/txt stems dropped in `_sources/<domain>/_raw/pdfs/`
+    that pdf_to_corpus.py hasn't harvested yet (their slugified stem isn't the URL tail
+    of any record in `corpora/<domain>/index.jsonl`). Pure read, no new state — reuses
+    the domain list from taxonomy.md and pdf_to_corpus's own slugify() so "pending"
+    means exactly what pdf_to_corpus would produce."""
+    pending = {}
+    for domain in sorted(load_domains()):
+        pdf_dir = os.path.join(WIKI, "_sources", domain, "_raw", "pdfs")
+        if not os.path.isdir(pdf_dir):
+            continue
+        stems = sorted({os.path.splitext(fn)[0] for fn in os.listdir(pdf_dir)
+                        if fn.lower().endswith((".pdf", ".txt"))})
+        if not stems:
+            continue
+        idx = os.path.join(CORPORA, domain, "index.jsonl")
+        harvested_tails = set()
+        if os.path.isfile(idx):
+            with open(idx, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line:
+                        harvested_tails.add(json.loads(line)["url"].rsplit("/", 1)[-1])
+        missing = [s for s in stems
+                  if not any(t == slugify(s) or t.startswith(slugify(s) + "-p")
+                             for t in harvested_tails)]
+        if missing:
+            pending[domain] = missing
+    return pending
+
+
 def status_lines():
     """Report lines for the audit; reused by lint.py --status."""
     man = load()
@@ -191,6 +225,10 @@ def status_lines():
     block("CHANGED (ref hash drift)", sorted(changed))
     block("GONE (recorded, no longer cited)", gone)
     block("PENDING references (never ingested)", pending_refs)
+    for domain, stems in pending_raw_pdfs().items():
+        lines.append("  PENDING PDFs (%s) (%d): %s — next: python3 -m wikikb pdf_to_corpus "
+                     "--src _sources/%s/_raw/pdfs --domain %s --apply"
+                     % (domain, len(stems), ", ".join(stems), domain, domain))
     lines.append("Note: kb:/guide:/web: are presence-tracked (hash=null); "
                  "ref: change-detection is content-hashed. kb corpus is ~1,840 "
                  "records — 'pending' is tracked for references only.")

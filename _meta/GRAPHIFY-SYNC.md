@@ -57,7 +57,7 @@ graphify cluster-only . --no-label   # communities + GRAPH_REPORT + graph.html
 ```
 
 Auto-run on commits that touch synthesis pages:
-`git config core.hooksPath wiki/_meta/hooks` (installs the `post-commit` hook).
+`git config core.hooksPath _meta/hooks` (installs the `post-commit` hook).
 
 **Never run `graphify update .` on the wiki** — it re-extracts headings and clobbers
 the curated export. `.graphifyignore` excludes raw tiers as a backstop.

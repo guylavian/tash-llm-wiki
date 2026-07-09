@@ -1,6 +1,7 @@
 ---
 title: "OpenShift: CrashLoopBackOff from runAsNonRoot + Route 503 despite Ready 1/1"
 type: question
+question_tier: support-kb
 domain: openshift
 slug: ocp-scc-root-crashloopbackoff-route-503
 summary: "Why a UID-0 image works on vanilla K8s but fails on OpenShift with `container has runAsNonRoot and image will run as root`, how to fix it (three ways ranked by security), and how to debug a 503 from a Route against a pod that shows Ready 1/1."
@@ -26,6 +27,8 @@ updated: 2026-06-28
 ---
 
 # CrashLoopBackOff (runAsNonRoot) + Route 503 on OpenShift — Root Causes and Fixes
+
+> ⚠️ Out of corpus coverage — `openshift` holds `conceptual` only; this is a `support-kb` question and that tier is not ingested; verify against the primary source.
 
 ## Part 1 — Why the image fails on OpenShift but runs on vanilla K8s
 

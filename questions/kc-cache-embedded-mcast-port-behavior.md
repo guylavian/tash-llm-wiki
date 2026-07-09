@@ -1,6 +1,7 @@
 ---
 title: Behavior of KC_CACHE_EMBEDDED_MCAST_PORT with --cache=local
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: kc-cache-embedded-mcast-port-behavior
 summary: "KC_CACHE_EMBEDDED_MCAST_PORT is not a recognized Keycloak env var. It is silently ignored under any cache mode (including --cache=local) — no deprecation warning, no error."

@@ -1,6 +1,7 @@
 ---
 title: What are the primary Active Directory management tools?
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: primary-ad-management-tools
 summary: The four primary AD DS management tools are ADAC (dsac.exe), the ActiveDirectory PowerShell module, GPMC (gpmc.msc), and the classic ADUC (dsa.msc) snap-in.

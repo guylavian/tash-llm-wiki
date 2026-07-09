@@ -1,6 +1,7 @@
 ---
 title: "OAuth/OIDC best practice for an Angular SPA against RHBK — code+PKCE vs BFF, tokens, public-client settings, logout"
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: angular-spa-oidc-best-practice
 summary: "An Angular SPA must use a public client with Authorization Code + PKCE (S256), client authentication OFF, implicit/direct-grant OFF, exact redirect URIs, and logout via end_session_endpoint; tokens should be sender-constrained with DPoP or, for the strongest XSS posture, moved server-side behind a BFF. keycloak-angular (Keycloak-committed) or angular-auth-oidc-client (provider-agnostic) are the library choices."

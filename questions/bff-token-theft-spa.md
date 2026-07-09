@@ -1,6 +1,7 @@
 ---
 title: How does a BFF protect against token theft in SPAs?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: bff-token-theft-spa
 summary: "A Backend-for-Frontend eliminates XSS-based token theft by running the OAuth flow server-side, storing tokens on the server, and exposing only encrypted HttpOnly cookies to the browser."

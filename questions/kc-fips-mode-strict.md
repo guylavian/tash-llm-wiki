@@ -1,6 +1,7 @@
 ---
 title: What does the kc.sh --fips-mode=strict flag do?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: kc-fips-mode-strict
 summary: "--fips-mode=strict enables BCFIPS approved mode (tighter crypto constraints); without it BCFIPS runs in non-approved mode. Mandates BCFKS keystores, ≥2048-bit RSA, ≥14-char passwords, blocks PKCS12/JKS and RSA1_5 JWE."

@@ -1,6 +1,7 @@
 ---
 title: Parallel bulk user import — silent failures (201 returned but user missing)
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: parallel-user-import-silent-failure
 summary: "Running two bulk user import jobs in parallel against the same RHBK 26 realm via the Admin REST API (service account) can silently drop some users — the API returns HTTP 201, but the user is absent afterwards. The root cause is a TOCTOU (Time-of-Check-Time-of-Use) race condition in Keycloak's user uniqueness check, amplified by the local-only user cache and lack of distributed pessimistic locking. Known patterns documented in gated Red Hat KB solutions."

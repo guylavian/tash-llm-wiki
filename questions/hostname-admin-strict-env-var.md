@@ -1,6 +1,7 @@
 ---
 title: KC_HOSTNAME_ADMIN_STRICT environment variable
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: hostname-admin-strict-env-var
 summary: "KC_HOSTNAME_ADMIN_STRICT does not exist in the RHBK/Keycloak corpus; the real options are KC_HOSTNAME_ADMIN (admin hostname) and --hostname-strict / KC_HOSTNAME_STRICT (global strict mode)."

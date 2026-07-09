@@ -1,6 +1,7 @@
 ---
 title: How are Service Provider Interfaces (SPIs) used to customize RHBK?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: spi-customization-rhbk
 summary: "RHBK is customized by implementing SPIs: write a `Provider` + `ProviderFactory`, register via `META-INF/services/`, JAR goes in `providers/`, then `kc.sh build`. Two provider-type kinds (single vs multiple implementations), plus JavaScript script providers (Technology Preview) for lighter customization."

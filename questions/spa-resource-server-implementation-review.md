@@ -1,6 +1,7 @@
 ---
 title: "Angular SPA + backend resource server on RHBK — best practice & the strongest signals it's built wrong"
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: spa-resource-server-implementation-review
 summary: "Applied instance of the SSO implementation-review lens: what a correct Angular-SPA-plus-resource-server integration against an RHBK realm looks like across both surfaces, and the concrete tickets that betray a wrong build."

@@ -1,6 +1,7 @@
 ---
 title: KeycloakHighServerErrorRate — DB Connection Pool Exhaustion via Slow Queries (2026-06-28)
 type: question
+question_tier: scenarios
 domain: keycloak
 slug: keycloak-keycloakhighservererrorrate
 summary: Post-mortem — The backing PostgreSQL database began returning extremely slow queries (p99 = 9.52 s, ~100× above healthy baseline). Slo
@@ -16,6 +17,8 @@ updated: 2026-06-28
 ---
 
 # KeycloakHighServerErrorRate — DB Connection Pool Exhaustion via Slow Queries (2026-06-28)
+
+> ⚠️ Out of corpus coverage — `keycloak` holds `conceptual, support-kb` only; this is a `scenarios` question and that tier is not ingested; verify against the primary source.
 
 **Root cause.** The backing PostgreSQL database began returning extremely slow queries (p99 = 9.52 s, ~100× above healthy baseline). Slow queries held Agroal JDBC connections for much longer than normal, driving the pool to its hard ceiling of 100 active connections (agroal_active_count=100, agroal_available_count=0). With no free connections, 37 inbound /token threads queued (agroal_awaiting_count=37), each waiting an average of 8,021 ms before timing out. Those timeouts propagated as HTTP 500 responses, producing the observed 10.4% 5xx error rate. The Keycloak JVM (up=1) and CPU (0.6 load avg) were healthy — the fault was entirely in the database layer driving pool starvation.
 

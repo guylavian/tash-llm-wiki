@@ -1,6 +1,7 @@
 ---
 title: Token Exchange V2 in RHBK — impersonation vs delegation, audience/scope semantics, DPoP/revocation pitfalls, and V1 legacy
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: token-exchange-rhbk-detailed
 summary: "Deep dive into RHBK 26.2+ Standard Token Exchange V2: why it implements impersonation (not delegation), how audience and scope combine from the requester-client's perspective (the #1 trap), four operational pitfalls (DPoP-bound subject_token, revocation chain, multi-site token lifespan, public client ban), and which use cases still require legacy V1 + FGAP:v1."

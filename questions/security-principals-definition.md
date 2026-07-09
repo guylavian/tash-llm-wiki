@@ -1,6 +1,7 @@
 ---
 title: What are security principals in Active Directory?
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: security-principals-definition
 summary: A security principal is any entity the OS can authenticate — user, computer, or group — each represented by a unique SID, forming the foundation of Windows access control.

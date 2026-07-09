@@ -1,6 +1,7 @@
 ---
 title: How to deploy and promote domain controllers in an Active Directory forest
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: deploy-promote-domain-controllers
 summary: Two-phase process: install the AD DS role, then promote via Install-ADDSForest (new forest), Install-ADDSDomain (child/tree), Install-ADDSDomainController (replica DC), or staged RODC. Adprep runs automatically; site assignment, DSRM password, and DNS delegation are key prerequisites.

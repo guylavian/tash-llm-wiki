@@ -52,7 +52,7 @@ regenerable from a harvest; the synthesis is downstream of it.
         │   ├── paths.py        #   single home for project paths (WIKI/REF/META/EVAL) — no per-file __file__ math
         │   ├── retrieval/      #   kb · route · expand · embed   (search, routing, graph-expand, optional dense)
         │   ├── build/          #   index · manifest · crosslink · tags · backfill   (wiki build & maintenance)
-        │   ├── corpus/         #   corpus_to_vault · docs_to_corpus · migrate_native   (corpus ingestion/migration)
+        │   ├── corpus/         #   corpus_to_vault · docs_to_corpus · adoc_to_corpus · pdf_to_corpus · migrate_native   (corpus ingestion/migration)
         │   ├── quality/        #   lint (+ Confidence gate) · coverage (tiers-covered/H1) · evaluate (recall+cost scoreboard)
         │   ├── online/         #   cost · llm   (OPTIONAL token/$/latency + local-first LiteLLM gateway)
         │   ├── graph/          #   OPTIONAL LangGraph QUERY/INGEST StateGraphs (nodes/query_graph/ingest_graph)
@@ -653,8 +653,12 @@ prose ops; the deterministic retrieval/eval/gate tools are unchanged.
   to the deterministic/extractive answer. Never opens a socket on import.
 - **`graph/`** — `query_graph.py` / `ingest_graph.py` mechanize QUERY/INGEST as **LangGraph**
   StateGraphs (the gate node imports `lint.gate_banner` — the SAME 5-arm Confidence gate `lint`
-  enforces and the probes assert; no re-implementation). `langgraph` is imported inside the factory,
-  so the modules import stdlib-safe and the graph is the optional online tier, not the default path.
+  enforces and the probes assert; no re-implementation). **Graph by default (2026-07-09):** `ask`
+  (and every surface built on it — serve/mcp/livebank/faithfulness) orchestrates through the
+  compiled StateGraph whenever `langgraph` is installed, and degrades to the same nodes sequenced
+  linearly when it is absent (`ask --graph` = strict mode, fail instead of degrade). `langgraph`
+  is still imported only inside the factory, so the modules import stdlib-safe (air-gap invariant)
+  and offline behavior is byte-identical.
   **Table-safe context cap** — the synthesis context (`graph/nodes.py`) is assembled whole-line-only
   up to `CTX_CHARS`; a cut that would clip a markdown table/list stops at the row boundary and
   appends an explicit `[…context truncated mid-table — open <note> for the full table]` marker, so a

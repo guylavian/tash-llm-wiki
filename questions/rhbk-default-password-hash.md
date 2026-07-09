@@ -1,6 +1,7 @@
 ---
 title: What is RHBK's default password hashing algorithm in 26.x, and how do I change it?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: rhbk-default-password-hash
 summary: Argon2 is the default password hashing algorithm in RHBK 26.x non-FIPS deployments (since 26.0); FIPS deployments default to PBKDF2-SHA512. Change it server-wide with --spi-password-hashing-provider-default.

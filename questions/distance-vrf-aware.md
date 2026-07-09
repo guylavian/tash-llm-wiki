@@ -1,6 +1,7 @@
 ---
 title: What does 'distance vrf-aware' router configuration command do?
 type: question
+question_tier: conceptual
 domain: cisco-ios-xe
 slug: distance-vrf-aware
 summary: "The command 'distance vrf-aware' does not exist in the Cisco IOS-XE codified corpus — it is a fabricated command."

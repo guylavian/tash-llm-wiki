@@ -1,6 +1,7 @@
 ---
 title: How can you manage Keycloak realms declaratively with Terraform?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: terraform-keycloak-realms-declarative
 summary: "The `keycloak/keycloak` Terraform provider manages Keycloak/RHBK realms as code — the `keycloak_realm` resource defines the realm, and ~15 realm-scoped resources cover events, user profile, keystores, client policies, default scopes, required actions, organizations, and workflows."

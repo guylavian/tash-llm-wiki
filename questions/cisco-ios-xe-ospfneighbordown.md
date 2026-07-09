@@ -1,6 +1,7 @@
 ---
 title: OSPF Adjacency Stuck in EXSTART — dist-rtr-1 Gi0/1 to core-1 Gi0/2 (MTU Mismatch)
 type: question
+question_tier: support-kb
 domain: cisco-ios-xe
 slug: cisco-ios-xe-ospfneighbordown
 summary: "Post-mortem of an OSPF adjacency stuck in EXSTART between dist-rtr-1 Gi0/1 (MTU 9000, jumbo) and core-1 Gi0/2 (MTU 1500). The DBD interface-MTU field check on the smaller-MTU side rejects the peer's DBD, so the pair never advances to FULL; fix is to match interface MTU (or apply ip ospf mtu-ignore)."
@@ -19,6 +20,8 @@ updated: 2026-07-02
 ---
 
 # OSPF Adjacency Stuck in EXSTART — dist-rtr-1 Gi0/1 to core-1 Gi0/2 (MTU Mismatch)
+
+> ⚠️ Out of corpus coverage — `cisco-ios-xe` holds `conceptual` only; this is a `support-kb` question and that tier is not ingested; verify against the primary source.
 
 **Root cause.** MTU mismatch between dist-rtr-1 Gi0/1 (9000 bytes / jumbo frames) and core-1 Gi0/2 (1500 bytes / standard). During the OSPF EXSTART/EXCHANGE phase each router advertises its **interface MTU in the DBD (Database Description) packet header**, and the receiver rejects any DBD whose advertised MTU is larger than its own interface MTU. Here core-1 (MTU 1500) receives dist-rtr-1's DBD advertising MTU 9000, rejects it, and never processes it — so the adjacency loops in EXSTART and never advances to FULL (inferred — the DBD interface-MTU field check is standard OSPF/RFC 2328 behavior; it is not spelled out in the ingested IOS XE OSPF note). The fix is to make the interface MTUs match, or disable the check with `ip ospf mtu-ignore` on both ends.
 

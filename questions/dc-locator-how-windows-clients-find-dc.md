@@ -1,6 +1,7 @@
 ---
 title: How do Windows clients locate a suitable domain controller?
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: dc-locator-how-windows-clients-find-dc
 summary: "Windows clients locate a domain controller via the DC Locator algorithm — DNS SRV queries under _msdcs, UDP LDAP pings, site-affinity redirect, and Netlogon cache, with NetBIOS fallback disabled by default in Windows Server 2025."

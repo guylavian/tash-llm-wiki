@@ -1,6 +1,7 @@
 ---
 title: KC-20260625: Active Credential Stuffing Attack on Keycloak Token Endpoint
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: kc-20260625-active-credential-stuffing-attack-on-keycloak-to
 summary: Post-mortem — Active credential stuffing attack targeting POST /realms/{realm}/protocol/{protocol}/token on keycloak:9000. An external

@@ -1,6 +1,7 @@
 ---
 title: How do you turn Keycloak's optional or preview features on or off?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: feature-flags-enable-disable
 summary: Optional/preview/deprecated features are toggled with the build-time `features`/`features-disabled` options; changes require `kc.sh build`.

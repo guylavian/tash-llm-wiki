@@ -1,6 +1,7 @@
 ---
 title: "Active/Passive multi-site RHBK 26 — how sessions stay consistent, and what is lost on failover"
 type: question
+question_tier: scenarios
 domain: keycloak
 slug: active-passive-session-consistency-failover
 summary: "In Active/Passive multi-site RHBK 26, the synchronously-replicated database is the durable source of truth and external Data Grid Cross-DC keeps session caches consistent between sites; a site failover loses only in-flight requests (and incurs up to ~5 min downtime), but a partial replication failure breaks the no-loss guarantee until a manual re-sync."
@@ -22,6 +23,8 @@ updated: 2026-06-17
 ---
 
 # Active/Passive multi-site RHBK 26 — session consistency & failover loss
+
+> ⚠️ Out of corpus coverage — `keycloak` holds `conceptual, support-kb` only; this is a `scenarios` question and that tier is not ingested; verify against the primary source.
 
 **The replicated database is the durable source of truth; external Data Grid
 Cross-DC keeps the session caches consistent between sites synchronously. A clean

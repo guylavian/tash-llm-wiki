@@ -1,6 +1,7 @@
 ---
 title: "FSMO Transfer vs Seize — DC1 מת, איך להחזיר תפקוד, ומתי אפשר להחזיר את המת לחיים"
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: fsmo-transfer-vs-seize-dead-dc-twist
 summary: "ניתוח ארבע-חלקי של FSMO transfer מול seize: ההבחנה המהותית, הסכנה בהחזרת DC מת, דחיפות שחזור תפקידים, והטוויסט — מתי דווקא אפשר להחזיר DC אחרי העברת תפקיד"

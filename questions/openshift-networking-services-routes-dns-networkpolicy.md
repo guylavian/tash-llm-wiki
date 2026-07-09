@@ -1,6 +1,7 @@
 ---
 title: How OpenShift Networking Works — Services, Routes, DNS, and NetworkPolicy
 type: question
+question_tier: conceptual
 domain: openshift
 slug: openshift-networking-services-routes-dns-networkpolicy
 summary: "OpenShift networking has four interdependent layers: Services provide stable virtual IPs over ephemeral pods; Routes (or Ingress) expose those Services externally through the HAProxy router; CoreDNS (managed by the DNS Operator) resolves internal cluster names; and NetworkPolicy enforces opt-in pod-to-pod micro-segmentation over the OVN-Kubernetes overlay."

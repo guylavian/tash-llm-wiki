@@ -6,6 +6,7 @@ calls the EXISTING deterministic tools (kb/route/expand) or the real gate (lint.
 optional local gateway (llm.complete) — none of that logic is re-implemented here (the faithfulness
 invariant, BF-4). Recall-shaped ranking reuses kb.score, exactly as eval.py does.
 """
+import os
 import re
 import sys
 
@@ -128,11 +129,51 @@ def retrieve_node(state):
     return {"candidates": cands, "thin": len(cands) < THIN_K}
 
 
+def _grounded_seeds(seeds):
+    """`expand.expand()`'s top-k=10 lexical page seeds routinely include a page that matched on
+    vocabulary alone but cites NO reference note (`note_sources` empty — most often a domain's broad
+    `<domain>-implementation-review` MOC, whose rule/anti-pattern table lexically overlaps almost any
+    in-domain query). Gating the answer on such a page's OWN provenance would flag it for a claim it
+    contributes NOTHING to (live-tested: it tripped Confidence-gate Provisional on unrelated queries
+    across every domain via livebank). A seed with real note_sources DOES traceably back the served
+    context (its notes feed `candidates` below) so it stays in scope, kept or dropped by its own
+    provenance like any other candidate page."""
+    G = expand.load_pages()
+    return [s for s in seeds if G.get(s, {}).get("note_sources")]
+
+
+def _seed_page_fms(seeds):
+    """Frontmatter dicts for the synthesized (topics/entities/questions) SEED pages `expand.expand()`
+    matched for this query -- i.e. the actual candidate synthesis page(s) the answer draws on. Reuses
+    lint.parse_frontmatter (the SAME parser page_gate_verdict/gate_banner consume; no re-implementation)
+    against the real page file, not expand.load_pages()'s trimmed dict, so back-compat nested
+    `provenance:` blocks are read exactly like lint/gate_page_probe read them (faithfulness, BF-4/BF-10).
+    A seed slug is looked up across expand.PAGE_DIRS; missing files (shouldn't happen -- seeds come
+    from the same page-dir scan) are skipped rather than raising."""
+    fms = []
+    for slug in seeds:
+        for d in expand.PAGE_DIRS:
+            path = os.path.join(expand.WIKI, d, slug + ".md")
+            if os.path.isfile(path):
+                with open(path, encoding="utf-8") as fh:
+                    fm = lint.parse_frontmatter(fh.read())
+                if fm:
+                    fms.append(fm)
+                break
+    return fms
+
+
 def expand_node(state):
-    """expand.graph_notes() -> reference notes reachable 1-hop from the matched synthesized pages.
-    Adds any not already retrieved (the multi-hop entry-point rescue), with their bodies."""
+    """expand.expand() -> the 1-hop neighborhood of the query-matched synthesized SEED pages: their
+    reference notes (the multi-hop entry-point rescue, added to `candidates` if not already retrieved)
+    AND their own frontmatter, threaded into `page_fm` so gate_node's H2/H3/H4/Provisional arms see the
+    REAL candidate page(s) the answer is drawing on instead of the placeholder {} (was: only H1 fired
+    on the live path -- root cause per PLAN-graphify-pdf-upload.md Phase 3 item 1). page_fm is scoped to
+    _grounded_seeds -- seeds that actually cite a reference note -- so a page's presence in `page_fm`
+    always means it concretely stands behind the served context, never a bare lexical coincidence."""
     domain, query = state["domain"], state["query"]
-    notes = expand.graph_notes(domain, query) or set()
+    e = expand.expand(domain, query) or {}
+    notes = e.get("notes_seed") or set()
     have = {cid for cid, _ in state.get("candidates", [])}
     new = sorted(n for n in notes if n not in have)
     bodies = {}
@@ -141,22 +182,34 @@ def expand_node(state):
             if r.get("id") in new:
                 bodies[r.get("id")] = kb.body_text(r)
     extra = [(nid, bodies.get(nid, "")) for nid in new]
-    return {"graph_notes": sorted(notes), "candidates": state.get("candidates", []) + extra}
+    return {"graph_notes": sorted(notes), "candidates": state.get("candidates", []) + extra,
+            "page_fm": _seed_page_fms(_grounded_seeds(e.get("seeds") or []))}
 
 
 def gate_node(state):
     """Apply the FULL Confidence gate via lint.gate_banner — the SAME rule lint enforces and the CI
     probes assert (faithfulness, BF-4). H1 uses the routed domain's tiers-covered. H2/H3/H4/L apply to
-    a candidate PAGE's frontmatter via state['page_fm'] — which the run_query convenience does NOT
-    thread, so in the auto-graph only H1 fires; the page arms run when a host/file-back step supplies
-    page_fm (and they are exercised directly by gate_page_probe + selftest)."""
+    the candidate synthesis PAGE(S)' frontmatter, threaded by expand_node into state['page_fm'] as a
+    LIST of fm dicts — one per query-matched seed page — so H2/H3/H4/Provisional actually fire on the
+    live ask/serve/mcp path (previously only H1 did; PLAN-graphify-pdf-upload.md Phase 3 item 1). A
+    single fm dict is still accepted for back-compat (direct node callers / older tests).
+
+    Multiple pages -> evaluate gate_banner PER page and take the UNION of reasons (order-preserving
+    de-dup): a single clean page must never mask a tripping one (approved decision, not a merge of the
+    fm dicts themselves, which would blur which page actually tripped which arm)."""
     domain = state.get("domain")
     try:
         covered = coverage.load_tiers_covered().get(domain)
     except Exception:
         covered = None
-    banner = lint.gate_banner(state.get("page_fm") or {},
-                              question_tier=state.get("question_tier"), covered=covered)
+    page_fms = state.get("page_fm") or []
+    if isinstance(page_fms, dict):                      # back-compat: a lone fm dict, not a list
+        page_fms = [page_fms] if page_fms else []
+    banner = []
+    for fm in (page_fms or [{}]):                       # no candidate page -> still evaluate H1 alone
+        for reason in lint.gate_banner(fm, question_tier=state.get("question_tier"), covered=covered):
+            if reason not in banner:
+                banner.append(reason)
     # Honesty note (validator defect D8): with no question_tier the H1 arm silently skips, so an
     # untiered break-fix ask against a partially-covered domain returns banner=[] — a false all-clear.
     # Say the gate wasn't evaluated instead of staying silent. Deterministic, never suppresses H arms.
@@ -175,6 +228,8 @@ _GROUNDING_FAIL_BANNER = ("Ungrounded synthesis — the model cited none of the 
                           "treat as inference, verify the References.")
 _VERDICT_RE = re.compile(r"\b(SUPPORTED|PARTIAL|UNSUPPORTED)\b", re.IGNORECASE)
 _JUDGE_ADVISORY_BANNER = "judge (advisory): answer not supported by cited sources"
+_FABRICATION_BANNER = ("Ungrounded identifier(s) in this answer — not found in the retrieved "
+                       "context or the question, verify before relying on them: %s")
 
 
 def _judge_verdict(query, answer, ctx):
@@ -223,7 +278,18 @@ def synthesize_node(state):
     sources has demonstrated it isn't grounded in them — its prose (fabricated commands, wrong version
     claims) is no more trustworthy than a hallucination and must never reach the reader, banner or not.
     On `grounding_fail`, the model's text is discarded entirely and replaced with an explicit
-    withheld-answer line naming the top candidate ids, exactly like the extractive fallback shape."""
+    withheld-answer line naming the top candidate ids, exactly like the extractive fallback shape.
+
+    FABRICATED-CITATION CLASS (PLAN-graphify-pdf-upload.md Phase 3 item 2 — closes the still-open
+    PRODUCTION_READINESS sign-off blocker): grounding_fail only catches zero-citation answers. A model
+    that cites a REAL retrieved note but still invents a distinctive identifier that note never
+    mentions (an ENV/CONST like `SSO_HTTPS_CIPHER_SUITES`, a GUID, a nonexistent flag) slips past it.
+    When the answer cites something real, `lint.ungrounded_against_context` extracts distinctive
+    identifiers from the answer and subtracts anything present in the assembled context or the query
+    itself. Approved granularity: FLAG loudly, never silently rewrite the answer text — any leftover
+    identifiers get a deterministic warning line (style-matched to the other gate banners) AND are
+    returned as `ungrounded_identifiers` so serve/mcp/livebank callers can withhold on their own
+    policy without this node making that call for them."""
     cands = state.get("candidates", [])
     cand_ids = [cid for cid, _ in cands]
     top_ids = ", ".join(cand_ids[:5]) or "(no candidates)"
@@ -243,12 +309,17 @@ def synthesize_node(state):
 
     grounding_fail = False
     judge_verdict = None
+    ungrounded_identifiers = []
     if answer:                                        # a real model answer — parse what it ACTUALLY cited
         cand_set = set(cand_ids)
         parsed = list(dict.fromkeys(_CITE_RE.findall(answer)))   # order-preserving de-dup
         used = [c for c in parsed if c in cand_set]
         if not used:
             grounding_fail = True
+        else:
+            # fabricated-citation check: only meaningful once the answer cites something real —
+            # a zero-citation answer is already withheld below by the existing grounding-fail path.
+            ungrounded_identifiers = lint.ungrounded_against_context(answer, ctx, state["query"])
         if llm.has_judge():                            # advisory only — never touches the gate/used
             judge_verdict = _judge_verdict(state["query"], answer, ctx)
     else:                                             # None (gateway off) OR empty (e.g. a reasoning
@@ -266,6 +337,8 @@ def synthesize_node(state):
     banner = state.get("banner") or []
     if banner:
         prefix += "⚠️ " + " | ".join(banner) + "\n\n"
+    if ungrounded_identifiers:
+        prefix += "⚠️ %s\n\n" % (_FABRICATION_BANNER % ", ".join(ungrounded_identifiers))
     if judge_verdict and judge_verdict.get("verdict") == "UNSUPPORTED":
         prefix += "⚠️ %s\n\n" % _JUDGE_ADVISORY_BANNER
     if grounding_fail:
@@ -275,7 +348,8 @@ def synthesize_node(state):
                   "top sources: %s" % top_ids)
     if prefix:
         answer = prefix + answer
-    out = {"answer": answer, "used": used, "grounding_fail": grounding_fail}
+    out = {"answer": answer, "used": used, "grounding_fail": grounding_fail,
+           "ungrounded_identifiers": ungrounded_identifiers}
     if judge_verdict is not None:
         out["judge_verdict"] = judge_verdict
     return out

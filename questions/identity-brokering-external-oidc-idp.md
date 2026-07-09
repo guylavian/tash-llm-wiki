@@ -1,6 +1,7 @@
 ---
 title: How does identity brokering work with an external OIDC identity provider in RHBK?
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: identity-brokering-external-oidc-idp
 summary: "RHBK acts as an identity broker — it delegates authentication to an external OpenID Connect provider, validates the response, imports/links the user, and then issues its own token to the client application. The client never interacts with the external IdP directly."
@@ -14,7 +15,7 @@ provenance:
   extracted: 18
   inferred: 2
   ambiguous: 0
-tags: [brokering, identity-provider, oidc]
+tags: [brokering, identity-provider, clients]
 status: reviewed
 updated: 2026-06-28
 ---

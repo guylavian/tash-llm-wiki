@@ -1,6 +1,7 @@
 ---
 title: "Logout ו-session lifecycle ב-RHBK 26 באתר Active-Passive — מה באמת מתבטל, ואיפה זה נשבר"
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: logout-session-lifecycle-active-passive
 summary: "ניתוח תלת-חלקי של RP-Initiated Logout, offline/online sessions מול failover, ו-notBefore push revocation במערך Active-Passive multi-site: מה שורד, מה נעלם, ואיפה המלכודות"

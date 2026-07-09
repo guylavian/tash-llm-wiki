@@ -1,6 +1,7 @@
 ---
 title: What is an authentication flow in Keycloak and what does it contain?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: authentication-flow-definition
 summary: An authentication flow is an ordered container of executions (authenticators/screens/actions) and sub-flows with requirement types that determines how a user is authenticated during login, registration, password reset, and brokering.

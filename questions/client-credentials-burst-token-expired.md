@@ -1,6 +1,7 @@
 ---
 title: Client-credentials burst load — tokens rejected as expired seconds after issuance
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: client-credentials-burst-token-expired
 summary: "Under burst load (thousands of parallel client_credentials token requests at cache expiry), tokens issued seconds ago are intermittently rejected by the resource server as expired — with clock skew ruled out — the likely root cause is a resource-server JWKS/introspection cache failure exacerbated by key rotation or clock skew at the RS, not a Keycloak issuance defect or a lifespan-too-short problem."
@@ -19,12 +20,12 @@ provenance:
   ambiguous: 0
 tags: [clients, tokens, users]
 status: draft
-updated: 2026-06-22
+updated: 2026-07-09
 ---
 
 # Client-credentials burst load — tokens rejected as expired seconds after issuance
 
-**You have RHBK 26 with a 5-minute access token lifespan on the client-credentials (service account) grant. When the partner's token cache expires, thousands of parallel token requests hit the token endpoint. Some tokens are rejected by the resource server (RS) as expired despite being seconds old. Clocks are NTP-synced (<1s skew).**
+**You have RHBK 26 with a 5-minute access token lifespan on the client-credentials (service account) grant. When the partner's token cache expires, thousands of parallel token requests hit the token endpoint. Some tokens are rejected by the resource server (RS) as expired despite being seconds old. Clocks are NTP-synced (<1s skew).** (scenario premise)
 
 ## Quick diagnosis
 

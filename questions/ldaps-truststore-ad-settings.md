@@ -1,6 +1,7 @@
 ---
 title: LDAPS Truststore and AD-Side Settings for Keycloak Federation
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: ldaps-truststore-ad-settings
 summary: Where to configure the truststore for LDAPS connections from Keycloak to Active Directory, and which AD-side settings matter for a reliable LDAPS federation.

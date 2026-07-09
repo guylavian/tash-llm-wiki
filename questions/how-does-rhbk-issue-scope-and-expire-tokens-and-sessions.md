@@ -1,6 +1,7 @@
 ---
 title: How RHBK issues, scopes, and expires tokens and sessions
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: how-does-rhbk-issue-scope-and-expire-tokens-and-sessions
 summary: "RHBK issues tokens via OIDC/OAuth2 grant types on the token endpoint; scopes them with the scope parameter, client scopes, protocol mappers, and client policies; and expires them with layered session/token lifespans (SSO Session, Client Session, Offline Session, Access Token, Refresh Token) configured per-realm and per-client."

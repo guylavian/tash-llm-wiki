@@ -39,7 +39,7 @@ class WikiState(TypedDict, total=False):
     banner: List[str]
     answer: str
     used: List[str]
-    page_fm: dict
+    page_fm: List[dict]       # one fm dict per query-matched seed synthesis page (B1: gate_node unions over these)
     k: int
 
 

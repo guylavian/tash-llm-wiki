@@ -1,6 +1,7 @@
 ---
 title: Why does an AD password change take time to take effect in RHBK LDAP user federation?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: ldap-password-change-propagation-delay
 summary: "When a user changes their password in Active Directory, RHBK continues to accept the old password briefly while rejecting the new one, then flips. This is caused by a combination of AD multi-DC replication latency and the RHBK user cache policy — not by password caching (RHBK never imports passwords)."

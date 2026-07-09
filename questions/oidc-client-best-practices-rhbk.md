@@ -1,6 +1,7 @@
 ---
 title: What are the best practices for OIDC client integration with RHBK?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: oidc-client-best-practices-rhbk
 summary: "Comprehensive answer covering flow selection, client auth, token refresh, validation, logout, DPoP, BFF pattern, and session-loss tolerance for OIDC client code integrating with Red Hat Build of Keycloak."

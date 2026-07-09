@@ -1,6 +1,7 @@
 ---
 title: What are static routes and default routes on IOS XE?
 type: question
+question_tier: conceptual
 domain: cisco-ios-xe
 slug: static-routes-default-routes-ios-xe
 summary: "Static routes are user-defined paths with AD 1; default routes set the gateway of last resort via one of three mechanisms. Key traps: interface-pointing statics behave as connected, and 0.0.0.0/0 statics don't propagate into OSPF/IS-IS."

@@ -1,6 +1,7 @@
 ---
 title: How Active Directory stores its directory data
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: how-active-directory-stores-directory-data
 summary: Active Directory stores all directory objects in an Extensible Storage Engine (ESE) database file (NTDS.dit), defaulting to an 8k page format, with a 32k page option in Windows Server 2025.

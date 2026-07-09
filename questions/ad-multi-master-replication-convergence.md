@@ -1,6 +1,7 @@
 ---
 title: How does Active Directory multi-master replication converge across domain controllers?
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: ad-multi-master-replication-convergence
 summary: AD DS uses a state-based replication engine — USN counters, InvocationID-scoped write tracking, the up-to-dateness vector, and high-water-mark filtering — built on a KCC-generated topology — to converge any write from any DC across the forest.

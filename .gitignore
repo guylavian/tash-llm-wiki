@@ -25,4 +25,7 @@ corpora/
 *.zip
 graphify-out/
 
+# Graphify auto-sync hook output (_meta/hooks/post-commit)
+_meta/sync.log
+
 # Obsidian per-machine session state (app.json/core-plugins/graph are kept)

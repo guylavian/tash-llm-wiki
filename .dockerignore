@@ -1,0 +1,10 @@
+# host-specific / regenerable — never bake into the image
+_meta/.venv-online
+_meta/.venv-embed
+.git
+.obsidian
+.DS_Store
+**/__pycache__
+graphify-out
+Dockerfile
+.dockerignore

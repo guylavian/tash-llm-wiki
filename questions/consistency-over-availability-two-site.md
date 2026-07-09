@@ -1,6 +1,7 @@
 ---
 title: "Why Red Hat's HA guide prefers consistency over availability — and what it means for a two-site setup"
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: consistency-over-availability-two-site
 summary: "Red Hat's HA guide explicitly prioritizes consistency over availability to prevent stale data (old passwords, invalid sessions) during failures. For a two-site Active/Passive setup this means synchronous DB + Data Grid replication, a FAIL failure policy that errors rather than serves stale data, low-latency requirement, fencing to resolve split-brain, and mandatory manual re-sync after any partition."

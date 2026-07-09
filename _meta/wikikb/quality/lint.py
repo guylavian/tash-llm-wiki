@@ -318,6 +318,27 @@ def identifier_guard(query, domain):
 
 
 
+def extract_distinctive(text):
+    """RAW extraction step shared by every distinctive-identifier consumer (page-level
+    `ungrounded_citations` below, the QUERY-side `identifier_guard` above, and the ANSWER-time
+    fabrication check `ungrounded_against_context` — graph/nodes.py's synthesize_node). Distinctive
+    ENV/CONST-shaped tokens (`_DISTINCTIVE_RE`), in first-occurrence order, minus crypto cipher-suite
+    constants (`_is_distinctive_artifact`) and any token on a line that already carries an inline
+    provenance tag or cite (`_INFERRED_RE` — declared synthesis, not a bare claim). No corpus/context
+    comparison here — callers decide what "grounded" means for their own ground truth."""
+    out = []
+    for line in text.splitlines():
+        if _INFERRED_RE.search(line):
+            continue
+        for m in _DISTINCTIVE_RE.finditer(line):
+            t = m.group(0)
+            if _is_distinctive_artifact(t):
+                continue
+            if t not in out:
+                out.append(t)
+    return out
+
+
 def ungrounded_citations(text, fm):
     """Distinctive tokens asserted as fact in the body but absent from the page's ENTIRE domain
     reference corpus — i.e. nowhere in the ground truth (the fabricated-citation smell). Skips
@@ -326,17 +347,26 @@ def ungrounded_citations(text, fm):
     corpus = domain_corpus_tokens(fm.get("domain"))
     if not corpus:
         return []
-    bad = []
-    for line in _strip_fm_body(text).splitlines():
-        if _INFERRED_RE.search(line):
-            continue
-        for m in _DISTINCTIVE_RE.finditer(line):
-            t = m.group(0)
-            if _is_distinctive_artifact(t):
-                continue
-            if t.lower() not in corpus and t not in bad:
-                bad.append(t)
-    return bad
+    return [t for t in extract_distinctive(_strip_fm_body(text)) if t.lower() not in corpus]
+
+
+def ungrounded_against_context(answer, context, query=""):
+    """ANSWER-TIME anti-fabrication check (PLAN-graphify-pdf-upload.md Phase 3 item 2 — the
+    still-open PRODUCTION_READINESS sign-off blocker). The QUERY-side guard (`identifier_guard`)
+    and the zero-citation withhold (`graph/nodes.py::synthesize_node`) both miss the case where the
+    model cites a REAL retrieved source but asserts a distinctive identifier that note never
+    mentions (the `SSO_HTTPS_CIPHER_SUITES` fabrication, at answer time instead of page-review
+    time). Reuses `extract_distinctive` — the SAME extraction/exclusion machinery
+    `ungrounded_citations` checks against a domain's whole reference corpus — but here the ground
+    truth is narrower and stricter: only the context this specific answer was actually shown, plus
+    the query itself (a user naming an identifier in their own question is not a fabrication).
+    Case-insensitive substring match against the assembled context blob — deterministic, no LLM.
+    Returns the distinctive tokens found in `answer` but nowhere in `context`/`query`; [] when
+    everything the answer asserts is traceable to what it was shown."""
+    ctx_lower = (context or "").lower()
+    query_lower = (query or "").lower()
+    return [t for t in extract_distinctive(answer or "")
+            if t.lower() not in ctx_lower and t.lower() not in query_lower]
 
 
 # ---- H1 out-of-coverage banner check (filed questions) ----------------------------------------

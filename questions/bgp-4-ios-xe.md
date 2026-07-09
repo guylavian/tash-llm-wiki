@@ -1,6 +1,7 @@
 ---
 title: What is BGP-4 and how does it work on IOS XE?
 type: question
+question_tier: conceptual
 domain: cisco-ios-xe
 slug: bgp-4-ios-xe
 summary: "BGP-4 (Border Gateway Protocol version 4) is the interdomain path-vector routing protocol that exchanges loop-free reachability between autonomous systems over TCP port 179. On IOS XE, it installs one best path per prefix, uses AS_Path for loop prevention, supports 2-byte and 4-byte ASNs (asplain/asdot), and requires the next hop to be reachable (usually via the IGP) for any route to be usable."

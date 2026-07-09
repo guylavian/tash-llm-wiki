@@ -1,6 +1,7 @@
 ---
 title: KB5014754 strong certificate mapping — RHBK OIDC claim mapping failure
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: kb5014754-adfs-rhbk-claim-mapping
 summary: "KB-grounded analysis of intermittent claim mapping failure after KB5014754 enforcement when RHBK does OIDC federation against AD FS. The KB cannot determine the root cause because KB5014754 and strong certificate mapping are absent from the corpus and AD FS is out of scope — but the closest analogous pattern is the mutable-AD-attribute link-loss documented in kb:7128299."

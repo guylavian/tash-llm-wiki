@@ -1,6 +1,7 @@
 ---
 title: How to migrate RH-SSO 7.6 Java client adapters
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: migrate-rhsso-76-java-client-adapters
 summary: "Several RH-SSO 7.6 Java OIDC and SAML client adapters are no longer released with RHBK; re-platform onto standards-based OIDC/SAML support in the app's own stack, with an adapter bridge available during transition"

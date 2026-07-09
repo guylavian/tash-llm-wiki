@@ -2,10 +2,11 @@
 
 `python3 -m wikikb build` runs, in order:
     tags normalize --apply  ->  tags backfill --apply  ->  crosslink --apply
-    ->  index  ->  tkg ingest  ->  lint
+    ->  index  ->  tkg ingest  ->  lint  ->  verify
 Each step is the real tool run as a subprocess (same interpreter, same CWD contract
-as the dispatcher); the chain stops at the first non-zero exit. lint runs last so a
-freshly-built wiki ends with its health report — its exit code is the build's.
+as the dispatcher); the chain stops at the first non-zero exit. lint runs second-to-last
+so a freshly-built wiki ends with its health report, then verify checks cited sources
+still back every numeric claim — its exit code is the build's.
 
 Exists because index/crosslink/tags/manifest/tkg were five separately-remembered
 commands and the routing index was chronically stale as a result. Stdlib only.
@@ -18,6 +19,7 @@ sys.dont_write_bytecode = True
 STEPS = [
     ["tags", "normalize", "--apply"],
     ["tags", "backfill", "--apply"],
+    ["backfill", "question-tier", "--apply"],
     ["crosslink", "--apply"],
     ["index"],
     ["tkg", "ingest"],

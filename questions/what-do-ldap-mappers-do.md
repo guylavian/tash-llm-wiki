@@ -1,6 +1,7 @@
 ---
 title: What do LDAP mappers do in RHBK federation?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: what-do-ldap-mappers-do
 summary: LDAP mappers are components on an LDAP provider that map LDAP directory data (attributes, groups, roles) onto RHBK user attributes, group memberships, and role mappings.

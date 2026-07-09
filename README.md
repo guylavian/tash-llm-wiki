@@ -1,36 +1,41 @@
-# Keycloak/RHBK Knowledge Wiki
+# llm-wiki — multi-domain LLM-maintained knowledge wiki
 
-An **LLM-maintained knowledge wiki** for Keycloak / Red Hat build of Keycloak (RHBK)
-and adjacent infra domains, following Andrej Karpathy's "LLM Wiki" pattern: raw
-sources stay frozen, the wiki is the *compiled, cross-linked synthesis* on top, and
-it compounds across sessions.
+An **LLM-maintained, multi-domain knowledge wiki** — Keycloak / Red Hat build of
+Keycloak (RHBK), OpenShift/Kubernetes, Active Directory, and Cisco IOS-XE, with new
+domains onboarded via ADD-DOMAIN — following Andrej Karpathy's "LLM Wiki" pattern:
+immutable raw corpora stay frozen in the vault, the wiki is the *compiled,
+cross-linked synthesis* on top, and it compounds across sessions because every
+answered question is filed back as a durable page.
 
-Open **this directory** (`wiki/`) as the Obsidian vault root — it rules all the data.
+Open **the repo root** as the Obsidian vault — the vault IS the repo, and it rules
+all the data.
 
 ## What's here
 
 | Domain | Shape | Raw tier |
 |---|---|---|
-| **keycloak** | corpus-backed | 832 immutable doc-body notes in `reference/keycloak/` |
-| **active-directory** | notes-first | hand notes in `_sources/active-directory/` |
-| **cisco-ios-xe** | notes-first | `_sources/cisco-ios-xe/` |
+| **keycloak** | corpus-backed | 800 immutable doc-body notes in `reference/keycloak/` |
+| **openshift** | corpus-backed | 3,813 notes (Kubernetes + OpenShift 4.22 docs) in `reference/openshift/` |
+| **active-directory** | corpus-backed | 221 notes in `reference/active-directory/` + hand notes in `_sources/` |
+| **cisco-ios-xe** | corpus-backed | 167 notes in `reference/cisco-ios-xe/` |
 
-Synthesis so far: **42 topics · 187 entities · 22 answered questions**, all
+Synthesis so far: **51 topics · 216 entities · 88 answered questions**, all
 cross-linked with `[[slug]]`.
 
 ## Layout
 
 ```
-wiki/
+<repo-root>/             # the Obsidian vault root
 ├── CLAUDE.md            # THE schema + ingest/query/lint workflows — read this first
-├── AGENTS.md            # thin pointer to CLAUDE.md for agents
+├── SKILL.md · AGENTS.md # skill trigger manifest + thin agent pointer to CLAUDE.md
 ├── index.md             # global router → per-domain indexes
 ├── index.<domain>.md    # per-domain routing index (titles + summaries; generated)
 ├── topics/              # multi-source syntheses ("how LDAP federation works")
 ├── entities/            # one page per concrete thing (a flag, SPI, config key)
 ├── questions/           # answered queries, filed back as durable pages
+├── references/          # curated reference guides (ref: tier) — never edit
 ├── reference/<domain>/  # IMMUTABLE imported doc bodies — never edit
-├── _sources/<domain>/   # raw hand notes for notes-first domains — never edit
+├── _sources/<domain>/   # raw hand notes for notes-first material — never edit
 └── _meta/               # tooling (the `wikikb` package); excluded from scanners
 ```
 
@@ -40,23 +45,29 @@ wiki/
 carries a `summary:` so you can skim before opening bodies.
 
 **As an agent:** read `CLAUDE.md` — it is the single source of truth for the
-ingest / query / lint operations. The `.skills/` packages and `.opencode/`
-commands are thin pointers back to it.
+ingest / query / lint operations. The `.claude/skills/` packages are thin
+pointers back to it.
 
 **Tools** (stdlib only, air-gapped, no `pip install`) — run from `_meta/`:
 
 ```bash
 python3 -m wikikb route  "<query>"           # route a question to its domain(s)
 python3 -m wikikb kb --domain keycloak search "<terms>"   # search the raw tier
-python3 -m wikikb index                       # regenerate the routing indexes
+python3 -m wikikb ask --domain keycloak "<question>"      # gated, cited answer
+python3 -m wikikb build                       # regen chain: tags → crosslink → index → tkg → lint → verify
 python3 -m wikikb lint [--status]             # health check + audit
-python3 wiki/_meta/tests/selftest.py          # run the test suite
+python3 _meta/tests/selftest.py               # run the test suite
 ```
+
+**Serving:** `python3 -m wikikb serve` exposes the same tools as a loopback JSON
+API (`/route /search /ask /page /expand`); `python3 -m wikikb mcp` serves them
+over MCP stdio (`claude mcp add wikikb -- python3 -m wikikb mcp`). See
+`CLAUDE.md` → "Serving the wiki".
 
 ## Rules
 
 - **Writes go only under `topics/ entities/ questions/`.** The raw tiers
-  (`reference/`, `_sources/`, `../references/`) are immutable ground truth.
+  (`reference/`, `_sources/`, `references/`) are immutable ground truth.
 - **Cite everything.** Every claim traces to a `kb:`/`guide:`/`ref:`/`note:`/`web:`
   source; no uncited synthesis. Per-claim provenance (`extracted`/`inferred`/
   `ambiguous`) is assigned by reading the claim against its source — never by
@@ -65,9 +76,10 @@ python3 wiki/_meta/tests/selftest.py          # run the test suite
   differs.
 
 See `CLAUDE.md` for the full page format, the Confidence gate, and the
-ADD-DOMAIN / INGEST / QUERY / LINT / STATUS operations.
+ADD-DOMAIN / INGEST / QUERY / LINT / STATUS / VERIFY operations.
 
 ## Roadmap
 
-- **`_meta/ROADMAP.md`** — the live roadmap (dense retrieval, local-LLM synthesis,
-  graph layers → one cited, gated `wikikb ask` pipeline).
+- **`_meta/ROADMAP.md`** — the live roadmap. Dense retrieval, graph expansion, the
+  temporal knowledge graph, and the cited/gated `wikikb ask` + serve/MCP pipeline
+  have landed; see the roadmap for what's next.

@@ -1,6 +1,7 @@
 ---
 title: Creating a temporary admin user in RHBK for first start or recovery
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: temporary-admin-user-rhbk-first-start-recovery
 summary: RHBK provides startup flags (first start only), a dedicated `bootstrap-admin` command (first start or recovery), and Operator auto-generation to mint a temporary admin account.

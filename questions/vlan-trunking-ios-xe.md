@@ -1,6 +1,7 @@
 ---
 title: VLAN trunking mechanics on IOS XE routers
 type: question
+question_tier: conceptual
 domain: cisco-ios-xe
 slug: vlan-trunking-ios-xe
 summary: How 802.1Q and ISL frame tagging work on IOS XE router subinterfaces for inter-VLAN routing, and the native-VLAN/PVID mismatch pitfall.

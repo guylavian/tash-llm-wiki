@@ -1,6 +1,7 @@
 ---
 title: RHBK 26.6 upgrade breaks client-credentials token refresh with invalid_grant
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: rhbk-26-6-client-credentials-refresh-invalid-grant
 summary: "Upgrading to RHBK 26.6 causes grant_type=refresh_token calls (for tokens obtained via client_credentials grant) to fail with invalid_grant. Three candidate root causes from the 26.6 migration changes: token introspection audience validation (most probable when a resource server introspects tokens), Infinispan 16 cache flush (transient sessions lost at upgrade), and client scope evaluation enforcement (view-users permission required for token generation in evaluation contexts). Diagnose with the check-cluster-audit-jwks flow below."

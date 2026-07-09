@@ -1,6 +1,7 @@
 ---
 title: Kerberos RBCD / S4U detailed — NTLM front-end, protocol transition, and the delegation authority shift
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: kerberos-rbcd-s4u-delegation-detailed
 summary: "Deep dive into Resource-Based Constrained Delegation (RBCD): how S4U2Self+S4U2Proxy overcome NTLM front-end auth without TRUSTED_TO_AUTH_FOR_DELEGATION, why RBCD's S4U2Proxy succeeds with a non-forwardable evidence ticket when classic constrained delegation fails, and the security implications of delegating authority to the resource owner."

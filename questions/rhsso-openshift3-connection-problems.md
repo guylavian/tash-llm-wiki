@@ -1,6 +1,7 @@
 ---
 title: RHSSO / RHBK connection problems with OpenShift 3
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: rhsso-openshift3-connection-problems
 summary: "Common causes of connection failures between Red Hat Single Sign-On (RH-SSO) or Red Hat Build of Keycloak (RHBK) and OpenShift Container Platform 3.x — TLS/certificate issues, master-config misconfiguration, template version incompatibility, and product lifecycle blocks"

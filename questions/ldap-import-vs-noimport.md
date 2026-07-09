@@ -1,6 +1,7 @@
 ---
 title: Should I enable "Import Users" for my LDAP provider?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: ldap-import-vs-noimport
 summary: Import ON keeps a synchronized local copy (full admin listing/search, attachable local data) and suits manageable directories; Import OFF reads on demand for very large directories at the cost of some listing capability — pair with the right edit mode.

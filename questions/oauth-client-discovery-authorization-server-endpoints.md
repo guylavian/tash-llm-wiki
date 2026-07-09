@@ -1,6 +1,7 @@
 ---
 title: How do OAuth clients discover an authorization server's endpoints and capabilities?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: oauth-client-discovery-authorization-server-endpoints
 summary: "OAuth clients discover an AS's endpoints and capabilities via two standardized well-known URL conventions (OIDC Discovery 1.0 and RFC 8414), with strict issuer validation required."

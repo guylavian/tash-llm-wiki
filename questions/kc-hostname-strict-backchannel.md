@@ -1,6 +1,7 @@
 ---
 title: What does KC_HOSTNAME_STRICT_BACKCHANNEL do?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: kc-hostname-strict-backchannel
 summary: The Hostname v1 option that forced backchannel URLs to use the fixed frontend hostname; removed in v2 and replaced by `hostname-backchannel-dynamic`.

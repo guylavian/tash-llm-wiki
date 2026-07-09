@@ -1,6 +1,7 @@
 ---
 title: Catalyst 9500 StackWise Virtual ISSU — traffic blackhole and OSPF/BGP flap
 type: question
+question_tier: scenarios
 domain: cisco-ios-xe
 slug: c9500-issu-svl-blackhole-nsf-gr
 summary: "On a Catalyst 9500 StackWise Virtual pair, ISSU caused ~90-second traffic blackhole and OSPF/BGP flapping despite the standby reloading and rejoining cleanly. The root cause is missing OSPF NSF and BGP Graceful Restart configuration, not an ISSU procedure error — the routing protocols tore down adjacencies during the control-plane switchover because no grace signal was sent."

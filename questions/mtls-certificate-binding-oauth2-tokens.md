@@ -1,6 +1,7 @@
 ---
 title: What is mTLS certificate binding for OAuth2 tokens?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: mtls-certificate-binding-oauth2-tokens
 summary: "RFC 8705 mechanism that binds an OAuth2 access token to the SHA-256 thumbprint of the client's TLS certificate, so the token is only usable by the holder of the matching private key."

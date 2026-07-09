@@ -1,6 +1,7 @@
 ---
 title: KeycloakHighAuthFailureRate — Keys cache flushed + DB pool starvation → cascade 401s
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: keycloak-keycloakhighauthfailurerate
 summary: Post-mortem — The Infinispan `keys` cache was flushed (0 entries, 0 stores, 0 hits, 0 misses over a 57-minute stats window) while the 

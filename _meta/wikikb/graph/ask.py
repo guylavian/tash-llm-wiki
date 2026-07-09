@@ -1,9 +1,11 @@
 """graph/ask.py — `wikikb ask "<question>"`: the QUERY pipeline as one cited, gated answer.
 
-Sequences the graph/nodes.py functions directly — route -> retrieve -> (expand if thin) -> gate ->
-synthesize — so it needs NO langgraph. The StateGraph in query_graph.py is the OPTIONAL online tier;
-this is the always-available host path that runs the SAME nodes (faithful: it reuses kb/route/expand,
-the real lint.gate_banner, and the local llm.complete — nothing re-implemented).
+GRAPH BY DEFAULT (2026-07-09): when langgraph is installed, ask() orchestrates through the compiled
+StateGraph in query_graph.py; when it is absent, ask() degrades to sequencing the SAME graph/nodes.py
+functions linearly — route -> retrieve -> expand -> gate -> synthesize. Identical nodes, identical
+result; langgraph is imported lazily so importing this module stays stdlib-safe (the air-gap
+invariant). Faithful either way: it reuses kb/route/expand, the real lint.gate_banner, and the local
+llm.complete — nothing re-implemented.
 
 Offline (WIKI_LLM=off, the default) synthesize_node returns the deterministic extractive answer, so
 `ask` works with zero network and zero extra deps. With WIKI_LLM=local it returns the local model's
@@ -22,20 +24,34 @@ from wikikb.graph import nodes              # stdlib-safe node functions (no lan
 from wikikb.retrieval import kb             # to resolve cited reference notes -> source URLs
 
 
-def ask(query, domain=None, k=5, question_tier=None):
-    """Run the QUERY node sequence on a plain state dict and return the final state."""
+def ask(query, domain=None, k=5, question_tier=None, require_graph=False):
+    """Run the QUERY pipeline and return the final state — via the LangGraph StateGraph when
+    langgraph is installed (the default orchestrator), else the same nodes sequenced linearly.
+    require_graph=True raises instead of degrading (strict --graph mode)."""
     state = {"query": query, "k": k, "question_tier": question_tier}
     if domain:
         state["domain"] = domain
-    state.update(nodes.route_node(state))
-    state.update(nodes.retrieve_node(state))
-    # ALWAYS graph-expand (2026-07-05): the live-query bank proved expand-only-when-thin loses real
-    # answers — lexical/dense top-k misses notes that query-matched wiki pages directly cite (e.g.
-    # AD delegation/sizing facts). Seed-source notes are high-precision and appended after the
-    # ranked hits, so they add recall without displacing them. (Was: only when thin < 3 hits.)
-    state.update(nodes.expand_node(state))
-    state.update(nodes.gate_node(state))
-    state.update(nodes.synthesize_node(state))
+    try:
+        from wikikb.graph.query_graph import build_query_graph
+        app = build_query_graph()
+    except RuntimeError:                      # langgraph absent — the offline linear path
+        if require_graph:
+            raise
+        app = None
+    if app is not None:
+        state = dict(app.invoke(state))
+        state["orchestrator"] = "langgraph"
+    else:
+        state.update(nodes.route_node(state))
+        state.update(nodes.retrieve_node(state))
+        # ALWAYS graph-expand (2026-07-05): the live-query bank proved expand-only-when-thin loses real
+        # answers — lexical/dense top-k misses notes that query-matched wiki pages directly cite (e.g.
+        # AD delegation/sizing facts). Seed-source notes are high-precision and appended after the
+        # ranked hits, so they add recall without displacing them. (Was: only when thin < 3 hits.)
+        state.update(nodes.expand_node(state))
+        state.update(nodes.gate_node(state))
+        state.update(nodes.synthesize_node(state))
+        state["orchestrator"] = "linear"
     # QUERY-side anti-fabrication guard (deterministic, model-independent): an identifier asked
     # about but absent from the entire domain corpus gets a leading NOT-FOUND verdict — the model
     # never gets to define it from parametric memory (adjacent-real-substitution failure mode).
@@ -54,15 +70,12 @@ def ask(query, domain=None, k=5, question_tier=None):
 
 
 def ask_graph(query, domain=None, k=5, question_tier=None):
-    """Same QUERY nodes as ask(), but orchestrated through the compiled LangGraph StateGraph (the
-    OPTIONAL online tier). Identical result to ask() — the graph is the substrate, not a better answer;
-    it exists so `/query` genuinely runs the StateGraph. Raises if langgraph is absent (run under the
-    venv that has it: wiki/_meta/.venv-online)."""
-    from wikikb.graph.query_graph import build_query_graph
-    init = {"query": query, "k": k, "question_tier": question_tier}
-    if domain:
-        init["domain"] = domain            # route_node honors a pre-set domain (same as ask())
-    return build_query_graph().invoke(init)
+    """STRICT graph mode: ask() but raises when langgraph is absent instead of degrading to the
+    linear path (run under the venv that has it: wiki/_meta/.venv-online). ask() already prefers
+    the StateGraph when available — this only removes the fallback. Kept for the `--graph` flag
+    and callers that must prove the StateGraph ran; now also applies the identifier guard (it
+    previously bypassed it)."""
+    return ask(query, domain=domain, k=k, question_tier=question_tier, require_graph=True)
 
 
 def references(domain, used):
@@ -89,8 +102,9 @@ def main():
                     help="question tier for the H1 coverage gate (conceptual|support-kb|scenarios)")
     ap.add_argument("--json", action="store_true", help="structured output for agents")
     ap.add_argument("--graph", action="store_true",
-                    help="orchestrate via the LangGraph StateGraph (optional online tier; needs "
-                         "langgraph). Same nodes/result as the default linear path.")
+                    help="STRICT graph mode: fail if langgraph is absent instead of degrading to the "
+                         "linear path. (The StateGraph is already the default when langgraph is "
+                         "installed.)")
     args = ap.parse_args()
 
     query = args.query
@@ -106,6 +120,7 @@ def main():
     if args.json:
         out = {
             "query": query,
+            "orchestrator": st.get("orchestrator"),   # "langgraph" (default when installed) | "linear"
             "domain": st.get("domain"),
             "confident": st.get("confident"),
             "thin": st.get("thin"),
@@ -118,6 +133,8 @@ def main():
         }
         if st.get("judge_verdict") is not None:       # nullable: key present only when the judge ran
             out["judge_verdict"] = st["judge_verdict"]  # (advisory) — omitted keeps old output byte-identical
+        if st.get("ungrounded_identifiers"):          # nullable: only when the answer asserts identifiers
+            out["ungrounded_identifiers"] = st["ungrounded_identifiers"]  # absent from its cited context
         print(json.dumps(out, indent=2, ensure_ascii=False))
         return
 

@@ -1,6 +1,7 @@
 ---
 title: Port-channel with mixed 1G + 10G links — out-of-order packets and poor throughput
 type: question
+question_tier: support-kb
 domain: cisco-ios-xe
 slug: mixed-speed-port-channel
 summary: "Mixing a 1G and a 10G link in the same LACP port-channel causes out-of-order packets and throughput degradation because (a) Cisco does not support mixed-speed EtherChannel members, and (b) flow-based load balancing distributes packets across links with ~10× serialization-delay difference, causing reordering at the receiver."

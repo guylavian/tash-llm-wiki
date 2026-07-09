@@ -1,6 +1,7 @@
 ---
 title: Domain and forest functional levels — how they work
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: domain-forest-functional-levels-how-they-work
 summary: Domain (DFL) and forest (FFL) functional levels are the AD DS compatibility and feature gate — they control which Windows Server OS versions can run as DCs and which AD features are available.

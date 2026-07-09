@@ -1,6 +1,7 @@
 ---
 title: "RHBK 26 cross-site Active-Active — intermittent 'invalid_grant' on token refresh with sticky sessions ON"
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: active-active-invalid-grant-token-refresh
 summary: "Running RHBK 26 in a two-site Active-Active topology with a shared external Data Grid and round-robin + sticky sessions produces intermittent 'invalid_grant' on token refresh — not primarily a stickiness, replication-lag, or clock problem, but an architecture mismatch: the documented model is Active/Passive, and the Active-Active round-robin causes session-cache churn across sites (local caches are cold for sessions from the other site, triggering DB round-trips under load), plus potential 'work' cache deadlocks (explicitly warned against in the guide for active-active setups). Sticky sessions help but cannot eliminate cross-site routing under load, and a single shared Data Grid cluster (instead of two with Cross-DC) adds latency and split-brain risk."

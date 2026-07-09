@@ -1,6 +1,7 @@
 ---
 title: How does RHBK's LDAP/AD user federation work?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: rhbk-ldap-ad-user-federation
 summary: RHBK ships a built-in LDAP/AD provider under the User Storage SPI that turns directory users into RHBK users, governed by storage mode (import vs on-demand), edit mode (READ_ONLY/WRITABLE/UNSYNCED), and LDAP mappers for attributes/groups/roles.
@@ -13,7 +14,7 @@ provenance:
   extracted: 12
   inferred: 2
   ambiguous: 0
-tags: [federation, ldap]
+tags: [federation]
 status: reviewed
 updated: 2026-07-07
 ---

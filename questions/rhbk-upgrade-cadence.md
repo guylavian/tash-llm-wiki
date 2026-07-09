@@ -1,6 +1,7 @@
 ---
 title: RHBK — באיזו תדירות לשדרג?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: rhbk-upgrade-cadence
 summary: "Red Hat Build of Keycloak (RHBK) משחרר מינור גרסה (~26.0, 26.2, 26.4, 26.6) בערך כל רבעון, ופטש'ים (z-stream) בתדירות משתנה לפי CVEs. ההמלצה: להישאר על הגרסה המינורית האחרונה, להחיל פטש'ים מיד כשיוצאים, ולשדרג מינור בהמתנה הבאה עם חלון downtime מתוכנן."

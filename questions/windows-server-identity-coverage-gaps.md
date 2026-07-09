@@ -1,6 +1,7 @@
 ---
 title: "What does windows-server-identity.pdf cover that the AD brain is missing?"
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: windows-server-identity-coverage-gaps
 summary: Gap analysis of the active-directory wiki brain against the full Microsoft Learn "Windows Server identity" doc set (4,163-page PDF). Of the in-scope pillars, Windows LAPS, AD CS, and the Solutions/Scenario guides are absent from the vault corpus entirely (AD FS is deliberately out of scope); within the one pillar present (AD DS) only FSMO has a synthesis page — ~221 reference notes are un-synthesized.

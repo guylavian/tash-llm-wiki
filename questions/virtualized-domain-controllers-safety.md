@@ -1,6 +1,7 @@
 ---
 title: How does virtualization safely support Active Directory domain controllers?
 type: question
+question_tier: conceptual
 domain: active-directory
 slug: virtualized-domain-controllers-safety
 summary: Windows Server 2012+ DCs use VM-GenerationID (a hypervisor GUID that changes on snapshot restore) to detect rollbacks and automatically reset the InvocationID, discard the RID pool, and non-authoritatively sync SYSVOL — preventing USN rollback and replication divergence.

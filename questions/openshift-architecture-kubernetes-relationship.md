@@ -1,6 +1,7 @@
 ---
 title: OpenShift Container Platform 4 Architecture and Relationship to Kubernetes
 type: question
+question_tier: conceptual
 domain: openshift
 slug: openshift-architecture-kubernetes-relationship
 summary: OCP 4 is an operator-driven Kubernetes distribution — upstream Kubernetes core plus a Red Hat platform layer that itself runs on operators — adding Routes, in-cluster builds, OLM, SCCs, and an integrated OAuth server.

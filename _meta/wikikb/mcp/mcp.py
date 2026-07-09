@@ -86,7 +86,7 @@ def _tool_ask(args):
     # same shape as `wikikb ask --json` (ask.py main()) — a host consuming this tool sees the
     # identical answer a human running the CLI would.
     return {
-        "query": q, "domain": st.get("domain"), "confident": st.get("confident"),
+        "query": q, "orchestrator": st.get("orchestrator"), "domain": st.get("domain"), "confident": st.get("confident"),
         "thin": st.get("thin"), "banner": st.get("banner") or [], "answer": st.get("answer", ""),
         "cited": st.get("used", []), "grounding_fail": st.get("grounding_fail", False),
         "references": refs,

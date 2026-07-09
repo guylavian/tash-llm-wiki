@@ -146,10 +146,15 @@ sha256 per note in `_meta/reference.lock.json` so any later hand-edit is detecta
 (`--verify`). After folding in, **flip `shape:` to `corpus-backed`** in
 `taxonomy.md` and add `corpora/<domain>/` to its `sources:`.
 
-> For a non-DocFX bulk source (a CIS/STIG PDF, a vendor guide), **don't** force it
-> into the corpus path — distill it into paraphrased `_sources/<domain>/` notes
-> instead. (This is exactly why the Cisco WLC AireOS PDF was *not* folded into
-> `cisco-ios-xe`: it's a different product family, so it belongs in its own domain.)
+> **PDF sources:** a *bulk PDF doc set* (vendor manuals, product guides) now has a
+> first-class corpus path — `python3 -m wikikb pdf_to_corpus --src <folder-of-pdfs>
+> --domain <d> --apply` (pdftotext extraction, `<!-- p.N -->` page markers for
+> page-level citation, `--chunk-pages` for big books, pre-extracted `.txt` accepted
+> for sealed boxes) → then `corpus_to_vault` as above. But a *judgment-heavy* PDF
+> (a CIS/STIG benchmark you'd paraphrase anyway) is still better distilled into
+> `_sources/<domain>/` notes. Either way, keep product families separate — the
+> Cisco WLC AireOS PDF was *not* folded into `cisco-ios-xe` because it's a
+> different product family; it belongs in its own domain.
 
 ## Step 4 — Seed the synthesis (the minimum viable brain)
 
