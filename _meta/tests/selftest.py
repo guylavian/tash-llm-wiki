@@ -730,6 +730,60 @@ finally:
 check("synthesize_node fallback names the reason when WIKI_LLM is on but the gateway is dead", _c4,
       _o4.get("answer", "")[:120])
 
+# 47c. WI-7: public_result is the ONE serializer — grounding status ALWAYS structured (D3), strict
+# withholds. No pipeline run needed: feed synthetic final states straight to the serializer.
+from wikikb.graph import ask as _askmod
+_clean_st = {"answer": "all good", "used": ["n1"], "grounding_fail": False,
+             "ungrounded_identifiers": [], "orchestrator": "linear"}
+_bad_st = {"answer": "⚠️ warned\n\nprose with FAKE_ENV_VAR", "used": ["n1"], "grounding_fail": False,
+           "ungrounded_identifiers": ["FAKE_ENV_VAR"],
+           "grounding_basis": {"cited_ids": ["n1"], "basis": "cited-full-bodies+query"}}
+_pr1 = _askmod.public_result("q", _clean_st, [], strict=False)
+_pr2 = _askmod.public_result("q", _bad_st, [], strict=False)     # flag-default: served, flagged
+_pr3 = _askmod.public_result("q", _bad_st, [], strict=True)      # strict: withheld
+_pr4 = _askmod.public_result("q", {"answer": "x", "used": [], "grounding_fail": True}, [], strict=True)
+_always = ("withheld", "ungrounded_identifiers", "grounding_basis", "grounding_fail", "guard", "banner")
+_c_shape = all(k in _pr for _pr in (_pr1, _pr2, _pr3, _pr4) for k in _always)
+_c_flagdef = _pr2["withheld"] is False and _pr2["answer"] == _bad_st["answer"] \
+    and _pr2["ungrounded_identifiers"] == ["FAKE_ENV_VAR"]
+_c_strict = _pr3["withheld"] is True and "FAKE_ENV_VAR" not in _pr3["answer"].split("ungrounded_identifiers=")[0] \
+    and "withheld by strict grounding mode" in _pr3["answer"] \
+    and _pr4["withheld"] is True and "withheld by strict grounding mode" in _pr4["answer"]
+_c_clean = _pr1["withheld"] is False and _pr1["ungrounded_identifiers"] == [] and _pr1["answer"] == "all good"
+_env_key = "WIKI_STRICT_GROUNDING"
+_env_prev = os.environ.get(_env_key)
+try:
+    os.environ[_env_key] = "1"
+    # tri-state precedence: explicit False must BEAT env=1 (per-call wins); None defers to env
+    _c_env = (_askmod.strict_default() is True
+              and _askmod.resolve_strict(None) is True
+              and _askmod.resolve_strict(False) is False
+              and _askmod.public_result("q", _bad_st, [], strict=_askmod.resolve_strict(False))["withheld"] is False)
+    os.environ.pop(_env_key)
+    _c_env = _c_env and _askmod.strict_default() is False \
+        and _askmod.resolve_strict(None) is False and _askmod.resolve_strict(True) is True
+finally:
+    if _env_prev is not None:
+        os.environ[_env_key] = _env_prev
+    else:
+        os.environ.pop(_env_key, None)
+# per-surface explicit-false parsing: serve ?strict= tri-state and the CLI --no-strict opt-out
+from wikikb.serve import serve as _srvmod
+_c_parse = (_srvmod._parse_strict(None) is None and _srvmod._parse_strict("1") is True
+            and _srvmod._parse_strict("true") is True and _srvmod._parse_strict("0") is False
+            and _srvmod._parse_strict("false") is False)
+import argparse as _argparse
+_cli_p = _argparse.ArgumentParser()
+_cli_p.add_argument("--strict", action=_argparse.BooleanOptionalAction, default=None)
+_c_cli = (_cli_p.parse_args([]).strict is None and _cli_p.parse_args(["--strict"]).strict is True
+          and _cli_p.parse_args(["--no-strict"]).strict is False)
+check("public_result (WI-7): always-structured grounding fields, flag-default serves+flags, "
+      "strict withholds on ungrounded ids AND grounding_fail, tri-state precedence "
+      "(explicit False beats env=1) on env/serve-param/CLI",
+      _c_shape and _c_flagdef and _c_strict and _c_clean and _c_env and _c_parse and _c_cli,
+      f"shape={_c_shape} flagdef={_c_flagdef} strict={_c_strict} clean={_c_clean} "
+      f"env={_c_env} parse={_c_parse} cli={_c_cli}")
+
 # 48. lint H1-banner helper: has_out_of_coverage_banner is lenient on markdown decoration (blockquote
 # or heading) but strict on content — the ⚠️ line must mention "coverage".
 _plain_body = "# Title\n\nJust a normal paragraph, no banner here.\n"
@@ -768,7 +822,9 @@ try:
     if _health_ok:
         with _urlreq.urlopen(
                 "http://127.0.0.1:%d/ask?q=how+do+I+enable+dpop&domain=keycloak" % _srv_port, timeout=10) as _r:
-            _ask_ok = "answer" in _json.loads(_r.read().decode())
+            _ask_obj = _json.loads(_r.read().decode())
+            # WI-7: /ask returns the shared public_result shape — grounding always structured
+            _ask_ok = all(k in _ask_obj for k in ("answer", "withheld", "ungrounded_identifiers"))
     _srv.send_signal(_signal.SIGINT)
     try:
         _exit_ok = _srv.wait(timeout=5) == 0
@@ -823,7 +879,9 @@ try:
     _mcp.stdin.flush()
     _resp = _json.loads(_mcp_readline(_mcp, timeout=10) or "{}")
     _mcp_text = (_resp.get("result", {}).get("content") or [{}])[0].get("text", "")
-    _mcp_ask_ok = "answer" in _json.loads(_mcp_text or "{}")
+    _mcp_ask_obj = _json.loads(_mcp_text or "{}")
+    # WI-7: mcp ask returns the shared public_result shape — grounding always structured
+    _mcp_ask_ok = all(k in _mcp_ask_obj for k in ("answer", "withheld", "ungrounded_identifiers"))
 
     _mcp.stdin.close()
     try:

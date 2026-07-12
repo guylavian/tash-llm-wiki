@@ -115,16 +115,20 @@ def do_search(domain, q, k):
     return 200, hits
 
 
-def do_ask(q, domain, k, tier):
+def _parse_strict(v):
+    """?strict= tri-state: absent -> None (env default decides), '1'/'true' -> True,
+    anything else explicit ('0'/'false') -> False — an explicit opt-out beats the env."""
+    return None if v is None else v in ("1", "true")
+
+
+def do_ask(q, domain, k, tier, strict=None):
     if not q:
         return 400, {"error": "missing q"}
     st = askmod.ask(q, domain=domain, k=k, question_tier=tier)
     refs = askmod.references(st.get("domain"), st.get("used", []))
-    return 200, {
-        "query": q, "domain": st.get("domain"), "confident": st.get("confident"),
-        "thin": st.get("thin"), "banner": st.get("banner") or [],
-        "answer": st.get("answer", ""), "references": refs,
-    }
+    # WI-7: the shared serializer — same shape as `wikikb ask --json` and the mcp ask tool, with
+    # grounding status always structured; strict: per-call tri-state over WIKI_STRICT_GROUNDING.
+    return 200, askmod.public_result(q, st, refs, strict=askmod.resolve_strict(strict))
 
 
 # F1 (100k-budget plan): a page/note body is served in bounded slices, never whole-file. 8k chars
@@ -258,7 +262,8 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/search":
                 status, obj = do_search(qs.get("domain"), qs.get("q", ""), int(qs.get("k", 5)))
             elif path == "/ask":
-                status, obj = do_ask(qs.get("q", ""), qs.get("domain"), int(qs.get("k", 5)), qs.get("tier"))
+                status, obj = do_ask(qs.get("q", ""), qs.get("domain"), int(qs.get("k", 5)), qs.get("tier"),
+                                     strict=_parse_strict(qs.get("strict")))
             elif path == "/expand":
                 status, obj = do_expand(qs.get("domain"), qs.get("q", ""))
             elif path.startswith("/page/"):

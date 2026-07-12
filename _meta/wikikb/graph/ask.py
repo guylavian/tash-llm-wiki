@@ -17,6 +17,7 @@ is used automatically when the embedding model + index are present (run under th
 """
 import argparse
 import json
+import os
 import sys
 
 sys.dont_write_bytecode = True
@@ -78,6 +79,61 @@ def ask_graph(query, domain=None, k=5, question_tier=None):
     return ask(query, domain=domain, k=k, question_tier=question_tier, require_graph=True)
 
 
+_WITHHELD_LINE = ("[withheld by strict grounding mode — grounding_fail=%s, ungrounded_identifiers=%s] "
+                  "cited: %s")
+
+
+def strict_default():
+    """Operator-level strict switch, honored consistently by every surface (CLI/serve/mcp):
+    WIKI_STRICT_GROUNDING=1 makes strict withholding the default; a per-call flag still wins."""
+    return os.environ.get("WIKI_STRICT_GROUNDING") == "1"
+
+
+def resolve_strict(explicit):
+    """Tri-state per-call precedence over the env default: explicit True/False (the caller said so)
+    wins outright — including an explicit False overriding WIKI_STRICT_GROUNDING=1; only an
+    UNSPECIFIED call (None) falls back to strict_default(). Every surface resolves through here."""
+    return strict_default() if explicit is None else bool(explicit)
+
+
+def public_result(query, st, refs, strict=False):
+    """The ONE result serializer (WI-7) — CLI --json, serve /ask, and mcp ask all return exactly
+    this shape, so no surface can drift back to a private field set. Grounding status is ALWAYS
+    structured (D3): `grounding_fail`, `ungrounded_identifiers` (always a list, never an omitted
+    key), `grounding_basis`, and `withheld` are present on every result — an automated consumer
+    never parses warning prose. Flag-by-default: the (already banner-prefixed) answer text is
+    served as-is. strict=True — the opt-in for unattended consumers (recommended for SRE
+    automation) — WITHHOLDS the prose entirely when the answer is ungrounded (grounding_fail) or
+    asserts identifiers its cited sources don't contain, replacing it with a deterministic
+    withheld line. judge_verdict stays nullable (present only when the advisory judge ran)."""
+    withheld = False
+    answer = st.get("answer", "")
+    ungrounded = st.get("ungrounded_identifiers") or []
+    if strict and (st.get("grounding_fail") or ungrounded):
+        withheld = True
+        answer = _WITHHELD_LINE % (st.get("grounding_fail", False), ungrounded or "[]",
+                                   ", ".join(st.get("used", [])[:5]) or "(none)")
+    out = {
+        "query": query,
+        "orchestrator": st.get("orchestrator"),   # "langgraph" (default when installed) | "linear"
+        "domain": st.get("domain"),
+        "confident": st.get("confident"),
+        "thin": st.get("thin"),
+        "banner": st.get("banner") or [],
+        "guard": st.get("guard") or [],
+        "answer": answer,
+        "cited": st.get("used", []),              # the REAL cited set (nodes.synthesize_node)
+        "grounding_fail": st.get("grounding_fail", False),
+        "ungrounded_identifiers": ungrounded,
+        "grounding_basis": st.get("grounding_basis"),
+        "withheld": withheld,
+        "references": refs,
+    }
+    if st.get("judge_verdict") is not None:       # nullable: key present only when the judge ran
+        out["judge_verdict"] = st["judge_verdict"]
+    return out
+
+
 def references(domain, used):
     """Resolve the cited reference-note ids -> {id, source} from their frontmatter (RH ground truth).
     These are the notes the answer was grounded in; the id is resolvable in the vault either way."""
@@ -101,6 +157,11 @@ def main():
     ap.add_argument("--tier", dest="question_tier",
                     help="question tier for the H1 coverage gate (conceptual|support-kb|scenarios)")
     ap.add_argument("--json", action="store_true", help="structured output for agents")
+    ap.add_argument("--strict", action=argparse.BooleanOptionalAction, default=None,
+                    help="withhold the answer prose when it is ungrounded or asserts identifiers "
+                         "its cited sources don't contain (recommended for unattended consumers; "
+                         "WIKI_STRICT_GROUNDING=1 makes this the default on every surface — "
+                         "--no-strict overrides it per call)")
     ap.add_argument("--graph", action="store_true",
                     help="STRICT graph mode: fail if langgraph is absent instead of degrading to the "
                          "linear path. (The StateGraph is already the default when langgraph is "
@@ -116,29 +177,13 @@ def main():
     runner = ask_graph if args.graph else ask
     st = runner(query, domain=args.domain, k=args.k, question_tier=args.question_tier)
     refs = references(st.get("domain"), st.get("used", []))
+    out = public_result(query, st, refs, strict=resolve_strict(args.strict))
 
     if args.json:
-        out = {
-            "query": query,
-            "orchestrator": st.get("orchestrator"),   # "langgraph" (default when installed) | "linear"
-            "domain": st.get("domain"),
-            "confident": st.get("confident"),
-            "thin": st.get("thin"),
-            "banner": st.get("banner") or [],
-            "guard": st.get("guard") or [],
-            "answer": st.get("answer", ""),
-            "cited": st.get("used", []),              # the REAL cited set (nodes.synthesize_node)
-            "grounding_fail": st.get("grounding_fail", False),
-            "references": refs,
-        }
-        if st.get("judge_verdict") is not None:       # nullable: key present only when the judge ran
-            out["judge_verdict"] = st["judge_verdict"]  # (advisory) — omitted keeps old output byte-identical
-        if st.get("ungrounded_identifiers"):          # nullable: only when the answer asserts identifiers
-            out["ungrounded_identifiers"] = st["ungrounded_identifiers"]  # absent from its cited context
         print(json.dumps(out, indent=2, ensure_ascii=False))
         return
 
-    print(st.get("answer", "(no answer)"))
+    print(out.get("answer") or "(no answer)")
     if refs:
         print("\nReferences (RH ground-truth notes):")
         for rf in refs:

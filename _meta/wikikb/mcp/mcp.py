@@ -38,6 +38,10 @@ TOOLS = [
                 "domain": {"type": "string"},
                 "tier": {"type": "string", "enum": ["conceptual", "support-kb", "scenarios"]},
                 "k": {"type": "integer"},
+                "strict": {"type": "boolean",
+                           "description": "withhold the answer prose when ungrounded (recommended "
+                                          "for unattended consumers; WIKI_STRICT_GROUNDING=1 sets "
+                                          "this default globally)"},
             },
             "required": ["question"],
         },
@@ -83,14 +87,11 @@ def _tool_ask(args):
         raise ValueError("question is required")
     st = askmod.ask(q, domain=args.get("domain"), k=int(args.get("k") or 5), question_tier=args.get("tier"))
     refs = askmod.references(st.get("domain"), st.get("used", []))
-    # same shape as `wikikb ask --json` (ask.py main()) — a host consuming this tool sees the
-    # identical answer a human running the CLI would.
-    return {
-        "query": q, "orchestrator": st.get("orchestrator"), "domain": st.get("domain"), "confident": st.get("confident"),
-        "thin": st.get("thin"), "banner": st.get("banner") or [], "answer": st.get("answer", ""),
-        "cited": st.get("used", []), "grounding_fail": st.get("grounding_fail", False),
-        "references": refs,
-    }
+    # WI-7: the shared serializer — byte-same shape as `wikikb ask --json` and serve /ask; a host
+    # consuming this tool sees the identical answer a human running the CLI would, with grounding
+    # status always structured (withheld / ungrounded_identifiers / grounding_basis).
+    # strict tri-state: an absent arg defers to WIKI_STRICT_GROUNDING; an explicit false beats it.
+    return askmod.public_result(q, st, refs, strict=askmod.resolve_strict(args.get("strict")))
 
 
 def _tool_search(args):
