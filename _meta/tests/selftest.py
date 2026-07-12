@@ -691,7 +691,9 @@ try:
 
     _llmmod.text_of = lambda resp: "X [cite: noteA]. [cite: bogus]"
     _o1 = _nodes.synthesize_node({"query": "q", "candidates": _cite_cands})
-    _c1 = _o1["used"] == ["noteA"] and _o1["grounding_fail"] is False
+    _c1 = (_o1["used"] == ["noteA"] and _o1["grounding_fail"] is False
+           and _o1["grounding_basis"] == {"cited_ids": ["noteA"],
+                                           "basis": "cited-full-bodies+query"})
 
     _llmmod.text_of = lambda resp: "no citations anywhere in this answer"
     _o2 = _nodes.synthesize_node({"query": "q", "candidates": _cite_cands})
@@ -703,7 +705,8 @@ try:
 
     _llmmod.text_of = lambda resp: None
     _o3 = _nodes.synthesize_node({"query": "q", "candidates": _cite_cands})
-    _c3 = _o3["used"] == ["noteA", "noteB"] and "[extractive fallback" in _o3["answer"]
+    _c3 = (_o3["used"] == ["noteA", "noteB"] and "[extractive fallback" in _o3["answer"]
+           and _o3["grounding_basis"]["basis"] == "not-checked-extractive-fallback")
 finally:
     _llmmod.complete_routed, _llmmod.text_of = _orig_complete_routed, _orig_text_of
 check("synthesize_node cite-parse: real cite drops bogus id, no-cite -> prose withheld (not served), None -> extractive",

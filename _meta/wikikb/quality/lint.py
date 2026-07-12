@@ -321,7 +321,7 @@ def identifier_guard(query, domain):
 def extract_distinctive(text):
     """RAW extraction step shared by every distinctive-identifier consumer (page-level
     `ungrounded_citations` below, the QUERY-side `identifier_guard` above, and the ANSWER-time
-    fabrication check `ungrounded_against_context` — graph/nodes.py's synthesize_node). Distinctive
+    fabrication check `validate_answer_grounding` — graph/nodes.py's synthesize_node). Distinctive
     ENV/CONST-shaped tokens (`_DISTINCTIVE_RE`), in first-occurrence order, minus crypto cipher-suite
     constants (`_is_distinctive_artifact`) and any token on a line that already carries an inline
     provenance tag or cite (`_INFERRED_RE` — declared synthesis, not a bare claim). No corpus/context
@@ -350,23 +350,34 @@ def ungrounded_citations(text, fm):
     return [t for t in extract_distinctive(_strip_fm_body(text)) if t.lower() not in corpus]
 
 
-def ungrounded_against_context(answer, context, query=""):
-    """ANSWER-TIME anti-fabrication check (PLAN-graphify-pdf-upload.md Phase 3 item 2 — the
-    still-open PRODUCTION_READINESS sign-off blocker). The QUERY-side guard (`identifier_guard`)
-    and the zero-citation withhold (`graph/nodes.py::synthesize_node`) both miss the case where the
-    model cites a REAL retrieved source but asserts a distinctive identifier that note never
-    mentions (the `SSO_HTTPS_CIPHER_SUITES` fabrication, at answer time instead of page-review
-    time). Reuses `extract_distinctive` — the SAME extraction/exclusion machinery
-    `ungrounded_citations` checks against a domain's whole reference corpus — but here the ground
-    truth is narrower and stricter: only the context this specific answer was actually shown, plus
-    the query itself (a user naming an identifier in their own question is not a fabrication).
-    Case-insensitive substring match against the assembled context blob — deterministic, no LLM.
-    Returns the distinctive tokens found in `answer` but nowhere in `context`/`query`; [] when
-    everything the answer asserts is traceable to what it was shown."""
-    ctx_lower = (context or "").lower()
-    query_lower = (query or "").lower()
-    return [t for t in extract_distinctive(answer or "")
-            if t.lower() not in ctx_lower and t.lower() not in query_lower]
+_ANSWER_CITE_RE = re.compile(r"\[cite[:\s]\s*([A-Za-z0-9._/-]+)\]", re.IGNORECASE)
+_BASIS_TOKEN_RE = re.compile(r"\b[A-Za-z0-9][A-Za-z0-9_]*\b")
+
+
+def validate_answer_grounding(answer, candidates, query=""):
+    """The SINGLE answer-time citation/identifier validator (WI-6).
+
+    Parse the answer's ``[cite: id]`` tokens, intersect them with the offered candidate ids, then
+    ground distinctive identifiers against the UNION of those cited notes' FULL bodies plus the
+    query. Full bodies are deliberate: the old context-based check could flag an identifier the
+    model legitimately read in a cited note merely because it fell beyond ``CTX_CHARS`` in the
+    assembled prompt window. An uncited candidate contributes nothing to the basis.
+
+    Membership is case-insensitive exact token equality, not substring containment. Identifier
+    extraction and its inferred/cipher/CLI exclusions remain centralized in ``extract_distinctive``
+    and are therefore identical to the page-level citation-grounding scanner. Returns a
+    machine-readable result used directly by ``graph.nodes.synthesize_node``."""
+    offered = {cid: body or "" for cid, body in (candidates or [])}
+    parsed = list(dict.fromkeys(_ANSWER_CITE_RE.findall(answer or "")))
+    cited_ids = [cid for cid in parsed if cid in offered]
+    basis_text = "\n".join([query or ""] + [offered[cid] for cid in cited_ids])
+    basis_tokens = {m.group(0).lower() for m in _BASIS_TOKEN_RE.finditer(basis_text)}
+    ungrounded = [t for t in extract_distinctive(answer or "") if t.lower() not in basis_tokens]
+    return {
+        "cited_ids": cited_ids,
+        "basis": "cited-full-bodies+query",
+        "ungrounded_identifiers": ungrounded,
+    }
 
 
 # ---- H1 out-of-coverage banner check (filed questions) ----------------------------------------

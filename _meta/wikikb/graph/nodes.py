@@ -218,9 +218,6 @@ def gate_node(state):
     return {"banner": banner, "covered": covered}
 
 
-# Lenient on FORMAT (colon optional, any case — small local models approximate the token),
-# strict on MEMBERSHIP (id must be in the retrieved candidate set) — that is the security property.
-_CITE_RE = re.compile(r"\[cite[:\s]\s*([A-Za-z0-9._/-]+)\]", re.IGNORECASE)
 _GROUNDING_FAIL_BANNER = ("Ungrounded synthesis — the model cited none of the retrieved sources; "
                           "treat as inference, verify the References.")
 _VERDICT_RE = re.compile(r"\b(SUPPORTED|PARTIAL|UNSUPPORTED)\b", re.IGNORECASE)
@@ -281,9 +278,11 @@ def synthesize_node(state):
     PRODUCTION_READINESS sign-off blocker): grounding_fail only catches zero-citation answers. A model
     that cites a REAL retrieved note but still invents a distinctive identifier that note never
     mentions (an ENV/CONST like `SSO_HTTPS_CIPHER_SUITES`, a GUID, a nonexistent flag) slips past it.
-    When the answer cites something real, `lint.ungrounded_against_context` extracts distinctive
-    identifiers from the answer and subtracts anything present in the assembled context or the query
-    itself. Approved granularity: FLAG loudly, never silently rewrite the answer text — any leftover
+    `lint.validate_answer_grounding` is the single citation-aware validator: it parses legal cited ids
+    and checks identifiers against the union of those cited notes' FULL bodies plus the query. Full
+    bodies prevent false positives when a legitimate identifier lies beyond the served context cut;
+    uncited candidates do not contribute grounding. Approved granularity: FLAG loudly, never silently
+    rewrite the answer text — any leftover
     identifiers get a deterministic warning line (style-matched to the other gate banners) AND are
     returned as `ungrounded_identifiers` so serve/mcp/livebank callers can withhold on their own
     policy without this node making that call for them."""
@@ -307,16 +306,17 @@ def synthesize_node(state):
     grounding_fail = False
     judge_verdict = None
     ungrounded_identifiers = []
+    grounding_basis = {"cited_ids": [], "basis": "not-checked-extractive-fallback"}
     if answer:                                        # a real model answer — parse what it ACTUALLY cited
-        cand_set = set(cand_ids)
-        parsed = list(dict.fromkeys(_CITE_RE.findall(answer)))   # order-preserving de-dup
-        used = [c for c in parsed if c in cand_set]
+        validation = lint.validate_answer_grounding(answer, cands, state["query"])
+        used = validation["cited_ids"]
+        grounding_basis = {"cited_ids": used, "basis": validation["basis"]}
         if not used:
             grounding_fail = True
         else:
             # fabricated-citation check: only meaningful once the answer cites something real —
             # a zero-citation answer is already withheld below by the existing grounding-fail path.
-            ungrounded_identifiers = lint.ungrounded_against_context(answer, ctx, state["query"])
+            ungrounded_identifiers = validation["ungrounded_identifiers"]
         if llm.has_judge():                            # advisory only — never touches the gate/used
             judge_verdict = _judge_verdict(state["query"], answer, ctx)
     else:                                             # None (gateway off) OR empty (e.g. a reasoning
@@ -346,7 +346,7 @@ def synthesize_node(state):
     if prefix:
         answer = prefix + answer
     out = {"answer": answer, "used": used, "grounding_fail": grounding_fail,
-           "ungrounded_identifiers": ungrounded_identifiers}
+           "ungrounded_identifiers": ungrounded_identifiers, "grounding_basis": grounding_basis}
     if judge_verdict is not None:
         out["judge_verdict"] = judge_verdict
     return out
