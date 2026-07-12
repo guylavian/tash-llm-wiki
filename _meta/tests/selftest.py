@@ -987,6 +987,63 @@ check("livebank: 24-case bank valid + ci subset offline -> exit 0, 100% GATE pas
       f"rc={_lb.returncode} cases={_lb_cases} n_results={len(_lb_results)} gate_ok={_lb_gate_ok} "
       f"fact_fails={[r['id'] for r in _lb_fact_fails]} ungraded={_lb_n_ungraded}")
 
+# NN+1. grade300 completeness gate (WI-1, consensus 2026-07-12): a partial or malformed cohort must
+# exit 2, a complete clean cohort 0, a complete cohort with a hard-gate (refusal) failure 1. Uses a
+# 2-case synthetic minibank in a temp dir — grade300 is pure stdlib and fast, so this is cheap.
+import json as _g3json
+import tempfile as _g3tmp
+_G3 = os.path.join(META, "eval", "grade300.py")
+with _g3tmp.TemporaryDirectory() as _g3d:
+    _g3cases = os.path.join(_g3d, "cases.jsonl")
+    with open(_g3cases, "w", encoding="utf-8") as _fh:
+        _fh.write(_g3json.dumps({"id": "t-001", "type": "lexical", "domain": "keycloak",
+                                 "question": "q1", "expected_slugs": [], "gold_facts": []}) + "\n")
+        _fh.write(_g3json.dumps({"id": "t-002", "type": "fabrication", "domain": "keycloak",
+                                 "question": "q2", "fabricated_token": "KC_FAKE_VAR",
+                                 "must_refuse": True, "expected_slugs": [], "gold_facts": []}) + "\n")
+    def _g3run(rows):
+        _ans = os.path.join(_g3d, "answers.jsonl")
+        with open(_ans, "w", encoding="utf-8") as _fh:
+            for r in rows:
+                _fh.write(_g3json.dumps(r) + "\n")
+        _p = subprocess.run([PY, _G3, "--cases", _g3cases, "--answers", _ans],
+                            capture_output=True, text=True, cwd=META)
+        return _p.returncode, _p.stdout + _p.stderr
+    _REFUSE = "KC_FAKE_VAR does not exist in the corpus"
+    _rc_empty, _ = _g3run([])                                                    # empty cohort
+    _rc_partial, _ = _g3run([{"id": "t-001", "answer": "an answer"}])            # missing t-002
+    _rc_runerr, _ = _g3run([{"id": "t-001", "answer": "an answer"},
+                            {"id": "t-002", "answer": "[RUN-ERROR] timeout"}])   # sentinel != answer
+    _rc_wsrunerr, _ = _g3run([{"id": "t-001", "answer": "an answer"},
+                              {"id": "t-002", "answer": "   [RUN-ERROR] timeout"}])  # ws-prefixed sentinel
+    _rc_null, _ = _g3run([{"id": "t-001", "answer": None},
+                          {"id": "t-002", "answer": _REFUSE}])                   # null answer
+    _rc_dup, _ = _g3run([{"id": "t-001", "answer": "x"}, {"id": "t-001", "answer": "y"},
+                         {"id": "t-002", "answer": _REFUSE}])                    # duplicate id
+    _rc_unknown, _ = _g3run([{"id": "t-001", "answer": "an answer"},
+                             {"id": "t-002", "answer": _REFUSE},
+                             {"id": "t-999", "answer": "stray"}])                # unknown id
+    _rc_nonobj, _ = _g3run(["just a string", {"id": "t-001", "answer": "an answer"},
+                            {"id": "t-002", "answer": _REFUSE}])                 # non-object row
+    _rc_clean, _ = _g3run([{"id": "t-001", "answer": "an answer"},
+                           {"id": "t-002", "answer": _REFUSE}])
+    _rc_gate, _ = _g3run([{"id": "t-001", "answer": "an answer"},
+                          {"id": "t-002", "answer": "KC_FAKE_VAR sets the fake variable."}])
+check("grade300 exit taxonomy: empty/partial/[RUN-ERROR]/ws-sentinel/null/dup/unknown/non-object -> 2, "
+      "complete+clean -> 0, refusal-fail -> 1",
+      (_rc_empty, _rc_partial, _rc_runerr, _rc_wsrunerr, _rc_null, _rc_dup, _rc_unknown, _rc_nonobj,
+       _rc_clean, _rc_gate) == (2, 2, 2, 2, 2, 2, 2, 2, 0, 1),
+      f"empty={_rc_empty} partial={_rc_partial} runerr={_rc_runerr} ws={_rc_wsrunerr} null={_rc_null} "
+      f"dup={_rc_dup} unknown={_rc_unknown} nonobj={_rc_nonobj} clean={_rc_clean} gatefail={_rc_gate}")
+
+# NN+2. the committed legacy cohort is explicitly incomplete — grading it must exit 2, never 0.
+_leg = os.path.join(META, "eval", "answers300-partial-legacy.jsonl")
+_p = subprocess.run([PY, _G3, "--cases", os.path.join(META, "eval", "cases300.jsonl"),
+                     "--answers", _leg], capture_output=True, text=True, cwd=META)
+check("grade300 legacy partial cohort (137/300) exits 2 (incomplete), scoreboard still prints",
+      os.path.isfile(_leg) and _p.returncode == 2 and "INCOMPLETE" in _p.stdout and "answered" in _p.stdout,
+      f"rc={_p.returncode}")
+
 failed = [n for n, ok, _ in checks if not ok]
 print(f"\n{len(checks) - len(failed)}/{len(checks)} checks passed")
 sys.exit(1 if failed else 0)

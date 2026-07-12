@@ -17,8 +17,17 @@ Scoring is deliberately mechanical (stdlib, no LLM):
                flagged for a human/LLM judge pass, not auto-failed)
 Cache-repeat pairs additionally require the two answers to agree on gold facts.
 
-Exit 1 if any hard gate fails (refusal/banner), else 0. `# ponytail: string heuristics — swap
-the gold-fact check for an LLM judge only on flagged cases if precision matters.`
+Exit taxonomy (consensus 2026-07-12 — a partial or malformed cohort must never read as a pass):
+  0 — COMPLETE cohort, all hard gates (refusal/banner) pass
+  1 — COMPLETE cohort, at least one hard gate failed
+  2 — INCOMPLETE or MALFORMED cohort: any case id missing from the answers file, any answer
+      that is empty or a run300 `[RUN-ERROR]` sentinel (an error string is not an answer),
+      any duplicate answer id, or any answer id not in the case bank. Takes precedence over 1:
+      hard-gate results over a partial cohort are not interpretable as acceptance.
+The scoreboard always prints in full before exiting, so partial runs remain inspectable —
+the exit code alone carries the acceptance semantics.
+`# ponytail: string heuristics — swap the gold-fact check for an LLM judge only on flagged
+cases if precision matters.`
 """
 import argparse, json, re, sys
 from collections import defaultdict
@@ -106,17 +115,38 @@ def main():
             if line.strip():
                 c = json.loads(line)
                 cases[c["id"]] = c
-    answers = {}
+    answers, malformed = {}, []
     with open(args.answers, encoding="utf-8") as fh:
-        for line in fh:
-            if line.strip():
+        for ln, line in enumerate(fh, 1):
+            if not line.strip():
+                continue
+            try:
                 a = json.loads(line)
-                answers[a["id"]] = a
+            except json.JSONDecodeError:
+                malformed.append("line %d: invalid JSON" % ln)
+                continue
+            if not isinstance(a, dict) or not isinstance(a.get("id"), str):
+                malformed.append("line %d: not an answer row (need object with string id)" % ln)
+                continue
+            if a["id"] in answers:
+                malformed.append("duplicate id: %s" % a["id"])
+            answers[a["id"]] = a
+    for u in sorted(set(answers) - set(cases)):
+        malformed.append("unknown id (not in case bank): %s" % u)
 
     rows, agg = [], defaultdict(lambda: defaultdict(int))
     hard_fail = 0
+    missing, errored = [], []
     for cid, c in sorted(cases.items()):
         a = answers.get(cid)
+        if a is None:
+            missing.append(cid)
+        else:
+            ans_text = a.get("answer")
+            if (not isinstance(ans_text, str) or not ans_text.strip()
+                    or ans_text.lstrip().startswith("[RUN-ERROR]")):
+                errored.append(cid)   # a null/empty/error string is NOT an answer — ungraded, incomplete
+                a = None
         row = {"id": cid, "type": c["type"], "domain": c["domain"], "answered": bool(a)}
         if a:
             ans = clean(a.get("answer", ""))
@@ -146,8 +176,12 @@ def main():
     # cache-repeat consistency: both members must land the same gold facts
     for cid, c in cases.items():
         if c["type"] == "cache-repeat" and c.get("repeat_of") in answers and cid in answers:
-            g1 = gold_ratio(answers[c["repeat_of"]]["answer"], c.get("gold_facts", []))
-            g2 = gold_ratio(answers[cid]["answer"], c.get("gold_facts", []))
+            _a1 = answers[c["repeat_of"]].get("answer")
+            _a2 = answers[cid].get("answer")
+            if not (isinstance(_a1, str) and isinstance(_a2, str)):
+                continue                       # null/malformed answers already drive exit 2 above
+            g1 = gold_ratio(_a1, c.get("gold_facts", []))
+            g2 = gold_ratio(_a2, c.get("gold_facts", []))
             if abs(g1 - g2) > 0.34:
                 print(f"  DRIFT {cid}: repeat answer disagrees with original (gold {g1:.2f} vs {g2:.2f})")
 
@@ -165,11 +199,24 @@ def main():
         print(line)
     flagged = [r["id"] for r in rows if r.get("judge_flag")]
     print(f"  judge-flagged (gold<0.5, needs human/LLM verify): {len(flagged)}")
+
+    # COMPLETENESS + MALFORMEDNESS (exit 2) — a cohort with holes is never an acceptance result.
+    def _preview(ids):
+        return ", ".join(ids[:6]) + ("…" if len(ids) > 6 else "")
+    if malformed:
+        print(f"  MALFORMED ({len(malformed)}): {_preview(malformed)}")
+    if missing or errored:
+        print(f"  INCOMPLETE — {len(missing)} case(s) missing from answers file, "
+              f"{len(errored)} error/empty answer(s)"
+              + (f"  missing: {_preview(missing)}" if missing else "")
+              + (f"  errored: {_preview(errored)}" if errored else ""))
+
     if args.json:
         with open(args.json, "w", encoding="utf-8") as fh:
             json.dump(rows, fh, indent=1)
         print(f"  full report -> {args.json}")
-    sys.exit(1 if hard_fail else 0)
+    # exit taxonomy (see module docstring): incomplete/malformed (2) > hard-gate fail (1) > clean (0)
+    sys.exit(2 if (malformed or missing or errored) else (1 if hard_fail else 0))
 
 
 if __name__ == "__main__":
