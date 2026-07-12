@@ -41,8 +41,9 @@ def main():
     rows = con.execute("SELECT directory FROM session WHERE time_created >= ?",
                        (t0_ms,)).fetchall()
     con.close()
-    ws = str(run300.WORKSPACE_ROOT)
-    anchored = [d for (d,) in rows if d and d.startswith(ws)]
+    # macOS: /var is a symlink to /private/var; opencode records the canonical path
+    roots = {str(run300.WORKSPACE_ROOT), str(run300.WORKSPACE_ROOT.resolve())}
+    anchored = [d for (d,) in rows if d and any(d.startswith(w) for w in roots)]
     print("answer head: %r" % ans[:60])
     print("new sessions since t0: %d, workspace-anchored: %d" % (len(rows), len(anchored)))
     ok = True
