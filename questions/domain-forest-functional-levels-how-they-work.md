@@ -20,32 +20,32 @@ updated: 2026-07-07
 
 # What are domain and forest functional levels and how do they work?
 
-**Domain and forest functional levels** are the AD DS compatibility and feature gate. They serve two purposes:
+**Domain and forest functional levels** are the AD DS compatibility and feature gate. They serve two purposes (extracted):
 
-1. **Lock the minimum OS version** for domain controllers — all DCs in scope must run at least the version the level names.
-2. **Unlock features** — raising the level enables new AD DS capabilities (e.g., authentication policies at 2012 R2 DFL, Privileged Access Management at 2016 FFL, 32k database pages at 2025 DFL).
+1. **Lock the minimum OS version** for domain controllers — all DCs in scope must run at least the version the level names (`ad-ds-active-directory-functional-levels.md:17`).
+2. **Unlock features** — raising the level enables new AD DS capabilities (`ad-ds-active-directory-functional-levels.md:17`).
 
 ## How they work
 
-- **Domain Functional Level (DFL)** — scoped to one domain. Every DC in that domain must meet the minimum OS. DFL can be set higher than FFL, but never lower.
-- **Forest Functional Level (FFL)** — forest-wide. Every DC in every domain must meet the minimum OS. The DFL of every domain must be at or above the target FFL first.
-- **Members servers and workstations are unaffected** — only inter-DC behavior and capabilities change.
-- **Irreversible** — once raised, you cannot roll back except by forest recovery (with narrow exceptions for 2012 R2 and 2008 R2 FFL rollbacks).
+- **Domain Functional Level (DFL)** — scoped to one domain. Every DC in that domain must meet the minimum OS. DFL can be set higher than FFL, but never lower (`ad-ds-active-directory-functional-levels.md:19`).
+- **Forest Functional Level (FFL)** — forest-wide. Every DC in every domain must meet the minimum OS. The DFL of every domain must be at or above the target FFL first (`ad-ds-raise-domain-forest-functional-levels.md:21-23`).
+- **Member servers and workstations are unaffected** — only inter-DC behavior and capabilities change (`ad-ds-active-directory-functional-levels.md:17`).
+- **Irreversible** — once raised, you cannot roll back without forest recovery (`ad-ds-raise-domain-forest-functional-levels.md:25-26, 96-97`).
 
 ## Feature unlocks by level
 
 | Level | New features |
 |---|---|
-| 2012 R2 DFL | Protected Users group DC-side enforcement, Authentication Policies, Authentication Policy Silos |
-| 2016 DFL/FFL | PAM via MIM (FFL); automatic NTLM secret rolling, PKInit Freshness SID, per-device NTLM restriction (DFL). DFSR required for SYSVOL. |
-| 2025 DFL | Database 32k pages optional feature |
+| 2012 R2 DFL | Protected Users group DC-side enforcement (no NTLM/DES/RC4, 4-hour TGT cap), Authentication Policies, Authentication Policy Silos (`ad-ds-active-directory-functional-levels.md:94-110`) |
+| 2016 DFL/FFL | PAM via MIM (FFL); automatic NTLM/password secret rolling, PKInit Freshness SID, per-device NTLM restriction (DFL). DFSR required for SYSVOL (`ad-ds-active-directory-functional-levels.md:64-65, 71-78`) |
+| 2025 DFL | Database 32k pages optional feature (`ad-ds-active-directory-functional-levels.md:48`) |
 
-Windows Server 2019 and 2022 do not introduce new functional levels — they both cap at the WS 2016 level.
+Windows Server 2019 and 2022 do not introduce new functional levels — they both cap at the WS 2016 level (`ad-ds-active-directory-functional-levels.md:35-37`; `ad-ds-raise-domain-forest-functional-levels.md:52`).
 
 ## How to raise
 
-1. Ensure all DCs in scope run the target OS version and replication is error-free.
-2. Back up global catalog and FSMO holders.
+1. Ensure all DCs in scope run the target OS version and replication is error-free (`ad-ds-raise-domain-forest-functional-levels.md:32-38`).
+2. Back up global catalog and FSMO holders (`ad-ds-raise-domain-forest-functional-levels.md:37-38`).
 3. Raise DFL first, then FFL:
 
 ```powershell
@@ -53,21 +53,21 @@ Set-ADDomainMode -Identity <domain> -DomainMode <level>
 Set-ADForestMode -Identity <forest> -ForestMode <level>
 ```
 
-When all DCs in the forest run Windows Server 2025, raising FFL to 2025 automatically raises all DFLs (inferred).
+When all DCs in the forest run Windows Server 2025, raising FFL to 2025 automatically raises all DFLs (`ad-ds-raise-domain-forest-functional-levels.md:98-101`).
 
 ## Key constraints
 
-- To promote a WS 2025 DC, the domain must already be at WS 2016 DFL.
-- To promote a WS 2019/2022 DC, the forest must be at WS 2008 FFL.
-- If any DC runs an OS older than the target, the raise is blocked.
-- FRS is deprecated as of WS 2016 — domains must migrate to DFSR before raising to 2016 DFL.
+- To promote a WS 2025 DC in an existing domain, the domain must already be at WS 2016 DFL (`ad-ds-raise-domain-forest-functional-levels.md:34`; `ad-ds-identifying-your-functional-level-upgrade.md:61, 71`).
+- To promote a WS 2019/2022 DC, the forest must be at WS 2008 FFL (inferred — minimum floor from OS compatibility).
+- If any DC runs an OS older than the target, the raise is blocked (`ad-ds-raise-domain-forest-functional-levels.md:19-22`).
+- FRS is deprecated; domains must migrate to DFSR before raising to 2016 DFL (`ad-ds-active-directory-functional-levels.md:64-65`).
 
 ## References
 
 **RH ground-truth (kb):**
 - `kb:ad-ds-active-directory-functional-levels` — Active Directory Domain Services Functional Levels
 - `kb:ad-ds-raise-domain-forest-functional-levels` — Raise Domain and Forest Functional Levels in AD DS on Windows Server
-- `kb:ad-ds-upgrade-domain-controllers` — Upgrade domain controllers to a newer version of Windows Server
+- `kb:ad-ds-identifying-your-functional-level-upgrade` — Identifying Your Functional Level Upgrade
 
 **Wiki:**
 - [[ad-functional-levels]] — the full entity page

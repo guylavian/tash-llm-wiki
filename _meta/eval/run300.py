@@ -19,7 +19,7 @@ cache-repeat cases run in a second phase (their originals must answer first).
 Grade afterwards with:
     python3 grade300.py --cases cases300.jsonl --answers <answers.jsonl> --json report300.json
 """
-import argparse, datetime, hashlib, json, os, pathlib, shutil, subprocess, sys, tarfile, tempfile, threading, time, uuid
+import argparse, datetime, hashlib, json, os, pathlib, re, shutil, subprocess, sys, tarfile, tempfile, threading, time, uuid
 from concurrent.futures import ThreadPoolExecutor, FIRST_COMPLETED, wait
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -83,10 +83,11 @@ def build_manifest(args, cases_path):
         # record-only provenance, NOT a resume invariant: live-vault changes cannot
         # affect the archived commit snapshot cases actually run against
         "input_fingerprint": input_fingerprint(),
-        # examinee's wikikb MCP (global opencode config, hardcoded PYTHONPATH) reads
-        # the LIVE vault regardless of workspace isolation — recorded, not yet fixed;
-        # complete fix = snapshot-local opencode.json + PYTHONPATH
-        "mcp_vault_source": "live-vault",
+        # live wikikb code/package; case-snapshot vault DATA via WIKIKB_VAULT_ROOT
+        # injected into the examinee env (opencode ignores per-project MCP config —
+        # falsified 2026-07-12; verified live by tests/opencode_merge_probe.py +
+        # deterministically by tests/mcp_isolation_probe.py)
+        "mcp_vault_source": "case-snapshot",
         "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "workers": args.workers,
         "timeout": args.timeout,
@@ -196,6 +197,31 @@ def _reference_state(root):
     return out
 
 
+def _frontmatter_block(text):
+    """The opening `--- … ---` block only — a body line must never match (veto fix)."""
+    if not text.startswith("---\n"):
+        return ""
+    end = text.find("\n---", 4)
+    return text[4:end] if end != -1 else ""
+
+
+def _strip_eval_born_pages(root):
+    """Drop pages tagged `origin: eval-cohort` from a cohort snapshot: prior cohorts'
+    filed answers are eval exhaust, not vault knowledge — a future examinee must not
+    cache-hit them. Returns the removed relpaths (recorded in the manifest)."""
+    removed = []
+    for d in ("questions", "topics", "entities"):
+        base = root / d
+        if not base.is_dir():
+            continue
+        for p in sorted(base.glob("*.md")):
+            fm = _frontmatter_block(p.read_text(encoding="utf-8", errors="replace"))
+            if re.search(r"^origin:\s*eval-cohort\s*$", fm, re.M):
+                p.unlink()
+                removed.append(str(p.relative_to(root)))
+    return removed
+
+
 def materialize_cohort_snapshot(manifest):
     """Materialize the exact recorded commit once; never source cases from the live vault."""
     commit = manifest.get("git_commit")
@@ -206,6 +232,22 @@ def materialize_cohort_snapshot(manifest):
         marker = base / ".wikikb-commit"
         if not marker.is_file() or marker.read_text(encoding="utf-8").strip() != commit:
             _refuse("cached cohort snapshot has wrong/missing commit marker")
+        # veto correction (blocker 2): the stripped list must survive resume — recover
+        # it from the snapshot's durable record and verify against the manifest.
+        stripped_file = base / ".wikikb-stripped.json"
+        if not stripped_file.is_file():
+            _refuse("cached cohort snapshot missing .wikikb-stripped.json (case-snapshot cohort)")
+        try:
+            cached = json.loads(stripped_file.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as e:
+            _refuse("unreadable .wikikb-stripped.json in cached snapshot (%s)" % e)
+        recorded = manifest.get("eval_born_pages_stripped")
+        if not isinstance(recorded, list):
+            _refuse("manifest missing/invalid eval_born_pages_stripped — cannot verify "
+                    "cached snapshot; use --new-run")
+        if recorded != cached:
+            _refuse("eval_born_pages_stripped mismatch: manifest %r vs snapshot %r"
+                    % (recorded, cached))
         return base
     COHORT_ROOT.mkdir(parents=True, exist_ok=True)
     tmp = pathlib.Path(tempfile.mkdtemp(prefix=manifest["run_id"] + "-", dir=str(COHORT_ROOT)))
@@ -216,6 +258,9 @@ def materialize_cohort_snapshot(manifest):
             tf.extractall(tmp, filter="data")
         if p.wait() != 0:
             raise RuntimeError("git archive failed")
+        manifest["eval_born_pages_stripped"] = _strip_eval_born_pages(tmp)
+        (tmp / ".wikikb-stripped.json").write_text(
+            json.dumps(manifest["eval_born_pages_stripped"]), encoding="utf-8")
         (tmp / ".wikikb-commit").write_text(commit + "\n", encoding="utf-8")
         for path in sorted(tmp.rglob("*"), reverse=True):
             path.chmod(0o555 if path.is_dir() else 0o444)
@@ -272,6 +317,14 @@ def ask(case, model, timeout, keep_workspace=False, no_expand=False, source_root
                 # (verified via its session DB) — without this, examinee file ops
                 # and AGENTS.md loading target the LIVE vault, not the snapshot.
                 env["PWD"] = str(snap)
+                # deterministic snapshot-local package resolution for any direct
+                # `python3 -m wikikb` the examinee runs (veto correction, blocker 1)
+                env["PYTHONPATH"] = str(snap / "_meta")
+                # THE effective MCP isolation: opencode ignores per-project MCP config
+                # (verified 2026-07-12, tee probe), so the global-config wikikb server —
+                # spawned fresh per `opencode run` — inherits this and scopes every
+                # vault read to the case snapshot via paths.py.
+                env["WIKIKB_VAULT_ROOT"] = str(snap)
                 if no_expand:
                     env["WIKIKB_NO_EXPAND"] = "1"
                 r = subprocess.run(
@@ -364,6 +417,23 @@ def main():
     if manifest.get("git_dirty") and not manifest.get("allow_dirty"):
         _refuse("vault was dirty at cohort creation; clean it or use --allow-dirty for a non-publishable run")
     source_root = materialize_cohort_snapshot(manifest)
+    # persist the finalized manifest (incl. eval_born_pages_stripped) ATOMICALLY —
+    # a truncated manifest right before an expensive cohort would poison resume
+    mp = manifest_path(out)
+    tmp_mp = mp.with_suffix(".tmp")
+    tmp_mp.write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+    os.replace(tmp_mp, mp)
+    lock = WIKI / ".eval-lock"
+    if lock.exists():
+        try:
+            holder = json.loads(lock.read_text(encoding="utf-8"))
+            os.kill(int(holder.get("pid", 0)), 0)
+            _refuse("another live cohort holds %s (run %s, pid %s) — one run at a time"
+                    % (lock, holder.get("run_id"), holder.get("pid")))
+        except (OSError, ValueError):
+            pass                                   # stale lock — take it over
+    lock.write_text(json.dumps({"run_id": manifest["run_id"], "pid": os.getpid()}),
+                    encoding="utf-8")
     print(f"cohort {manifest['run_id']} (model {manifest['model']}) -> {out}")
     done = set()
     if out.exists():
@@ -406,8 +476,15 @@ def main():
 
     firsts = [c for c in cases if c["type"] != "cache-repeat"]
     repeats = [c for c in cases if c["type"] == "cache-repeat"]
-    run_phase(firsts, "phase 1 (originals)")
-    run_phase(repeats, "phase 2 (cache-repeats)")
+    try:
+        run_phase(firsts, "phase 1 (originals)")
+        run_phase(repeats, "phase 2 (cache-repeats)")
+    finally:
+        try:                                       # release the 15:09-rule vault lock
+            if json.loads(lock.read_text(encoding="utf-8")).get("run_id") == manifest["run_id"]:
+                lock.unlink()
+        except (OSError, ValueError):
+            pass
 
     errs = sum(1 for l in open(out, encoding="utf-8")
                if l.strip() and json.loads(l)["answer"].startswith("[RUN-ERROR]"))

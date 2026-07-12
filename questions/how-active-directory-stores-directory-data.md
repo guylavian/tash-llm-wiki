@@ -20,15 +20,15 @@ updated: 2026-07-07
 
 # Where and how does Active Directory store its directory data?
 
-**Active Directory stores all directory objects in the `NTDS.dit` file — an Extensible Storage Engine (ESE) database — located by default at `%SystemRoot%\NTDS\NTDS.dit`.**
+**Active Directory stores all directory objects in the `NTDS.dit` file — an Extensible Storage Engine (ESE) database — located by default at `%SystemRoot%\NTDS\NTDS.dit`.** (extracted — `ad-ds-32k-pages-optional-feature.md:20`, `ad-ds-active-directory-domain-services-maximum-limits.md:117`)
 
 ## Database engine
 
-AD DS uses the **Extensible Storage Engine (ESE)**, the same indexed/sequential storage engine used by Exchange Server. ESE is a page-based database: the database file is divided into fixed-size pages (8,192 bytes by default in all Windows Server versions through 2022).
+AD DS uses the **Extensible Storage Engine (ESE)**, the same indexed/sequential storage engine used by Exchange Server (extracted — `ad-ds-32k-pages-optional-feature.md:20`). ESE is a page-based database: the database file is divided into fixed-size pages (8,192 bytes by default in all Windows Server versions through 2022) (extracted — `ad-ds-32k-pages-optional-feature.md:20-24`).
 
 ## What the database holds
 
-The single `NTDS.dit` file on each domain controller holds every object across four partition types:
+The single `NTDS.dit` file on each domain controller holds every object across four partition types (inferred — standard AD DS model from `ad-ds-active-directory-domain-services-maximum-limits.md:23-24`, which confirms all partitions share the same database):
 
 - **Domain partition** — users, groups, computers, OUs, and all per-domain objects
 - **Configuration partition** — the forest-wide topology (sites, services, partitions, DC objects)
@@ -42,13 +42,15 @@ The single `NTDS.dit` file on each domain controller holds every object across f
 | 8k (legacy) | Windows 2000 | 8,192 bytes | ~1,200 values per object |
 | 32k (optional) | Windows Server 2025 | 32,768 bytes | ~3,200 values per object |
 
-Since Windows Server 2025, a **forest-wide optional feature** (`Database 32k pages`) allows switching to 32k pages. This is **irreversible** — rollback requires full authoritative forest recovery. New 2025 DCs ship 32k-capable but run in 8k simulation mode until the feature is enabled.
+(extracted — `ad-ds-32k-pages-optional-feature.md:20-24`, `ad-ds-active-directory-domain-services-maximum-limits.md:217`)
+
+Since Windows Server 2025, a **forest-wide optional feature** (`Database 32k pages`) allows switching to 32k pages. This is **irreversible** — rollback requires full authoritative forest recovery (extracted — `ad-ds-32k-pages-optional-feature.md:52`). New 2025 DCs ship 32k-capable but run in 8k simulation mode until the feature is enabled (extracted — `ad-ds-32k-pages-optional-feature.md:26`).
 
 ## Storage behavior
 
-- The database grows monotonically; space from deleted objects is **reused internally**, not returned to the OS. Offline defragmentation (`ntdsutil files compact`) reclaims disk space.
-- Each DC tracks objects via **Distinguished Name Tags (DNTs)** — DC-local, monotonically increasing IDs — capped at **2,147,483,393 objects per DC lifetime**.
-- The directory also stores per-object attributes and security descriptors within the ESE B+ tree structure.
+- The database grows monotonically; space from deleted objects is **reused internally**, not returned to the OS. Offline defragmentation (`ntdsutil files compact`) reclaims disk space (inferred — standard ESE behavior; DNT non-reuse confirmed at `ad-ds-active-directory-domain-services-maximum-limits.md:23-24`).
+- Each DC tracks objects via **Distinguished Name Tags (DNTs)** — DC-local, monotonically increasing IDs — capped at **2,147,483,393 objects per DC lifetime** (extracted — `ad-ds-active-directory-domain-services-maximum-limits.md:21-24`).
+- The directory also stores per-object attributes and security descriptors within the ESE B+ tree structure (inferred).
 
 ## Supporting files
 
@@ -58,6 +60,8 @@ Alongside `NTDS.dit`, the `%SystemRoot%\NTDS\` directory holds:
 - **`edb.chk`** — checkpoint file tracking which log entries are already flushed to the DIT
 - **`edbres00001.jrs` / `edbres00002.jrs`** — reserved log space for graceful shutdown when disk is full
 - **`temp.edb`** — temporary workspace for large transactions
+
+(inferred — ESE engine standard behavior, cited by reference at `ad-ds-32k-pages-optional-feature.md:20` which names ESE as the engine)
 
 ## References
 
