@@ -1051,6 +1051,44 @@ check("grade300 exit taxonomy: empty/partial/[RUN-ERROR]/ws-sentinel/null/dup/un
       f"empty={_rc_empty} partial={_rc_partial} runerr={_rc_runerr} ws={_rc_wsrunerr} null={_rc_null} "
       f"dup={_rc_dup} unknown={_rc_unknown} nonobj={_rc_nonobj} clean={_rc_clean} gatefail={_rc_gate}")
 
+# NN+1b. run300 cohort identity (WI-3): zero-work runs still establish a complete cohort on disk;
+# resume refuses foreign row stamps, malformed manifests, and --new-run/--overwrite conflicts;
+# grade300 treats a non-string run_id as MALFORMED. All with --limit 0, so no model is invoked.
+_R3 = os.path.join(META, "eval", "run300.py")
+with _g3tmp.TemporaryDirectory() as _r3d:
+    _r3cases = os.path.join(_r3d, "cases.jsonl")
+    with open(_r3cases, "w", encoding="utf-8") as _fh:
+        _fh.write(_g3json.dumps({"id": "t-001", "type": "lexical", "domain": "keycloak",
+                                 "question": "q1", "expected_slugs": [], "gold_facts": []}) + "\n")
+    _r3a = os.path.join(_r3d, "a.jsonl")
+    def _r3run(*extra):
+        _p = subprocess.run([PY, _R3, "--cases", _r3cases, "--answers", _r3a, "--model", "m-A",
+                             "--limit", "0", *extra], capture_output=True, text=True, cwd=META)
+        return _p.returncode
+    _rc_new = _r3run()                                           # establish cohort, zero work
+    _r3_file_exists = os.path.isfile(_r3a)                       # answers file must exist already
+    _rc_resume = _r3run()                                        # clean resume
+    with open(_r3a, "a", encoding="utf-8") as _fh:               # a row stamped by a STRANGER run
+        _fh.write(_g3json.dumps({"id": "t-001", "answer": "x", "run_id": "stranger", "model": "m-A"}) + "\n")
+    _rc_stranger = _r3run()
+    os.unlink(_r3a); open(_r3a, "w").close()
+    with open(_r3a + ".manifest.json", "w", encoding="utf-8") as _fh:
+        _fh.write("{not json")                                   # corrupt manifest
+    _rc_badman = _r3run()
+    _rc_conflict = _r3run("--new-run", "--overwrite")            # mutually exclusive flags
+    # grade300: non-string run_id is malformed, not a crash
+    _r3g = os.path.join(_r3d, "g.jsonl")
+    with open(_r3g, "w", encoding="utf-8") as _fh:
+        _fh.write(_g3json.dumps({"id": "t-001", "answer": "an answer", "run_id": 42}) + "\n")
+    _rc_intrid = subprocess.run([PY, _G3, "--cases", _r3cases, "--answers", _r3g],
+                                capture_output=True, text=True, cwd=META).returncode
+check("run300 cohort identity: zero-work establishes file, clean resume, stranger-row/bad-manifest "
+      "refusals, flag conflict, grade300 non-string run_id -> (0,True,0,2,2,2,2)",
+      (_rc_new, _r3_file_exists, _rc_resume, _rc_stranger, _rc_badman, _rc_conflict, _rc_intrid)
+      == (0, True, 0, 2, 2, 2, 2),
+      f"new={_rc_new} exists={_r3_file_exists} resume={_rc_resume} stranger={_rc_stranger} "
+      f"badman={_rc_badman} conflict={_rc_conflict} intrid={_rc_intrid}")
+
 # NN+2. the committed legacy cohort is explicitly incomplete — grading it must exit 2, never 0.
 _leg = os.path.join(META, "eval", "answers300-partial-legacy.jsonl")
 _p = subprocess.run([PY, _G3, "--cases", os.path.join(META, "eval", "cases300.jsonl"),

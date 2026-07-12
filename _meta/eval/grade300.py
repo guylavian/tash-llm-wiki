@@ -134,6 +134,24 @@ def main():
     for u in sorted(set(answers) - set(cases)):
         malformed.append("unknown id (not in case bank): %s" % u)
 
+    # COHORT IDENTITY (WI-3): rows are stamped {run_id, model} by run300. A file mixing runs is
+    # not one cohort and must never grade as one. All-unstamped = one LEGACY cohort (warn only).
+    run_ids = set()
+    for a in answers.values():
+        rid = a.get("run_id")
+        if rid is None:
+            run_ids.add(None)
+        elif not isinstance(rid, str) or not rid.strip():
+            malformed.append("invalid run_id (non-string/empty) on %s" % a.get("id"))
+        else:
+            run_ids.add(rid)
+    legacy_cohort = bool(answers) and run_ids == {None}
+    stamped = sorted(r for r in run_ids if r is not None)
+    if len(stamped) > 1:
+        malformed.append("mixed cohorts: %d distinct run_ids (%s)" % (len(stamped), ", ".join(stamped[:3])))
+    elif stamped and None in run_ids:
+        malformed.append("mixed cohorts: stamped and unstamped (legacy) rows in one file")
+
     rows, agg = [], defaultdict(lambda: defaultdict(int))
     hard_fail = 0
     missing, errored = [], []
@@ -203,6 +221,8 @@ def main():
     # COMPLETENESS + MALFORMEDNESS (exit 2) — a cohort with holes is never an acceptance result.
     def _preview(ids):
         return ", ".join(ids[:6]) + ("…" if len(ids) > 6 else "")
+    if legacy_cohort:
+        print("  note: legacy cohort (no run_id stamps) — treated as one cohort; new runs are stamped")
     if malformed:
         print(f"  MALFORMED ({len(malformed)}): {_preview(malformed)}")
     if missing or errored:
