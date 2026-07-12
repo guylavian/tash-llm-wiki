@@ -29,6 +29,7 @@ THIN_K = 3         # fewer than this many lexical hits -> "thin" -> graph-expand
 # truncation marker naming the note — a missing table that says so beats a corrupted one.
 _TABLE_OR_LIST_LINE_RE = re.compile(r"^\s*(\||[-*+]\s|\d+\.\s)")
 _TRUNC_MARK = "[…context truncated mid-table — open %s for the full table]"
+_GENERIC_TRUNC_MARK = "[…context truncated — open %s for the full note]"
 
 
 def _fit_lines(body, budget):
@@ -48,42 +49,51 @@ def _fit_lines(body, budget):
 
 
 def _fit_candidate(cid, body, budget, first):
-    """Fit ONE candidate's body into `budget` chars (whole-line, via _fit_lines), reserving room for
-    the header and a possible _TRUNC_MARK. Returns (piece_or_None, chars_used) — None when even the
-    header+marker don't fit in this share (caller skips and moves on, never crashes)."""
+    """Fit one candidate into its share, returning ``(piece, chars_used, truncated)``.
+
+    Every body cut gets a marker: the existing table-specific marker when the first dropped line is
+    tabular, otherwise the generic full-note marker. If the share cannot hold header+marker, emit a
+    marker-only piece when possible so a wholly skipped candidate is not silently invisible."""
     header = "[%s]\n" % cid
     sep = 2 if not first else 0                     # the "\n\n" join separator
+    if sep + len(header) + len(body) <= budget:     # true all-fit: preserve historical bytes exactly
+        piece = header + body
+        return piece, sep + len(piece), False
     avail = budget - sep - len(header) - len(_TRUNC_MARK % cid) - 1
     if avail <= 0:
-        return None, 0
-    if len(body) <= avail:
-        piece = header + body
-        return piece, sep + len(piece)
+        marker = _GENERIC_TRUNC_MARK % cid
+        if sep + len(marker) <= budget:
+            return marker, sep + len(marker), True
+        return None, 0, True
     fitted, cut_tabular = _fit_lines(body, avail)
     piece = header + fitted
-    if cut_tabular:
-        piece += "\n" + _TRUNC_MARK % cid
-    return piece, sep + len(piece)
+    marker = (_TRUNC_MARK if cut_tabular else _GENERIC_TRUNC_MARK) % cid
+    piece += "\n" + marker
+    return piece, sep + len(piece), True
 
 
-def _assemble_context(cands, limit=CTX_CHARS):
+def _assemble_context(cands, limit=CTX_CHARS, return_truncated=False):
     """Join candidate (id, body) pairs into one `[id]\\n<body>` context string capped at `limit`
     chars. Fair-share budgeting (fixes the 2026-07 context-starvation bug: one huge rank-1 note
     was evicting every other candidate): each candidate's share is `remaining // remaining_count`,
     recomputed as we go, so a candidate that needs less than its share leaves the leftover for the
     ones after it — every candidate gets SOME context before any one of them gets all of it. The
-    cut is still whole-line only (see _fit_lines) and a clipped table run still gets _TRUNC_MARK,
-    now per-candidate rather than only on the last one served."""
+    cut is still whole-line only (see _fit_lines). Every drop is explicit: table/list cuts retain
+    the distinct _TRUNC_MARK; prose cuts and wholly skipped candidates get _GENERIC_TRUNC_MARK.
+    With ``return_truncated=True``, also return the ordered ids whose bodies were incomplete."""
     cands = [(cid, body) for cid, body in cands if body]
-    out, remaining = [], limit
+    out, truncated_ids, remaining = [], [], limit
     for i, (cid, body) in enumerate(cands):
         share = remaining // (len(cands) - i)
-        piece, used = _fit_candidate(cid, body, share, first=not out)
+        piece, used, truncated = _fit_candidate(cid, body, share, first=not out)
+        if truncated:
+            truncated_ids.append(cid)
         if piece is None:
-            continue                                # this share was too small even for the header — skip, try next
+            continue                                # too little room even for marker-only; id remains recorded
         out.append(piece)
         remaining -= used
-    return "\n\n".join(out)
+    context = "\n\n".join(out)
+    return (context, truncated_ids) if return_truncated else context
 
 
 # ---------- QUERY nodes -----------------------------------------------------------------------
@@ -289,7 +299,7 @@ def synthesize_node(state):
     cands = state.get("candidates", [])
     cand_ids = [cid for cid, _ in cands]
     top_ids = ", ".join(cand_ids[:5]) or "(no candidates)"
-    ctx = _assemble_context(cands)
+    ctx, truncated_ids = _assemble_context(cands, return_truncated=True)
     messages = [
         {"role": "system", "content": (
             "Answer the question using ONLY the provided context. After every claim, add an inline "
@@ -346,7 +356,8 @@ def synthesize_node(state):
     if prefix:
         answer = prefix + answer
     out = {"answer": answer, "used": used, "grounding_fail": grounding_fail,
-           "ungrounded_identifiers": ungrounded_identifiers, "grounding_basis": grounding_basis}
+           "ungrounded_identifiers": ungrounded_identifiers, "grounding_basis": grounding_basis,
+           "truncated_ids": truncated_ids}
     if judge_verdict is not None:
         out["judge_verdict"] = judge_verdict
     return out

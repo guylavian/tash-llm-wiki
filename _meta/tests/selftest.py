@@ -991,20 +991,31 @@ except Exception:                                                          # noq
 check("verify: cross-line-wrap claim (terminationGracePeriodSeconds:30s) binds -> VERIFIED",
       _vg_ok, f"rc={_vg.returncode} out={_vg.stdout[:200]}")
 
-# NN. table-safe context cap: _assemble_context never clips a numeric table row mid-cell — the cut
-# is whole-line only, a clipped run gets the explicit mid-table marker, and the cap holds.
+# NN. context truncation: every drop is explicit and machine-readable; tabular cuts retain their
+# distinct incident marker, prose/skipped candidates use the generic marker, and all-fit bytes stay.
 from wikikb.graph import nodes as _tnodes
 _tbl = ("\n\n| Workload | Req/s | vCPU |\n|---|---|---|\n| Password login | 15 | 1 |\n"
         "| Client credential grant | 200 | 1 |\n")
 _cut = _tbl.index("| Client credential grant | 200") + len("| Client credential grant | 20")
 _tbody = "x" * (8000 - len("[n1]\n") - _cut) + _tbl
-_tctx = _tnodes._assemble_context([("n1", _tbody)])
+_tctx, _tids = _tnodes._assemble_context([("n1", _tbody)], return_truncated=True)
 _tt1 = len(_tctx) <= _tnodes.CTX_CHARS
 _tt2 = all(ln.rstrip().endswith("|") for ln in _tctx.splitlines() if ln.startswith("|"))
-_tt3 = "truncated mid-table" in _tctx and "n1" in _tctx.splitlines()[-1]
+_tt3 = ("truncated mid-table" in _tctx and "context truncated — open" not in _tctx
+        and "n1" in _tctx.splitlines()[-1] and _tids == ["n1"])
 _tt4 = _tnodes._assemble_context([("n1", "alpha"), ("n2", "beta")]) == "[n1]\nalpha\n\n[n2]\nbeta"
-check("table-safe ctx: whole-line cut, no partial pipe row, mid-table marker, all-fit byte-identical",
-      _tt1 and _tt2 and _tt3 and _tt4, f"t1={_tt1} t2={_tt2} t3={_tt3} t4={_tt4}")
+_pctx, _pids = _tnodes._assemble_context([("prose-note", "prose line\n" * 100)], limit=180,
+                                          return_truncated=True)
+_tt5 = "[…context truncated — open prose-note for the full note]" in _pctx and _pids == ["prose-note"]
+_sctx, _sids = _tnodes._assemble_context([("skipped-note", "x" * 500), ("kept-note", "ok")], limit=120,
+                                          return_truncated=True)
+_tt6 = "[…context truncated — open skipped-note for the full note]" in _sctx \
+    and "[skipped-note]\n" not in _sctx and "[kept-note]\nok" in _sctx and _sids == ["skipped-note"]
+_tsyn = _tnodes.synthesize_node({"query": "q", "candidates": [("prose-note", "prose line\n" * 1000)]})
+_tt7 = _tsyn.get("truncated_ids") == ["prose-note"]
+check("context truncation: table-specific marker, generic prose/skipped markers + ids, all-fit bytes",
+      _tt1 and _tt2 and _tt3 and _tt4 and _tt5 and _tt6 and _tt7,
+      f"t1={_tt1} t2={_tt2} t3={_tt3} t4={_tt4} t5={_tt5} t6={_tt6} t7={_tt7}")
 
 # NN+1. Fair-share context budgeting (2026-07 audit fix — confirmed failure: a 47k-char rank-1 note
 # starved out every other candidate, including the one holding the correct answer). Each candidate
