@@ -29,7 +29,6 @@ MANIFEST_SCHEMA = "run300/2"
 ISOLATION = "manifest-commit-full-copy"
 WORKSPACE_ROOT = pathlib.Path(tempfile.gettempdir()) / "wikikb-eval-workspaces"
 COHORT_ROOT = WORKSPACE_ROOT / "cohorts"
-MUTABLE_DIRS = ("questions", "topics", "entities")
 OUTPUT_CONTRACT = ("\n\nMandatory output contract: end with a Markdown `## References` section "
                    "containing two labeled groups: `RH ground-truth` with at least one verified "
                    "`kb:`/`guide:`/`ref:` sources, and `Wiki` with the `[[slug]]` pages used. A group "
@@ -74,7 +73,13 @@ def build_manifest(args, cases_path):
         "git_status_ok": status is not None,
         "git_dirty": bool(status),
         "allow_dirty": bool(args.allow_dirty),
+        # record-only provenance, NOT a resume invariant: live-vault changes cannot
+        # affect the archived commit snapshot cases actually run against
         "input_fingerprint": input_fingerprint(),
+        # examinee's wikikb MCP (global opencode config, hardcoded PYTHONPATH) reads
+        # the LIVE vault regardless of workspace isolation — recorded, not yet fixed;
+        # complete fix = snapshot-local opencode.json + PYTHONPATH
+        "mcp_vault_source": "live-vault",
         "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "workers": args.workers,
         "timeout": args.timeout,
@@ -172,31 +177,6 @@ def resolve_cohort(args, cases_path):
     return _establish(out, fresh)
 
 
-def _snapshot_ignore(src, names):
-    """Exclude evaluator secrets/caches/artifacts and items copied separately as mutable files."""
-    rel = pathlib.Path(src).resolve().relative_to(WIKI.resolve())
-    ignored = {n for n in names if n == "__pycache__"}
-    ignored.update(n for n in names
-                   if (n.startswith("answers") and n.endswith(".jsonl"))
-                   or (n.startswith("report") and n.endswith(".json"))
-                   or (n.startswith("answers") and n.endswith(".manifest.json")))
-    if not rel.parts:                              # vault root
-        ignored.update({".git", ".obsidian", *MUTABLE_DIRS})
-        ignored.update(n for n in names if n.startswith("index") and n.endswith(".md"))
-    elif rel == pathlib.Path("_meta"):
-        ignored.update({"eval", ".eval-workspaces"})
-    return ignored
-
-
-def _link_or_copy(src, dst):
-    """Hardlink the read-only tier; fall back per-file when the filesystem cannot link."""
-    try:
-        os.link(src, dst)
-        return dst
-    except OSError:
-        return shutil.copy2(src, dst)
-
-
 def _reference_state(root):
     """relpath -> (inode, mtime_ns, size) for the hardlinked immutable reference tier."""
     ref = pathlib.Path(root) / "reference"
@@ -267,7 +247,8 @@ def reference_integrity_error(before):
         return None
     changed = sorted(set(before) ^ set(after))
     changed.extend(k for k in set(before) & set(after) if before[k] != after[k])
-    return "reference/ changed through hardlinked workspace: %s" % ", ".join(sorted(set(changed))[:5])
+    return ("reference/ changed in the LIVE vault during this case (frozen-vault violation; "
+            "first 5): %s" % ", ".join(sorted(set(changed))[:5]))
 
 
 def ask(case, model, timeout, keep_workspace=False, no_expand=False, source_root=None):
@@ -275,10 +256,15 @@ def ask(case, model, timeout, keep_workspace=False, no_expand=False, source_root
     snap = None
     try:
         snap = build_case_snapshot(case["id"], source_root)
+        reference_before = _reference_state(WIKI)
         err = "no output"
         for attempt in (1, 2):
             try:
                 env = os.environ.copy()
+                # opencode resolves its project dir from $PWD, not the process cwd
+                # (verified via its session DB) — without this, examinee file ops
+                # and AGENTS.md loading target the LIVE vault, not the snapshot.
+                env["PWD"] = str(snap)
                 if no_expand:
                     env["WIKIKB_NO_EXPAND"] = "1"
                 r = subprocess.run(
@@ -293,6 +279,9 @@ def ask(case, model, timeout, keep_workspace=False, no_expand=False, source_root
             time.sleep(5 * attempt)  # ponytail: fixed backoff; free-tier rate limits are the ceiling
         else:
             out = ""
+        integrity = reference_integrity_error(reference_before)
+        if integrity:
+            return "[RUN-ERROR] " + integrity
         return out if out else f"[RUN-ERROR] {err}"
     except Exception as e:
         return "[RUN-ERROR] workspace: %s" % e
