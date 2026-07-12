@@ -111,6 +111,8 @@ def expand(domain, query, k=10):
       notes_closure = notes_seed PLUS the seeds' [[linked]] same-domain pages' `## Sources`
                       — broader recall, looser precision.
     Retrieval should prefer notes_seed and treat notes_closure as the fallback ceiling."""
+    if os.environ.get("WIKIKB_NO_EXPAND") == "1":
+        return {"seeds": [], "neighbors": [], "notes_seed": set(), "notes_closure": set()}
     G = load_pages()
     seeds = rank_pages(domain, query)[:k]
     neighbors, notes_seed, notes_closure = [], set(), set()

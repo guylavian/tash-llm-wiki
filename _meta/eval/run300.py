@@ -19,16 +19,21 @@ cache-repeat cases run in a second phase (their originals must answer first).
 Grade afterwards with:
     python3 grade300.py --cases cases300.jsonl --answers <answers.jsonl> --json report300.json
 """
-import argparse, datetime, hashlib, json, os, pathlib, shutil, subprocess, sys, tempfile, threading, time, uuid
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import argparse, datetime, hashlib, json, os, pathlib, shutil, subprocess, sys, tarfile, tempfile, threading, time, uuid
+from concurrent.futures import ThreadPoolExecutor, FIRST_COMPLETED, wait
 
 HERE = pathlib.Path(__file__).resolve().parent
 WIKI = HERE.parent.parent
 LOCK = threading.Lock()
-MANIFEST_SCHEMA = "run300/1"
-ISOLATION = "workspace-redaction-hybrid-copy"
+MANIFEST_SCHEMA = "run300/2"
+ISOLATION = "manifest-commit-full-copy"
 WORKSPACE_ROOT = pathlib.Path(tempfile.gettempdir()) / "wikikb-eval-workspaces"
+COHORT_ROOT = WORKSPACE_ROOT / "cohorts"
 MUTABLE_DIRS = ("questions", "topics", "entities")
+OUTPUT_CONTRACT = ("\n\nMandatory output contract: end with a Markdown `## References` section "
+                   "containing two labeled groups: `RH ground-truth` with at least one verified "
+                   "`kb:`/`guide:`/`ref:` sources, and `Wiki` with the `[[slug]]` pages used. A group "
+                   "may explicitly say that no verified source was used; never invent one.")
 
 
 def _git(*args):
@@ -39,8 +44,25 @@ def _git(*args):
         return None
 
 
+def input_fingerprint():
+    """Fast live-input identity: paths + mtimes + sizes, excluding evaluator outputs/caches."""
+    h = hashlib.sha256()
+    for root, dirs, files in os.walk(WIKI):
+        relroot = pathlib.Path(root).relative_to(WIKI)
+        dirs[:] = sorted(d for d in dirs if d not in {".git", ".obsidian", "__pycache__"}
+                        and not (relroot == pathlib.Path("_meta") and d == "eval"))
+        for name in sorted(files):
+            p = pathlib.Path(root) / name
+            rel = p.relative_to(WIKI)
+            st = p.stat()
+            h.update((str(rel) + "\0" + str(st.st_mtime_ns) + "\0" + str(st.st_size) + "\n").encode())
+    return h.hexdigest()
+
+
 def build_manifest(args, cases_path):
     blob = pathlib.Path(cases_path).read_bytes()
+    commit = _git("rev-parse", "HEAD")
+    status = _git("status", "--porcelain")
     return {
         "schema": MANIFEST_SCHEMA,
         "run_id": (datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -48,12 +70,18 @@ def build_manifest(args, cases_path):
         "model": args.model,
         "cases_sha256": hashlib.sha256(blob).hexdigest(),
         "cases_count": sum(1 for l in blob.splitlines() if l.strip()),
-        "git_commit": _git("rev-parse", "HEAD"),
-        "git_dirty": bool(_git("status", "--porcelain")),
+        "git_commit": commit,
+        "git_status_ok": status is not None,
+        "git_dirty": bool(status),
+        "allow_dirty": bool(args.allow_dirty),
+        "input_fingerprint": input_fingerprint(),
         "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "workers": args.workers,
         "timeout": args.timeout,
+        "max_consecutive_timeouts": args.max_consecutive_timeouts,
         "isolation": ISOLATION,
+        "expand": not args.no_expand,
+        "prompt_sha256": hashlib.sha256(OUTPUT_CONTRACT.encode()).hexdigest(),
     }
 
 
@@ -131,7 +159,8 @@ def resolve_cohort(args, cases_path):
                     "fresh cohort or --overwrite to replace it." % out)
         man = _load_manifest(mp)
         fresh = build_manifest(args, cases_path)
-        for key in ("model", "cases_sha256", "isolation"):
+        for key in ("model", "cases_sha256", "isolation", "expand", "prompt_sha256",
+                    "workers", "timeout", "max_consecutive_timeouts"):
             if man.get(key) != fresh[key]:
                 _refuse("manifest %s mismatch (manifest=%r, now=%r). Use --new-run or --overwrite."
                         % (key, man.get(key), fresh[key]))
@@ -180,22 +209,53 @@ def _reference_state(root):
     return out
 
 
-def build_case_snapshot(case_id):
-    """Build one isolated case workspace: mutable synthesis is copied, everything else linked."""
+def materialize_cohort_snapshot(manifest):
+    """Materialize the exact recorded commit once; never source cases from the live vault."""
+    commit = manifest.get("git_commit")
+    if not commit:
+        _refuse("manifest has no valid git commit")
+    base = COHORT_ROOT / manifest["run_id"]
+    if base.is_dir():
+        marker = base / ".wikikb-commit"
+        if not marker.is_file() or marker.read_text(encoding="utf-8").strip() != commit:
+            _refuse("cached cohort snapshot has wrong/missing commit marker")
+        return base
+    COHORT_ROOT.mkdir(parents=True, exist_ok=True)
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix=manifest["run_id"] + "-", dir=str(COHORT_ROOT)))
+    try:
+        p = subprocess.Popen(["git", "archive", "--format=tar", commit], cwd=str(WIKI),
+                             stdout=subprocess.PIPE)
+        with tarfile.open(fileobj=p.stdout, mode="r|") as tf:
+            tf.extractall(tmp, filter="data")
+        if p.wait() != 0:
+            raise RuntimeError("git archive failed")
+        (tmp / ".wikikb-commit").write_text(commit + "\n", encoding="utf-8")
+        for path in sorted(tmp.rglob("*"), reverse=True):
+            path.chmod(0o555 if path.is_dir() else 0o444)
+        tmp.chmod(0o555)
+        tmp.rename(base)
+    except Exception:
+        shutil.rmtree(tmp, ignore_errors=True)
+        raise
+    return base
+
+
+def build_case_snapshot(case_id, source_root):
+    """Build one fully copied case workspace from the immutable cohort snapshot."""
     WORKSPACE_ROOT.mkdir(parents=True, exist_ok=True)
     safe = "".join(c if c.isalnum() or c in "-_" else "-" for c in str(case_id))[:80] or "case"
     snap = pathlib.Path(tempfile.mkdtemp(prefix=safe + "-", dir=str(WORKSPACE_ROOT)))
     shutil.rmtree(snap)                            # copytree requires a non-existent destination
     try:
-        shutil.copytree(WIKI, snap, copy_function=_link_or_copy, ignore=_snapshot_ignore)
-        for name in MUTABLE_DIRS:
-            src = WIKI / name
-            if src.is_dir():
-                shutil.copytree(src, snap / name, copy_function=shutil.copy2,
-                                ignore=shutil.ignore_patterns("__pycache__"))
-        for src in WIKI.glob("index*.md"):
-            shutil.copy2(src, snap / src.name)
-        return snap, _reference_state(WIKI)
+        shutil.copytree(source_root, snap, copy_function=shutil.copy2,
+                        ignore=shutil.ignore_patterns("__pycache__"))
+        for path in sorted(snap.rglob("*"), reverse=True):
+            if path.is_dir():
+                path.chmod(0o755)
+            else:
+                path.chmod(0o755 if path.stat().st_mode & 0o111 else 0o644)
+        snap.chmod(0o755)
+        return snap
     except Exception:
         shutil.rmtree(snap, ignore_errors=True)
         raise
@@ -210,17 +270,20 @@ def reference_integrity_error(before):
     return "reference/ changed through hardlinked workspace: %s" % ", ".join(sorted(set(changed))[:5])
 
 
-def ask(case, model, timeout, keep_workspace=False):
+def ask(case, model, timeout, keep_workspace=False, no_expand=False, source_root=None):
     """Run one case in its own redacted snapshot; never share filed pages across cases."""
     snap = None
     try:
-        snap, reference_before = build_case_snapshot(case["id"])
+        snap = build_case_snapshot(case["id"], source_root)
         err = "no output"
         for attempt in (1, 2):
             try:
+                env = os.environ.copy()
+                if no_expand:
+                    env["WIKIKB_NO_EXPAND"] = "1"
                 r = subprocess.run(
-                    ["opencode", "run", "-m", model, case["question"]],
-                    capture_output=True, text=True, timeout=timeout, cwd=str(snap))
+                    ["opencode", "run", "-m", model, case["question"] + OUTPUT_CONTRACT],
+                    capture_output=True, text=True, timeout=timeout, cwd=str(snap), env=env)
                 out = r.stdout.strip()
                 if out:
                     break
@@ -230,9 +293,6 @@ def ask(case, model, timeout, keep_workspace=False):
             time.sleep(5 * attempt)  # ponytail: fixed backoff; free-tier rate limits are the ceiling
         else:
             out = ""
-        integrity = reference_integrity_error(reference_before)
-        if integrity:
-            return "[RUN-ERROR] workspace-integrity: " + integrity
         return out if out else f"[RUN-ERROR] {err}"
     except Exception as e:
         return "[RUN-ERROR] workspace: %s" % e
@@ -250,6 +310,8 @@ def main():
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--limit", type=int, help="run only the first N pending cases (smoke run)")
     ap.add_argument("--timeout", type=int, default=300)
+    ap.add_argument("--max-consecutive-timeouts", type=int, default=3,
+                    help="stop scheduling after this many consecutive double-timeout cases (0 disables)")
     ap.add_argument("--cases", default=str(HERE / "cases300.jsonl"))
     ap.add_argument("--answers", default=str(HERE / "answers300.jsonl"))
     grp = ap.add_mutually_exclusive_group()
@@ -259,16 +321,32 @@ def main():
                      help="explicitly truncate the existing answers file + manifest and start over")
     ap.add_argument("--keep-workspace", action="store_true",
                     help="keep each per-case redacted workspace for inspection (default: delete)")
+    ap.add_argument("--no-expand", action="store_true",
+                    help="disable graph expansion for the ablation cohort")
+    ap.add_argument("--allow-dirty", action="store_true",
+                    help="permit a dirty initial vault for development only (recorded; not publishable)")
     args = ap.parse_args()
+    if args.workers < 1:
+        ap.error("--workers must be at least 1")
 
     cases = [json.loads(l) for l in open(args.cases, encoding="utf-8") if l.strip()]
     out, manifest = resolve_cohort(args, args.cases)
+    if not manifest.get("git_commit") or not manifest.get("git_status_ok"):
+        _refuse("git identity/status failed; publication cohorts require a valid clean commit")
+    if manifest.get("git_dirty") and not manifest.get("allow_dirty"):
+        _refuse("vault was dirty at cohort creation; clean it or use --allow-dirty for a non-publishable run")
+    source_root = materialize_cohort_snapshot(manifest)
     print(f"cohort {manifest['run_id']} (model {manifest['model']}) -> {out}")
     done = set()
     if out.exists():
         done = {json.loads(l)["id"] for l in open(out, encoding="utf-8") if l.strip()}
 
+    circuit_open = False
+
     def run_phase(phase_cases, label):
+        nonlocal circuit_open
+        if circuit_open:
+            return
         pending = [c for c in phase_cases if c["id"] not in done]
         if args.limit is not None:
             remaining = args.limit - len(done)
@@ -277,19 +355,45 @@ def main():
             return
         print(f"{label}: {len(pending)} to run ({args.workers} workers, model {args.model})")
         t0 = time.time()
+        consecutive_timeouts = 0
+        bank_order = {c["id"]: i for i, c in enumerate(pending)}
         with ThreadPoolExecutor(max_workers=args.workers) as ex:
-            futs = {ex.submit(ask, c, args.model, args.timeout, args.keep_workspace): c for c in pending}
-            for n, fut in enumerate(as_completed(futs), 1):
-                c = futs[fut]
-                ans = fut.result()
-                with LOCK:
-                    with open(out, "a", encoding="utf-8") as fh:
-                        fh.write(json.dumps({"id": c["id"], "answer": ans,
-                                             "run_id": manifest["run_id"],
-                                             "model": manifest["model"]}, ensure_ascii=False) + "\n")
-                    done.add(c["id"])
-                flag = " ERR" if ans.startswith("[RUN-ERROR]") else ""
-                print(f"  [{n}/{len(pending)}] {c['id']}{flag}  ({time.time()-t0:.0f}s elapsed)", flush=True)
+            todo = iter(pending)
+            futs = {}
+            for c in list(pending)[:args.workers]:
+                futs[ex.submit(ask, c, args.model, args.timeout, args.keep_workspace,
+                               args.no_expand, source_root)] = c
+                next(todo, None)
+            n = 0
+            while futs:
+                finished, _ = wait(futs, return_when=FIRST_COMPLETED)
+                for fut in sorted(finished, key=lambda f: bank_order[futs[f]["id"]]):
+                    c = futs.pop(fut)
+                    n += 1
+                    ans = fut.result()
+                    with LOCK:
+                        with open(out, "a", encoding="utf-8") as fh:
+                            fh.write(json.dumps({"id": c["id"], "answer": ans,
+                                                 "run_id": manifest["run_id"],
+                                                 "model": manifest["model"]}, ensure_ascii=False) + "\n")
+                        done.add(c["id"])
+                    flag = " ERR" if ans.startswith("[RUN-ERROR]") else ""
+                    print(f"  [{n}/{len(pending)}] {c['id']}{flag}  ({time.time()-t0:.0f}s elapsed)", flush=True)
+                    consecutive_timeouts = (consecutive_timeouts + 1
+                                            if ans.startswith("[RUN-ERROR] timeout") else 0)
+                    if (args.max_consecutive_timeouts and
+                            consecutive_timeouts >= args.max_consecutive_timeouts):
+                        print("  CIRCUIT-BREAKER — %d consecutive timeout cases; draining %d running "
+                              "case(s). Cohort remains incomplete and exits 2."
+                              % (consecutive_timeouts, len(futs)), flush=True)
+                        circuit_open = True
+                if not circuit_open:
+                    while len(futs) < args.workers:
+                        cnext = next(todo, None)
+                        if cnext is None:
+                            break
+                        futs[ex.submit(ask, cnext, args.model, args.timeout,
+                                       args.keep_workspace, args.no_expand, source_root)] = cnext
 
     firsts = [c for c in cases if c["type"] != "cache-repeat"]
     repeats = [c for c in cases if c["type"] == "cache-repeat"]
@@ -300,6 +404,8 @@ def main():
                if l.strip() and json.loads(l)["answer"].startswith("[RUN-ERROR]"))
     print(f"done: {len(done)}/{len(cases)} answered, {errs} run-errors -> {out}")
     print(f"grade: python3 {HERE/'grade300.py'} --cases {args.cases} --answers {out} --json {HERE/'report300.json'}")
+    if circuit_open:
+        sys.exit(2)
 
 
 if __name__ == "__main__":

@@ -34,6 +34,7 @@ class WikiState(TypedDict, total=False):
     confident: bool
     candidates: List[Tuple[str, str]]
     graph_notes: List[str]
+    graph_pages: List[str]
     thin: bool
     covered: Optional[list]
     banner: List[str]
@@ -41,6 +42,7 @@ class WikiState(TypedDict, total=False):
     used: List[str]
     page_fm: List[dict]       # one fm dict per query-matched seed synthesis page (B1: gate_node unions over these)
     k: int
+    no_expand: bool
 
 
 def build_query_graph(checkpointer=None):
@@ -73,7 +75,8 @@ def build_query_graph(checkpointer=None):
     return g.compile(checkpointer=checkpointer) if checkpointer is not None else g.compile()
 
 
-def run_query(query, question_tier=None, k=5):
+def run_query(query, question_tier=None, k=5, no_expand=False):
     """Build + invoke the QUERY graph for a single question (optional online tier; raises offline)."""
     app = build_query_graph()
-    return app.invoke({"query": query, "question_tier": question_tier, "k": k})
+    return app.invoke({"query": query, "question_tier": question_tier, "k": k,
+                       "no_expand": no_expand})

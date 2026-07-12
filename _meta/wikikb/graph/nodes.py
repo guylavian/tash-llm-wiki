@@ -178,6 +178,9 @@ def expand_node(state):
     on the live path -- root cause per PLAN-graphify-pdf-upload.md Phase 3 item 1). page_fm is scoped to
     _grounded_seeds -- seeds that actually cite a reference note -- so a page's presence in `page_fm`
     always means it concretely stands behind the served context, never a bare lexical coincidence."""
+    if state.get("no_expand") or os.environ.get("WIKIKB_NO_EXPAND") == "1":
+        return {"graph_notes": [], "graph_pages": [],
+                "candidates": list(state.get("candidates", [])), "page_fm": []}
     domain, query = state["domain"], state["query"]
     e = expand.expand(domain, query) or {}
     notes = e.get("notes_seed") or set()
@@ -189,7 +192,8 @@ def expand_node(state):
             if r.get("id") in new:
                 bodies[r.get("id")] = kb.body_text(r)
     extra = [(nid, bodies.get(nid, "")) for nid in new]
-    return {"graph_notes": sorted(notes), "candidates": state.get("candidates", []) + extra,
+    return {"graph_notes": sorted(notes), "graph_pages": sorted(e.get("seeds") or []),
+            "candidates": state.get("candidates", []) + extra,
             "page_fm": _seed_page_fms(_grounded_seeds(e.get("seeds") or []))}
 
 

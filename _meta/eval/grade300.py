@@ -106,10 +106,20 @@ def corrected(answer, real, fake):
 
 
 def contract(answer):
-    has_ref_heading = re.search(r"^#+\s*references|^\*\*references\*\*|^references\b", answer, re.I | re.M)
-    rh = re.search(r"\b(kb:|guide:|ref:)", answer)
-    wiki = "[[" in answer
-    return bool(has_ref_heading and rh and wiki)
+    heading = re.search(r"^#+\s*references[^\n]*\n(?P<body>.*)", answer, re.I | re.M | re.S)
+    if not heading:
+        return False
+    body = heading.group("body")
+    rh = re.search(r"^#+\s*rh ground-truth\s*$\n(?P<body>.*?)(?=^#+\s|\Z)",
+                   body, re.I | re.M | re.S)
+    wiki = re.search(r"^#+\s*wiki\s*$\n(?P<body>.*?)(?=^#+\s|\Z)",
+                     body, re.I | re.M | re.S)
+    if not (rh and wiki):
+        return False
+    rh_ok = re.search(r"\b(kb:|guide:|ref:)", rh.group("body"), re.I) or re.search(
+        r"no verified .*source", rh.group("body"), re.I)
+    wiki_ok = "[[" in wiki.group("body") or re.search(r"no .*wiki page", wiki.group("body"), re.I)
+    return bool(rh_ok and wiki_ok)
 
 
 def gold_ratio(answer, facts):

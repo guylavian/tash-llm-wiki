@@ -25,11 +25,12 @@ from wikikb.graph import nodes              # stdlib-safe node functions (no lan
 from wikikb.retrieval import kb             # to resolve cited reference notes -> source URLs
 
 
-def ask(query, domain=None, k=5, question_tier=None, require_graph=False):
+def ask(query, domain=None, k=5, question_tier=None, require_graph=False, no_expand=False):
     """Run the QUERY pipeline and return the final state — via the LangGraph StateGraph when
     langgraph is installed (the default orchestrator), else the same nodes sequenced linearly.
     require_graph=True raises instead of degrading (strict --graph mode)."""
-    state = {"query": query, "k": k, "question_tier": question_tier}
+    state = {"query": query, "k": k, "question_tier": question_tier,
+             "no_expand": no_expand}
     if domain:
         state["domain"] = domain
     try:
@@ -70,13 +71,14 @@ def ask(query, domain=None, k=5, question_tier=None, require_graph=False):
     return state
 
 
-def ask_graph(query, domain=None, k=5, question_tier=None):
+def ask_graph(query, domain=None, k=5, question_tier=None, no_expand=False):
     """STRICT graph mode: ask() but raises when langgraph is absent instead of degrading to the
     linear path (run under the venv that has it: wiki/_meta/.venv-online). ask() already prefers
     the StateGraph when available — this only removes the fallback. Kept for the `--graph` flag
     and callers that must prove the StateGraph ran; now also applies the identifier guard (it
     previously bypassed it)."""
-    return ask(query, domain=domain, k=k, question_tier=question_tier, require_graph=True)
+    return ask(query, domain=domain, k=k, question_tier=question_tier,
+               require_graph=True, no_expand=no_expand)
 
 
 _WITHHELD_LINE = ("[withheld by strict grounding mode — grounding_fail=%s, ungrounded_identifiers=%s] "
@@ -113,6 +115,16 @@ def public_result(query, st, refs, strict=False):
         withheld = True
         answer = _WITHHELD_LINE % (st.get("grounding_fail", False), ungrounded or "[]",
                                    ", ".join(st.get("used", [])[:5]) or "(none)")
+    wiki_pages = list(dict.fromkeys(st.get("graph_pages") or []))
+    reference_groups = {
+        "rh_ground_truth": [{"token": "ref:" + r["id"], **r} for r in refs],
+        "wiki": [{"slug": s, "wikilink": "[[%s]]" % s} for s in wiki_pages],
+    }
+    rh_lines = ["- `ref:%s` — %s" % (r["id"], r.get("source") or "vault reference note")
+                for r in refs] or ["- No verified RH ground-truth source was cited."]
+    wiki_lines = ["- [[%s]]" % s for s in wiki_pages] or ["- No synthesized Wiki page was used."]
+    answer = answer.rstrip() + ("\n\n## References (canonical)\n\n### RH ground-truth\n%s\n\n"
+                                "### Wiki\n%s" % ("\n".join(rh_lines), "\n".join(wiki_lines)))
     out = {
         "query": query,
         "orchestrator": st.get("orchestrator"),   # "langgraph" (default when installed) | "linear"
@@ -128,6 +140,7 @@ def public_result(query, st, refs, strict=False):
         "grounding_basis": st.get("grounding_basis"),
         "withheld": withheld,
         "references": refs,
+        "reference_groups": reference_groups,
     }
     if st.get("judge_verdict") is not None:       # nullable: key present only when the judge ran
         out["judge_verdict"] = st["judge_verdict"]
@@ -166,6 +179,8 @@ def main():
                     help="STRICT graph mode: fail if langgraph is absent instead of degrading to the "
                          "linear path. (The StateGraph is already the default when langgraph is "
                          "installed.)")
+    ap.add_argument("--no-expand", action="store_true",
+                    help="disable synthesized-page graph expansion; retain lexical candidates unchanged")
     args = ap.parse_args()
 
     query = args.query
@@ -175,7 +190,8 @@ def main():
         ap.error("provide a query argument or --query-file")
 
     runner = ask_graph if args.graph else ask
-    st = runner(query, domain=args.domain, k=args.k, question_tier=args.question_tier)
+    st = runner(query, domain=args.domain, k=args.k, question_tier=args.question_tier,
+                no_expand=args.no_expand)
     refs = references(st.get("domain"), st.get("used", []))
     out = public_result(query, st, refs, strict=resolve_strict(args.strict))
 
@@ -184,12 +200,6 @@ def main():
         return
 
     print(out.get("answer") or "(no answer)")
-    if refs:
-        print("\nReferences (RH ground-truth notes):")
-        for rf in refs:
-            print("  - %s%s" % (rf["id"], ("  %s" % rf["source"]) if rf["source"] else ""))
-    else:
-        print("\n(no candidates matched — try --domain or rephrase)")
 
 
 if __name__ == "__main__":

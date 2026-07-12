@@ -795,12 +795,21 @@ _pr3 = _askmod.public_result("q", _bad_st, [], strict=True)      # strict: withh
 _pr4 = _askmod.public_result("q", {"answer": "x", "used": [], "grounding_fail": True}, [], strict=True)
 _always = ("withheld", "ungrounded_identifiers", "grounding_basis", "grounding_fail", "guard", "banner")
 _c_shape = all(k in _pr for _pr in (_pr1, _pr2, _pr3, _pr4) for k in _always)
-_c_flagdef = _pr2["withheld"] is False and _pr2["answer"] == _bad_st["answer"] \
+_c_flagdef = _pr2["withheld"] is False and _pr2["answer"].startswith(_bad_st["answer"]) \
     and _pr2["ungrounded_identifiers"] == ["FAKE_ENV_VAR"]
 _c_strict = _pr3["withheld"] is True and "FAKE_ENV_VAR" not in _pr3["answer"].split("ungrounded_identifiers=")[0] \
     and "withheld by strict grounding mode" in _pr3["answer"] \
     and _pr4["withheld"] is True and "withheld by strict grounding mode" in _pr4["answer"]
-_c_clean = _pr1["withheld"] is False and _pr1["ungrounded_identifiers"] == [] and _pr1["answer"] == "all good"
+_c_clean = (_pr1["withheld"] is False and _pr1["ungrounded_identifiers"] == []
+            and _pr1["answer"].startswith("all good")
+            and "### RH ground-truth" in _pr1["answer"] and "### Wiki" in _pr1["answer"])
+_preexisting = _askmod.public_result(
+    "q", {"answer": "x\n\n## References\n- ref:leak [[leak]]", "used": [],
+          "grounding_fail": False, "graph_pages": ["real-page"]},
+    [{"id": "real-note", "source": "https://example.invalid"}], strict=False)
+_c_canonical = ("## References (canonical)" in _preexisting["answer"]
+                and "`ref:real-note`" in _preexisting["answer"]
+                and "[[real-page]]" in _preexisting["answer"])
 _env_key = "WIKI_STRICT_GROUNDING"
 _env_prev = os.environ.get(_env_key)
 try:
@@ -831,9 +840,10 @@ _c_cli = (_cli_p.parse_args([]).strict is None and _cli_p.parse_args(["--strict"
 check("public_result (WI-7): always-structured grounding fields, flag-default serves+flags, "
       "strict withholds on ungrounded ids AND grounding_fail, tri-state precedence "
       "(explicit False beats env=1) on env/serve-param/CLI",
-      _c_shape and _c_flagdef and _c_strict and _c_clean and _c_env and _c_parse and _c_cli,
+      _c_shape and _c_flagdef and _c_strict and _c_clean and _c_canonical
+      and _c_env and _c_parse and _c_cli,
       f"shape={_c_shape} flagdef={_c_flagdef} strict={_c_strict} clean={_c_clean} "
-      f"env={_c_env} parse={_c_parse} cli={_c_cli}")
+      f"canonical={_c_canonical} env={_c_env} parse={_c_parse} cli={_c_cli}")
 
 # 48. lint H1-banner helper: has_out_of_coverage_banner is lenient on markdown decoration (blockquote
 # or heading) but strict on content — the ⚠️ line must mention "coverage".
@@ -1221,6 +1231,14 @@ check("grade300 substitution bank (WI-8): report-only (all-rationalized still ex
 import importlib.util as _cu
 _cspec = _cu.spec_from_file_location("_g3mod", _G3); _g3mod = _cu.module_from_spec(_cspec)
 _cspec.loader.exec_module(_g3mod)
+_contract_good = """## References\n### RH ground-truth\n- `ref:n`\n### Wiki\n- [[p]]"""
+_contract_empty = """## References\n### RH ground-truth\n- No verified RH ground-truth source was cited.\n### Wiki\n- No synthesized Wiki page was used."""
+_contract_leak = """## References\n- `ref:n` [[p]]"""
+_contract_one = """## References\n### RH ground-truth\n- `ref:n`"""
+check("grade300 contract: labeled evidence and explicit-empty groups pass; unlabeled leakage and "
+      "missing group fail",
+      _g3mod.contract(_contract_good) and _g3mod.contract(_contract_empty)
+      and not _g3mod.contract(_contract_leak) and not _g3mod.contract(_contract_one), "")
 _cm = [
     ("--proxy-header does not exist; use --proxy-headers", "--proxy-headers", "--proxy-header", True),
     ("--destination-dir does not exist; use --dest-directory please", "--dest-dir", "--destination-dir", False),
@@ -1250,7 +1268,8 @@ with _g3tmp.TemporaryDirectory() as _r3d:
     _r3a = os.path.join(_r3d, "a.jsonl")
     def _r3run(*extra):
         _p = subprocess.run([PY, _R3, "--cases", _r3cases, "--answers", _r3a, "--model", "m-A",
-                             "--limit", "0", *extra], capture_output=True, text=True, cwd=META)
+                             "--limit", "0", "--allow-dirty", *extra],
+                            capture_output=True, text=True, cwd=META)
         return _p.returncode
     _rc_new = _r3run()                                           # establish cohort, zero work
     _r3_file_exists = os.path.isfile(_r3a)                       # answers file must exist already
