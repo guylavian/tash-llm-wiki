@@ -105,15 +105,10 @@ def do_search(domain, q, k):
     recs = kb.load(domain)
     if recs is None:
         return 404, {"error": "no reference tier for domain %r (see GET /health for available domains)" % domain}
-    pool = [r for r in recs if r.get("body_status") == "fetched"]
-    terms = kb.toks(q)
-    scored = []
-    for r in pool:
-        bt = kb.body_text(r)
-        sc = kb.score(r, terms, bt)              # same call kb.cmd_search makes per candidate
-        if sc > 0:
-            scored.append((sc, r, bt))
-    scored.sort(key=lambda x: (-x[0], -kb.vkey(x[1].get("version"))[0] if x[1].get("version") else 0))
+    # WI-5: consume kb.lexical_rank — the single ranking home — instead of re-deriving scoring
+    # here (this path previously omitted corpus IDF/avgdl and alias expansion, so /search could
+    # disagree with the CLI/eval ordering for the same query).
+    terms, _pool, scored = kb.lexical_rank(domain, q, recs)
     hits = [{"id": r.get("id"), "title": r.get("title"), "score": sc,
              "snippet": kb.snippet(bt, terms) if bt else (r.get("abstract") or "")}
             for sc, r, bt in scored[:k]]

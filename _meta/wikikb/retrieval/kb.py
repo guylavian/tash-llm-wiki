@@ -315,26 +315,40 @@ def expand_query_terms(domain, terms):
     return out
 
 
-def cmd_search(recs, a):
-    terms = toks(" ".join(a.query))
-    if not terms:
-        print("no query terms"); return
-    if a.domain and not a.all_domains:
-        terms = expand_query_terms(a.domain, terms)
+def lexical_rank(domain, query, recs=None, *, kind=None, guide=None, version=None,
+                 family=None, primary=False, include_gated=False):
+    """The ONE lexical ranking home (WI-5). Owns fetched-record filtering, query-side alias
+    expansion, IDF/avgdl computed AFTER all filters over the pool actually ranked, BM25 scoring,
+    positive-score filtering, and the canonical tie-break (score desc, then first numeric version
+    component desc, then stable filtered-pool input order). Every ranked surface — kb CLI search,
+    serve /search, graph retrieve_node, evaluate.rank — consumes this; NONE re-derives ranking.
+    Hybrid dense fusion stays OUTSIDE this primitive and consumes its ordered result.
+
+    `domain=None` (e.g. --all-domains CLI search over a multi-domain pool) skips alias expansion —
+    aliases are per-domain vocabulary. Returns (terms, pool, scored): the (possibly expanded)
+    query terms for snippet/display use, the filtered pool (hybrid callers build dense-only
+    lookups from it), and [(score, record, body), ...] best-first, positive scores only."""
+    if recs is None:
+        recs = load(domain) or []
+    terms = toks(query)
+    if terms and domain:
+        terms = expand_query_terms(domain, terms)
     pool = recs
-    if a.kind:
-        want = KIND.get(a.kind.lower())
+    if kind:
+        want = KIND.get(kind.lower())
         pool = [r for r in pool if r.get("documentKind") == want]
-    if a.guide:
-        pool = [r for r in pool if r.get("guide") == a.guide]
-    if a.version:
-        pool = [r for r in pool if r.get("version") == a.version]
-    if a.family:
-        pool = [r for r in pool if r.get("family") == a.family]
-    if a.primary:
+    if guide:
+        pool = [r for r in pool if r.get("guide") == guide]
+    if version:
+        pool = [r for r in pool if r.get("version") == version]
+    if family:
+        pool = [r for r in pool if r.get("family") == family]
+    if primary:
         pool = [r for r in pool if r.get("primary")]
-    if not a.gated:
+    if not include_gated:
         pool = [r for r in pool if r.get("body_status") == "fetched"]
+    if not terms:
+        return terms, pool, []
     idf, avgdl = build_idf(pool), avg_dl(pool)   # once per query, over the pool actually ranked
     scored = []
     for r in pool:
@@ -343,6 +357,17 @@ def cmd_search(recs, a):
         if sc > 0:
             scored.append((sc, r, bt))
     scored.sort(key=lambda x: (-x[0], -vkey(x[1].get("version"))[0] if x[1].get("version") else 0))
+    return terms, pool, scored
+
+
+def cmd_search(recs, a):
+    domain = a.domain if (a.domain and not a.all_domains) else None
+    terms, pool, scored = lexical_rank(domain, " ".join(a.query), recs,
+                                       kind=a.kind, guide=a.guide, version=a.version,
+                                       family=a.family, primary=a.primary,
+                                       include_gated=a.gated)
+    if not terms:
+        print("no query terms"); return
 
     # --hybrid: fuse the lexical ranking with the dense (embedding) ranking via RRF.
     # The dense path lives in embed.py (the one place a local model dep is allowed) and is

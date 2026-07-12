@@ -67,17 +67,10 @@ def note_ids(domain):
 
 
 def rank(domain, query):
-    """Replay kb.py's default `search` ranking. Return [(note_id, body_len), ...] best-first."""
-    terms = kb.toks(query)
-    pool = [r for r in records(domain) if r.get("body_status") == "fetched"]   # default search excludes gated
-    idf, avgdl = kb.build_idf(pool), kb.avg_dl(pool)   # once per query, faithful to kb.cmd_search
-    scored = []
-    for r in pool:
-        bt = kb.body_text(r)
-        sc = kb.score(r, terms, bt, idf, avgdl)
-        if sc > 0:
-            scored.append((sc, r, bt))
-    scored.sort(key=lambda x: (-x[0], -kb.vkey(x[1].get("version"))[0] if x[1].get("version") else 0))
+    """Replay kb.py's default `search` ranking via kb.lexical_rank — the single ranking home
+    (WI-5); this replay can no longer drift from the CLI. Default search excludes gated.
+    Return [(note_id, body_len), ...] best-first."""
+    _terms, _pool, scored = kb.lexical_rank(domain, query, records(domain))
     return [(r.get("id"), len(bt)) for _, r, bt in scored]
 
 

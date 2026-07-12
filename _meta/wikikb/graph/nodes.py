@@ -96,19 +96,16 @@ def route_node(state):
 
 
 def retrieve_node(state):
-    """Candidate retrieval — reuses kb.load + kb.score + kb's ordering (identical to eval.py's recall
-    path; faithful). When the dense embedding model+index are present, fuses the lexical and dense
-    rankings via RRF — identical to kb.py --hybrid — so the answer path gets the paraphrase lift Phase 1
-    built. Lazy+guarded: with the model/index absent it DEGRADES to the exact lexical baseline (and the
-    evaluate.rank() faithful ordering). `thin` drives the conditional edge to graph expansion."""
+    """Candidate retrieval — consumes kb.lexical_rank, the single ranking home (WI-5), so this path
+    is identical-by-construction to the CLI/eval/serve ordering instead of replaying it. When the
+    dense embedding model+index are present, fuses the lexical and dense rankings via RRF — identical
+    to kb.py --hybrid — so the answer path gets the paraphrase lift Phase 1 built. Fusion consumes the
+    primitive's POSITIVE-score ordering (this path previously fed zero-score records into RRF, a
+    divergence from cmd_search's hybrid that WI-5 removes); dense-only notes still enter via the
+    filtered-pool lookup. Lazy+guarded: with the model/index absent it DEGRADES to the exact lexical
+    baseline (evaluate.rank()'s faithful ordering). `thin` drives the graph-expansion edge."""
     domain, query, k = state["domain"], state["query"], state.get("k", 5)
-    recs = [r for r in (kb.load(domain) or []) if r.get("body_status") == "fetched"]
-    terms = kb.expand_query_terms(domain, kb.toks(query))
-    idf, avgdl = kb.build_idf(recs), kb.avg_dl(recs)   # once per query, same pool eval.rank() uses
-    # identical ordering to kb.py:226 / eval.rank(): (-score, then newest version) — the secondary
-    # key keeps score-tied notes of differing version in the SAME order the retriever/eval use.
-    scored = sorted(((kb.score(r, terms, kb.body_text(r), idf, avgdl), r) for r in recs),
-                    key=lambda x: (-x[0], -kb.vkey(x[1].get("version"))[0] if x[1].get("version") else 0))
+    _terms, pool, scored = kb.lexical_rank(domain, query)
     dense = None
     try:                                          # lazy + guarded (air-gap): None when model/index absent
         from wikikb.retrieval import embed
@@ -116,16 +113,16 @@ def retrieve_node(state):
     except Exception:
         dense = None
     if dense:                                     # hybrid: RRF-fuse lexical + dense, incl. dense-only notes
-        rec_by_id = {r.get("id"): r for r in recs}
+        rec_by_id = {r.get("id"): r for r in pool}
         fused, seen = [], set()
-        for sid in embed.rrf_fuse([r.get("id") for _, r in scored], dense):
+        for sid in embed.rrf_fuse([r.get("id") for _, r, _ in scored], dense):
             r = rec_by_id.get(sid)
             if r is not None and sid not in seen:
                 seen.add(sid)
                 fused.append(r)
         cands = [(r.get("id"), kb.body_text(r)) for r in fused[:k]]
     else:                                         # UNCHANGED lexical baseline (faithful to eval.rank())
-        cands = [(r.get("id"), kb.body_text(r)) for s, r in scored[:k] if s > 0]
+        cands = [(r.get("id"), bt) for _, r, bt in scored[:k]]
     return {"candidates": cands, "thin": len(cands) < THIN_K}
 
 
