@@ -79,6 +79,32 @@ def bannered(answer):
     return bool(re.search(r"⚠|out of (corpus )?coverage|tier is not ingested", answer, re.I))
 
 
+def _ident_pat(token):
+    """Boundary-aware pattern for an identifier/flag/phrase with ASYMMETRIC dot handling:
+    LEFT boundary rejects any identifier char INCLUDING a dot (status.spec.foo never matches a
+    real token spec.foo); RIGHT boundary rejects an identifier char or a dot that CONTINUES a
+    dotted path (spec.foo.extra), while a bare sentence-ending period (spec.foo.) stays a
+    boundary. So --proxy-header never matches inside --proxy-headers (fake-prefix-of-real) and
+    --dest-dir is never credited by --dest-directory (real-prefix-of-longer)."""
+    return re.compile(r"(?<![A-Za-z0-9_.-])%s(?!\.?[A-Za-z0-9_-])" % re.escape(token.lower()))
+
+
+def corrected(answer, real, fake):
+    """REPORT-ONLY (WI-8, ledger D8): did the answer correct a rationalized-substitution premise —
+    signal the fake identifier is not real (same detector as refused()) AND name the real one?
+    Boundary-aware both ways: WHOLE fake occurrences are blanked first (so a fake echo never
+    credits a real token embedded in it — userAccountControl ⊂ userAccountControlFlags — while a
+    real token that merely EXTENDS the fake — --proxy-header s— survives the blanking), and the
+    real token must then match on identifier boundaries (no --dest-directory credit for
+    --dest-dir). This metric may never feed hard_fail / the exit code — the bank is frozen and
+    report-only by decision."""
+    # strip markdown emphasis WITHOUT eating identifier underscores (refused() may strip _ because
+    # it re-applies the token against the same stripped text; here the tokens keep their _)
+    low = re.sub(r"[*`]", "", (answer or "").lower())
+    named = bool(_ident_pat(real).search(_ident_pat(fake).sub(" ", low)))
+    return refused(answer, fake) and named
+
+
 def contract(answer):
     has_ref_heading = re.search(r"^#+\s*references|^\*\*references\*\*|^references\b", answer, re.I | re.M)
     rh = re.search(r"\b(kb:|guide:|ref:)", answer)
@@ -114,6 +140,8 @@ def main():
         for line in fh:
             if line.strip():
                 c = json.loads(line)
+                if c.get("_meta"):        # bank header record (authorship label etc.), not a case
+                    continue
                 cases[c["id"]] = c
     answers, malformed = {}, []
     with open(args.answers, encoding="utf-8") as fh:
@@ -177,6 +205,9 @@ def main():
             if c.get("must_banner"):
                 row["banner"] = bannered(ans)
                 hard_fail += 0 if row["banner"] else 1
+            if c.get("must_correct"):     # WI-8: REPORT-ONLY — never contributes to hard_fail/exit
+                row["corrected"] = corrected(ans, c.get("real_token", ""),
+                                             c.get("substituted_token", ""))
             row["judge_flag"] = row["gold"] < 0.5  # send these to a human/LLM judge
         rows.append(row)
         t = agg[c["type"]]
@@ -190,6 +221,8 @@ def main():
                 t["refused"] += row["refusal"]
             if "banner" in row:
                 t["bannered"] += row["banner"]
+            if "corrected" in row:
+                t["corrected"] += row["corrected"]
 
     # cache-repeat consistency: both members must land the same gold facts
     for cid, c in cases.items():
@@ -214,6 +247,8 @@ def main():
             line += f"  REFUSED {s['refused']}/{ans}"
         if "bannered" in s:
             line += f"  BANNER {s['bannered']}/{ans}"
+        if "corrected" in s:
+            line += f"  CORRECTED {s['corrected']}/{ans} (report-only)"
         print(line)
     flagged = [r["id"] for r in rows if r.get("judge_flag")]
     print(f"  judge-flagged (gold<0.5, needs human/LLM verify): {len(flagged)}")

@@ -1123,6 +1123,70 @@ check("grade300 exit taxonomy: empty/partial/[RUN-ERROR]/ws-sentinel/null/dup/un
       f"empty={_rc_empty} partial={_rc_partial} runerr={_rc_runerr} ws={_rc_wsrunerr} null={_rc_null} "
       f"dup={_rc_dup} unknown={_rc_unknown} nonobj={_rc_nonobj} clean={_rc_clean} gatefail={_rc_gate}")
 
+# NN+1a. WI-8 substitution bank grading is REPORT-ONLY: a complete cohort exits 0 even when every
+# correction FAILS (rationalized answers), the scoreboard reports CORRECTED n/m, the _meta header
+# row is skipped as a case, and corrected() is boundary-aware for substring real⊂fake pairs.
+with _g3tmp.TemporaryDirectory() as _g3d:
+    _sb_cases = os.path.join(_g3d, "cases-sub.jsonl")
+    with open(_sb_cases, "w", encoding="utf-8") as _fh:
+        _fh.write(_g3json.dumps({"_meta": True, "bank": "rationalized-substitution",
+                                 "authorship": "same-family — NOT independent"}) + "\n")
+        _fh.write(_g3json.dumps({"id": "s-001", "type": "substitution", "domain": "keycloak",
+                                 "question": "q", "substituted_token": "KC_DATABASE_PASSWORD",
+                                 "real_token": "KC_DB_PASSWORD", "expected_slugs": [],
+                                 "gold_facts": [], "must_correct": True}) + "\n")
+        _fh.write(_g3json.dumps({"id": "s-002", "type": "substitution", "domain": "active-directory",
+                                 "question": "q", "substituted_token": "userAccountControlFlags",
+                                 "real_token": "userAccountControl", "expected_slugs": [],
+                                 "gold_facts": [], "must_correct": True}) + "\n")
+    def _sbrun(rows):
+        _ans = os.path.join(_g3d, "answers.jsonl")
+        with open(_ans, "w", encoding="utf-8") as _fh:
+            for r in rows:
+                _fh.write(_g3json.dumps(r) + "\n")
+        _p = subprocess.run([PY, _G3, "--cases", _sb_cases, "--answers", _ans],
+                            capture_output=True, text=True, cwd=META)
+        return _p.returncode, _p.stdout + _p.stderr
+    # all rationalized (fake treated as real) -> STILL exit 0 (report-only), CORRECTED 0/2
+    _rc_rat, _out_rat = _sbrun([
+        {"id": "s-001", "answer": "KC_DATABASE_PASSWORD sets the DB password."},
+        {"id": "s-002", "answer": "userAccountControlFlags is the bitmask you flip."}])
+    # one true correction; s-002's answer echoes only the FAKE token — the substring real token
+    # inside that echo must NOT be credited (boundary-awareness)
+    _rc_mix, _out_mix = _sbrun([
+        {"id": "s-001", "answer": "KC_DATABASE_PASSWORD does not exist; the real option is KC_DB_PASSWORD."},
+        {"id": "s-002", "answer": "userAccountControlFlags does not exist in the corpus."}])
+check("grade300 substitution bank (WI-8): report-only (all-rationalized still exit 0, CORRECTED 0/2), "
+      "_meta header skipped, boundary-aware substring credit (CORRECTED 1/2 on mixed)",
+      _rc_rat == 0 and "CORRECTED 0/2 (report-only)" in _out_rat
+      and _rc_mix == 0 and "CORRECTED 1/2 (report-only)" in _out_mix,
+      f"rat_rc={_rc_rat} mix_rc={_rc_mix} rat_line={[l for l in _out_rat.splitlines() if 'substitution' in l]} "
+      f"mix_line={[l for l in _out_mix.splitlines() if 'substitution' in l]}")
+
+# NN+1a2. corrected() identifier-boundary matrix (Codex review catches, WI-8 cycle 1): a fake that
+# is a PREFIX of the real must not blank the real's occurrence (--proxy-header → --proxy-headers),
+# a longer flag must not credit a shorter real (--dest-directory vs --dest-dir), and a
+# sentence-ending period is a boundary while dots INSIDE spec.field tokens still match.
+import importlib.util as _cu
+_cspec = _cu.spec_from_file_location("_g3mod", _G3); _g3mod = _cu.module_from_spec(_cspec)
+_cspec.loader.exec_module(_g3mod)
+_cm = [
+    ("--proxy-header does not exist; use --proxy-headers", "--proxy-headers", "--proxy-header", True),
+    ("--destination-dir does not exist; use --dest-directory please", "--dest-dir", "--destination-dir", False),
+    ("KC_DATABASE_PASSWORD does not exist; the real option is KC_DB_PASSWORD.",
+     "KC_DB_PASSWORD", "KC_DATABASE_PASSWORD", True),
+    ("spec.serviceAccountIssuerURL does not exist; read spec.serviceAccountIssuer.",
+     "spec.serviceAccountIssuer", "spec.serviceAccountIssuerURL", True),
+    # asymmetric dot boundaries (Codex cycle-2 catches): dotted-path continuations never credit
+    ("spec.serviceAccountIssuerURL does not exist; use status.spec.serviceAccountIssuer",
+     "spec.serviceAccountIssuer", "spec.serviceAccountIssuerURL", False),
+    ("spec.serviceAccountIssuerURL does not exist; use spec.serviceAccountIssuer.extra",
+     "spec.serviceAccountIssuer", "spec.serviceAccountIssuerURL", False),
+]
+_cm_bad = [(a[:40], w, _g3mod.corrected(a, r, f)) for a, r, f, w in _cm if _g3mod.corrected(a, r, f) != w]
+check("corrected() boundary matrix: fake-prefix-of-real credited, longer-flag not credited, "
+      "sentence period is a boundary, dotted tokens match", not _cm_bad, f"bad={_cm_bad}")
+
 # NN+1b. run300 cohort identity (WI-3): zero-work runs still establish a complete cohort on disk;
 # resume refuses foreign row stamps, malformed manifests, and --new-run/--overwrite conflicts;
 # grade300 treats a non-string run_id as MALFORMED. All with --limit 0, so no model is invoked.
