@@ -158,4 +158,6 @@ Red Hat's KB (subscriber-gated) tracks several related defects:
 - [[rhbk-26-4-db|Chapter 9. Configuring the database]]
 - [[rhbk-26-4-assembly-managing-users-server-administration-guide|Chapter 5. Managing users]]
 - [[rhbk-26-4-admin-rest-api|Chapter 2. Admin REST API]]
+- [[_ref-keycloak-server_administration_guide|keycloak reference — server_administration_guide]]
+- [[references/rhbk-troubleshooting-kb|RHBK / RH-SSO Troubleshooting — Offline KB Reference]]
 <!-- crosslink:end -->

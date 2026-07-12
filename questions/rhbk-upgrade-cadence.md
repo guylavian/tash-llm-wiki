@@ -71,4 +71,6 @@ updated: 2026-07-05
 - [[rhbk-26-6-newfeatures|Chapter 2. New features and enhancements]]
 - [[rhbk-26-6-multi-cluster-introduction|Chapter 3. Multi-cluster deployments]]
 - [[rhbk-26-0-red-hat-build-of-keycloak-26-0|Chapter 1. Red Hat build of Keycloak 26.0]]
+- [[_ref-keycloak-upgrading_guide|keycloak reference — upgrading_guide]]
+- [[_ref-keycloak-release_notes|keycloak reference — release_notes]]
 <!-- crosslink:end -->

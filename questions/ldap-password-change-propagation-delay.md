@@ -155,4 +155,5 @@ If the user had an active SSO session **before** the password change, they conti
 - [[rhbk-26-4-multi-cluster-introduction|Chapter 3. Multi-cluster deployments]]
 - [[rhbk-26-0-concepts-multi-site|Chapter 2. Concepts for multi-site deployments]]
 - [[rhbk-26-2-concepts-multi-site|Chapter 2. Concepts for multi-site deployments]]
+- [[_ref-keycloak-server_administration_guide|keycloak reference — server_administration_guide]]
 <!-- crosslink:end -->

@@ -81,4 +81,6 @@ updated: 2026-07-02
 - [[rhbk-26-0-concepts-threads|Chapter 5. Concepts for configuring thread pools]]
 - [[rhbk-26-2-deploy-keycloak-kubernetes|Chapter 10. Deploying Red Hat build of Keycloak for HA with the Operator]]
 - [[rhbk-26-6-getting-started-scaling-and-tuning|Chapter 2. Scaling]]
+- [[_ref-keycloak-high_availability_guide|keycloak reference — high_availability_guide]]
+- [[_ref-keycloak-operator_guide|keycloak reference — operator_guide]]
 <!-- crosslink:end -->
