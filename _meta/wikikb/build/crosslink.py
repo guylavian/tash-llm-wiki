@@ -188,6 +188,12 @@ def main():
     ap.add_argument("--apply", action="store_true")
     args = ap.parse_args()
 
+    if args.apply:
+        err = paths.eval_lock_error()
+        if err:
+            print("crosslink ▸ REFUSED: " + err)
+            raise SystemExit(2)
+
     idx = build_ref_index()
     refs = build_refs_index()
     pages_linked = edges = 0

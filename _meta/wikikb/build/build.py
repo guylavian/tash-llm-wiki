@@ -14,6 +14,8 @@ commands and the routing index was chronically stale as a result. Stdlib only.
 import subprocess
 import sys
 
+from wikikb.paths import eval_lock_error
+
 sys.dont_write_bytecode = True
 
 STEPS = [
@@ -29,6 +31,10 @@ STEPS = [
 
 
 def main():
+    err = eval_lock_error()
+    if err:
+        print("build ▸ REFUSED: " + err)
+        sys.exit(2)
     for step in STEPS:
         print("build ▸ %s" % " ".join(step), flush=True)
         rc = subprocess.run([sys.executable, "-m", "wikikb"] + step).returncode
