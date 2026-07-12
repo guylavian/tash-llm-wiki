@@ -4,21 +4,21 @@ RETRIEVER EVAL — 29 cases  (recall window kmax=10)
 
 RECALL  (lexical -> +graph seed-sources -> +graph 1-hop closure)
   @5   lexical 18/29 ( 62%)
-  @10  lexical 20/29 ( 69%)  ->  +graph 25/29 ( 86%)  ->  +closure 27/29 ( 93%)
-       graph-rescued (primary): 5   |   closure adds: 2
+  @10  lexical 20/29 ( 69%)  ->  +graph 26/29 ( 90%)  ->  +closure 27/29 ( 93%)
+       graph-rescued (primary): 6   |   closure adds: 1
 
   MRR (lexical, unbounded rank) : 0.514
   precision@5 (lexical)         : 0.138
 
   by domain (lexical r@10 -> +graph):
-    active-directory    4/7  ->  6/7
+    active-directory    4/7  ->  7/7
     cisco-ios-xe        4/5  ->  4/5
     keycloak            8/12  ->  10/12
     openshift           4/5  ->  5/5
 
   by kind (lexical r@10 -> +graph):
     easy                16/21  ->  20/21
-    lexical-miss        4/8  ->  5/8
+    lexical-miss        4/8  ->  6/8
 
 PAIRED exact -> paraphrase (same target; the lexical-recall gap):
   dpop               exact @2    ->  paraphrase @1   
@@ -28,21 +28,21 @@ PAIRED exact -> paraphrase (same target; the lexical-recall gap):
   token-exchange     exact @1    ->  paraphrase @16  
 
 CONTEXT-TOKEN PROXY  (index + snippets skimmed + bodies actually opened; chars/4)
-  mean index    tokens :  13225
+  mean index    tokens :  13244
   mean snippet  tokens :    304  (4.7 candidates skimmed/case)
-  mean opened-body tok :  19672  (1.14 full notes opened/case)
-  mean TOTAL ctx tokens:  33202   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
+  mean opened-body tok :  18751  (1.10 full notes opened/case)
+  mean TOTAL ctx tokens:  32300   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
 
 GRAPH RESCUE (Phase 2: lexical misses the graph turns into 1 correct open)
-  cases rescued in-proxy : 5  (each replaces wasted miss-opens with the cited note)
+  cases rescued in-proxy : 6  (each replaces wasted miss-opens with the cited note)
 
-MISS BREAKDOWN @10 : 9 miss  =  5 graph-rescued (Phase 2)  +  4 still-missing (Phase 3)
+MISS BREAKDOWN @10 : 9 miss  =  6 graph-rescued (Phase 2)  +  3 still-missing (Phase 3)
   - [graph-rescued] active passive cross-site session replication keeps user session
   - [graph-rescued] import LDAP users into the local database versus federate them o
   - [STILL-MISSING] exchange a gateway incoming user token for a narrowed one to cal
   - [STILL-MISSING] deploy Keycloak on OpenShift with the operator and a Keycloak cu
   - [graph-rescued] active directory multi-master replication USN tombstone knowledg
-  - [STILL-MISSING] recover when the only domain controller holding an operations ma
+  - [graph-rescued] recover when the only domain controller holding an operations ma
   - [graph-rescued] active directory integrated DNS zones SRV records _msdcs domain 
   - [STILL-MISSING] prevent a router from being overwhelmed when many neighbors come
   - [graph-rescued] why does a community image that runs as user 0 fail to start on 
