@@ -987,6 +987,21 @@ check("livebank: 24-case bank valid + ci subset offline -> exit 0, 100% GATE pas
       f"rc={_lb.returncode} cases={_lb_cases} n_results={len(_lb_results)} gate_ok={_lb_gate_ok} "
       f"fact_fails={[r['id'] for r in _lb_fact_fails]} ungraded={_lb_n_ungraded}")
 
+# The same offline run must NOT satisfy the production fact-coverage floor: all cases are UNGRADED,
+# so --min-graded 1 exits 4 even though vacuous --min-pass 100 and every gate check still pass.
+_lb_floor = subprocess.run([PY, "-m", "wikikb", "livebank", "--ci", "--min-pass", "100",
+                            "--min-graded", "1", "--json"],
+                           capture_output=True, text=True, cwd=META, env=_clean_env)
+try:
+    _lb_floor_json = _json_lb.loads(_lb_floor.stdout)
+except Exception:
+    _lb_floor_json = {}
+check("livebank: offline --min-graded 1 exits 4 (zero gradable facts cannot satisfy sign-off)",
+      _lb_floor.returncode == 4 and _lb_floor_json.get("n_graded") == 0
+      and _lb_floor_json.get("n_ungraded", 0) > 0,
+      f"rc={_lb_floor.returncode} graded={_lb_floor_json.get('n_graded')} "
+      f"ungraded={_lb_floor_json.get('n_ungraded')}")
+
 # NN+1. grade300 completeness gate (WI-1, consensus 2026-07-12): a partial or malformed cohort must
 # exit 2, a complete clean cohort 0, a complete cohort with a hard-gate (refusal) failure 1. Uses a
 # 2-case synthetic minibank in a temp dir — grade300 is pure stdlib and fast, so this is cheap.

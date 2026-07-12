@@ -633,7 +633,9 @@ page's frontmatter + body by slug).
   silently return None. Env vars override: `WIKI_LLM_API_BASE=http://127.0.0.1:11434` for Ollama.
 - **Sign-off standard (raised 2026-07-05):** structural checks alone never sign off. Required:
   two consecutive clean adversarial rounds AND a clean live-query bank run
-  (`_meta/eval/livebank.jsonl` through the full serve path with fact verification).
+  (`python3 -m wikikb livebank --ci --min-pass 100 --min-graded 1` through the full serve path
+  with fact verification). An all-UNGRADED offline run verifies gates, not facts, and must not
+  satisfy sign-off.
 
 ### Optional online tier (LiteLLM + LangGraph) — OFF by default, local-first
 

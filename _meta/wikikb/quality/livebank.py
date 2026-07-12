@@ -38,6 +38,7 @@ Usage:
     python3 -m wikikb livebank --json              # structured output for agents
     python3 -m wikikb livebank --cases PATH         # run against an alternate case file
     python3 -m wikikb livebank --min-pass 80       # exit 3 if graded pass rate < 80%
+    python3 -m wikikb livebank --min-graded 1      # exit 4 if fewer than 1 case was gradable
 """
 import argparse
 import json
@@ -212,6 +213,8 @@ def main():
     ap.add_argument("--json", action="store_true", help="structured output for agents")
     ap.add_argument("--min-pass", type=float, default=None, dest="min_pass",
                     help="exit 3 if the GRADED pass rate is below this percentage")
+    ap.add_argument("--min-graded", type=int, default=None, dest="min_graded",
+                    help="exit 4 if fewer than this many cases were GRADED (default: off)")
     args = ap.parse_args()
 
     cases = load_cases(args.cases)
@@ -229,11 +232,15 @@ def main():
 
     if args.json:
         print(json.dumps({"n": len(rows), "n_graded": total_graded, "n_ungraded": total_ungraded,
-                          "graded_pass_pct": graded_pct, "by_domain": scoreboard(rows),
+                          "graded_pass_pct": graded_pct, "min_graded": args.min_graded,
+                          "by_domain": scoreboard(rows),
                           "results": rows}, indent=2, ensure_ascii=False))
     else:
         report(rows)
 
+    # Coverage takes precedence: a pass rate is not an acceptance signal when too little was gradable.
+    if args.min_graded is not None and total_graded < args.min_graded:
+        sys.exit(4)
     if args.min_pass is not None and graded_pct < args.min_pass:
         sys.exit(3)
 
