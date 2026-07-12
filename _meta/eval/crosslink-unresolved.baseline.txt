@@ -1,0 +1,67 @@
+# Known unresolved ref:/guide: citations on tracked pages as page-path<TAB>token pairs
+# (mis-tiered names/paths/typos -- page bugs, fix by editing the page's sources:).
+# Frozen 2026-07-12 with the ref:/guide: resolver (selftest 6c): any pair not in this
+# list fails CI -- a legacy token spreading to a NEW page or being reintroduced after
+# removal is a regression, not debt. Shrink freely, never grow.
+entities/kubernetes-networkpolicy.md	ref:reference/openshift/concepts-network-policies.md
+entities/kubernetes-networkpolicy.md	ref:reference/openshift/networking-4-22-about-network-policy.md
+questions/deploy-promote-domain-controllers.md	ref:entities/install-promote-domain-controller.md
+questions/deploy-promote-domain-controllers.md	ref:entities/upgrade-domain-controllers.md
+questions/deploy-promote-domain-controllers.md	ref:topics/ad-ds-deployment.md
+questions/feature-flags-enable-disable.md	ref:rhbk-26-4-features.md
+questions/four-ordered-config-sources.md	ref:config-sources-precedence.md
+questions/fsmo-transfer-vs-seize-dead-dc-twist.md	ref:reference/active-directory/ad-ds-ad-forest-recovery-cleanup.md
+questions/fsmo-transfer-vs-seize-dead-dc-twist.md	ref:reference/active-directory/ad-ds-ad-forest-recovery-perform-initial-recovery.md
+questions/fsmo-transfer-vs-seize-dead-dc-twist.md	ref:reference/active-directory/ad-ds-ad-forest-recovery-seizing-operations-master-role.md
+questions/fsmo-transfer-vs-seize-dead-dc-twist.md	ref:reference/active-directory/ad-ds-understand-fsmo-roles.md
+questions/how-does-rhbk-issue-scope-and-expire-tokens-and-sessions.md	ref:rhbk-26-4-managing-user-sessions
+questions/how-does-rhbk-issue-scope-and-expire-tokens-and-sessions.md	ref:rhbk-26-6-oidc-layers
+questions/identity-brokering-external-oidc-idp.md	ref:rhbk-26-4-identity-broker.md
+questions/identity-brokering-external-oidc-idp.md	ref:rhbk-26-6-identity-brokering-apis.md
+questions/kb5014754-adfs-rhbk-claim-mapping.md	ref:_meta/wikikb/tkg/versions.py
+questions/kb5014754-adfs-rhbk-claim-mapping.md	ref:rhbk-26-4-assembly-managing-clients-server-administration-guide.md
+questions/kb5014754-adfs-rhbk-claim-mapping.md	ref:rhbk-26-4-migration-changes.md
+questions/kb5014754-adfs-rhbk-claim-mapping.md	ref:rhbk-26-4-newfeatures.md
+questions/kb5014754-adfs-rhbk-claim-mapping.md	ref:rhbk-26-6-migration-changes.md
+questions/kb5014754-adfs-rhbk-claim-mapping.md	ref:rhsso-7-4-identity-broker.md
+questions/kerberos-rbcd-s4u-delegation-detailed.md	ref:wiki/reference/active-directory/ad-ds-configure-kerberos-delegation-group-managed-service-accounts.md
+questions/kerberos-rbcd-s4u-delegation-detailed.md	ref:wiki/reference/active-directory/ad-ds-delegated-managed-service-accounts-overview.md
+questions/kerberos-rbcd-s4u-delegation-detailed.md	ref:wiki/reference/active-directory/ad-ds-schema-updates.md
+questions/kerberos-rbcd-s4u-delegation-detailed.md	ref:wiki/reference/keycloak/rhbk-26-4-configuring-authentication-server-administration-guide.md
+questions/login-redirect-loop-post-authentication.md	ref:rhbk-26-0-migration-changes
+questions/login-redirect-loop-post-authentication.md	ref:rhbk-26-0-red-hat-build-of-keycloak-26-0
+questions/login-redirect-loop-post-authentication.md	ref:rhbk-26-2-assembly-managing-clients-server-administration-guide
+questions/login-redirect-loop-post-authentication.md	ref:rhbk-26-6-javascript-adapter
+questions/login-redirect-loop-post-authentication.md	ref:rhbk-26-6-single-cluster-introduction
+questions/login-redirect-loop-post-authentication.md	ref:rhsso-7-4-openid-connect-3
+questions/oauth-client-discovery-authorization-server-endpoints.md	ref:rhbk-26-0-hostname.md
+questions/oauth-client-discovery-authorization-server-endpoints.md	ref:rhbk-26-4-migration-changes.md
+questions/oauth-client-discovery-authorization-server-endpoints.md	ref:rhbk-26-4-reverseproxy.md
+questions/ocp-411-412-upgrade-rhsso-tls.md	ref:doc-2342861
+questions/ocp-411-412-upgrade-rhsso-tls.md	ref:networking-4-22-creating-advanced-routes
+questions/ocp-411-412-upgrade-rhsso-tls.md	ref:networking-4-22-securing-routes
+questions/ocp-411-412-upgrade-rhsso-tls.md	ref:security-4-22-tls-security-profiles
+questions/passthrough-roundrobin-login-loop.md	ref:rhbk-26-2-reverseproxy
+questions/passthrough-roundrobin-login-loop.md	ref:rhbk-26-6-single-cluster-introduction
+questions/passthrough-roundrobin-login-loop.md	ref:rhsso-7-4-operating-mode
+questions/passthrough-roundrobin-login-loop.md	ref:rhsso-7-4-reference
+questions/require-dpop-bound-tokens.md	ref:rhbk-26-0-assembly-managing-clients-server-administration-guide.md
+questions/require-dpop-bound-tokens.md	ref:rhbk-26-2-assembly-managing-clients-server-administration-guide.md
+questions/require-dpop-bound-tokens.md	ref:rhbk-26-4-assembly-managing-clients-server-administration-guide.md
+questions/require-dpop-bound-tokens.md	ref:rhbk-26-4-features.md
+questions/rhbk-as-identity-broker.md	ref:rhbk-26-4-identity-broker.md
+questions/rhbk-as-identity-broker.md	ref:rhbk-26-6-identity-brokering-apis.md
+questions/rhbk-ldap-ad-user-federation.md	ref:rhbk-26-4-user-storage-federation
+questions/securing-an-app-with-oidc-saml.md	ref:oidc-client-best-practices.md
+questions/securing-an-app-with-oidc-saml.md	ref:oidc-grant-types.md
+questions/securing-an-app-with-oidc-saml.md	ref:saml-clients-and-migration.md
+questions/token-exchange-rhbk-detailed.md	ref:references/securing-apps-oidc-saml.md
+questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-0-token-exchange.md
+questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-2-migration-changes.md
+questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-2-token-exchange.md
+questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-4-features.md
+questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-4-token-exchange.md
+questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-6-deprecated.md
+questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-6-dpop.md
+questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-6-token-exchange.md
+questions/vlan-trunking-ios-xe.md	ref:reference/cisco-ios-xe/cisco-lanswitch-configuring-routing-between-vlans.md

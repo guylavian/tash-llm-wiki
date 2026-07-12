@@ -77,9 +77,60 @@ check("lint --strict is clean (no errors)", rc == 0, out[-200:])
 rc, out = run("index.py", "--check")
 check("index --check up to date", rc == 0, out[-200:])
 
-# 6. every kb: token resolves (crosslink reports no 'unresolved' line)
+# 6. every kb: token resolves (crosslink reports no 'unresolved kb:' line). ref:/guide: misses
+# print on their own line and are a REPORT (mis-tiered names on pages), not this invariant.
 rc, out = run("crosslink.py")
-check("crosslink 0 unresolved kb: tokens", rc == 0 and "unresolved" not in out, out[:160])
+check("crosslink 0 unresolved kb: tokens", rc == 0 and "unresolved kb:" not in out, out[:160])
+
+# 6b. resolve_any extends the resolver to ref: (curated references/ guide, path-qualified — three
+# stems collide with page slugs) and guide: (the generated per-guide _ref index note), exact-name
+# only; resolve() itself stays kb:-only so tkg's CITES edge set is untouched by construction.
+from wikikb.build import crosslink as _cxr
+_idx, _refs = _cxr.build_ref_index(), _cxr.build_refs_index()
+_r_ref = _cxr.resolve_any("ref:server-configuration.md", "keycloak", _idx, _refs)
+_r_gd = _cxr.resolve_any("guide:server_administration_guide", "keycloak", _idx, _refs)
+check("crosslink resolve_any: ref:/guide: resolve exactly, misses stay None, resolve() kb:-only",
+      _r_ref is not None and _r_ref["slug"] == "references/server-configuration"
+      and _r_gd is not None and _r_gd["slug"] == "_ref-keycloak-server_administration_guide"
+      and _cxr.resolve_any("ref:no-such-guide.md", "keycloak", _idx, _refs) is None
+      and _cxr.resolve_any("guide:server_configuration", "keycloak", _idx, _refs) is None
+      and _cxr.resolve("ref:server-configuration.md", "keycloak", _idx) is None,
+      f"ref={_r_ref} guide={_r_gd}")
+
+# 6c. ref:/guide: regression invariant (Codex veto finding #2): unresolved ref:/guide: citations on
+# TRACKED pages must EQUAL the committed page<TAB>token PAIR baseline — observed-minus-baseline is a
+# new regression (new token, or a legacy token spreading), baseline-minus-observed is a stale entry
+# (debt was fixed: shrink the baseline in the same commit, so a later reintroduction fails too).
+# Untracked pages (a live eval run files questions/ concurrently) are excluded; no git -> skip.
+_bl_path = os.path.join(META, "eval", "crosslink-unresolved.baseline.txt")
+_baseline = {ln.strip() for ln in open(_bl_path, encoding="utf-8")
+             if ln.strip() and not ln.startswith("#")} if os.path.exists(_bl_path) else set()
+try:
+    _tracked = set(subprocess.run(["git", "ls-files", "topics", "entities", "questions"],
+                                  capture_output=True, text=True, cwd=WIKI).stdout.split())
+except Exception:  # noqa: BLE001 — copied-without-.git vaults: skip, never false-fail
+    _tracked = None
+if _tracked:
+    _cx_idx, _cx_refs = _cxr.build_ref_index(), _cxr.build_refs_index()
+    _observed = set()
+    for _d in _cxr.PAGE_DIRS:
+        _full = os.path.join(WIKI, _d)
+        for _fn in sorted(os.listdir(_full)) if os.path.isdir(_full) else []:
+            if not _fn.endswith(".md") or _fn == "README.md" or f"{_d}/{_fn}" not in _tracked:
+                continue
+            _m = _cxr.FM_RE.match(open(os.path.join(_full, _fn), encoding="utf-8").read())
+            if not _m:
+                continue
+            _pfm = _cxr.top_fields(_m.group(1))
+            for _t in _cxr.source_tokens(_m.group(1)):
+                if (_t.startswith(("ref:", "guide:"))
+                        and not _cxr.resolve_any(_t, _pfm.get("domain"), _cx_idx, _cx_refs)):
+                    _observed.add(f"{_d}/{_fn}\t{_t}")
+    _new_misses, _stale = _observed - _baseline, _baseline - _observed
+    check("crosslink: unresolved ref:/guide: page+token pairs EQUAL committed baseline",
+          not _new_misses and not _stale,
+          f"{len(_new_misses)} new: " + "; ".join(sorted(_new_misses)[:5])
+          + f" | {len(_stale)} stale (shrink the baseline): " + "; ".join(sorted(_stale)[:5]))
 
 # 7. no orphan reference notes (every body note linked by a group index)
 body, linked = set(), set()
