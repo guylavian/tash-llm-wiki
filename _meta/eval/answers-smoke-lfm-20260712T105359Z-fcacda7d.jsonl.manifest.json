@@ -1,0 +1,13 @@
+{
+ "schema": "run300/1",
+ "run_id": "20260712T105359Z-fcacda7d",
+ "model": "lmstudio/liquid/lfm2.5-1.2b",
+ "cases_sha256": "cbcf843c24e694939a26b3656fd0bc4d1a8cbcbbb1dd08beb1c5086125353209",
+ "cases_count": 300,
+ "git_commit": "bcfaa846d74ac706633adab5ecad23742a29d0c5",
+ "git_dirty": true,
+ "started_utc": "2026-07-12T10:53:59+00:00",
+ "workers": 1,
+ "timeout": 600,
+ "isolation": "workspace-redaction-hybrid-copy"
+}
