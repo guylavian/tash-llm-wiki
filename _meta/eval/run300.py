@@ -29,10 +29,17 @@ MANIFEST_SCHEMA = "run300/2"
 ISOLATION = "manifest-commit-full-copy"
 WORKSPACE_ROOT = pathlib.Path(tempfile.gettempdir()) / "wikikb-eval-workspaces"
 COHORT_ROOT = WORKSPACE_ROOT / "cohorts"
-OUTPUT_CONTRACT = ("\n\nMandatory output contract: end with a Markdown `## References` section "
-                   "containing two labeled groups: `RH ground-truth` with at least one verified "
-                   "`kb:`/`guide:`/`ref:` sources, and `Wiki` with the `[[slug]]` pages used. A group "
-                   "may explicitly say that no verified source was used; never invent one.")
+# One spec, two views: this skeleton and grade300.contract() must stay in lockstep —
+# the grader requires these literal heading lines, not just "labeled groups".
+OUTPUT_CONTRACT = ("\n\nMandatory output contract — end your answer with exactly this Markdown "
+                   "skeleton (heading lines verbatim):\n"
+                   "## References\n"
+                   "### RH ground-truth\n"
+                   "- the kb:<id>, guide:<slug>, or ref:<file> sources actually used — at least one "
+                   "verified kb:, guide:, or ref: source; or exactly the line: no verified source was used\n"
+                   "### Wiki\n"
+                   "- the [[slug]] wiki pages used; or exactly the line: no wiki page was used\n"
+                   "Never invent a source.")
 
 
 def _git(*args):
