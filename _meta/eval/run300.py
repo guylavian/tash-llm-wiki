@@ -304,6 +304,38 @@ def ask(case, model, timeout, keep_workspace=False, no_expand=False, source_root
                 shutil.rmtree(snap, ignore_errors=True)
 
 
+def run_bounded(cases, workers, ask_fn, on_result, max_consecutive_timeouts=3):
+    """Run a bounded frontier; drain results after the timeout circuit opens, never refill it."""
+    todo = iter(cases)
+    bank_order = {c["id"]: i for i, c in enumerate(cases)}
+    consecutive_timeouts = 0
+    circuit_open = False
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        futs = {}
+        for _ in range(min(workers, len(cases))):
+            c = next(todo, None)
+            if c is not None:
+                futs[ex.submit(ask_fn, c)] = c
+        while futs:
+            finished, _ = wait(futs, return_when=FIRST_COMPLETED)
+            for fut in sorted(finished, key=lambda f: bank_order[futs[f]["id"]]):
+                c = futs.pop(fut)
+                ans = fut.result()
+                on_result(c, ans)
+                consecutive_timeouts = (consecutive_timeouts + 1
+                                        if ans.startswith("[RUN-ERROR] timeout") else 0)
+                if (max_consecutive_timeouts and
+                        consecutive_timeouts >= max_consecutive_timeouts):
+                    circuit_open = True
+            if not circuit_open:
+                while len(futs) < workers:
+                    c = next(todo, None)
+                    if c is None:
+                        break
+                    futs[ex.submit(ask_fn, c)] = c
+    return circuit_open
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="opencode/deepseek-v4-flash-free")
@@ -355,45 +387,26 @@ def main():
             return
         print(f"{label}: {len(pending)} to run ({args.workers} workers, model {args.model})")
         t0 = time.time()
-        consecutive_timeouts = 0
-        bank_order = {c["id"]: i for i, c in enumerate(pending)}
-        with ThreadPoolExecutor(max_workers=args.workers) as ex:
-            todo = iter(pending)
-            futs = {}
-            for c in list(pending)[:args.workers]:
-                futs[ex.submit(ask, c, args.model, args.timeout, args.keep_workspace,
-                               args.no_expand, source_root)] = c
-                next(todo, None)
-            n = 0
-            while futs:
-                finished, _ = wait(futs, return_when=FIRST_COMPLETED)
-                for fut in sorted(finished, key=lambda f: bank_order[futs[f]["id"]]):
-                    c = futs.pop(fut)
-                    n += 1
-                    ans = fut.result()
-                    with LOCK:
-                        with open(out, "a", encoding="utf-8") as fh:
-                            fh.write(json.dumps({"id": c["id"], "answer": ans,
-                                                 "run_id": manifest["run_id"],
-                                                 "model": manifest["model"]}, ensure_ascii=False) + "\n")
-                        done.add(c["id"])
-                    flag = " ERR" if ans.startswith("[RUN-ERROR]") else ""
-                    print(f"  [{n}/{len(pending)}] {c['id']}{flag}  ({time.time()-t0:.0f}s elapsed)", flush=True)
-                    consecutive_timeouts = (consecutive_timeouts + 1
-                                            if ans.startswith("[RUN-ERROR] timeout") else 0)
-                    if (args.max_consecutive_timeouts and
-                            consecutive_timeouts >= args.max_consecutive_timeouts):
-                        print("  CIRCUIT-BREAKER — %d consecutive timeout cases; draining %d running "
-                              "case(s). Cohort remains incomplete and exits 2."
-                              % (consecutive_timeouts, len(futs)), flush=True)
-                        circuit_open = True
-                if not circuit_open:
-                    while len(futs) < args.workers:
-                        cnext = next(todo, None)
-                        if cnext is None:
-                            break
-                        futs[ex.submit(ask, cnext, args.model, args.timeout,
-                                       args.keep_workspace, args.no_expand, source_root)] = cnext
+        n = 0
+        def _ask_case(c):
+            return ask(c, args.model, args.timeout, args.keep_workspace, args.no_expand, source_root)
+        def _record(c, ans):
+            nonlocal n
+            n += 1
+            with LOCK:
+                with open(out, "a", encoding="utf-8") as fh:
+                    fh.write(json.dumps({"id": c["id"], "answer": ans,
+                                         "run_id": manifest["run_id"],
+                                         "model": manifest["model"]}, ensure_ascii=False) + "\n")
+                done.add(c["id"])
+            flag = " ERR" if ans.startswith("[RUN-ERROR]") else ""
+            print(f"  [{n}/{len(pending)}] {c['id']}{flag}  ({time.time()-t0:.0f}s elapsed)", flush=True)
+        opened = run_bounded(pending, args.workers, _ask_case, _record,
+                             args.max_consecutive_timeouts)
+        if opened:
+            print("  CIRCUIT-BREAKER — consecutive timeout threshold reached; running work drained. "
+                  "Cohort remains incomplete and exits 2.", flush=True)
+            circuit_open = True
 
     firsts = [c for c in cases if c["type"] != "cache-repeat"]
     repeats = [c for c in cases if c["type"] == "cache-repeat"]
