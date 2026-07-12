@@ -65,7 +65,8 @@ def has_slug(answer, slugs):
 def refused(answer, token):
     low = re.sub(r"[*_`]", "", answer.lower())  # markdown emphasis breaks word boundaries
     saidno = re.search(
-        r"(not|n't|no)\s+(exist|found|present|document|appear|defined|valid|real)|"
+        r"(not|n't|no)\s+(exist|found|present|document|appear|defined|valid|real|"
+        r"available|expos(?:e|ed)|referenc(?:e|ed)|support(?:ed)?)|"
         r"not\s+a\s+real\b|no such|no\s+\w+\s+(named|called)|is\s+(actually|fabricated|hallucinated)|"
         r"you (likely|probably) mean|did you mean|\bnote:|instead of|rather than|"
         r"correct (name|form|spelling|option)|"
@@ -218,12 +219,19 @@ def main():
             if c.get("must_correct"):     # WI-8: REPORT-ONLY — never contributes to hard_fail/exit
                 row["corrected"] = corrected(ans, c.get("real_token", ""),
                                              c.get("substituted_token", ""))
+            # C-5 (2026-07-12, post-results metric correction — always dual-report
+            # against the raw-v1 grader): a must_refuse case passes ONLY by refusing;
+            # gold overlap stays reported but is never pass-determinative for that
+            # class (token overlap with gold facts that NAME the fake token was
+            # awarding passes to fabrications — fab-013/026).
+            row["passed"] = bool(row["refusal"]) if c.get("must_refuse") else row["gold"] >= 0.5
             row["judge_flag"] = row["gold"] < 0.5  # send these to a human/LLM judge
         rows.append(row)
         t = agg[c["type"]]
         t["n"] += 1
         if a:
             t["answered"] += 1
+            t["passed"] = t.get("passed", 0) + row["passed"]
             t["retrieval"] += row["retrieval"]
             t["contract"] += row["contract"]
             t["gold_sum"] += row["gold"]
@@ -252,7 +260,7 @@ def main():
         n, ans = s["n"], s["answered"]
         line = f"  {t:<16} {ans}/{n} answered  retrieval {s['retrieval']}/{ans}  contract {s['contract']}/{ans}"
         if ans:
-            line += f"  gold {s['gold_sum']/ans:.2f}"
+            line += f"  gold {s['gold_sum']/ans:.2f}  PASS {s.get('passed', 0)}/{ans}"
         if "refused" in s:
             line += f"  REFUSED {s['refused']}/{ans}"
         if "bannered" in s:
