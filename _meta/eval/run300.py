@@ -19,13 +19,16 @@ cache-repeat cases run in a second phase (their originals must answer first).
 Grade afterwards with:
     python3 grade300.py --cases cases300.jsonl --answers <answers.jsonl> --json report300.json
 """
-import argparse, datetime, hashlib, json, pathlib, subprocess, sys, threading, time, uuid
+import argparse, datetime, hashlib, json, os, pathlib, shutil, subprocess, sys, tempfile, threading, time, uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 HERE = pathlib.Path(__file__).resolve().parent
 WIKI = HERE.parent.parent
 LOCK = threading.Lock()
 MANIFEST_SCHEMA = "run300/1"
+ISOLATION = "workspace-redaction-hybrid-copy"
+WORKSPACE_ROOT = pathlib.Path(tempfile.gettempdir()) / "wikikb-eval-workspaces"
+MUTABLE_DIRS = ("questions", "topics", "entities")
 
 
 def _git(*args):
@@ -50,7 +53,7 @@ def build_manifest(args, cases_path):
         "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "workers": args.workers,
         "timeout": args.timeout,
-        "isolation": "none",   # WI-4 (per-case workspace isolation) will set its own value
+        "isolation": ISOLATION,
     }
 
 
@@ -128,7 +131,7 @@ def resolve_cohort(args, cases_path):
                     "fresh cohort or --overwrite to replace it." % out)
         man = _load_manifest(mp)
         fresh = build_manifest(args, cases_path)
-        for key in ("model", "cases_sha256"):
+        for key in ("model", "cases_sha256", "isolation"):
             if man.get(key) != fresh[key]:
                 _refuse("manifest %s mismatch (manifest=%r, now=%r). Use --new-run or --overwrite."
                         % (key, man.get(key), fresh[key]))
@@ -140,20 +143,105 @@ def resolve_cohort(args, cases_path):
     return _establish(out, fresh)
 
 
-def ask(case, model, timeout):
-    for attempt in (1, 2):
-        try:
-            r = subprocess.run(
-                ["opencode", "run", "-m", model, case["question"]],
-                capture_output=True, text=True, timeout=timeout, cwd=str(WIKI))
-            out = r.stdout.strip()
-            if out:
-                return out
-            err = (r.stderr or "").strip()[-300:]
-        except subprocess.TimeoutExpired:
-            err = f"timeout {timeout}s"
-        time.sleep(5 * attempt)  # ponytail: fixed backoff; free-tier rate limits are the ceiling
-    return f"[RUN-ERROR] {err}"
+def _snapshot_ignore(src, names):
+    """Exclude evaluator secrets/caches/artifacts and items copied separately as mutable files."""
+    rel = pathlib.Path(src).resolve().relative_to(WIKI.resolve())
+    ignored = {n for n in names if n == "__pycache__"}
+    ignored.update(n for n in names
+                   if (n.startswith("answers") and n.endswith(".jsonl"))
+                   or (n.startswith("report") and n.endswith(".json"))
+                   or (n.startswith("answers") and n.endswith(".manifest.json")))
+    if not rel.parts:                              # vault root
+        ignored.update({".git", ".obsidian", *MUTABLE_DIRS})
+        ignored.update(n for n in names if n.startswith("index") and n.endswith(".md"))
+    elif rel == pathlib.Path("_meta"):
+        ignored.update({"eval", ".eval-workspaces"})
+    return ignored
+
+
+def _link_or_copy(src, dst):
+    """Hardlink the read-only tier; fall back per-file when the filesystem cannot link."""
+    try:
+        os.link(src, dst)
+        return dst
+    except OSError:
+        return shutil.copy2(src, dst)
+
+
+def _reference_state(root):
+    """relpath -> (inode, mtime_ns, size) for the hardlinked immutable reference tier."""
+    ref = pathlib.Path(root) / "reference"
+    out = {}
+    if not ref.is_dir():
+        return out
+    for path in sorted(p for p in ref.rglob("*") if p.is_file()):
+        st = path.stat()
+        out[str(path.relative_to(ref))] = (st.st_ino, st.st_mtime_ns, st.st_size)
+    return out
+
+
+def build_case_snapshot(case_id):
+    """Build one isolated case workspace: mutable synthesis is copied, everything else linked."""
+    WORKSPACE_ROOT.mkdir(parents=True, exist_ok=True)
+    safe = "".join(c if c.isalnum() or c in "-_" else "-" for c in str(case_id))[:80] or "case"
+    snap = pathlib.Path(tempfile.mkdtemp(prefix=safe + "-", dir=str(WORKSPACE_ROOT)))
+    shutil.rmtree(snap)                            # copytree requires a non-existent destination
+    try:
+        shutil.copytree(WIKI, snap, copy_function=_link_or_copy, ignore=_snapshot_ignore)
+        for name in MUTABLE_DIRS:
+            src = WIKI / name
+            if src.is_dir():
+                shutil.copytree(src, snap / name, copy_function=shutil.copy2,
+                                ignore=shutil.ignore_patterns("__pycache__"))
+        for src in WIKI.glob("index*.md"):
+            shutil.copy2(src, snap / src.name)
+        return snap, _reference_state(WIKI)
+    except Exception:
+        shutil.rmtree(snap, ignore_errors=True)
+        raise
+
+
+def reference_integrity_error(before):
+    after = _reference_state(WIKI)
+    if after == before:
+        return None
+    changed = sorted(set(before) ^ set(after))
+    changed.extend(k for k in set(before) & set(after) if before[k] != after[k])
+    return "reference/ changed through hardlinked workspace: %s" % ", ".join(sorted(set(changed))[:5])
+
+
+def ask(case, model, timeout, keep_workspace=False):
+    """Run one case in its own redacted snapshot; never share filed pages across cases."""
+    snap = None
+    try:
+        snap, reference_before = build_case_snapshot(case["id"])
+        err = "no output"
+        for attempt in (1, 2):
+            try:
+                r = subprocess.run(
+                    ["opencode", "run", "-m", model, case["question"]],
+                    capture_output=True, text=True, timeout=timeout, cwd=str(snap))
+                out = r.stdout.strip()
+                if out:
+                    break
+                err = (r.stderr or "").strip()[-300:]
+            except subprocess.TimeoutExpired:
+                err = f"timeout {timeout}s"
+            time.sleep(5 * attempt)  # ponytail: fixed backoff; free-tier rate limits are the ceiling
+        else:
+            out = ""
+        integrity = reference_integrity_error(reference_before)
+        if integrity:
+            return "[RUN-ERROR] workspace-integrity: " + integrity
+        return out if out else f"[RUN-ERROR] {err}"
+    except Exception as e:
+        return "[RUN-ERROR] workspace: %s" % e
+    finally:
+        if snap is not None:
+            if keep_workspace:
+                print("kept case workspace: %s" % snap, file=sys.stderr, flush=True)
+            else:
+                shutil.rmtree(snap, ignore_errors=True)
 
 
 def main():
@@ -169,6 +257,8 @@ def main():
                      help="start a FRESH cohort on a timestamped answers path (never touches the old one)")
     grp.add_argument("--overwrite", action="store_true",
                      help="explicitly truncate the existing answers file + manifest and start over")
+    ap.add_argument("--keep-workspace", action="store_true",
+                    help="keep each per-case redacted workspace for inspection (default: delete)")
     args = ap.parse_args()
 
     cases = [json.loads(l) for l in open(args.cases, encoding="utf-8") if l.strip()]
@@ -188,7 +278,7 @@ def main():
         print(f"{label}: {len(pending)} to run ({args.workers} workers, model {args.model})")
         t0 = time.time()
         with ThreadPoolExecutor(max_workers=args.workers) as ex:
-            futs = {ex.submit(ask, c, args.model, args.timeout): c for c in pending}
+            futs = {ex.submit(ask, c, args.model, args.timeout, args.keep_workspace): c for c in pending}
             for n, fut in enumerate(as_completed(futs), 1):
                 c = futs[fut]
                 ans = fut.result()
