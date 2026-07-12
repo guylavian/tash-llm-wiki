@@ -1,0 +1,2248 @@
+[
+ {
+  "id": "fab-001",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-002",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.5,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-003",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-004",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-005",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-006",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.5,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-007",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-008",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-009",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-010",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.5,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-011",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-012",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-013",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-014",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-015",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.5,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-016",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-017",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-018",
+  "type": "fabrication",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-019",
+  "type": "fabrication",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-020",
+  "type": "fabrication",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-021",
+  "type": "fabrication",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-022",
+  "type": "fabrication",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-023",
+  "type": "fabrication",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-024",
+  "type": "fabrication",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-025",
+  "type": "fabrication",
+  "domain": "openshift",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-026",
+  "type": "fabrication",
+  "domain": "openshift",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-027",
+  "type": "fabrication",
+  "domain": "openshift",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-028",
+  "type": "fabrication",
+  "domain": "openshift",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-029",
+  "type": "fabrication",
+  "domain": "cisco-ios-xe",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "fab-030",
+  "type": "fabrication",
+  "domain": "cisco-ios-xe",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "refusal": true,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-001",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-002",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-003",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-004",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-005",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-006",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.5,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-007",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-008",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-009",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-010",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-011",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-012",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-013",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-014",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-015",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-016",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-017",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-018",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-019",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-020",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-021",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-022",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-023",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.33,
+  "contract": false,
+  "judge_flag": true
+ },
+ {
+  "id": "lex-ad-024",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-025",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-026",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-ad-027",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.0,
+  "contract": false,
+  "judge_flag": true
+ },
+ {
+  "id": "lex-ad-028",
+  "type": "lexical",
+  "domain": "active-directory",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.33,
+  "contract": false,
+  "judge_flag": true
+ },
+ {
+  "id": "lex-cx-001",
+  "type": "lexical",
+  "domain": "cisco-ios-xe",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-cx-002",
+  "type": "lexical",
+  "domain": "cisco-ios-xe",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-cx-003",
+  "type": "lexical",
+  "domain": "cisco-ios-xe",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-cx-004",
+  "type": "lexical",
+  "domain": "cisco-ios-xe",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-cx-005",
+  "type": "lexical",
+  "domain": "cisco-ios-xe",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-cx-006",
+  "type": "lexical",
+  "domain": "cisco-ios-xe",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-cx-007",
+  "type": "lexical",
+  "domain": "cisco-ios-xe",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-cx-008",
+  "type": "lexical",
+  "domain": "cisco-ios-xe",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-001",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.5,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-002",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-003",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-004",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-005",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-006",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-007",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-008",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-009",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-010",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-011",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.5,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-012",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-013",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.5,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-014",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-015",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-016",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.0,
+  "contract": false,
+  "judge_flag": true
+ },
+ {
+  "id": "lex-kc-017",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-018",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.67,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-019",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-020",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-021",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.5,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-022",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-023",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-024",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-025",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.5,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-026",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-027",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.0,
+  "contract": false,
+  "judge_flag": true
+ },
+ {
+  "id": "lex-kc-028",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-029",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-030",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.5,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-031",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.0,
+  "contract": false,
+  "judge_flag": true
+ },
+ {
+  "id": "lex-kc-032",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.0,
+  "contract": false,
+  "judge_flag": true
+ },
+ {
+  "id": "lex-kc-033",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.5,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-034",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-035",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-036",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.0,
+  "contract": false,
+  "judge_flag": true
+ },
+ {
+  "id": "lex-kc-037",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.5,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-038",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-039",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": true,
+  "gold": 0.0,
+  "contract": false,
+  "judge_flag": true
+ },
+ {
+  "id": "lex-kc-040",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 1.0,
+  "contract": false,
+  "judge_flag": false
+ },
+ {
+  "id": "lex-kc-041",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": true,
+  "retrieval": false,
+  "gold": 0.0,
+  "contract": false,
+  "judge_flag": true
+ },
+ {
+  "id": "lex-kc-042",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-043",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-044",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-045",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-046",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-047",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-048",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-049",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-050",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-051",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-052",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-053",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-054",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-055",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-056",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-057",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-058",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-059",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-060",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-061",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-062",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-063",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-064",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-065",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-066",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-067",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-068",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-069",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-kc-070",
+  "type": "lexical",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "lex-os-001",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-002",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-003",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-004",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-005",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-006",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-007",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-008",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-009",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-010",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-011",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-012",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-013",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "lex-os-014",
+  "type": "lexical",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "oob-001",
+  "type": "out-of-coverage",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "oob-002",
+  "type": "out-of-coverage",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "oob-003",
+  "type": "out-of-coverage",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "oob-004",
+  "type": "out-of-coverage",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "oob-005",
+  "type": "out-of-coverage",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "oob-006",
+  "type": "out-of-coverage",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "oob-007",
+  "type": "out-of-coverage",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "oob-008",
+  "type": "out-of-coverage",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "oob-009",
+  "type": "out-of-coverage",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "oob-010",
+  "type": "out-of-coverage",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "oob-011",
+  "type": "out-of-coverage",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "oob-012",
+  "type": "out-of-coverage",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "oob-013",
+  "type": "out-of-coverage",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "oob-014",
+  "type": "out-of-coverage",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "oob-015",
+  "type": "out-of-coverage",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "oob-016",
+  "type": "out-of-coverage",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "oob-017",
+  "type": "out-of-coverage",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "oob-018",
+  "type": "out-of-coverage",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "oob-019",
+  "type": "out-of-coverage",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "oob-020",
+  "type": "out-of-coverage",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "oob-021",
+  "type": "out-of-coverage",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "oob-022",
+  "type": "out-of-coverage",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "oob-023",
+  "type": "out-of-coverage",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "oob-024",
+  "type": "out-of-coverage",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "oob-025",
+  "type": "out-of-coverage",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "par-ad-001",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-002",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-003",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-004",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-005",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-006",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-007",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-008",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-009",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-010",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-011",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-ad-012",
+  "type": "paraphrase",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "par-cx-001",
+  "type": "paraphrase",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "par-cx-002",
+  "type": "paraphrase",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "par-cx-003",
+  "type": "paraphrase",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "par-cx-004",
+  "type": "paraphrase",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "par-kc-001",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-002",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-003",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-004",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-005",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-006",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-007",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-008",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-009",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-010",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-011",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-012",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-013",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-014",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-015",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-016",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-017",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-018",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-019",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-020",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-021",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-022",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-023",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-024",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-025",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-026",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-027",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-028",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-029",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-030",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-031",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-032",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-033",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-034",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-035",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-kc-036",
+  "type": "paraphrase",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "par-os-001",
+  "type": "paraphrase",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "par-os-002",
+  "type": "paraphrase",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "par-os-003",
+  "type": "paraphrase",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "par-os-004",
+  "type": "paraphrase",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "par-os-005",
+  "type": "paraphrase",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "par-os-006",
+  "type": "paraphrase",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "par-os-007",
+  "type": "paraphrase",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "par-os-008",
+  "type": "paraphrase",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "rep-001",
+  "type": "cache-repeat",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "rep-002",
+  "type": "cache-repeat",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "rep-003",
+  "type": "cache-repeat",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "rep-004",
+  "type": "cache-repeat",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "rep-005",
+  "type": "cache-repeat",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "rep-006",
+  "type": "cache-repeat",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "rep-007",
+  "type": "cache-repeat",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "rep-008",
+  "type": "cache-repeat",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "rep-009",
+  "type": "cache-repeat",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "rep-010",
+  "type": "cache-repeat",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "rep-011",
+  "type": "cache-repeat",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "rep-012",
+  "type": "cache-repeat",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "rep-013",
+  "type": "cache-repeat",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "rep-014",
+  "type": "cache-repeat",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "rep-015",
+  "type": "cache-repeat",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "sym-001",
+  "type": "symptom",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "sym-002",
+  "type": "symptom",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "sym-003",
+  "type": "symptom",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "sym-004",
+  "type": "symptom",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "sym-005",
+  "type": "symptom",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "sym-006",
+  "type": "symptom",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "sym-007",
+  "type": "symptom",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "sym-008",
+  "type": "symptom",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "sym-009",
+  "type": "symptom",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "sym-010",
+  "type": "symptom",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "sym-011",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-012",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-013",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-014",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-015",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-016",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-017",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-018",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-019",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-020",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-021",
+  "type": "symptom",
+  "domain": "active-directory",
+  "answered": false
+ },
+ {
+  "id": "sym-022",
+  "type": "symptom",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "sym-023",
+  "type": "symptom",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "sym-024",
+  "type": "symptom",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "sym-025",
+  "type": "symptom",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "sym-026",
+  "type": "symptom",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "sym-027",
+  "type": "symptom",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "sym-028",
+  "type": "symptom",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "sym-029",
+  "type": "symptom",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "sym-030",
+  "type": "symptom",
+  "domain": "openshift",
+  "answered": false
+ },
+ {
+  "id": "sym-031",
+  "type": "symptom",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "sym-032",
+  "type": "symptom",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "sym-033",
+  "type": "symptom",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "sym-034",
+  "type": "symptom",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "sym-035",
+  "type": "symptom",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "sym-036",
+  "type": "symptom",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "sym-037",
+  "type": "symptom",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "sym-038",
+  "type": "symptom",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "sym-039",
+  "type": "symptom",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "sym-040",
+  "type": "symptom",
+  "domain": "cisco-ios-xe",
+  "answered": false
+ },
+ {
+  "id": "ver-001",
+  "type": "version",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "ver-002",
+  "type": "version",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "ver-003",
+  "type": "version",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "ver-004",
+  "type": "version",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "ver-005",
+  "type": "version",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "ver-006",
+  "type": "version",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "ver-007",
+  "type": "version",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "ver-008",
+  "type": "version",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "ver-009",
+  "type": "version",
+  "domain": "keycloak",
+  "answered": false
+ },
+ {
+  "id": "ver-010",
+  "type": "version",
+  "domain": "keycloak",
+  "answered": false
+ }
+]
