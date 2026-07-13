@@ -345,12 +345,24 @@ def complete_routed(messages, tier=None, **kw):
 
 
 def text_of(resp):
-    """Extract the assistant text from a LiteLLM response, or None (defensive)."""
+    """Extract the assistant text from a LiteLLM response, or None (defensive).
+    Falls back to `reasoning_content` when `content` comes back empty — some LM Studio chat
+    templates (observed 2026-07-13 with gemma-4-12b-qat) put the entire answer in the reasoning
+    channel and return an empty content string; an empty-but-successful completion must not be
+    mistaken for a dead gateway (it silently demoted real answers to the extractive fallback)."""
     try:
-        return resp.choices[0].message.content
+        msg = resp.choices[0].message
+        content = msg.content
+        if not (content or "").strip():
+            content = getattr(msg, "reasoning_content", None)
+        return content
     except Exception:
         try:
-            return resp["choices"][0]["message"]["content"]
+            msg = resp["choices"][0]["message"]
+            content = msg.get("content")
+            if not (content or "").strip():
+                content = msg.get("reasoning_content")
+            return content
         except Exception:
             return None
 

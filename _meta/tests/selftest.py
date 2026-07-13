@@ -845,6 +845,61 @@ check("public_result (WI-7): always-structured grounding fields, flag-default se
       f"shape={_c_shape} flagdef={_c_flagdef} strict={_c_strict} clean={_c_clean} "
       f"canonical={_c_canonical} env={_c_env} parse={_c_parse} cli={_c_cli}")
 
+# 47d. Premise-correction dropout fix (manual session #4, RID Block Size): deterministic premise
+# extraction fixtures on the four 2026-07-12 manual-session questions, then the premise gate
+# matrix: filled table -> clean; missing table (the dropout) -> premise_unaddressed + strict
+# withhold; invalid verdict word -> premise_verdict_invalid; fabricated correction number ->
+# premise_correction_ungrounded; no premises / extractive fallback -> today's behavior, no flags.
+from wikikb.quality import lint as _plint
+_S4 = ("I set RID Block Size to 50,000 on our RID master, since the global RID space is capped "
+       "at 2^31 anyway - how many pool allocations until we exhaust it?")
+_S2 = ("Our security team wants to harden RHBK 26 against a flood of half-open login attempts "
+       "filling the cache. Is there a way to cap how many concurrent authentication sessions a "
+       "single browser/root session can hold, what is the default, and how do I change it?")
+_S1 = "What is back-channel logout in OpenID Connect?"
+_S3 = "What is the precedence of RHBK's four configuration sources?"
+_p4 = _plint.extract_premises(_S4)
+_p4_toks = {t for p in _p4 for t in p["tokens"]}
+_c_fx = (len(_p4) == 2 and {"50,000", "2^31"} <= _p4_toks and "RID Block Size" in _p4_toks
+         and len(_plint.extract_premises(_S1)) == 0 and len(_plint.extract_premises(_S3)) == 0
+         and all(p["tokens"] for p in _plint.extract_premises(_S2)))
+_pg_cands = [("ad-ds-managing-rid-issuance",
+              "the global RID space was limited to 2^30 (or 1,073,741,823) total RIDs ... the "
+              "2^31 bit can be unlocked ... cannot be reverted ... RID Block Size ... 15,000")]
+_tbl_good = ("## Premise check\n| # | User's claim | Corpus says | Verdict |\n|---|---|---|---|\n"
+             "| 1 | RID Block Size to 50,000 | values above 15,000 are clamped | CORRECTED |\n"
+             "| 2 | capped at 2^31 | default cap is 2^30; 2^31 only via irreversible unlock | CORRECTED |\n"
+             "\nanswer prose [cite: ad-ds-managing-rid-issuance]")
+_tbl_badverdict = _tbl_good.replace("| CORRECTED |\n| 2", "| WRONG-ISH |\n| 2")
+_tbl_fabnum = _tbl_good.replace("default cap is 2^30", "default cap is 2^37")
+_g_good = _plint.premise_gate(_tbl_good, _p4, _pg_cands, _S4)
+_g_drop = _plint.premise_gate("prose only, model dropped the table [cite: x]", _p4, _pg_cands, _S4)
+_g_bad = _plint.premise_gate(_tbl_badverdict, _p4, _pg_cands, _S4)
+_g_fab = _plint.premise_gate(_tbl_fabnum, _p4, _pg_cands, _S4)
+_c_gate = (_g_good == [] and {f["flag"] for f in _g_drop} == {"premise_unaddressed"}
+           and len(_g_drop) == 2
+           and any(f["flag"] == "premise_verdict_invalid" for f in _g_bad)
+           and any(f["flag"] == "premise_correction_ungrounded"
+                   and "2^37" in f.get("tokens", []) for f in _g_fab)
+           and _plint.premise_gate("anything", [], _pg_cands, _S4) == [])
+# plumbing: premise_flags surface in public_result; strict withholds ONLY on premise_unaddressed
+_st_drop = {"answer": "x", "used": ["n1"], "grounding_fail": False, "ungrounded_identifiers": [],
+            "premise_flags": [{"flag": "premise_unaddressed", "premise": "capped at 2^31"}]}
+_st_inv = {"answer": "x", "used": ["n1"], "grounding_fail": False, "ungrounded_identifiers": [],
+           "premise_flags": [{"flag": "premise_verdict_invalid", "premise": "p"}]}
+_pr_d0 = _askmod.public_result("q", _st_drop, [], strict=False)
+_pr_d1 = _askmod.public_result("q", _st_drop, [], strict=True)
+_pr_i1 = _askmod.public_result("q", _st_inv, [], strict=True)
+_c_plumb = (_pr_d0["withheld"] is False and _pr_d0["premise_flags"] == _st_drop["premise_flags"]
+            and _pr_d1["withheld"] is True
+            and _pr_i1["withheld"] is False and "premise_flags" in _pr_i1)
+check("premise gate (session-4 dropout class): extraction fixtures 4/4, gate matrix "
+      "(clean/drop/bad-verdict/fabricated-correction/empty), public_result plumbing + strict "
+      "withhold on premise_unaddressed only",
+      _c_fx and _c_gate and _c_plumb,
+      f"fx={_c_fx} gate={_c_gate} plumb={_c_plumb} p4={[p['tokens'] for p in _p4]} "
+      f"drop={_g_drop} bad={_g_bad} fab={_g_fab}")
+
 # 48. lint H1-banner helper: has_out_of_coverage_banner is lenient on markdown decoration (blockquote
 # or heading) but strict on content — the ⚠️ line must mention "coverage".
 _plain_body = "# Title\n\nJust a normal paragraph, no banner here.\n"

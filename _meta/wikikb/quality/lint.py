@@ -380,6 +380,147 @@ def validate_answer_grounding(answer, candidates, query=""):
     }
 
 
+# ---- Premise extraction + gate (deterministic, no LLM) -----------------------------------------
+# The premise-correction-dropout fix (2026-07-12 manual session #4, "RID Block Size"): a user
+# question ASSERTED two false facts, the synthesis model's own reasoning found the correction, and
+# the served answer dropped it — even endorsed the premise. The counter is structural, not
+# instructional (small local models follow STRUCTURE, not nuance): extract the user's checkable
+# assertions here (pure regex), inject them as a pre-built Premise-check table the model FILLS
+# (graph/nodes.py), then gate on the filled table (premise_gate). Design invariant — SAFE
+# DEGRADATION: a missed premise reproduces today's behavior (no row, no gate); a spuriously
+# extracted "premise" becomes an injected row the model marks NOT-IN-CORPUS. Neither path can
+# false-fire the gate against a correct answer.
+
+# numbers with enough shape to be a checkable claim: power forms (2^31, 2**31), N-bit widths,
+# comma-grouped or 2+digit integers, decimals w/ magnitude words, percentages, digit+unit
+# durations. Bare single digits are excluded (list ordinals / "step 3" — noise, not claims).
+_PREMISE_NUM_RE = re.compile(
+    r"(?:\b\d+\s*(?:\^|\*\*)\s*\d+"                       # 2^31, 2**31
+    r"|\b\d+-bit\b"                                        # 31-bit
+    r"|~?\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b"                 # 50,000 / 1,073,741,823
+    r"|~?\b\d+\.\d+(?:\s*(?:billion|million|thousand))?\b" # 2.1 billion
+    r"|\b\d+\s*%"                                          # 90%
+    r"|\b\d+\s*(?:days?|hours?|minutes?|seconds?)\b"       # 90 days
+    r"|\b\d{2,}\b)"                                        # any 2+ digit integer
+)
+# assertion-verb spans: the user states something as known fact. Extensible list, per-domain later.
+# span atom: any char except clause enders — but a comma BETWEEN digits stays (50,000), and a
+# period between digits stays (26.4); a plain "." / "," / "?" / "!" still ends the claim span.
+_SPAN = r"(?:[^,.?!]|,(?=\d)|\.(?=\d))"
+_PREMISE_CLAIM_RES = [
+    re.compile(r"\bI know(?: that)?\s+(%s+)" % _SPAN, re.I),
+    re.compile(r"\bgiven that\s+(%s+)" % _SPAN, re.I),
+    re.compile(r"\bsince\s+(%s*?\bis\b%s+)" % (_SPAN, _SPAN), re.I),
+    re.compile(r"\bI(?:'ve| have)? set\s+(%s*?\bto\b%s+)" % (_SPAN, _SPAN), re.I),
+    re.compile(r"((?:[A-Za-z][\w() ]{0,50}?)\s*(?:=|is capped at|is limited to|defaults? to)\s*%s+)" % _SPAN, re.I),
+]
+# identifier shapes a question can assert about, beyond the fabrication gate's ENV/CONST + flags:
+# cmdlets (Get-ADUser) and registry-style Title Case value names ("RID Block Size").
+_PREMISE_IDENT_RES = [
+    re.compile(r"\b[A-Z][a-z]+-[A-Z][A-Za-z]+\b"),
+    re.compile(r"\b(?:[A-Z][a-zA-Z]+ ){1,3}(?:Size|Limit|Value|Policy|Quota|Lifetime|Threshold)\b"),
+]
+
+
+def extract_premises(question):
+    """The user's checkable assertions from a question text, deterministically (no LLM).
+    Returns [{'premise_text', 'tokens', 'kind'}], kind ∈ claimed|number|identifier. `tokens` are
+    the matchable atoms the premise gate later uses to bind a Premise-check row to this premise.
+    A CLAIMED span subsumes the numbers/identifiers inside it (the span is the richer premise);
+    a claim with no checkable atom at all is dropped (nothing to verify deterministically)."""
+    q = question or ""
+    premises, covered = [], ""
+    spans = []
+    for cre in _PREMISE_CLAIM_RES:
+        for m in cre.finditer(q):
+            span = m.group(1).strip().rstrip(")")
+            if not span:
+                continue
+            # containment dedup, longer span wins (it is the richer premise)
+            contained = [s for s in spans if span.lower() in s.lower()]
+            if contained:
+                continue
+            spans = [s for s in spans if s.lower() not in span.lower()]
+            spans.append(span)
+    for span in spans:
+        toks = [t for t in _PREMISE_NUM_RE.findall(span)]
+        toks += _DISTINCTIVE_RE.findall(span) + _FLAG_RE.findall(span)
+        for ire in _PREMISE_IDENT_RES:
+            toks += ire.findall(span)
+        if toks:
+            premises.append({"premise_text": span, "tokens": list(dict.fromkeys(toks)),
+                             "kind": "claimed"})
+            covered += " " + span.lower()
+    for m in _PREMISE_NUM_RE.finditer(q):
+        tok = m.group(0)
+        if tok.lower() in covered:
+            continue
+        ctxt = q[max(0, m.start() - 60):m.end() + 60].strip()
+        premises.append({"premise_text": ctxt, "tokens": [tok], "kind": "number"})
+        covered += " " + ctxt.lower()
+    for ire in _PREMISE_IDENT_RES:
+        for m in ire.finditer(q):
+            tok = m.group(0)
+            if tok.lower() in covered:
+                continue
+            premises.append({"premise_text": tok, "tokens": [tok], "kind": "identifier"})
+            covered += " " + tok.lower()
+    return premises
+
+
+PREMISE_VERDICTS = ("CONFIRMED", "CORRECTED", "NOT-IN-CORPUS")
+_PREMISE_ROW_RE = re.compile(r"^\s*\|(?!\s*(?:-|#\s|\s*User))(.+)\|\s*$", re.M)
+
+
+def premise_gate(answer, premises, candidates, query=""):
+    """Deterministic post-synthesis enforcement — the dropout catcher. For each extracted premise:
+    the answer's Premise-check table must contain a row sharing a token with the premise
+    (case-insensitive substring) → else `premise_unaddressed`; the row must carry exactly one
+    closed-vocabulary verdict → else `premise_verdict_invalid`; and a CORRECTED row's corpus cell
+    must ground: identifiers via extract_distinctive (WI-6 extraction) and numbers via
+    boundary-aware digit match, both against the union of ALL retrieved candidate bodies + query —
+    deliberately wider than WI-6's cited-only basis, because table cells carry no [cite:] tokens
+    and a cited-only basis would false-fire on every correct correction (safe-degradation rule).
+    Returns a list of flag dicts; [] = clean. premises=[] short-circuits to [] (today's behavior)."""
+    flags = []
+    if not premises:
+        return flags
+    rows = []
+    for rm in _PREMISE_ROW_RE.finditer(answer or ""):
+        cells = [c.strip() for c in rm.group(1).split("|")]
+        if len(cells) >= 3 and not all(set(c) <= set("-: ") for c in cells):
+            rows.append(cells)
+    all_bodies = "\n".join((b or "") for _c, b in (candidates or [])) + "\n" + (query or "")
+    bodies_tokens = {m.group(0).lower() for m in _BASIS_TOKEN_RE.finditer(all_bodies)}
+    for p in premises:
+        row = next((r for r in rows
+                    if any(t.lower() in " ".join(r).lower() for t in p["tokens"])), None)
+        if row is None:
+            flags.append({"flag": "premise_unaddressed", "premise": p["premise_text"]})
+            continue
+        rowtext = " ".join(row).upper()
+        hit = [v for v in PREMISE_VERDICTS if v in rowtext]
+        # NOT-IN-CORPUS contains no other verdict as substring; CONFIRMED+CORRECTED both present
+        # means the model waffled — treat as invalid.
+        if len(hit) != 1:
+            flags.append({"flag": "premise_verdict_invalid", "premise": p["premise_text"]})
+            continue
+        if hit[0] == "CORRECTED":
+            corpus_cell = " ".join(row[1:-1]) if len(row) >= 3 else " ".join(row)
+            ungrounded = [t for t in extract_distinctive(corpus_cell)
+                          if t.lower() not in bodies_tokens]
+            nobody = all_bodies.replace(",", "")
+            for num in _PREMISE_NUM_RE.findall(corpus_cell):
+                bare = re.escape(num.replace(",", "").replace(" ", ""))
+                if not re.search(r"(?<!\d)" + bare + r"(?!\d)", nobody):
+                    ungrounded.append(num)
+            if ungrounded:
+                flags.append({"flag": "premise_correction_ungrounded",
+                              "premise": p["premise_text"],
+                              "tokens": list(dict.fromkeys(ungrounded))})
+    return flags
+
+
 # ---- H1 out-of-coverage banner check (filed questions) ----------------------------------------
 # A filed `type: question` page can DECLARE its tier (`question_tier:`), but the Confidence gate
 # (CLAUDE.md, Operation: QUERY) is a reader-facing contract — the banner text itself, not just the

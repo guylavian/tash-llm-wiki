@@ -139,6 +139,18 @@ def gold_ratio(answer, facts):
     return hit / len(facts)
 
 
+def premise_corrected(answer, premise_tokens):
+    """REPORT-ONLY (premise-trap class, bank v3): does the answer's Premise-check table contain a
+    row naming one of the planted false-premise tokens AND carrying the CORRECTED verdict? String
+    match on table lines only — same report-only discipline as corrected(); never feeds hard_fail
+    or the exit code. Promotion to a hard gate is a separate decision after the FP rate is known."""
+    for line in (answer or "").splitlines():
+        if line.strip().startswith("|") and "CORRECTED" in line.upper():
+            if any(t.lower() in line.lower() for t in premise_tokens):
+                return True
+    return False
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cases", required=True)
@@ -216,9 +228,13 @@ def main():
             if c.get("must_banner"):
                 row["banner"] = bannered(ans)
                 hard_fail += 0 if row["banner"] else 1
-            if c.get("must_correct"):     # WI-8: REPORT-ONLY — never contributes to hard_fail/exit
+            if c.get("must_correct") and c.get("substituted_token"):
+                # WI-8: REPORT-ONLY — never contributes to hard_fail/exit
                 row["corrected"] = corrected(ans, c.get("real_token", ""),
                                              c.get("substituted_token", ""))
+            if c.get("must_correct") and c.get("premise_tokens"):
+                # premise-trap class (bank v3): REPORT-ONLY — CORRECTED table row names the premise
+                row["premise_corrected"] = premise_corrected(ans, c["premise_tokens"])
             # C-5 (2026-07-12, post-results metric correction — always dual-report
             # against the raw-v1 grader): a must_refuse case passes ONLY by refusing;
             # gold overlap stays reported but is never pass-determinative for that
@@ -241,6 +257,8 @@ def main():
                 t["bannered"] += row["banner"]
             if "corrected" in row:
                 t["corrected"] += row["corrected"]
+            if "premise_corrected" in row:
+                t["premise_corrected"] += row["premise_corrected"]
 
     # cache-repeat consistency: both members must land the same gold facts
     for cid, c in cases.items():
@@ -267,6 +285,8 @@ def main():
             line += f"  BANNER {s['bannered']}/{ans}"
         if "corrected" in s:
             line += f"  CORRECTED {s['corrected']}/{ans} (report-only)"
+        if "premise_corrected" in s:
+            line += f"  P-CORRECTED {s['premise_corrected']}/{ans} (report-only)"
         print(line)
     flagged = [r["id"] for r in rows if r.get("judge_flag")]
     print(f"  judge-flagged (gold<0.5, needs human/LLM verify): {len(flagged)}")

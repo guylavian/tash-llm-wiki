@@ -43,6 +43,17 @@ class WikiState(TypedDict, total=False):
     page_fm: List[dict]       # one fm dict per query-matched seed synthesis page (B1: gate_node unions over these)
     k: int
     no_expand: bool
+    # synthesize_node structured outputs — every key MUST be declared or langgraph silently drops
+    # it from the final state (found 2026-07-13: premise_flags/grounding_fail vanished on the
+    # langgraph path while the linear path carried them; the answer TEXT said "withheld" while the
+    # grounding_fail FIELD read False). If synthesize_node grows a key, it goes here too.
+    grounding_fail: bool
+    ungrounded_identifiers: List[str]
+    grounding_basis: dict
+    truncated_ids: List[str]
+    premise_flags: List[dict]
+    premises: List[dict]
+    judge_verdict: Optional[dict]
 
 
 def build_query_graph(checkpointer=None):

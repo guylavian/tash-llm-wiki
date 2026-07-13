@@ -111,7 +111,12 @@ def public_result(query, st, refs, strict=False):
     withheld = False
     answer = st.get("answer", "")
     ungrounded = st.get("ungrounded_identifiers") or []
-    if strict and (st.get("grounding_fail") or ungrounded):
+    premise_flags = st.get("premise_flags") or []
+    # strict withholds on premise_unaddressed (a silently dropped correction is exactly the class
+    # strict mode exists for); the other premise flags stay flag-only even in strict — an invalid
+    # verdict word or an ungrounded correction is visible in the table itself.
+    premise_withhold = any(f.get("flag") == "premise_unaddressed" for f in premise_flags)
+    if strict and (st.get("grounding_fail") or ungrounded or premise_withhold):
         withheld = True
         answer = _WITHHELD_LINE % (st.get("grounding_fail", False), ungrounded or "[]",
                                    ", ".join(st.get("used", [])[:5]) or "(none)")
@@ -138,6 +143,7 @@ def public_result(query, st, refs, strict=False):
         "grounding_fail": st.get("grounding_fail", False),
         "ungrounded_identifiers": ungrounded,
         "grounding_basis": st.get("grounding_basis"),
+        "premise_flags": premise_flags,           # always a list (D3 discipline, like ungrounded)
         "withheld": withheld,
         "references": refs,
         "reference_groups": reference_groups,

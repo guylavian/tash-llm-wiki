@@ -238,6 +238,8 @@ _VERDICT_RE = re.compile(r"\b(SUPPORTED|PARTIAL|UNSUPPORTED)\b", re.IGNORECASE)
 _JUDGE_ADVISORY_BANNER = "judge (advisory): answer not supported by cited sources"
 _FABRICATION_BANNER = ("Ungrounded identifier(s) in this answer — not found in the retrieved "
                        "context or the question, verify before relying on them: %s")
+_PREMISE_BANNER = ("Premise check incomplete — the question's assertions were not all verified "
+                   "against the corpus (%s); treat the user's premises as unconfirmed.")
 
 
 def _judge_verdict(query, answer, ctx):
@@ -304,12 +306,36 @@ def synthesize_node(state):
     cand_ids = [cid for cid, _ in cands]
     top_ids = ", ".join(cand_ids[:5]) or "(no candidates)"
     ctx, truncated_ids = _assemble_context(cands, return_truncated=True)
+    # Premise-correction dropout fix (manual session #4, RID Block Size): deterministic extraction
+    # (lint.extract_premises) + a MANDATORY pre-built table the model FILLS — structure, not
+    # judgment; small local models complete tables far more reliably than they follow "be sure to
+    # address the user's assumptions". The premises are injected as ready rows; the model never
+    # has to discover them, only fill two cells per row.
+    premises = lint.extract_premises(state["query"])
+    sys_prompt = ("Answer the question using ONLY the provided context. After every claim, add an inline "
+                  "citation in the exact form [cite: <note-id>], using ONLY the note ids shown in brackets "
+                  "before each context chunk below — never invent or guess an id.")
+    premise_block = ""
+    if premises:
+        rows = "\n".join("| %d | %s |  |  |" % (i, p["premise_text"].replace("|", "/"))
+                         for i, p in enumerate(premises, 1))
+        premise_block = ("\n\n## Premise check\n"
+                         "| # | User's claim | Corpus says | Verdict |\n|---|---|---|---|\n"
+                         + rows + "\n")
+        sys_prompt += (
+            "\n\nThe question contains factual assertions. Your answer MUST start with the exact "
+            "'## Premise check' table given below the question: keep every row, fill ONLY the two "
+            "empty cells per row. 'Corpus says' = what the provided context actually states. "
+            "'Verdict' must be exactly one of: CONFIRMED, CORRECTED, NOT-IN-CORPUS. "
+            "Example row (from a different question) — claim: 'global RID space is capped at 2^31'; "
+            "context said: 'the global RID space was limited to 2^30 ... the 2^31 bit can be "
+            "unlocked ... cannot be reverted'; correct fill -> Corpus says: 'default cap is 2^30; "
+            "2^31 only via an irreversible unlock' | Verdict: CORRECTED. "
+            "After the table, write the normal answer.")
     messages = [
-        {"role": "system", "content": (
-            "Answer the question using ONLY the provided context. After every claim, add an inline "
-            "citation in the exact form [cite: <note-id>], using ONLY the note ids shown in brackets "
-            "before each context chunk below — never invent or guess an id.")},
-        {"role": "user", "content": "Question: %s\n\nContext:\n%s" % (state["query"], ctx)},
+        {"role": "system", "content": sys_prompt},
+        {"role": "user", "content": "Question: %s%s\n\nContext:\n%s"
+                                    % (state["query"], premise_block, ctx)},
     ]
     if llm.available():                              # config-only check (no socket) — so a blocking
         print("· querying local model (WIKI_LLM=%s); a reasoning model can take 30-200s…"
@@ -320,8 +346,13 @@ def synthesize_node(state):
     grounding_fail = False
     judge_verdict = None
     ungrounded_identifiers = []
+    premise_flags = []
     grounding_basis = {"cited_ids": [], "basis": "not-checked-extractive-fallback"}
     if answer:                                        # a real model answer — parse what it ACTUALLY cited
+        # the dropout catcher: the model can still reason correctly and drop the correction — but
+        # then the injected table row is missing/empty and this fires. Deterministic, post-hoc,
+        # never runs on the extractive fallback (which makes no premise claims).
+        premise_flags = lint.premise_gate(answer, premises, cands, state["query"])
         validation = lint.validate_answer_grounding(answer, cands, state["query"])
         used = validation["cited_ids"]
         grounding_basis = {"cited_ids": used, "basis": validation["basis"]}
@@ -350,6 +381,9 @@ def synthesize_node(state):
         prefix += "⚠️ " + " | ".join(banner) + "\n\n"
     if ungrounded_identifiers:
         prefix += "⚠️ %s\n\n" % (_FABRICATION_BANNER % ", ".join(ungrounded_identifiers))
+    if premise_flags:
+        prefix += "⚠️ %s\n\n" % (_PREMISE_BANNER % "; ".join(
+            "%s: %s" % (f["flag"], f["premise"][:60]) for f in premise_flags))
     if judge_verdict and judge_verdict.get("verdict") == "UNSUPPORTED":
         prefix += "⚠️ %s\n\n" % _JUDGE_ADVISORY_BANNER
     if grounding_fail:
@@ -361,7 +395,8 @@ def synthesize_node(state):
         answer = prefix + answer
     out = {"answer": answer, "used": used, "grounding_fail": grounding_fail,
            "ungrounded_identifiers": ungrounded_identifiers, "grounding_basis": grounding_basis,
-           "truncated_ids": truncated_ids}
+           "truncated_ids": truncated_ids, "premise_flags": premise_flags,
+           "premises": premises}
     if judge_verdict is not None:
         out["judge_verdict"] = judge_verdict
     return out
