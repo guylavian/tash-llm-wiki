@@ -9,9 +9,7 @@ sources:
   - id: sso-implementation-review
     type: wiki
     title: SSO / OIDC Implementation Review — Evaluation-Lens MOC
-provenance_extracted: 0
-provenance_inferred: 1
-provenance_ambiguous: 0
+provenance: needs-review
 tags: [sso, oidc, review, framework, security]
 question_tier: conceptual
 status: draft

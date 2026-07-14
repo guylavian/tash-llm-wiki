@@ -7,9 +7,9 @@ slug: ad-forest-recovery-procedure
 question: "What is the procedure for recovering an entire Active Directory forest after failure?"
 summary: "Forest recovery is the last-resort procedure for when a forest-wide failure (corruption, ransomware, bad change replicated everywhere) renders all DCs unusable — you restore one DC per domain from a known-good backup, seize FSMO roles, reset secrets, clean up metadata, then rebuild the remaining DCs."
 sources: "kb:ad-ds-ad-forest-recovery-guide,kb:ad-ds-ad-forest-recovery-perform-initial-recovery,kb:ad-ds-ad-forest-recovery-steps-for-restoring-the-forest,kb:ad-ds-ad-forest-recovery-seizing-operations-master-role,kb:ad-ds-ad-forest-recovery-reset-the-krbtgt-password,kb:ad-ds-ad-forest-recovery-cleaning-metadata-of-removed-dcs"
-provenance_extracted: "8"
-provenance_inferred: "1"
-provenance_ambiguous: "0"
+provenance_extracted: 8
+provenance_inferred: 1
+provenance_ambiguous: 0
 question_tier: conceptual
 status: draft
 updated: "2026-07-12"
