@@ -18,10 +18,11 @@ _A native [[wiki.base]] view — it reads page frontmatter directly and updates 
 ## Domains
 _Per-domain routing indexes (generated). A QUERY routes here first, then opens the relevant index below to stay inside the model's context window._
 
-- [active-directory](index.active-directory.md) — 84 pages · [[_ref-active-directory|221 reference notes]] · review lens [[active-directory-implementation-review]]
-- [cisco-ios-xe](index.cisco-ios-xe.md) — 22 pages · [[_ref-cisco-ios-xe|167 reference notes]] · review lens [[cisco-ios-xe-implementation-review]]
-- [keycloak](index.keycloak.md) — 207 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
-- [openshift](index.openshift.md) — 43 pages · [[_ref-openshift|3813 reference notes]] · review lens [[openshift-implementation-review]]
+- [active-directory](index.active-directory.md) — 96 pages · [[_ref-active-directory|221 reference notes]] · review lens [[active-directory-implementation-review]]
+- [cisco-ios-xe](index.cisco-ios-xe.md) — 25 pages · [[_ref-cisco-ios-xe|167 reference notes]] · review lens [[cisco-ios-xe-implementation-review]]
+- [keycloak](index.keycloak.md) — 236 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
+- [openshift](index.openshift.md) — 44 pages · [[_ref-openshift|3813 reference notes]] · review lens [[openshift-implementation-review]]
+- [unfiled](index.unfiled.md) — 1 pages
 <!-- index.py:domains:end -->
 
 ## Topics
@@ -233,7 +234,10 @@ _Per-domain routing indexes (generated). A QUERY routes here first, then opens t
 - [questions/rhbk-customize-user-facing-pages.md](./questions/rhbk-customize-user-facing-pages.md)
 - [questions/what-do-ldap-mappers-do.md](./questions/what-do-ldap-mappers-do.md)
 - [questions/openshift-persistent-storage-pvc-dynamic-provisioning.md](./questions/openshift-persistent-storage-pvc-dynamic-provisioning.md)
+- [questions/openshift-route-disable-cookie-annotation.md](./questions/openshift-route-disable-cookie-annotation.md)
 - [questions/what-is-keycloak.md](./questions/what-is-keycloak.md)
+- [questions/kc-db-url-password.md](./questions/kc-db-url-password.md)
+- [questions/ms-ds-allowed-to-delegate-from-attribute.md](./questions/ms-ds-allowed-to-delegate-from-attribute.md)
 
 ---
 _Seeded 2026-06-16. Grow it via the INGEST / QUERY operations in `CLAUDE.md`.
