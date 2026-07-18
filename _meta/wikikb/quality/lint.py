@@ -538,6 +538,54 @@ def has_out_of_coverage_banner(text):
     return False
 
 
+# ---- F6: near-duplicate question detection (WARNING only) -------------------------------------
+# Independent sessions mint near-duplicate question pages under different slugs/phrasing (the
+# CLAUDE.md "kc-sh vs kcsh" example, step 5 of Operation: QUERY). Two soft signals, either fires:
+# (a) normalized-slug collision — strip all non-alphanumerics, catches hyphenation variants like
+# `kc-sh` vs `kcsh`; (b) high title/summary token-set overlap (Jaccard on lowercased word sets,
+# threshold 0.6 — checking title as well as summary catches pairs phrased differently in the
+# summary but near-identically in the title, e.g. dc-locator-how-windows-clients-find-dc vs
+# windows-dc-locator). Pairwise within the same `domain:` only — cross-domain overlap is expected.
+_WORD_RE = re.compile(r"[a-z0-9]+")
+
+
+def _normalized_slug(slug):
+    return re.sub(r"[^a-z0-9]", "", (slug or "").lower())
+
+
+def _word_jaccard(a, b):
+    ta, tb = set(_WORD_RE.findall((a or "").lower())), set(_WORD_RE.findall((b or "").lower()))
+    if not ta or not tb:
+        return 0.0
+    return len(ta & tb) / len(ta | tb)
+
+
+def duplicate_question_pairs(pages, threshold=0.6):
+    """Pairwise near-duplicate scan over `type: question` pages, grouped by `domain:`.
+    ponytail: O(n^2) within a domain — fine at ~100 pages/domain; revisit (MinHash/LSH) only if a
+    domain's question count grows into the thousands."""
+    by_domain = {}
+    for slug, (_d, _p, _t, fm) in pages.items():
+        if fm and fm.get("type") == "question":
+            by_domain.setdefault(fm.get("domain"), []).append((slug, fm))
+    out = []
+    for dom, items in by_domain.items():
+        for i in range(len(items)):
+            for j in range(i + 1, len(items)):
+                s1, f1 = items[i]
+                s2, f2 = items[j]
+                reasons = []
+                if _normalized_slug(s1) == _normalized_slug(s2):
+                    reasons.append("normalized slug collision")
+                title_j = _word_jaccard(unquote(f1.get("title", "")), unquote(f2.get("title", "")))
+                summary_j = _word_jaccard(unquote(f1.get("summary", "")), unquote(f2.get("summary", "")))
+                if title_j >= threshold or summary_j >= threshold:
+                    reasons.append(f"title/summary similarity (title={title_j:.2f}, summary={summary_j:.2f})")
+                if reasons:
+                    out.append(f"[[{s1}]] / [[{s2}]] (domain {dom}): {'; '.join(reasons)}")
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--strict", action="store_true")
@@ -710,6 +758,10 @@ def main():
         linked = slug in referenced and any(s not in index_sources for s in referenced[slug])
         if not in_index and not linked and fm.get("type") != "question":
             warnings.append(f"{rel}: orphan (no inbound [[links]] and not in any index)")
+
+    # F6 — near-duplicate question pages (soft warning; see duplicate_question_pairs docstring)
+    for dup in duplicate_question_pairs(pages):
+        warnings.append(f"possible duplicate question: {dup}")
 
     # hubs: most-linked pages (inbound from other pages, not index files)
     inbound = {s: len([x for x in srcs if x not in index_sources]) for s, srcs in referenced.items() if s in slugs}

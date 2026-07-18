@@ -5,13 +5,15 @@ domain: active-directory
 slug: windows-dc-locator
 summary: Windows clients use the DC locator algorithm (Netlogon/DsGetDcName) — primarily DNS-based SRV record discovery with LDAP UDP pings, falling back to NetBIOS/WINS only when necessary and explicitly allowed.
 sources:
-  - note:_sources/active-directory/ad-ds-dc-locator.md
+  - kb:ad-ds-dc-locator
+  - kb:ad-ds-dc-locator-performance-counters
 provenance:
-  extracted: 14
+  extracted: 18
   inferred: 1
+tags: [clients]
 question_tier: conceptual
 status: draft
-updated: 2026-07-12
+updated: 2026-07-18
 ---
 
 # How Windows clients locate a suitable domain controller
@@ -43,6 +45,10 @@ After establishing an LDAP connection, the domain controller tells the client wh
 
 Starting with Windows Server 2025, the `BlockNetBIOSDiscovery` Group Policy setting (default **TRUE**) blocks NetBIOS-based DC location entirely. This is located under **Computer Configuration > Administrative Templates > System > Net Logon > DC Locator DNS Records** (`ad-ds-dc-locator.md:128-135`)(`extracted`). The policy enforces a secure-by-default posture; disable only temporarily while pursuing other mitigations (`ad-ds-dc-locator.md:134-135`)(`extracted`).
 
+## Observability (Windows Server 2025+)
+
+Beginning with Windows Server 2025, DC locator performance can be monitored via Performance Monitor (`perfmon.exe`) using three counter sets: **DC Locator (Client)**, **DC Locator (DC)**, and **DC Locator (Netlogon)** (`ad-ds-dc-locator-performance-counters.md:23-27`)(`extracted`). Key counters include `Requests: Failures/sec` (number of failed requests per second, on the client-side set) and, on the Netlogon set, `Cache: Hits/sec` and `DNS Query Failures/sec` (`ad-ds-dc-locator-performance-counters.md:54,82,84`)(`extracted`).
+
 ## Contradictions / caveats
 
 - Windows Server 2025 changes the default behavior significantly — NetBIOS discovery is now blocked by default, and forest-level domain name mappings are a new feature (`ad-ds-dc-locator.md:58-62,68`)(`inferred`). These changes do not apply to earlier versions.
@@ -50,12 +56,23 @@ Starting with Windows Server 2025, the `BlockNetBIOSDiscovery` Group Policy sett
 ## See also
 - [[ad-dns]]
 - [[sites-topology]]
+- [[dc-locator]]
+- [[dns-for-ad-ds]]
+- [[ad-integrated-dns-zones]]
+- [[disjoint-namespace]]
+- [[global-catalog]]
 
 ## References
 
 **RH ground-truth (reference tier):**
 - `ad-ds-dc-locator.md` — Locating Active Directory Domain Controllers in Windows and Windows Server (Microsoft Learn, folded into reference/)
+- `ad-ds-dc-locator-performance-counters.md` — Active Directory DC Locator performance counters in Windows Server (Microsoft Learn, folded into reference/)
 
 **Wiki:**
 - [[ad-dns]] — AD-integrated DNS, SRV records, the locator process
 - [[sites-topology]] — sites, subnets, site links, DC locator
+- [[dc-locator]] — DsGetDcName, DNS-based vs. NetBIOS discovery
+- [[dns-for-ad-ds]] — why DNS is essential to AD DS
+- [[ad-integrated-dns-zones]] — AD-integrated DNS zones
+- [[disjoint-namespace]] — disjoint namespace DC locator behavior
+- [[global-catalog]] — Global Catalog SRV record type

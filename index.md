@@ -18,9 +18,9 @@ _A native [[wiki.base]] view — it reads page frontmatter directly and updates 
 ## Domains
 _Per-domain routing indexes (generated). A QUERY routes here first, then opens the relevant index below to stay inside the model's context window._
 
-- [active-directory](index.active-directory.md) — 99 pages · [[_ref-active-directory|221 reference notes]] · review lens [[active-directory-implementation-review]]
+- [active-directory](index.active-directory.md) — 98 pages · [[_ref-active-directory|221 reference notes]] · review lens [[active-directory-implementation-review]]
 - [cisco-ios-xe](index.cisco-ios-xe.md) — 25 pages · [[_ref-cisco-ios-xe|167 reference notes]] · review lens [[cisco-ios-xe-implementation-review]]
-- [keycloak](index.keycloak.md) — 239 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
+- [keycloak](index.keycloak.md) — 238 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
 - [openshift](index.openshift.md) — 45 pages · [[_ref-openshift|3813 reference notes]] · review lens [[openshift-implementation-review]]
 - [unfiled](index.unfiled.md) — 1 pages
 <!-- index.py:domains:end -->

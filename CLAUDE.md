@@ -257,7 +257,7 @@ walkthrough: `_meta/ADD-DOMAIN.md`.
    shape from `sso-implementation-review`). Every page carries the full frontmatter
    contract — `domain:`, `summary:`, `sources:` (`note:`/`web:` for notes-first),
    `provenance:`. Cross-link with `[[slug]]`; slugs stay globally unique across
-   `topics/` + `entities/`.
+   `topics/` + `entities/` + `questions/`.
 6. **Generate + lint.** `python3 -m wikikb index` (writes `index.<domain>.md` and
    adds the domain to the global router) then `python3 -m wikikb lint`. A new
    brain is healthy when its pages aren't orphaned, the only findings are intentional
@@ -380,10 +380,13 @@ Goal: answer a question, and leave the wiki richer than you found it.
      routed domain's `tiers-covered:` is `conceptual` only, the answer is synthesis,
      not a confirmed fix — fire the **H1 out-of-coverage banner** and never file it
      `status: reviewed`.
-5. **File the answer back**: create `questions/<slug>.md` with the question, the
-   answer (**including the two-group References section**), and links into
-   supporting pages. If answering surfaced a reusable fact, also run a
-   mini-INGEST to capture it as an entity/topic.
+5. **File the answer back**: first search `questions/` for an existing page
+   answering the same question (grep the routing index and slugs for key terms —
+   independent sessions have minted near-duplicate slugs like `kc-sh` vs `kcsh`);
+   update it rather than making a near-duplicate. Only if none exists, create
+   `questions/<slug>.md` with the question, the answer (**including the two-group
+   References section**), and links into supporting pages. If answering surfaced
+   a reusable fact, also run a mini-INGEST to capture it as an entity/topic.
 
 ### Confidence gate — never serve inference as fact
 
@@ -456,8 +459,9 @@ Confidence gate above.
    a direct quote — the same inline tag defined under "Per-claim provenance"). Any
    inferred claim must be flagged in the chat summary as a reasonable inference, not
    confirmed fact, so the user can request further verification if it's load-bearing.
-6. **File the answer back as a `questions/<slug>.md` page** (not just a chat reply),
-   with full frontmatter: title, slug, summary, sources, provenance counts,
+6. **File the answer back as a `questions/<slug>.md` page** (not just a chat reply) —
+   after checking for an existing question page covering it (update that instead
+   of minting a near-duplicate slug) — with full frontmatter: title, slug, summary, sources, provenance counts,
    `question_tier:`, `status:` (**default `draft`** — only promote to `reviewed` after
    independent verification; the gate's filing rules above still bind), and `updated:`.
    Link relevant existing pages with `[[slug]]`.
@@ -641,7 +645,7 @@ page's frontmatter + body by slug).
 
 On top of the stdlib tools sits an **optional, off-by-default** measurement/orchestration tier that
 follows the `embed.py` precedent exactly (lazy import, behind a flag, vendored offline, graceful
-degradation — see `_meta/MIGRATION-litellm-langgraph.md` + `_meta/COUNCIL-DIRECTIVES.md`). With it
+degradation). With it
 absent or `WIKI_LLM` unset, the wiki behaves **identically to today** — the host runtime drives the
 prose ops; the deterministic retrieval/eval/gate tools are unchanged.
 
@@ -718,7 +722,9 @@ stays the single source of truth; the graph is compiled from edges that *already
 ---
 
 ## Conventions
-- Slugs are kebab-case and globally unique across `topics/` + `entities/`.
+- Slugs are kebab-case and globally unique across `topics/` + `entities/` +
+  `questions/` — before filing any page, check no existing slug (or trivially
+  re-hyphenated variant) already covers it.
 - Dates use ISO `YYYY-MM-DD`. Use the date provided in session context, never a
   guessed one (the harness blocks `Date.now()` in scripts for the same reason).
 - Versions matter: RHBK ships **26.0 / 26.2 / 26.4 / 26.6**; RH-SSO 7.x is legacy.
