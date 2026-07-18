@@ -6,7 +6,7 @@ domain: keycloak
 slug: kc-spi-cache-embedded-default-cluster-name
 summary: "The environment variable KC_SPI_CACHE_EMBEDDED_DEFAULT_CLUSTER_NAME does not exist in Keycloak/RHBK; the real topology env vars are SITE_NAME, RACK_NAME, and MACHINE_NAME"
 sources:
-  - kb:rhbk-26-4-caching.md
+  - kb:rhbk-26-4-caching
 provenance_extracted: 3
 provenance_inferred: 0
 provenance_ambiguous: 0

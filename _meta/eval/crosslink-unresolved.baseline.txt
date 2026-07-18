@@ -5,6 +5,9 @@
 # removal is a regression, not debt. Shrink freely, never grow.
 entities/kubernetes-networkpolicy.md	ref:reference/openshift/concepts-network-policies.md
 entities/kubernetes-networkpolicy.md	ref:reference/openshift/networking-4-22-about-network-policy.md
+questions/ad-integrated-dns-vs-traditional-zone-transfers.md	ref:ad-ds-active-directory-integrated-dns-zones.md
+questions/ad-integrated-dns-vs-traditional-zone-transfers.md	ref:ad-ds-dns-and-ad-ds.md
+questions/ad-integrated-dns-vs-traditional-zone-transfers.md	ref:ad-ds-reviewing-dns-concepts.md
 questions/deploy-promote-domain-controllers.md	ref:entities/install-promote-domain-controller.md
 questions/deploy-promote-domain-controllers.md	ref:entities/upgrade-domain-controllers.md
 questions/deploy-promote-domain-controllers.md	ref:topics/ad-ds-deployment.md
@@ -41,6 +44,10 @@ questions/ocp-411-412-upgrade-rhsso-tls.md	ref:doc-2342861
 questions/ocp-411-412-upgrade-rhsso-tls.md	ref:networking-4-22-creating-advanced-routes
 questions/ocp-411-412-upgrade-rhsso-tls.md	ref:networking-4-22-securing-routes
 questions/ocp-411-412-upgrade-rhsso-tls.md	ref:security-4-22-tls-security-profiles
+questions/openshift-etcd-defrag-disable-nightly.md	ref:etcd-4-22-etcd-overview
+questions/openshift-etcd-defrag-disable-nightly.md	ref:etcd-4-22-etcd-performance
+questions/openshift-etcd-defrag-disable-nightly.md	ref:etcd-4-22-etcd-practices
+questions/openshift-etcd-defrag-disable-nightly.md	ref:post-installation-configuration-4-22-cluster-tasks
 questions/passthrough-roundrobin-login-loop.md	ref:rhbk-26-2-reverseproxy
 questions/passthrough-roundrobin-login-loop.md	ref:rhbk-26-6-single-cluster-introduction
 questions/passthrough-roundrobin-login-loop.md	ref:rhsso-7-4-operating-mode
@@ -64,4 +71,10 @@ questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-4-
 questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-6-deprecated.md
 questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-6-dpop.md
 questions/token-exchange-rhbk-detailed.md	ref:wiki/reference/keycloak/rhbk-26-6-token-exchange.md
+questions/transaction-xa-retry-count.md	guide:server_configuration
+questions/transaction-xa-retry-count.md	ref:rhbk-26-0-migration-changes.md
+questions/transaction-xa-retry-count.md	ref:rhbk-26-2-db.md
+questions/unrecognized-command-query.md	ref:opencode-command-query-md
+questions/unrecognized-command-query.md	ref:query-card-md
+questions/unrecognized-command-query.md	ref:wikikb-serve-py
 questions/vlan-trunking-ios-xe.md	ref:reference/cisco-ios-xe/cisco-lanswitch-configuring-routing-between-vlans.md

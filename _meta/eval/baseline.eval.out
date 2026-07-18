@@ -28,10 +28,10 @@ PAIRED exact -> paraphrase (same target; the lexical-recall gap):
   token-exchange     exact @1    ->  paraphrase @16  
 
 CONTEXT-TOKEN PROXY  (index + snippets skimmed + bodies actually opened; chars/4)
-  mean index    tokens :  13244
+  mean index    tokens :  14507
   mean snippet  tokens :    304  (4.7 candidates skimmed/case)
   mean opened-body tok :  21806  (1.31 full notes opened/case)
-  mean TOTAL ctx tokens:  35355   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
+  mean TOTAL ctx tokens:  36618   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
 
 MISS BREAKDOWN @10 : 9 miss  =  6 graph-rescued (Phase 2)  +  3 still-missing (Phase 3)
   - [graph-rescued] active passive cross-site session replication keeps user session
