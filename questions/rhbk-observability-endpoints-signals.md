@@ -21,6 +21,7 @@ provenance_extracted: 14
 provenance_inferred: 3
 provenance_ambiguous: 0
 question_tier: conceptual
+tags: [observability]
 status: draft
 updated: 2026-07-12
 ---

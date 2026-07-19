@@ -18,6 +18,7 @@ provenance:
   inferred: 2
   ambiguous: 0
 question_tier: conceptual
+tags: [migration]
 status: draft
 updated: 2026-07-12
 ---

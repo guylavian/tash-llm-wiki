@@ -13,6 +13,7 @@ provenance:
   inferred: 2
   ambiguous: 1
 question_tier: conceptual
+tags: [ha]
 status: draft
 updated: 2026-07-12
 ---

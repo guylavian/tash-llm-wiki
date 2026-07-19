@@ -14,6 +14,7 @@ provenance:
   inferred: 3
   ambiguous: 0
 question_tier: conceptual
+tags: [users]
 status: draft
 updated: 2026-07-12
 aliases: [pass-the-hash, pass-the-ticket, credential theft AD, AD lateral movement]

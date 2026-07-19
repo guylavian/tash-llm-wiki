@@ -12,6 +12,7 @@ provenance_extracted: 5
 provenance_inferred: 1
 provenance_ambiguous: 0
 question_tier: conceptual
+tags: [authz]
 status: draft
 updated: 2026-07-12
 ---

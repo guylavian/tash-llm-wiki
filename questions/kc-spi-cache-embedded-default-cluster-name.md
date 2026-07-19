@@ -11,6 +11,7 @@ provenance_extracted: 3
 provenance_inferred: 0
 provenance_ambiguous: 0
 question_tier: conceptual
+tags: [ha, spi]
 status: draft
 updated: 2026-07-12
 ---

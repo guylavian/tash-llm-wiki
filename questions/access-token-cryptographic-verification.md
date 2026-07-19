@@ -4,6 +4,7 @@ title: What must a resource server cryptographically verify on inbound access to
 type: question
 domain: keycloak
 slug: access-token-cryptographic-verification
+tags: [tokens]
 status: draft
 summary: "A resource server must verify signature, typ, iss, aud, exp, required claims, scope, and derive identity from the token — in that order — before granting access."
 question_tier: conceptual

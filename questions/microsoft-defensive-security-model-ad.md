@@ -24,6 +24,7 @@ provenance:
   extracted: 28
   inferred: 5
   ambiguous: 0
+tags: [security]
 status: draft
 updated: 2026-07-12
 ---

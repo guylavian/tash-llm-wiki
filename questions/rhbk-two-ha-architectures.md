@@ -14,6 +14,7 @@ provenance:
   inferred: 0
   ambiguous: 0
 question_tier: conceptual
+tags: [ha]
 status: draft
 updated: 2026-07-12
 ---

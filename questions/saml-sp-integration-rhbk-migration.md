@@ -16,6 +16,7 @@ provenance_extracted: 10
 provenance_inferred: 2
 provenance_ambiguous: 0
 question_tier: conceptual
+tags: [clients, migration]
 status: draft
 updated: 2026-07-12
 ---

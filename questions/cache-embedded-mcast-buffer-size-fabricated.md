@@ -11,6 +11,7 @@ sources:
 provenance_extracted: 2
 provenance_inferred: 0
 provenance_ambiguous: 0
+tags: [ha]
 status: draft
 updated: 2026-07-12
 ---

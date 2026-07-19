@@ -15,6 +15,7 @@ provenance_inferred: 3
 provenance_ambiguous: 0
 tags: "[tokens, security, bearer-token, oauth2, rfc-6750]"
 question_tier: conceptual
+tags: [tokens]
 status: reviewed
 updated: 2026-07-12
 ---

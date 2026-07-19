@@ -20,6 +20,7 @@ provenance:
   extracted: 15
   inferred: 3
   ambiguous: 0
+tags: [authz]
 status: draft
 updated: 2026-07-12
 ---
