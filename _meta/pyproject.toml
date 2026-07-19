@@ -37,7 +37,8 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["wikikb", "wikikb.retrieval", "wikikb.build", "wikikb.corpus",
-            "wikikb.quality", "wikikb.online", "wikikb.graph"]
+            "wikikb.quality", "wikikb.online", "wikikb.graph", "wikikb.mcp",
+            "wikikb.serve", "wikikb.tkg"]
 
 
 [tool.ruff]
