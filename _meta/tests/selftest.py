@@ -986,7 +986,20 @@ try:
     _mcp.stdin.write(_json.dumps({"jsonrpc": "2.0", "id": 2, "method": "tools/list"}) + "\n")
     _mcp.stdin.flush()
     _resp = _json.loads(_mcp_readline(_mcp) or "{}")
-    _mcp_list_ok = len(_resp.get("result", {}).get("tools", [])) == 4
+    _mcp_tools = _resp.get("result", {}).get("tools", [])
+    # Every advertised tool is wiki_-prefixed (collision-safe when a host loads several servers) and
+    # carries annotations + an outputSchema. The readOnly split is the load-bearing part: wiki_ask
+    # can WRITE (file_back=true files a questions/ page) so it must NOT claim readOnlyHint, and the
+    # other three must, or a host cannot auto-approve reads and gate the write.
+    _mcp_ann = {t.get("name"): (t.get("annotations") or {}) for t in _mcp_tools}
+    _mcp_list_ok = (
+        len(_mcp_tools) == 4
+        and all(n.startswith("wiki_") for n in _mcp_ann)
+        and all("outputSchema" in t for t in _mcp_tools)
+        and _mcp_ann.get("wiki_ask", {}).get("readOnlyHint") is False
+        and all(_mcp_ann.get(n, {}).get("readOnlyHint") is True
+                for n in ("wiki_search", "wiki_route", "wiki_read_page"))
+    )
 
     _mcp.stdin.write(_json.dumps({
         "jsonrpc": "2.0", "id": 3, "method": "tools/call",
@@ -1452,7 +1465,7 @@ try:
     _mcp_http["notif_202_empty"] = _st == 202 and _bd == b""
     _st, _bd = _http("POST", "/mcp", token=_tok, body={"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
     _mcp_http["tools_list"] = _st == 200 and {t["name"] for t in _json.loads(_bd)["result"]["tools"]} == {
-        "ask", "search", "route", "read_page"}
+        "wiki_ask", "wiki_search", "wiki_route", "wiki_read_page"}
     _mcp_http["get_mcp_405"] = _http("GET", "/mcp", token=_tok)[0] == 405
     _mcp_http["origin_403"] = _http("POST", "/mcp", token=_tok, origin="http://evil.example",
                                     body={"jsonrpc": "2.0", "id": 3, "method": "tools/list"})[0] == 403

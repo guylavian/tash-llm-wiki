@@ -15,7 +15,8 @@ questions instead of guessing or going to the internet.
 - Tooling (stdlib, air-gapped) is the `wikikb` package under `_meta/`:
   `python3 -m wikikb {ask,kb,route,expand,lint,manifest,index,card,build,tkg,…}`
   run from `_meta/` (or `PYTHONPATH=<repo>/_meta`). MCP stdio server:
-  `python3 -m wikikb mcp` (tools: ask / search / route / read_page).
+  `python3 -m wikikb mcp` (tools: wiki_ask / wiki_search / wiki_route / wiki_read_page;
+  only wiki_ask can write — file_back=true files a questions/ draft).
 - Every page carries `summary:`, two-tier `sources:`, and per-claim
   `provenance:` counts (`extracted`/`inferred`/`ambiguous`) — never fabricate them.
 

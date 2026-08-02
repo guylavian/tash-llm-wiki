@@ -8,9 +8,9 @@ Method (no model needed — talks the MCP stdio protocol directly, exactly as op
   2. materialize a cohort snapshot (git archive of HEAD) + one case snapshot;
   3. spawn the MCP with the exact examinee env — live-package PYTHONPATH (the global
      opencode config's) + WIKIKB_VAULT_ROOT=<case> (injected by run300.ask; opencode
-     ignores per-project MCP config, falsified 2026-07-12) → read_page(marker) must
+     ignores per-project MCP config, falsified 2026-07-12) → wiki_read_page(marker) must
      FAIL (invisible);
-  4. control: spawn the MCP with the LIVE env, no override → read_page(marker) must
+  4. control: spawn the MCP with the LIVE env, no override → wiki_read_page(marker) must
      SUCCEED (proves the probe detects leakage when it exists);
   5. assert the snapshot contains no page tagged `origin: eval-cohort` (same
      frontmatter-bounded check production uses).
@@ -73,7 +73,7 @@ def main():
         case = run300.build_case_snapshot("mcp-probe", src)
         live_meta = str(run300.WIKI / "_meta")
 
-        live = mcp_call({"PYTHONPATH": live_meta}, "read_page", {"slug": marker_slug},
+        live = mcp_call({"PYTHONPATH": live_meta}, "wiki_read_page", {"slug": marker_slug},
                         cwd=str(run300.WIKI))
         if not found(live):
             print("FAIL (control): live-vault MCP cannot see the marker — probe cannot "
@@ -84,7 +84,7 @@ def main():
         # exactly what the examinee's env produces: global-config PYTHONPATH (live
         # package) + WIKIKB_VAULT_ROOT scoping the vault reads to the case snapshot
         iso = mcp_call({"PYTHONPATH": live_meta, "WIKIKB_VAULT_ROOT": str(case)},
-                       "read_page", {"slug": marker_slug}, cwd=str(case))
+                       "wiki_read_page", {"slug": marker_slug}, cwd=str(case))
         if found(iso):
             print("FAIL (isolation): snapshot-routed MCP sees the mid-run filed page")
             ok = False

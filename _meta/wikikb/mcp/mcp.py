@@ -38,10 +38,73 @@ sys.dont_write_bytecode = True
 from wikikb.graph import ask as askmod
 from wikikb.serve.serve import do_page, do_route, do_search
 
+# ---------------------------------------------------------------------------------------------
+# TOOL ANNOTATIONS (spec: server/tools #toolannotations). Hints, never a security boundary — the
+# write gate is `file_back`'s own guard chain in fileback.file_answer, not this metadata. But a host
+# CANNOT auto-approve a read tool it has no way to recognise, so omitting these costs twice: the
+# three genuinely read-only tools don't get credit, and the one that can WRITE isn't flagged.
+#
+# `openWorldHint: False` on all four is the honest reading of this server: every tool answers from
+# the local vault. The optional LLM tier is loopback-only and refuses non-loopback without a double
+# opt-in (see _meta/CLAUDE.md), so no tool here reaches an open-ended external system.
+_READ = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True,
+         "openWorldHint": False}
+# ask is CONDITIONALLY mutating: with file_back=true it persists questions/<slug>.md into the vault.
+# Not destructive — fileback refuses an existing slug rather than overwriting it — but not read-only
+# either, so readOnlyHint must be False. Not idempotent: the first call files the page, the second
+# returns filed=False ("already exists"), so repeat calls differ.
+_ASK = {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": False,
+        "openWorldHint": False}
+
+# OUTPUT SCHEMAS. Following keycloak-mcp-server/app/core/envelope.py's measured trade-off: name every
+# field, type only the ones a client branches on, and leave enumerations to the documentation — a
+# fully-typed schema costs more `tools/list` tokens per conversation than it buys.
+# additionalProperties stays open: _call_tool appends session_tokens_served/budget_directive, and ask
+# gains `filed` and `judge_verdict` conditionally.
+_ASK_OUT = {
+    "type": "object", "additionalProperties": True,
+    "properties": {
+        "query": {"type": "string"}, "domain": {"type": ["string", "null"]},
+        "answer": {"type": "string"},
+        "confident": {"type": "boolean"}, "thin": {"type": "boolean"},
+        "withheld": {"type": "boolean"}, "grounding_fail": {"type": "boolean"},
+        "banner": {"type": "array"}, "guard": {"type": "array"},
+        "cited": {"type": "array"}, "ungrounded_identifiers": {"type": "array"},
+        "premise_flags": {"type": "array"}, "references": {"type": "array"},
+        "grounding_basis": {}, "reference_groups": {}, "orchestrator": {"type": "string"},
+        "filed": {"type": "object", "description": "present only when file_back=true"},
+        "session_tokens_served": {"type": "integer"},
+    },
+}
+# do_search returns a bare LIST. structuredContent MUST be an object (spec: server/tools
+# #structured-content), so the object form lives in structuredContent while `content` keeps the
+# verbatim list — byte-identical to serve /search, so no existing consumer sees a shape change.
+_SEARCH_OUT = {
+    "type": "object", "additionalProperties": True,
+    "properties": {"hits": {"type": "array"}, "count": {"type": "integer"}},
+}
+_ROUTE_OUT = {
+    "type": "object", "additionalProperties": True,
+    "properties": {"domains": {"type": "array"}, "confident": {"type": "boolean"}},
+}
+_PAGE_OUT = {
+    "type": "object", "additionalProperties": True,
+    "properties": {
+        "slug": {"type": "string"}, "path": {"type": "string"},
+        "frontmatter": {"type": "object"}, "body": {"type": "string"},
+        "body_total_chars": {"type": "integer"},
+        "truncated": {"type": "boolean"}, "next_offset": {"type": "integer"},
+    },
+}
+
 TOOLS = [
     {
-        "name": "ask",
-        "description": "Ask the wiki a question; returns a gated, cited answer",
+        "name": "wiki_ask",
+        "description": ("Ask the wiki a question; returns a gated, cited answer. "
+                        "WRITES when file_back=true: persists the answer as a questions/<slug>.md "
+                        "draft page in the vault."),
+        "annotations": _ASK,
+        "outputSchema": _ASK_OUT,
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -62,8 +125,10 @@ TOOLS = [
         },
     },
     {
-        "name": "search",
+        "name": "wiki_search",
         "description": "Top-k reference-note hits (id/title/score/snippet) for a domain",
+        "annotations": _READ,
+        "outputSchema": _SEARCH_OUT,
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -75,8 +140,10 @@ TOOLS = [
         },
     },
     {
-        "name": "route",
+        "name": "wiki_route",
         "description": "Route a query to its likely domain(s)",
+        "annotations": _READ,
+        "outputSchema": _ROUTE_OUT,
         "inputSchema": {
             "type": "object",
             "properties": {"q": {"type": "string"}},
@@ -84,8 +151,10 @@ TOOLS = [
         },
     },
     {
-        "name": "read_page",
+        "name": "wiki_read_page",
         "description": "Read a wiki page's frontmatter + body by slug (topics/entities/questions). Long bodies are served in ~8k-char slices; pass offset=next_offset for more.",
+        "annotations": _READ,
+        "outputSchema": _PAGE_OUT,
         "inputSchema": {
             "type": "object",
             "properties": {"slug": {"type": "string"},
@@ -143,7 +212,21 @@ def _tool_read_page(args):
     return obj
 
 
-DISPATCH = {"ask": _tool_ask, "search": _tool_search, "route": _tool_route, "read_page": _tool_read_page}
+# The ADVERTISED names carry the `wiki_` prefix: an MCP host may load this server alongside others,
+# and bare `ask`/`search`/`route` are the most collision-prone names available (server/tools
+# #tool-name). Claude Code namespaces to mcp__wikikb__*, but a host that flattens names does not.
+#
+# The legacy bare names stay dispatchable but UNADVERTISED — tools/list offers only `wiki_*`, while
+# an in-flight caller pinned to the old name (selftest #50, an n8n workflow, a saved agent card)
+# keeps working. A rename nobody can act on yet is a breakage, not a fix; drop the aliases once the
+# consumers are moved.
+_TOOL_FNS = {"ask": _tool_ask, "search": _tool_search, "route": _tool_route,
+             "read_page": _tool_read_page}
+DISPATCH = dict(_TOOL_FNS)
+DISPATCH.update({"wiki_" + n: fn for n, fn in _TOOL_FNS.items()})
+
+# Which advertised tool a result belongs to, for structuredContent shaping (search returns a list).
+_LIST_RESULT_TOOLS = {"search", "wiki_search"}
 
 
 # F2 (100k-budget plan): session-cumulative accounting. Per-call caps (F1) bound one result; this
@@ -188,10 +271,33 @@ def _call_tool(session, msg_id, params):
                                            "STOP retrieving; answer from the evidence already read."
                                            % (tokens // 1000))
             text = json.dumps(out, ensure_ascii=False)
-        return {"jsonrpc": "2.0", "id": msg_id, "result": {"content": [{"type": "text", "text": text}]}}
-    except Exception as e:                            # noqa: BLE001 — a bad tool call must never kill the loop
+        # `content` stays EXACTLY what it has always been (the verbatim serializer output), so no
+        # existing consumer sees a shape change. structuredContent is additive and must be an object:
+        # search's bare list is wrapped, every other tool already returns one.
+        if name in _LIST_RESULT_TOOLS:
+            structured = {"hits": out, "count": len(out) if isinstance(out, list) else 0,
+                          "session_tokens_served": tokens}
+        else:
+            structured = out if isinstance(out, dict) else {"result": out}
+        return {"jsonrpc": "2.0", "id": msg_id,
+                "result": {"content": [{"type": "text", "text": text}],
+                           "structuredContent": structured}}
+    except ValueError as e:
+        # Author-written argument errors (`domain and q are required`, `no such page: x`) — these are
+        # the actionable ones, so the message goes to the caller verbatim.
         return {"jsonrpc": "2.0", "id": msg_id,
                 "result": {"content": [{"type": "text", "text": str(e)}], "isError": True}}
+    except Exception as e:                            # noqa: BLE001 — a bad tool call must never kill the loop
+        # Anything else is an INTERNAL failure: its text can carry vault paths, stack context or
+        # third-party detail the caller has no business seeing (best practice: don't expose internal
+        # errors). Full detail goes to stderr for the operator; the caller gets the tool name, the
+        # exception class, and what to do next.
+        print("wikikb mcp: %s failed: %r" % (name, e), file=sys.stderr)
+        return {"jsonrpc": "2.0", "id": msg_id,
+                "result": {"content": [{"type": "text", "text":
+                                        "%s failed internally (%s). The server log has the detail; "
+                                        "retry with narrower arguments or check the wiki build."
+                                        % (name, type(e).__name__)}], "isError": True}}
 
 
 # ---------------------------------------------------------------------------------------------
