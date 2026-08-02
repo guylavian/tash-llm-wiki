@@ -16,8 +16,9 @@ dist/
 .obsidian/workspace-mobile.json
 .obsidian.bak/
 
-# Claude Code project-local session state
-.claude/
+# Claude Code: track the SHARED config (commands/, agents/, settings.json) so a fresh clone
+# reproduces the documented setup — ignore only the per-machine session state.
+.claude/settings.local.json
 
 # Redundant local backups — the corpus is canonical in wiki/reference/ (tracked here)
 .corpora.bak/

@@ -10,6 +10,8 @@ answered question is filed back as a durable page.
 Open **the repo root** as the Obsidian vault — the vault IS the repo, and it rules
 all the data.
 
+![Architecture and flow: harvest → the vault → query & serve](architecture.png)
+
 ## What's here
 
 | Domain | Shape | Raw tier |
@@ -28,6 +30,7 @@ cross-linked with `[[slug]]`.
 <repo-root>/             # the Obsidian vault root
 ├── CLAUDE.md            # THE schema + ingest/query/lint workflows — read this first
 ├── SKILL.md · AGENTS.md # skill trigger manifest + thin agent pointer to CLAUDE.md
+├── .claude/             # shared Claude Code config: commands/ + agents/ (session state ignored)
 ├── index.md             # global router → per-domain indexes
 ├── index.<domain>.md    # per-domain routing index (titles + summaries; generated)
 ├── topics/              # multi-source syntheses ("how LDAP federation works")

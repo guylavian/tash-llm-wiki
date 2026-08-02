@@ -18,16 +18,15 @@ _A native [[wiki.base]] view — it reads page frontmatter directly and updates 
 ## Domains
 _Per-domain routing indexes (generated). A QUERY routes here first, then opens the relevant index below to stay inside the model's context window._
 
-- [[windows-server, active-directory]](index.[windows-server, active-directory].md) — 1 pages
 - [active-directory](index.active-directory.md) — 101 pages · [[_ref-active-directory|293 reference notes]] · review lens [[active-directory-implementation-review]]
-- [cisco-ios-xe](index.cisco-ios-xe.md) — 25 pages · [[_ref-cisco-ios-xe|167 reference notes]] · review lens [[cisco-ios-xe-implementation-review]]
+- [cisco-ios-xe](index.cisco-ios-xe.md) — 27 pages · [[_ref-cisco-ios-xe|167 reference notes]] · review lens [[cisco-ios-xe-implementation-review]]
 - [exchange](index.exchange.md) — 13 pages · [[_ref-exchange|78 reference notes]] · review lens [[exchange-implementation-review]]
 - [keycloak](index.keycloak.md) — 238 pages · [[_ref-keycloak|800 reference notes]] · review lens [[sso-implementation-review]]
 - [openshift](index.openshift.md) — 46 pages · [[_ref-openshift|3813 reference notes]] · review lens [[openshift-implementation-review]]
 - [powershell](index.powershell.md) — 17 pages · [[_ref-powershell|4575 reference notes]] · review lens [[powershell-implementation-review]]
 - [sccm](index.sccm.md) — 15 pages · [[_ref-sccm|2758 reference notes]] · review lens [[sccm-implementation-review]]
 - [sharepoint](index.sharepoint.md) — 12 pages · [[_ref-sharepoint|919 reference notes]] · review lens [[sharepoint-implementation-review]]
-- [windows-server](index.windows-server.md) — 16 pages · [[_ref-windows-server|1994 reference notes]] · review lens [[windows-server-implementation-review]]
+- [windows-server](index.windows-server.md) — 17 pages · [[_ref-windows-server|1994 reference notes]] · review lens [[windows-server-implementation-review]]
 <!-- index.py:domains:end -->
 
 ## Topics

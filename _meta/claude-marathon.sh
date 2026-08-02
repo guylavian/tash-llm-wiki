@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # claude-marathon.sh — run a long Claude Code task, survive usage-limit cuts.
 #
-# Usage (from the llm-wiki repo root):
-#   ./claude-marathon.sh          # research only
-#   ./claude-marathon.sh fix      # research + implement P0 fixes
+# Usage — lives in _meta/ but must still be RUN FROM THE REPO ROOT: the log and the
+# `_meta/DEEP-RESEARCH-STATE.md` checkpoint path below are both relative to the cwd.
+#   _meta/claude-marathon.sh          # research only
+#   _meta/claude-marathon.sh fix      # research + implement P0 fixes
 #
 # What it does:
 #   1. Starts `claude -p "/deep-research-wiki ..."` on Sonnet.

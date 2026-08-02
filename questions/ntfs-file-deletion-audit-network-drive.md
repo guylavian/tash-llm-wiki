@@ -2,7 +2,7 @@
 title: "NTFS File/Folder Deletion and Move Auditing on a Windows Network Drive"
 slug: ntfs-file-deletion-audit-network-drive
 status: draft
-domain: [windows-server, active-directory]
+domain: windows-server
 summary: "How to configure Windows NTFS auditing to track who deletes or moves folders/files on a network share, using Advanced Audit Policy, SACLs, and Event ID 4663/4660/4656."
 provenance:
   extracted: 12

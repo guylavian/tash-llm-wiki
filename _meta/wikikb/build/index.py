@@ -271,13 +271,42 @@ def build_reference_indexes(write):
     return refs, written
 
 
-def stale_indexes():
-    """Domains whose index.<domain>.md is missing or out of date (for lint)."""
-    pages = collect()
-    stale = []
-    for dom, by_type in pages.items():
-        if dom == "unfiled":
+def indexable(pages, declared):
+    """`pages` minus every domain that must never get an index file: `unfiled`, and anything not
+    declared under ## Domains in taxonomy.md.
+
+    The ONE filter — the router, the write loop and stale_indexes() all go through it, so they
+    cannot disagree about what a domain is. Without it, a page whose `domain:` is a YAML LIST
+    (`domain: [windows-server, active-directory]`) reaches the write loop as that literal string
+    and mints `index.[windows-server, active-directory].md`, which is exactly what happened.
+    """
+    return {d: v for d, v in pages.items() if d != "unfiled" and (not declared or d in declared)}
+
+
+def orphan_indexes(declared):
+    """On-disk index.<domain>.md files whose domain isn't declared — stale artifacts to prune.
+
+    `index.md` is the vault's home note and the documented entry point: it is excluded up front
+    by name, not left to fail the declared-set test. A prune that can reach it is a bug.
+    """
+    if not declared:
+        return []                                   # no taxonomy parsed — never prune on no signal
+    out = []
+    for fn in sorted(os.listdir(WIKI)):
+        if fn == "index.md" or not (fn.startswith("index.") and fn.endswith(".md")):
             continue
+        dom = fn[len("index."):-len(".md")]
+        if dom and dom not in declared:
+            out.append(fn)
+    return out
+
+
+def stale_indexes():
+    """Domains whose index.<domain>.md is missing or out of date, plus any orphan index file
+    (for lint / --check)."""
+    pages = indexable(collect(), declared_domains())
+    stale = list(orphan_indexes(declared_domains()))
+    for dom, by_type in pages.items():
         path = os.path.join(WIKI, f"index.{dom}.md")
         want = render_domain_index(dom, by_type)
         have = open(path, encoding="utf-8").read() if os.path.exists(path) else None
@@ -295,14 +324,22 @@ def main():
     meta = domain_meta()
     declared = declared_domains()
 
-    # warn about pages whose domain isn't declared in taxonomy
+    # An undeclared domain is a SCHEMA VIOLATION, not a note — it is almost always a malformed
+    # `domain:` (a YAML list reads back as the literal string "[a, b]"). Say so loudly, name the
+    # offending pages so the fix is one grep away, and — critically — do NOT index it below.
     undeclared = sorted(d for d in pages if d not in declared and d != "unfiled")
     if undeclared:
-        print("WARN: pages use undeclared domain(s): " + ", ".join(undeclared) +
-              " (add a block under ## Domains in taxonomy.md)")
+        print("ERROR: undeclared domain(s), NOT indexed: " + ", ".join(undeclared))
+        for d in undeclared:
+            for slugs in pages[d].values():
+                for slug, _ in slugs:
+                    print(f"  - {slug}: fix `domain:` (a single kebab-case slug, not a list) or "
+                          "declare it under ## Domains in taxonomy.md")
     if "unfiled" in pages:
         print(f"WARN: {sum(len(v) for v in pages['unfiled'].values())} page(s) have no `domain:` "
               "(run backfill.py)")
+
+    pages = indexable(pages, declared)
 
     if args.check:
         stale = stale_indexes()
@@ -316,10 +353,12 @@ def main():
         print("Indexes up to date.")
         return
 
+    for fn in orphan_indexes(declared):
+        os.remove(os.path.join(WIKI, fn))
+        print(f"pruned orphan {fn} (domain not declared in taxonomy.md)")
+
     written = []
     for dom, by_type in pages.items():
-        if dom == "unfiled":
-            continue
         path = os.path.join(WIKI, f"index.{dom}.md")
         with open(path, "w", encoding="utf-8") as fh:
             fh.write(render_domain_index(dom, by_type))
