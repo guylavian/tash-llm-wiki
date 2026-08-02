@@ -1,0 +1,94 @@
+# deploy/openshift/Containerfile — slim serving image for the llm-wiki MCP / JSON-API server.
+#
+# BUILD CONTEXT MUST BE THE REPO ROOT (this file lives in deploy/openshift/, not the root):
+#   podman build -f deploy/openshift/Containerfile -t llm-wiki-mcp:TAG .                 # lexical (default)
+#   podman build -f deploy/openshift/Containerfile --target dense -t llm-wiki-mcp:TAG-dense .
+#
+# THE VAULT IS BAKED IN: read-only at query time, versioned in git, content updates ship as a new
+# image tag (no RWX PVC, no sidecar data pod — see README.md's rollout section).
+#
+# Content is copied EXPLICITLY below, never `COPY .` — only the paths deep-research RESEARCH 3 proved
+# the serving path (do_health/do_route/do_search/do_ask/do_page/do_expand/do_mcp_post in
+# _meta/wikikb/serve/serve.py) ever opens: reference/<domain>/, topics/entities/questions/outputs/,
+# _meta/taxonomy.md, and the wikikb package itself. That is a STRONGER guarantee than a .dockerignore
+# exclude (which only bounds what CAN be sent to the daemon, not what a `COPY .` actually keeps) —
+# _sources/ (644MB), _meta/eval, _meta/tests, _meta/tkg, references/, .git, .obsidian never enter this
+# image regardless of variant. (.dockerignore was ALSO extended with these — see its comment — so the
+# root Dockerfile's full/dev image gets the same context-size win; that file is the one source of
+# truth for "never bake in", per CLAUDE.md's "nothing is re-implemented" rule.)
+#
+# Two variants, selected with `--target` (default target = the last stage = `lexical`):
+#   lexical (DEFAULT) — zero pip installs. Content layer ~215MB (reference/ is ~210MB of that — see
+#     README.md for the exact `du` this session). Retrieval is lexical-only: RESEARCH 3 verified
+#     `--hybrid`/dense search "degrades to lexical everywhere it's touched, never raises" when the
+#     model+index aren't present, so nothing 500s — a paraphrased query that needs the dense layer's
+#     semantic recall just doesn't get the boost. This is the variant CLAUDE.md's air-gap base tier
+#     already assumes (STDLIB ONLY).
+#   dense — adds the vendored bge-small model (_meta/models, 128MB) + the built index
+#     (_meta/embeddings, 76MB) + numpy/sentence-transformers/torch-cpu/transformers (mirrors the root
+#     Dockerfile's pins, minus litellm/langgraph — this image never needs the LLM-gateway/orchestration
+#     tier, only the embedding stack). Costs: several hundred MB more image, slower cold start (model
+#     load into the single in-container python3 — no separate .venv-embed here, so the "dense retrieval
+#     needs .venv-embed's interpreter" operational gotcha does NOT apply inside a container: there is
+#     only one python3, and the packages are installed straight into it). Buys: hybrid/dense retrieval
+#     for semantically-paraphrased queries whose answer note shares little surface vocabulary.
+#
+# restricted-v2 SCC: OpenShift assigns an arbitrary UID (member of GID 0) at admission and overrides
+# whatever USER this image sets — chgrp 0 + chmod g=u is what actually makes the tree readable under
+# THAT uid, not the USER line itself (developers.redhat.com "Adapting Docker and Kubernetes containers
+# to run on Red Hat OpenShift", cited in this repo's deep-research). USER 1001 below is defense-in-depth
+# for plain docker/podman/non-OpenShift runs; it changes nothing under OpenShift's own admission.
+#
+# readOnlyRootFilesystem: RESEARCH 3 verified (empirically, this repo, this session) that the default
+# GET-only surface needs ZERO writable paths — `chmod -R a-w wikikb && python3 -m wikikb route ...`
+# still exits 0 with the correct answer and writes nothing. PYTHONDONTWRITEBYTECODE=1 below removes
+# even the harmless "tried to cache a .pyc, silently no-op'd" case as cheap insurance. No emptyDir is
+# declared in deployment.yaml for this reason — see that file's comment.
+
+FROM python:3.12-slim AS base
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/wiki/_meta
+WORKDIR /wiki/_meta
+
+COPY reference          /wiki/reference
+COPY topics             /wiki/topics
+COPY entities           /wiki/entities
+COPY questions          /wiki/questions
+COPY outputs            /wiki/outputs
+COPY _meta/taxonomy.md  /wiki/_meta/taxonomy.md
+COPY _meta/wikikb       /wiki/_meta/wikikb
+
+# GID-0 group-write, not owner-specific — an arbitrary OpenShift-assigned UID is always a member of
+# GID 0, so this (not a fixed USER) is what makes the tree usable regardless of which UID actually
+# runs the container.
+RUN chgrp -R 0 /wiki && chmod -R g=u /wiki
+USER 1001
+EXPOSE 8642
+
+# ---- dense: + vendored embedding model/index + the CPU embedding stack (no litellm/langgraph) ----
+# Declared BEFORE `lexical` on purpose: with no --target, a build selects the LAST stage in the file,
+# so `lexical` must come last for the documented default above to actually be the default. (It was
+# the other way round and a bare `podman build` silently produced the several-hundred-MB dense image.)
+FROM base AS dense
+USER root
+RUN pip install --no-cache-dir torch==2.12.1 --index-url https://download.pytorch.org/whl/cpu \
+ && pip install --no-cache-dir numpy==2.5.0 sentence-transformers==5.6.0 transformers==5.12.1 tokenizers==0.22.2
+COPY _meta/models      /wiki/_meta/models
+COPY _meta/embeddings  /wiki/_meta/embeddings
+# Fail the BUILD, not a production query. The weights (_meta/models, 128MB) and the built index
+# (_meta/embeddings, 76MB) are NOT in git — only a README is tracked — so a fresh `git clone` on a CI
+# box yields a `dense` image whose COPYs succeed and whose dense layer then silently degrades to
+# lexical at runtime (embed.py's have_library()/dense_rank() return False rather than raising, by
+# design). That failure is invisible: the pod is Ready, /ask answers, recall is just quietly worse.
+# Assert the two payloads are really present so the mistake surfaces at build time instead.
+RUN test -s /wiki/_meta/models/bge-small-en-v1.5/model.safetensors \
+      || (echo "ERROR: vendored model weights missing — see _meta/models/README.md" >&2; exit 1) \
+ && ls /wiki/_meta/embeddings/*.npz >/dev/null 2>&1 \
+      || (echo "ERROR: no built embedding index (_meta/embeddings/*.npz) — run 'wikikb embed' first" >&2; exit 1)
+RUN chgrp -R 0 /wiki/_meta/models /wiki/_meta/embeddings && chmod -R g=u /wiki/_meta/models /wiki/_meta/embeddings
+USER 1001
+CMD ["python3", "-m", "wikikb", "serve", "--bind", "0.0.0.0", "--port", "8642"]
+
+# ---- lexical (DEFAULT — last stage): no pip installs at all, the STDLIB-ONLY air-gap base tier ----
+FROM base AS lexical
+CMD ["python3", "-m", "wikikb", "serve", "--bind", "0.0.0.0", "--port", "8642"]

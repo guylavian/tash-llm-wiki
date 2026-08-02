@@ -1,0 +1,112 @@
+# deploy/openshift/deployment.yaml — the llm-wiki MCP/JSON-API server, stateless, 2 replicas.
+#
+# Image: build deploy/openshift/Containerfile (context = repo root) and push to the cluster's internal
+# registry — see README.md for the exact commands. Replace the `image:` value below with your real
+# pushed tag; do NOT deploy `:latest` (see README's rollout section — content updates are a new tag).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-wiki-mcp
+  labels:
+    app: llm-wiki-mcp
+spec:
+  replicas: 2                          # stateless (no Mcp-Session-Id ever issued — see mcp.py), safe to scale flat
+  selector:
+    matchLabels:
+      app: llm-wiki-mcp
+  template:
+    metadata:
+      labels:
+        app: llm-wiki-mcp
+    spec:
+      # restricted-v2: do NOT set runAsUser/runAsGroup/fsGroup here — the SCC injects an arbitrary
+      # UID (MustRunAsRange) and auto-assigns fsGroup; setting either explicitly is what breaks
+      # admission, not omitting them (deep-research RESEARCH 3, restricted-v2 SCC defaults).
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: llm-wiki-mcp
+          image: image-registry.openshift-image-registry.svc:5000/llm-wiki/llm-wiki-mcp:v0.1.0  # REPLACE
+          ports:
+            - name: http
+              containerPort: 8642
+          env:
+            - name: WIKIKB_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: llm-wiki-mcp-token
+                  key: token
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+          # No emptyDir volumes: RESEARCH 3 verified empirically (this repo, this session) that the
+          # default GET-only/POST-/mcp surface needs ZERO writable paths — `chmod -R a-w wikikb &&
+          # python3 -m wikikb route ...` still exits 0 with the correct answer, writing nothing (the
+          # image also sets PYTHONDONTWRITEBYTECODE=1). PUT /upload (--allow-upload, off by default —
+          # not passed in this Deployment's CMD) and `ask ... file_back` would need a writable mount;
+          # neither is used here per the baked-in-image architecture (see README's "known limitation").
+          #
+          # Resources: sized from MEASURED numbers on this repo (2026-07-27), re-measured AFTER the
+          # kb.load() corpus cache landed — the earlier draft's 100Mi/256Mi predated it and was sized
+          # off a keycloak-only reading (62-73MB), which OOMKills once n8n's domain agents touch the
+          # big corpora.
+          #
+          # What actually drives memory now: kb.load() caches each domain's PARSED corpus, keyed on an
+          # mtime fingerprint, so a domain stays resident once queried. Measured in one process:
+          #   33MB   after prewarm (route profiles + page graph), no corpus loaded
+          #   314MB  with ALL NINE domains resident (16640 records — openshift 3908 + powershell 4579
+          #          + sccm 2773 + windows-server 2006 + keycloak 1872 + the rest)
+          #   377MB  peak under 8 concurrent /ask against openshift (the largest corpus)
+          # So memory scales with WHICH domains get queried, not with request rate — it is flat and
+          # bounded, which is the whole point of the cache (before it, each in-flight request built its
+          # own private copy: ~78MB transient per concurrent request, 643MB at 8 concurrent, unbounded).
+          # request = all-domains steady state with slack; limit = measured concurrent peak + margin.
+          # If a pod only ever serves one small domain it will sit far below the request.
+          #
+          # CPU: compute-bound BM25 scoring over the whole domain corpus per query. Measured warm-cache
+          # /ask latency: 0.19s (cisco-ios-xe, 173 notes) -> 2.77s (openshift, 3908 notes). 2 cores lets
+          # a couple of concurrent calls proceed without serializing into the Route timeout.
+          resources:
+            requests:
+              memory: "384Mi"
+              cpu: "250m"
+            limits:
+              memory: "768Mi"
+              cpu: "2000m"
+          # /health is the only unauthenticated endpoint (do_GET's auth check explicitly excludes it)
+          # so probes need no Authorization header — it only touches taxonomy.md + a 4-dir os.listdir,
+          # never reference/, so it's cheap even under load (RESEARCH 3: do_health() finding).
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 2
+            failureThreshold: 15         # ~30s budget — RESEARCH 3's own suggested slack for a cold pod,
+                                         # even though measured local startup was ~0.18s to ready
+          # Probe timeouts are deliberately LOOSE. /health itself is cheap (taxonomy.md + a 4-dir
+          # listdir), but Python's GIL means a burst of concurrent compute-bound /ask calls — exactly
+          # what n8n's orchestrator produces when it fans out to several domain agents in one turn —
+          # can delay the probe thread getting scheduled. Measured warm /ask on the openshift corpus is
+          # 2.77s of near-solid CPU; several in flight can push a cheap probe past a 3s timeout.
+          # A readiness flap just drops the pod from the Service briefly; a LIVENESS flap kills a
+          # perfectly healthy pod mid-request and, under sustained load, does it to every replica in
+          # turn. So liveness is the most forgiving of the three: it exists only to catch a truly hung
+          # process, not to police latency.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 15
+            failureThreshold: 5          # ~2.5 min of sustained unresponsiveness before a restart

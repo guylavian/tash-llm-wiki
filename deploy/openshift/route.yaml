@@ -1,0 +1,32 @@
+# edge TLS: the router terminates HTTPS and talks plain HTTP to the pod (serve.py has no TLS of its
+# own — stdlib http.server only), which is fine since the pod is only reachable inside the cluster
+# network via the Service.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: llm-wiki-mcp
+  labels:
+    app: llm-wiki-mcp
+  annotations:
+    # /mcp has NO SSE/streaming today (RESEARCH 3: "current serve.py has no SSE/streaming endpoint at
+    # all — that's aspirational, not implemented"; this repo's /mcp is deliberately request/response-
+    # only JSON per RESEARCH 2's finding that plain `application/json` is fully spec-compliant, no
+    # long-lived stream needed) — so the 86400s figure RESEARCH 1/2 cite for genuine SSE tunnels does
+    # NOT apply here. 60s is 2x the largest MEASURED latency class (do_ask ~1.1s on keycloak's corpus)
+    # plus real headroom for the two UNMEASURED risks RESEARCH 3 flagged: (a) kb.load() has no cache,
+    # so a larger domain (openshift/powershell, several x keycloak's file count) costs proportionally
+    # more per call, and (b) an operator could set WIKI_LLM to route /ask through a real LLM gateway,
+    # which "grow[s latency] far beyond the lexical-only numbers measured here". Default HAProxy
+    # clientTimeout is 30s cluster-wide (IngressController tuningOptions.clientTimeout) — if that
+    # hasn't ALSO been raised for this cluster, this per-Route annotation can still get clipped by it;
+    # see README.md's verify section.
+    haproxy.router.openshift.io/timeout: 60s
+spec:
+  to:
+    kind: Service
+    name: llm-wiki-mcp
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

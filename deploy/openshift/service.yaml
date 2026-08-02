@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-wiki-mcp
+  labels:
+    app: llm-wiki-mcp
+spec:
+  selector:
+    app: llm-wiki-mcp
+  ports:
+    - name: http
+      port: 8642
+      targetPort: http
