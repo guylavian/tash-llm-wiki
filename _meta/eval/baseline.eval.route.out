@@ -28,10 +28,10 @@ PAIRED exact -> paraphrase (same target; the lexical-recall gap):
   token-exchange     exact @1    ->  paraphrase @16  
 
 CONTEXT-TOKEN PROXY  (index + snippets skimmed + bodies actually opened; chars/4)
-  mean index    tokens :  10437
+  mean index    tokens :  10520
   mean snippet  tokens :    318  (4.9 candidates skimmed/case)
   mean opened-body tok :  10301  (1.34 full notes opened/case)
-  mean TOTAL ctx tokens:  21057   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
+  mean TOTAL ctx tokens:  21139   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
 
 ROUTING (Phase 1: skip global index.md on a confident route)
   confident skips      : 22/29 cases read only index.<domain>.md

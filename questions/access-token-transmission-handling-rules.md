@@ -6,10 +6,14 @@ domain: keycloak
 slug: access-token-transmission-handling-rules
 summary: RFC 6750 and the OAuth 2.0 Security BCP (RFC 9700) define strict rules for bearer-token transmission and storage — Authorization header only, TLS mandatory, no tokens in URLs/logs/cookies, short lifetimes, and sender-constraining (DPoP/mTLS) for high-value deployments.
 sources:
-  - kb:rhbk-26-6-securing-apps
-  - kb:rhbk-26-4-securing-apps
-  - kb:rhbk-26-2-securing-apps
-  - kb:rhbk-26-0-securing-apps
+  # The transmission/handling rules below are RFC-normative, not RHBK-version-specific: they come
+  # from the RFC hand notes, NOT from a `securing-apps` reference note (no such note exists — the
+  # four kb:rhbk-26-*-securing-apps tokens previously here resolved to nothing).
+  - note:_sources/keycloak/core-bearer.md            # RFC 6750 §2.1/§2.2/§2.3/§3.1/§5.2/§5.3
+  - note:_sources/keycloak/rfc9700.md                # OAuth 2.0 Security BCP §2.6/§4.2.4/§4.3.2
+  - note:_sources/keycloak/keycloak-securing-apps.md # upstream OSS securing-apps view
+  - web:https://www.rfc-editor.org/rfc/rfc6750 (RFC 6750, Bearer Token Usage, fetched 2026-08-02)
+  - web:https://www.rfc-editor.org/rfc/rfc9700 (RFC 9700, OAuth 2.0 Security BCP, fetched 2026-08-02)
 provenance_extracted: 22
 provenance_inferred: 3
 provenance_ambiguous: 0

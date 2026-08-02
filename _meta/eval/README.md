@@ -26,11 +26,19 @@
 > in the orchestrating session ("Sign off — regenerate"); goldens regenerated the same
 > day per the procedure below. The case-13 `expect_any_of` revisit remains a separate,
 > still-open human decision (frozen-bank rule).
+>
+> **Second sign-off — 2026-08-02**, same interactive route ("Sign off — regenerate"),
+> for a DIFFERENT and much narrower drift: **context-cost proxy only**. Synthesis pages
+> added to the vault grew the routing indexes, moving `mean index tokens` 14686 → 14769
+> (route variant 10437 → 10520) and the TOTAL line by the same +83. **Every recall row,
+> the paired exact→paraphrase table, the miss breakdown and the graph-rescue counts are
+> byte-identical** — no retrieval regression, nothing about case 13 changed, and no
+> retrieval/serving change was tuned against this bank. Goldens regenerated the same day
+> per the procedure below; the four byte-identical checks pass again.
 
 `baseline.eval.out` / `baseline.eval.route.out` / `baseline.eval.graph.out` are
-currently **out of date** relative to `wiki/reference/active-directory/` — the four
-`selftest.py` byte-identical checks (Phase-0 #12, Phase-3 #23) correctly FAIL. This
-is an open finding, not yet resolved; the goldens have **not** been regenerated.
+**current as of 2026-08-02**. The 2026-07-23 finding below is retained as the record of
+what the previous regeneration accepted — it is history, not an open item.
 
 - **What changed**: 2026-07-23 corpus growth added 69 new `active-directory` reference
   notes (AD CS, LAPS, securing-privileged-access, software-restriction-policies:

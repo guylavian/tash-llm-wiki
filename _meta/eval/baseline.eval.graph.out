@@ -28,10 +28,10 @@ PAIRED exact -> paraphrase (same target; the lexical-recall gap):
   token-exchange     exact @1    ->  paraphrase @16  
 
 CONTEXT-TOKEN PROXY  (index + snippets skimmed + bodies actually opened; chars/4)
-  mean index    tokens :  14686
+  mean index    tokens :  14769
   mean snippet  tokens :    318  (4.9 candidates skimmed/case)
   mean opened-body tok :   6883  (1.10 full notes opened/case)
-  mean TOTAL ctx tokens:  21888   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
+  mean TOTAL ctx tokens:  21971   <-- Phase 1 cuts index; Phase 2/3 cut opened-body
 
 GRAPH RESCUE (Phase 2: lexical misses the graph turns into 1 correct open)
   cases rescued in-proxy : 7  (each replaces wasted miss-opens with the cited note)

@@ -6,10 +6,10 @@ domain: keycloak
 slug: token-substitution-attack-resource-server
 summary: A resource server prevents token substitution by validating `aud` (rejecting tokens not addressed to it), checking `typ` (preventing ID Token replay), and enforcing DPoP proof-of-possession with the `ath` claim — the three normative defenses against cross-service token replay.
 sources:
-  - kb:access-token-validation-resource-server
-  - kb:audience-and-scope-checks
+  - note:_sources/keycloak/rfc9068.md   # aud + typ=at+jwt rules (its `feeds:` labels were previously
+  - note:_sources/keycloak/rfc9449.md   #   mis-cited here as kb: ids — they are sections, not notes)
+  - note:_sources/keycloak/rfc8705.md
   - kb:dpop
-  - kb:mtls-bound-tokens
   - web:https://datatracker.ietf.org/doc/rfc9068/ (RFC 9068, JWT Profile for Access Tokens)
   - web:https://datatracker.ietf.org/doc/rfc9449/ (RFC 9449, DPoP)
   - web:https://datatracker.ietf.org/doc/rfc8705/ (RFC 8705, mTLS-Bound Tokens)
