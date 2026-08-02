@@ -19,6 +19,7 @@ provenance_ambiguous: 0
 tags: [routing-protocols, ip-routing, lan-switching, concept]
 status: reviewed
 updated: 2026-07-02
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Cisco IOS XE — routing & switching overview

@@ -13,6 +13,7 @@ provenance_ambiguous: 1
 tags: [ha, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # High Availability & Cross-Site (Multi-Cluster) Deployments

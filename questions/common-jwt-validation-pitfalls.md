@@ -16,6 +16,7 @@ updated: 2026-07-12
 provenance_extracted: 28
 provenance_inferred: 5
 provenance_ambiguous: 0
+graph_community: "Tokens & Sessions"
 ---
 
 # What are the common JWT validation pitfalls?

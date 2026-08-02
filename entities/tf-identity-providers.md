@@ -28,6 +28,7 @@ provenance_ambiguous: 0
 tags: [brokering, iac]
 status: draft
 updated: 2026-07-02
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Identity providers & IdP mappers (brokering) (Terraform)

@@ -23,6 +23,7 @@ provenance_ambiguous: 0
 tags: [directory-services, sites-topology, fsmo, logical-design, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory Replication & Site Topology"
 ---
 
 # Capacity and Placement Planning

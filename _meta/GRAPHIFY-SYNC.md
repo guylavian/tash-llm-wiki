@@ -62,6 +62,18 @@ Auto-run on commits that touch synthesis pages:
 **Never run `graphify update .` on the wiki** — it re-extracts headings and clobbers
 the curated export. `.graphifyignore` excludes raw tiers as a backstop.
 
+## Round-trip: Graphify → Obsidian
+
+`sync-graph.sh`'s last step, `python3 -m wikikb graphlinks --apply`, closes the loop:
+after `graphify cluster-only` computes Leiden communities over the curated graph, it
+writes each node's `community_name` back onto the wiki page it came from as a
+`graph_community: "<name>"` frontmatter key, and mirrors the 10 largest communities
+into `.obsidian/graph.json`'s `colorGroups` so the native graph view colors by
+cluster. **`graph_community:` is GENERATED — never hand-edit it**; it surfaces in
+`wiki.base`'s `communities` view (`![[wiki.base#communities]]`) and the graph color
+groups. It's a reconcile, not just an upsert: a page whose node drops out of the graph
+loses its `graph_community:` on the next run.
+
 ## Querying (agent side)
 
 - `graphify path "dpop" "token-revocation"` — shortest semantic path between concepts.

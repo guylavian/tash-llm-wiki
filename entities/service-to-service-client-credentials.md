@@ -17,6 +17,7 @@ symptoms:
   - "invalid_client"
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # Service-to-Service Client Credentials

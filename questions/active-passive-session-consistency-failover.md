@@ -20,6 +20,7 @@ provenance_ambiguous: 0
 tags: [ha, tokens]
 status: reviewed
 updated: 2026-06-17
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # Active/Passive multi-site RHBK 26 — session consistency & failover loss

@@ -10,10 +10,11 @@ sources:
     type: wiki
     title: SSO / OIDC Implementation Review — Evaluation-Lens MOC
 provenance: needs-review
-tags: [sso, oidc, review, framework, security]
+tags: [sso, clients, review, framework, security]
 question_tier: conceptual
 status: draft
-updated: 2026-07-12
+updated: 2026-07-25
+graph_community: "Tokens & Sessions"
 ---
 
 # What is the SSO Implementation Review Framework?
@@ -35,3 +36,7 @@ Each checklist row is a four-column table: Best-practice rule → Anti-pattern �
 **RH ground-truth** — none (this is an upstream `web:` tier page synthesized from IETF/OIDF/OWASP standards, not from any Red Hat corpus source).
 
 **Wiki** — [[sso-implementation-review]] · [[pkce]] · [[redirect-uri-validation]] · [[state-and-nonce]] · [[token-storage-browser]] · [[bff-token-handler]] · [[dpop]] · [[mtls-bound-tokens]] · [[access-token-validation-resource-server]] · [[jwt-validation-pitfalls]] · [[refresh-token-rotation]] · [[back-channel-logout]] · [[rp-initiated-logout]] · [[cors-for-spa]] · [[bearer-token-usage]] · [[token-revocation]] · [[token-introspection]] · [[audience-and-scope-checks]] · [[authorization-server-metadata-discovery]] · [[issuer-identification-mixup]] · [[native-app-oauth]] · [[service-to-service-client-credentials]] · [[fapi2-security-profile]] · [[oidc-client-best-practices]]
+
+## See also
+- [[spa-resource-server-implementation-review]]
+- [[tokens-and-sessions]]

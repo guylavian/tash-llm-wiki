@@ -17,6 +17,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "RH-SSO 7.x → Red Hat Build of Keycloak Migration"
 ---
 
 # Customizing the look of RHBK user-facing pages

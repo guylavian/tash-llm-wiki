@@ -16,6 +16,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-12
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 > ⚠️ Out of corpus coverage — `openshift` holds `conceptual` only; this is a `support-kb` question and that tier is not ingested; verify against the primary source.

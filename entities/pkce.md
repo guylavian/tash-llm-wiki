@@ -18,6 +18,7 @@ symptoms:
   - "PKCE verification failed"
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # PKCE (Proof Key for Code Exchange)

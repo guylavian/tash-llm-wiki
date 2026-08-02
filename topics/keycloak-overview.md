@@ -13,6 +13,7 @@ provenance_ambiguous: 0
 tags: [realm, clients, tokens, concept]
 status: draft
 updated: 2026-07-09
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # Keycloak / RHBK overview

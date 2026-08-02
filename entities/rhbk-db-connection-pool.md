@@ -16,6 +16,7 @@ provenance_inferred: 2
 provenance_ambiguous: 0
 status: draft
 updated: 2026-07-02
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # RHBK Database Connection Pool Sizing for HA

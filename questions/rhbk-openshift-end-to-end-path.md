@@ -18,6 +18,7 @@ tags: "[operator, deployment, openshift]"
 question_tier: conceptual
 status: draft
 updated: 2026-07-12
+graph_community: "RHBK Operator (Keycloak CR)"
 ---
 
 # End-to-end path for running RHBK on OpenShift

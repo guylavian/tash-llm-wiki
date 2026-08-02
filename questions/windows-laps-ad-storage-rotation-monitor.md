@@ -15,6 +15,7 @@ provenance:
   ambiguous: 0
 question_tier: conceptual
 updated: 2026-07-12
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # Where does Windows LAPS store the managed local-admin password in AD, and how do you verify rotation is happening?

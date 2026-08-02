@@ -17,6 +17,7 @@ symptoms:
   - "redirect_uri_mismatch"
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # Redirect URI Validation

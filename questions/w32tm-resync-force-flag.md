@@ -15,6 +15,7 @@ question_tier: conceptual
 tags: [ad-authn, troubleshooting]
 status: draft
 updated: 2026-07-05
+graph_community: "FSMO (Operations-Master) Roles"
 ---
 
 # Is `w32tm /resync /force` a real flag?

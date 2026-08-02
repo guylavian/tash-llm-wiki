@@ -16,6 +16,7 @@ question_tier: conceptual
 tags: [ha]
 status: draft
 updated: 2026-07-12
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # What is the HA cross-site deployment model for Red Hat Build of Keycloak?

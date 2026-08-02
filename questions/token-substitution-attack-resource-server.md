@@ -21,6 +21,7 @@ question_tier: conceptual
 tags: [tokens]
 status: draft
 updated: 2026-07-12
+graph_community: "Tokens & Sessions"
 ---
 
 # What must a resource server do to prevent token substitution attacks?

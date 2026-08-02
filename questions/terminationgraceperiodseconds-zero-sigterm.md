@@ -14,6 +14,7 @@ question_tier: conceptual
 tags: [workloads, troubleshooting]
 status: draft
 updated: 2026-07-05
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # terminationGracePeriodSeconds:0 — what happens to SIGTERM?

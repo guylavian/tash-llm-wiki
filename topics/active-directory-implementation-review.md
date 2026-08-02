@@ -7,12 +7,19 @@ summary: The evaluation lens and Map of Content for the active-directory brain �
 sources:
   - note:_sources/active-directory/fsmo-roles.md
   - web:https://learn.microsoft.com/windows-server/identity/ad-ds/ (Microsoft Learn — AD DS, fetched 2026-06-18)
-provenance_extracted: 0
-provenance_inferred: 62
-provenance_ambiguous: 0
+  - "web:https://learn.microsoft.com/en-us/answers/questions/111661/zerologon-gpo-active-directory (Microsoft Q&A, fetched 2026-07-25)"
+  - "web:https://learn.microsoft.com/en-us/answers/questions/113205/event-ids-5829-31-not-visible-in-domain-controller (Microsoft Q&A, fetched 2026-07-25)"
+  - "web:https://learn.microsoft.com/en-us/answers/questions/1119033/november-2022-patches-broke-my-domain-controller (Microsoft Q&A, fetched 2026-07-25)"
+  - "web:https://learn.microsoft.com/en-us/answers/questions/1048276/windows-11-22h2-problem-with-active-directory-afte (Microsoft Q&A, fetched 2026-07-25)"
+  - "web:https://learn.microsoft.com/en-us/answers/questions/106459/unable-logon-to-domain-controller-after-reboot (Microsoft Q&A, fetched 2026-07-25)"
+  - "web:https://learn.microsoft.com/en-us/answers/questions/1375980/how-to-restore-a-pdc-domain-controller-dfsr-dfs-na (Microsoft Q&A, fetched 2026-07-25)"
+provenance_extracted: 6
+provenance_inferred: 65
+provenance_ambiguous: 2
 tags: [directory-services, troubleshooting, concept]
 status: draft
-updated: 2026-06-18
+updated: 2026-07-25
+graph_community: "Active Directory — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Active Directory — Implementation Review (Evaluation-Lens MOC)
@@ -112,6 +119,22 @@ page. To diagnose, jump to the [Reverse index](#reverse-index--symptom--likely-c
 | Require LDAP signing on all DCs (`ldapServerIntegrity = 2`); remove clients making unsigned simple binds | Legacy scanners or NAS appliances sending unsigned LDAP; signing left at `None` | Event 2886/2888 (highly vulnerable); MITM packet modification risk | [[ldap-signing-and-channel-binding]] |
 | Enable LDAP channel binding on LDAPS connections; update clients to send CBT | SSL-wrapping LDAP proxy strips CBT; old .NET LDAP code not updated | Event 3039 (client does not support CBT); session hijack on LDAPS port 636 | [[ldap-signing-and-channel-binding]] |
 
+### Patch and cumulative-update regressions (community-sourced — see caveat below)
+
+> The rows in this section are drawn from Microsoft Q&A community threads, not
+> vendor-confirmed root-cause analyses — several end without a confirmed fix.
+> See "Contradictions / caveats" below before treating any single row as a
+> settled diagnosis.
+
+| Rule | Anti-pattern | Symptom (observable fault) | Page |
+|---|---|---|---|
+| Stage security-baseline cumulative updates in a lab before wide DC rollout, especially ones touching Group Policy security settings | Patching all DCs live in production with no staging; assuming a GPO editor setting won't itself regress after a security update | GPMC/Local Security Policy crashes accessing "Domain Controller: Allow vulnerable Netlogon secure channel connections" after KB4577015 (Sept 2020); resolved only by installing KB4571694 | [[group-policy]] |
+| After a security-monitoring patch (e.g. the Zerologon Netlogon-hardening rollout), validate the new event IDs are actually being generated, not just that the KB is installed | Assuming a documented event ID is flowing because the patch shows installed; no post-patch log validation | Event IDs 5829/5830/5831 (vulnerable Netlogon secure channel monitoring) absent from DC logs after the August 2020 patch; validate per-machine with `Test-ComputerSecureChannel` instead | [[monitoring-ad-for-compromise]], [[advanced-audit-policy]] |
+| Patch all DCs in a fleet to the same cumulative-update level together; don't leave one DC ahead of the rest | A single DC received a problematic Nov 2022 CU while the others didn't; uninstalling the bad patch afterward did not fully revert the damage | `repadmin /showrepl` "target principal name is incorrect"; NSLookup returns "unknown" hostname for the patched DC; replication partners can't see it. A Microsoft Moderator recommended installing the Nov 17, 2022 out-of-band KB5021655/KB5021654 on **all** DCs; the thread ends with no confirmation from the reporter that this resolved it (unconfirmed) | [[ad-replication]] |
+| Validate Kerberos AS-REQ/AS-REP flow (`klist`, packet capture) against DCs in every site — including sites with an RODC — before a broad client-OS feature-update rollout | Wide Windows 11 22H2 deployment with no pre-validation against RODC-served sites | `SEC_E_DOWNGRADE_DETECTED` (web:1048276) from `nltest /dclist`; empty `klist`; AS-REQ sent with no AS-REP in a packet capture. One contributor's partial, unconfirmed mitigation: add the affected machine to the RODC's password replication policy | [[read-only-domain-controller]] |
+| Raise domain/forest functional level only after confirming DC health (`dcdiag`, `repadmin`) on every DC, and be prepared to escalate to Microsoft support if post-raise symptoms don't match any known cause | Raising FFL/DFL from 2003→2008 R2 without a documented rollback/triage plan for post-raise anomalies | Logon prompt silently resets the password field and services (e.g. MSDTC) fail to start after a reboot, requiring 10–30 reboots to clear; `dcdiag`/`repadmin`/SYSVOL all report healthy throughout — **root cause never established** in the source thread | [[ad-functional-levels]] |
+| Treat a PDC restore from backup as two separate recovery problems — AD replication convergence and DFSR/SYSVOL content — not one | Assuming AD replication reconverging after a PDC restore also resyncs SYSVOL content automatically | SYSVOL/DFSR unreachable or stale after restoring a crashed PDC from backup, even though AD replication itself shows healthy | [[sysvol-dfsr-troubleshooting]] |
+
 ---
 
 ## Reverse index — symptom → likely cause
@@ -150,6 +173,33 @@ Each signature is drawn from the `symptoms:` frontmatter of the referenced page.
 | `forest-wide failure` / `all domain controllers` inoperable | Forest-level disaster; ransomware or bad schema change replicated everywhere | [[ad-forest-recovery]], [[krbtgt-reset]] |
 | `adprep /forestprep` fails / schema version mismatch on DC promotion | `adprep` not run before first higher-version DC; run as non-Schema Admin | [[adprep-and-schema-updates]], [[install-promote-domain-controller]] |
 | Functional level raise fails / new FL features not available | Legacy DC still in forest or domain at lower OS version | [[ad-functional-levels]], [[upgrade-domain-controllers]] |
+| GPMC/Local Security Policy editor crashes on the Netlogon-vulnerable-connections setting after a Sept 2020 CU | KB4577015 regression; install KB4571694 | [[group-policy]] |
+| Event 5829/5830/5831 not appearing after the Netlogon-hardening patch | Logging gap — validate per-machine with `Test-ComputerSecureChannel` instead of trusting the DC log | [[monitoring-ad-for-compromise]] |
+| `repadmin` "target principal name is incorrect" / NSLookup "unknown" hostname after patching one DC | Mixed-patch-level DC fleet from a Nov 2022 CU; Nov 17 2022 OOB update fleet-wide was recommended by a Microsoft Moderator but never confirmed by the reporter | [[ad-replication]] |
+| `SEC_E_DOWNGRADE_DETECTED` (web:1048276) / empty `klist` / AS-REQ with no AS-REP (client-side, post-feature-update) | Windows 11 22H2 Kerberos regression; RODC password-replication-policy workaround reported but unconfirmed | [[read-only-domain-controller]] |
+| Logon prompt silently resets password field post-reboot; services fail to start; `dcdiag`/`repadmin` otherwise healthy | Occurred after a 2003→2008 R2 functional-level raise — root cause never established in the corpus | [[ad-functional-levels]] |
+| SYSVOL/DFSR unreachable or stale after a PDC restore even though AD replication is healthy | DFSR content sync is not implied by AD replication convergence — compare SYSVOL content and set the primary DFSR member manually | [[sysvol-dfsr-troubleshooting]] |
+
+---
+
+## Contradictions / caveats
+
+- The new "Patch and cumulative-update regressions" section is sourced from
+  Microsoft Q&A community threads (added 2026-07-25), not vendor
+  root-cause analyses — treat it differently from the rest of this MOC's
+  rule/anti-pattern rows, which are inferred from this wiki's own
+  vendor-doc-backed entity pages. Two rows in particular have no confirmed
+  resolution in their source thread: the post-functional-level-raise logon
+  stall ([[ad-functional-levels]] row) and the Windows 11 22H2 RODC
+  workaround ([[read-only-domain-controller]] row) — both are reported
+  symptoms with an unconfirmed or absent fix, not settled diagnoses
+  (ambiguous).
+- This page remains, as before, mostly `(inferred)` synthesis over other
+  pages' `symptoms:` frontmatter rather than material extracted directly from
+  a single raw source — that is expected for an evaluation-lens MOC (see
+  [[sso-implementation-review]] for the same pattern in the Keycloak domain).
+  The new patch-regression rows are the exception: each is grounded directly
+  in a cited community thread.
 
 ---
 
@@ -237,8 +287,14 @@ Each signature is drawn from the `symptoms:` frontmatter of the referenced page.
 - [[ad-forest-recovery]] — forest-wide failure recovery procedure
 - [[krbtgt-reset]] — double-reset procedure, timing, replication prerequisites
 
+### Community-sourced troubleshooting (Microsoft Q&A harvest)
+- [[sysvol-dfsr-troubleshooting]] — SYSVOL/DFSR not syncing, missing after promotion, FRS-to-DFSR migration prerequisites, DFSR-vs-AD-replication dependency after a PDC restore
+- [[ad-trusts]] — forest/external/realm trust setup, one-way-trust Kerberos-to-NTLM fallback, merge-vs-trust prerequisites
+- [[adfs-common-issues]] — AD FS certificate-lifecycle breakage, WAP/proxy 503s, claims-rule pass-through gaps (no vendor-doc coverage exists for AD FS in this wiki)
+
 ## See also
 - [[sso-implementation-review]] — Keycloak / SSO domain equivalent of this MOC
 - [[active-directory-overview]] — domain primer, objects, partitions, trust types
 - [[securing-active-directory]] — security body with full four-phase model
 - [[troubleshooting-index]] — cross-domain troubleshooting router
+- [[sysvol-dfsr-troubleshooting]], [[ad-trusts]], [[adfs-common-issues]] — community-sourced additions (2026-07-25)

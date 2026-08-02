@@ -23,6 +23,7 @@ symptoms:
 tags: [security, ad-authn, troubleshooting]
 status: draft
 updated: 2026-07-02
+graph_community: "Securing Active Directory (best practices)"
 ---
 
 # Credential Theft and Attractive Accounts

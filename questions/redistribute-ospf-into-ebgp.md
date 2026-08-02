@@ -21,6 +21,7 @@ symptoms:
 tags: [routing-protocols, ip-routing, concept, procedure]
 status: draft
 updated: 2026-07-02
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # How to redistribute OSPF routes into eBGP on IOS XE

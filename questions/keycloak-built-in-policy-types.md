@@ -18,6 +18,7 @@ question_tier: conceptual
 tags: [authz]
 status: draft
 updated: 2026-07-12
+graph_community: "Fine-grained authorization (Authorization Services)"
 ---
 
 # Which built-in policy types can you use in Keycloak fine-grained authorization?

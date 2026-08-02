@@ -13,6 +13,7 @@ provenance_ambiguous: 0
 tags: [builds-images, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # BuildConfig and Source-to-Image (S2I)

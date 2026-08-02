@@ -19,6 +19,7 @@ provenance:
   ambiguous: 1
 status: draft
 updated: 2026-07-07
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # KB5014754 strong certificate mapping — RHBK OIDC claim mapping failure

@@ -15,6 +15,7 @@ provenance:
 tags: [server-config]
 status: draft
 updated: 2026-07-07
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # How do you turn Keycloak's optional or preview features on or off?

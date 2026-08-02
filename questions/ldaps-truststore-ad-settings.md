@@ -18,6 +18,7 @@ provenance:
 tags: [federation, server-config]
 status: draft
 updated: 2026-07-07
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # LDAPS Truststore and AD-Side Settings for Keycloak Federation

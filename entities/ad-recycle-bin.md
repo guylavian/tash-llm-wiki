@@ -13,6 +13,7 @@ provenance_ambiguous: 0
 tags: [directory-services, concept, how-to]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # Active Directory Recycle Bin

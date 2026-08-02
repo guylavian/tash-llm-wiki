@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 question_tier: conceptual
 status: draft
 updated: 2026-07-12
+graph_community: "Active Directory — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Why is DNS essential for Active Directory Domain Services?

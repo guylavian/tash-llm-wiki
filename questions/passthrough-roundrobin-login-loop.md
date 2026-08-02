@@ -27,6 +27,7 @@ symptoms:
   - "Infinispan cluster appears healthy (no ISPN errors, caches distributed)"
 status: reviewed
 updated: 2026-06-22
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # RHSSO 7.4 passthrough route + roundrobin balance — login loops and "we never gave you a login page"

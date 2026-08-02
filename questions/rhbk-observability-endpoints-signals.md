@@ -24,6 +24,7 @@ question_tier: conceptual
 tags: [observability]
 status: draft
 updated: 2026-07-12
+graph_community: "RHBK observability stack — health, metrics, tracing, OpenTelemetry"
 ---
 
 # RHBK observability endpoints and signals

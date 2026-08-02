@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [operator]
 status: draft
 updated: 2026-07-02
+graph_community: "RHBK Operator (Keycloak CR)"
 ---
 
 # `scheduling`

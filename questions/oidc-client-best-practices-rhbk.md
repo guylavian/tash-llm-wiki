@@ -17,6 +17,7 @@ provenance:
 tags: [clients]
 status: reviewed
 updated: 2026-07-07
+graph_community: "Tokens & Sessions"
 ---
 
 # What are the best practices for OIDC client integration with RHBK?

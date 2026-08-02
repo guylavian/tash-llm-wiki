@@ -14,6 +14,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "Security Principals"
 ---
 
 # What is Active Directory Domain Services and what are its fundamental concepts?

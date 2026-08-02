@@ -19,6 +19,7 @@ provenance_ambiguous: 1
 tags: [ha, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # RHBK High-Availability Architectures (Single-cluster vs Multi-cluster)

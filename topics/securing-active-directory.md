@@ -19,6 +19,7 @@ symptoms:
 tags: [security, directory-services, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Securing Active Directory (best practices)"
 ---
 
 # Securing Active Directory (best practices)

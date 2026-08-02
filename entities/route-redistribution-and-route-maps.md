@@ -16,6 +16,7 @@ symptoms:
 tags: [routing-protocols, ip-routing, concept]
 status: reviewed
 updated: 2026-07-02
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Route Redistribution & Route Maps (IOS XE)

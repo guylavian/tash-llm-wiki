@@ -14,6 +14,7 @@ provenance_ambiguous: 0
 tags: [ad-certificate-services, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # Certificate templates (AD CS)

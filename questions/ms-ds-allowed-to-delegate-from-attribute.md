@@ -16,6 +16,7 @@ provenance:
 question_tier: conceptual
 status: draft
 updated: 2026-07-12
+graph_community: "Group Managed Service Accounts (gMSA)"
 ---
 
 # What does the ms-DS-Allowed-To-Delegate-From attribute control?

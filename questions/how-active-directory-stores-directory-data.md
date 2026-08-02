@@ -16,6 +16,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "Active Directory DS Maximum Limits and Scalability"
 ---
 
 # Where and how does Active Directory store its directory data?

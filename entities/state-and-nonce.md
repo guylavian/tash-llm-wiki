@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [clients, security, concept]
 status: reviewed
 updated: 2026-06-18
+graph_community: "Tokens & Sessions"
 ---
 
 # State and Nonce Parameters

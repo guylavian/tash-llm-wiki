@@ -16,6 +16,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "Active Directory Replication & Site Topology"
 ---
 
 # How does virtualization safely support Active Directory domain controllers?

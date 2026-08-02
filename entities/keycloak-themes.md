@@ -17,6 +17,7 @@ provenance_ambiguous: 0
 tags: [spi]
 status: draft
 updated: 2026-07-02
+graph_community: "RH-SSO 7.x → Red Hat Build of Keycloak Migration"
 ---
 
 # Themes & theme SPI

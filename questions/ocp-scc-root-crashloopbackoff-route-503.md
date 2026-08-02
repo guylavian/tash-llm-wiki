@@ -24,6 +24,7 @@ provenance_inferred: 6
 provenance_ambiguous: 0
 status: draft
 updated: 2026-06-28
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # CrashLoopBackOff (runAsNonRoot) + Route 503 on OpenShift — Root Causes and Fixes

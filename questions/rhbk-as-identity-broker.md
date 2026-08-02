@@ -18,6 +18,7 @@ provenance:
 tags: [brokering, identity-provider, concept]
 status: draft
 updated: 2026-07-07
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # How does RHBK function as an identity broker?

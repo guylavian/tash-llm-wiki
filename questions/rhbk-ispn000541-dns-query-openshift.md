@@ -16,6 +16,7 @@ provenance:
 tags: [troubleshooting, ha, server-config]
 status: draft
 updated: 2026-07-07
+graph_community: "RHBK Troubleshooting — index by area"
 ---
 
 # RHBK logs ISPN000541 with `dns_query` failures on OpenShift

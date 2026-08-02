@@ -13,6 +13,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # What does the `kc.sh --fips-mode=strict` flag do?

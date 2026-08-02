@@ -21,6 +21,7 @@ provenance_ambiguous: 0
 tags: [sites-topology, replication, logical-design, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory Replication & Site Topology"
 ---
 
 # Site Topology Design

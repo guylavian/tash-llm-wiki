@@ -20,6 +20,7 @@ symptoms:
   - "SameSite cookie blocked"
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # BFF / Token Handler Pattern for SPAs

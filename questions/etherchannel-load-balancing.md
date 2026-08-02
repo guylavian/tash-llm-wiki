@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 question_tier: conceptual
 status: draft
 updated: 2026-07-12
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # What is EtherChannel and how does load balancing work?

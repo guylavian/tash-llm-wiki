@@ -17,6 +17,7 @@ provenance:
 tags: [federation]
 status: reviewed
 updated: 2026-07-07
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Q: How does RHBK's LDAP/AD user federation work?

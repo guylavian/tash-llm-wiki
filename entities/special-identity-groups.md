@@ -15,6 +15,7 @@ provenance_ambiguous: 1
 tags: [directory-services, ad-authn, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Security Principals"
 ---
 
 # Special Identity Groups

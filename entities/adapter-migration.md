@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [migration]
 status: draft
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # Migrating RH-SSO 7.6 client adapters & OIDC/SAML apps

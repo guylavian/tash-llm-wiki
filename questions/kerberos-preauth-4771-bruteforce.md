@@ -14,6 +14,7 @@ question_tier: conceptual
 tags: [ad-authn, security, troubleshooting]
 status: draft
 updated: 2026-07-06
+graph_community: "Group Managed Service Accounts (gMSA)"
 ---
 
 # Repeated Event 4771 Kerberos pre-auth failures — brute force? What to check in AD

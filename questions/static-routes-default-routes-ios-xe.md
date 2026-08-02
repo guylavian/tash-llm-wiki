@@ -13,6 +13,7 @@ provenance:
   ambiguous: 0
 status: reviewed
 updated: 2026-07-07
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # What are static routes and default routes on IOS XE?

@@ -12,6 +12,7 @@ provenance_ambiguous: 0
 tags: [server-config]
 status: draft
 updated: 2026-07-02
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # Using a vault

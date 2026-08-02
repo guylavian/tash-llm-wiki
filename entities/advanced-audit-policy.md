@@ -22,6 +22,7 @@ symptoms:
 tags: [security, directory-services, how-to]
 status: draft
 updated: 2026-07-02
+graph_community: "Securing Active Directory (best practices)"
 ---
 
 # Advanced Audit Policy Configuration

@@ -13,7 +13,8 @@ provenance_inferred: 4
 provenance_ambiguous: 0
 tags: [tokens, security, concept]
 status: reviewed
-updated: 2026-06-17
+updated: 2026-07-25
+graph_community: "Tokens & Sessions"
 ---
 
 # DPoP Sender-Constraining
@@ -128,3 +129,5 @@ DPoP binds only HTTP method and URI â€” request body integrity depends on TLS (Â
 - [[service-to-service-client-credentials]]
 - [[securing-apps-oidc-saml]]
 - [[sso-implementation-review]]
+- [[authorization-server-metadata-discovery]]
+- [[spa-resource-server-implementation-review]]

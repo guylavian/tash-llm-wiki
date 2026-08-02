@@ -20,6 +20,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # How OpenShift handles persistent storage, PVCs, and dynamic provisioning

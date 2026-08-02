@@ -2,6 +2,7 @@
 origin: eval-cohort
 title: Is --cache-embedded-mcast-buffer-size a real kc.sh flag?
 type: question
+question_tier: conceptual
 domain: keycloak
 slug: cache-embedded-mcast-buffer-size-fabricated
 summary: "`--cache-embedded-mcast-buffer-size` is a fabricated flag — it does not appear in any RHBK/Keycloak reference document. The closest real multicast configuration is `-Djgroups.mcast_port` passed via `JAVA_OPTS_APPEND`."
@@ -14,6 +15,7 @@ provenance_ambiguous: 0
 tags: [ha]
 status: draft
 updated: 2026-07-12
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # `--cache-embedded-mcast-buffer-size` is a fabricated flag

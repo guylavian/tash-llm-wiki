@@ -13,6 +13,7 @@ sources:
 provenance_extracted: 11
 provenance_inferred: 0
 provenance_ambiguous: 0
+graph_community: "Tokens & Sessions"
 ---
 
 # What does the FAPI 2.0 Security Profile mandate for high-value APIs?

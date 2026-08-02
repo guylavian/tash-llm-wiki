@@ -14,6 +14,7 @@ provenance_ambiguous: 0
 question_tier: support-kb
 status: draft
 updated: 2026-07-09
+graph_community: "Active Directory Replication & Site Topology"
 ---
 
 # Replication Error 8614 — Tombstone Lifetime Exceeded

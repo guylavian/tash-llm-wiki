@@ -16,6 +16,7 @@ provenance:
 question_tier: support-kb
 status: draft
 updated: 2026-07-12
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Users losing their AD federated link (account-merge prompts)

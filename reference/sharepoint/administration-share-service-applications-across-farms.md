@@ -1,0 +1,133 @@
+---
+title: "Share service applications across farms in SharePoint Server - SharePoint Server"
+type: reference
+domain: sharepoint
+slug: administration-share-service-applications-across-farms
+tier: reference
+source: https://learn.microsoft.com/en-us/sharepoint/administration/share-service-applications-across-farms
+family: administration
+documentKind: "how-to"
+abstract: "Describes the process and cautions that are involved in sharing service applications across farms in SharePoint Server."
+---
+
+# Share service applications across farms in SharePoint Server - SharePoint Server
+
+Note
+
+Share service applications across farms in SharePoint Server
+
+# Share service applications across farms in SharePoint Server
+
+**APPLIES TO:** 2013 2016 2019 Subscription Edition SharePoint in Microsoft 365
+
+In SharePoint Server, some service applications can be shared across server farms.
+
+By publishing a service application, you can optimize resources, avoid redundancy, and provide enterprise-wide services without installing a dedicated enterprise services farm. You can publish the following service applications in a SharePoint Server farm:
+
+Business Data Connectivity
+
+Machine Translation
+
+Managed Metadata
+
+User Profile
+
+Search
+
+Secure Store
+
+To allow customers to upgrade multi-farm environments where a farm hosts service applications that are consumed by other farms, SharePoint consuming farms can consume services from a publishing farm running either the same major version or the next major version. Additionally, SharePoint 2016 consumer farms can consumes services from a SharePoint Subscription Edition publishing farm even though SharePoint Subscription Edition is two versions newer. SharePoint consumer farms don't support consuming services from a publishing farm running an older major version.
+
+Cross farm service publishing supported scenarios:
+
+| **Consuming farm** | **Supports consuming services from a SharePoint 2013 publishing farm?** | **Supports consuming services from a SharePoint 2016 publishing farm?** | **Supports consuming services from a SharePoint 2019 publishing farm?** | **Supports consuming services from a SharePoint Subscription Edition publishing farm?** |
+| --- | --- | --- | --- | --- |
+| SharePoint 2013 | Yes | Yes | No | No |
+| SharePoint 2016 | No | Yes | Yes | Yes |
+| SharePoint 2019 | No | No | Yes | Yes |
+| SharePoint Subscription Edition | No | No | No | Yes |
+
+Note
+
+It is not supported to consume services from a server version which is more than one version behind unless it's listed as supported above. This means it is not supported for a SharePoint (N-2+) farm to consume services from a SharePoint (N) farm. For example, SharePoint 2013 cannot consume services from SharePoint 2019, SharePoint 2010 cannot consume services from SharePoint 2016, etc.
+
+**Important:** There are significant restrictions on when services and content can be shared between a SharePoint 2010 farm and a SharePoint 2013 farm. Content type syndication uses the backup and restore mechanism in SharePoint Server to publish the content types across site collections. Backup and restore do not work across versions in the following scenarios:
+
+Between a SharePoint 2010 farm and a SharePoint 2013 farm
+
+Between sites in 2010 mode on a 2013 farm and those in 2013 mode on a 2013 farm
+
+To learn how to work with these restrictions and successfully share services and content between SharePoint 2010 and SharePoint 2013 farms, see How to upgrade an environment that uses content type syndication (SharePoint Server 2013)
+
+Note
+
+If the server farms are located in different domains, the User Profile service application requires both domains to trust one another. For the Business Data Connectivity service and Secure Store service application administration features to work from the consuming farm, the domain of the publishing farm must trust the domain of the consuming farm. Other cross-farm service applications work without a trust requirement between domains.
+
+The User Profile service must reside in the same datacenter as the content it supports — The performance of social features require the User Profile service application to be located in the same datacenter as My Sites, team sites, and community sites.
+
+The farm that contains the service application and publishes the service application so that other farms can consume the service application is known as the publishing farm. The farm that connects to a remote location to use a service application that the remote location is hosting is known as the consuming farm.
+
+This article describes the steps that are required to publish and consume service applications across farms. These steps must be performed in the order listed.
+
+Exchange trust certificates between the farms.
+
+To start, an administrator of the consuming farm must provide two trust certificates to the administrator of the publishing farm: a root certificate and a security token service (STS) certificate. Additionally, an administrator of the publishing farm must provide a root certificate to the administrator of the consuming farm. By exchanging certificates, each farm acknowledges that the other farm can be trusted.
+
+For more information, see Exchange trust certificates between farms in SharePoint Server.
+
+On the publishing farm, publish the service application.
+
+On the farm on which the service application is located, an administrator must explicitly publish the service application. Service applications that are not explicitly published are available to the local farm only.
+
+For more information, see Publish service applications in SharePoint Server.
+
+On the publishing farm, set the permission to the appropriate service applications for the consuming farm.
+
+You must give the consuming farm permission to the Application Discovery and Load Balancing Service Application on the publishing farm. After doing this, give the consuming farm permission to the published service applications that it will be consuming.
+
+For more information, see Set permissions to published service applications in SharePoint Server.
+
+On the consuming farm, connect to the remote service application.
+
+After the publishing farm has published the service application, an administrator of the consuming farm can connect to that service application from the consuming farm if the address of the specific service application is known.
+
+For more information, see Connect to service applications on remote farms in SharePoint Server.
+
+Important
+
+You cannot share a User Profile service application across farms that reside in separate domains unless you first establish a domain-level trust between the two domains.
+
+Add the shared service application to a Web application proxy group on the consuming farm.
+
+An administrator must associate the new service application connection with a local Web application on the consuming farm. Only Web applications that are configured to use this association can use the remote service application.
+
+For information about how to configure a Web application proxy group connection, see Add or remove service application connections from a web application in SharePoint Server.
+
+Note
+
+It's important that you plan the proxy group layout before you add service applications to proxy groups.
+
+Configure server-to-server authentication between the publishing and consuming farms.
+
+To allow a web application or an application service to request a resource from a web application on another farm on behalf of a user, you have to configure server-to-server authentication between the farms. For more information, see Configure server-to-server authentication between publishing and consuming farms.
+
+Note
+
+Web applications or application services that request resources from an application service on another farm do not require server-to-server authentication.
+
+See also
+
+## See also
+
+Other Resources
+
+#### Other Resources
+
+How to upgrade an environment that uses content type syndication (SharePoint Server 2013)
+
+Additional resources
+
+## Additional resources
+
+- Last updated on 
+		2023-02-21

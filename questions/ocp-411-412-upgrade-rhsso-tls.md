@@ -24,6 +24,7 @@ symptoms:
 tags: [migration, server-config]
 status: draft
 updated: 2026-06-26
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # OCP 4.11 → 4.12 master upgrade breaks RHSSO — HAProxy TLS error on re-encrypt route

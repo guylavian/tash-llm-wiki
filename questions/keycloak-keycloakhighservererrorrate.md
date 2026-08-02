@@ -14,6 +14,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-06-28
+graph_community: "KeycloakHighServerErrorRate — DB Connection Pool Exhaustion via Slow Queries (2026-06-28)"
 ---
 
 # KeycloakHighServerErrorRate — DB Connection Pool Exhaustion via Slow Queries (2026-06-28)

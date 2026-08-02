@@ -14,6 +14,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-06-28
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # CrashLoopBackOff: payments-api OOMKilled — memory limit exhausted (2026-06-28)

@@ -12,6 +12,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # `fips-mode` — strict vs non-strict

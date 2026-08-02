@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [observability]
 status: draft
 updated: 2026-07-02
+graph_community: "RHBK observability stack — health, metrics, tracing, OpenTelemetry"
 ---
 
 # User event metrics (keycloak_user_events_total)

@@ -24,6 +24,7 @@ symptoms:
 tags: [ad-authn, security, directory-services, troubleshooting]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # SPN and UPN Uniqueness

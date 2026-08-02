@@ -61,3 +61,13 @@ views:
       - note.summary
       - note.status
       - note.updated
+
+  - type: table
+    name: communities
+    groupBy:
+      property: note.graph_community
+    order:
+      - file.name
+      - note.domain
+      - note.type
+      - note.summary

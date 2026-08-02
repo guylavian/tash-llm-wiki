@@ -1,0 +1,140 @@
+---
+title: "Set-SPODisableSpacesActivation"
+type: reference
+domain: powershell
+slug: spps-set-spodisablespacesactivation
+tier: reference
+source: https://learn.microsoft.com/en-us/powershell/module/spps/sharepoint/sharepoint-ps/Microsoft.Online.SharePoint.PowerShell/Set-SPODisableSpacesActivation
+family: spps
+documentKind: "doc"
+---
+
+# Set-SPODisableSpacesActivation
+
+# Set-SPODisableSpacesActivation
+
+## SYNOPSIS
+Disables the SharePoint Spaces activation.
+
+## SYNTAX
+
+```
+Set-SPODisableSpacesActivation [-Disable] <Boolean> [-Scope] <String> [[-Identity] <SpoSitePipeBind>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
+```
+
+## DESCRIPTION
+Disables the SharePoint Spaces activation either at Tenant level or Site level.
+
+## EXAMPLES
+
+### Example 1
+```powershell
+PS C:\> Set-SPODisableSpacesActivation -Scope Tenant -Disable:$true
+```
+
+This example disables the SharePoint Spaces activation at Tenant level.
+
+### Example 2
+```powershell
+PS C:\> Set-SPODisableSpacesActivation -Disable:$true -Identity https://contoso.sharepoint.com/sites/Marketing -Scope Site
+```
+
+This example disables the SharePoint Spaces activation for a site.
+
+## PARAMETERS
+
+### -Disable
+Set True to disable SharePoint Spaces activation, set to False to enable.
+
+```yaml
+Type: System.Boolean
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Identity
+Specifies the URL of the site collection to update.
+
+```yaml
+Type: Microsoft.Online.SharePoint.PowerShell.SpoSitePipeBind
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 0
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Scope
+Specifies the scope.
+
+Possible values:
+- Tenant
+- Site
+
+```yaml
+Type: System.String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+### Microsoft.Online.SharePoint.PowerShell.SpoSitePipeBind
+
+## OUTPUTS
+
+### System.Object
+
+## NOTES
+
+## RELATED LINKS

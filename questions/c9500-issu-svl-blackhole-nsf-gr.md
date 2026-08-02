@@ -21,6 +21,7 @@ symptoms:
   - "routes withdrawn despite standby reloading and rejoining cleanly"
 status: draft
 updated: 2026-07-02
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Catalyst 9500 StackWise Virtual ISSU — why it blackholed traffic despite the standby joining cleanly

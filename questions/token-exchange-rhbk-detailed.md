@@ -24,6 +24,7 @@ provenance_ambiguous: 0
 tags: [tokens]
 status: reviewed
 updated: 2026-06-18
+graph_community: "Tokens & Sessions"
 ---
 
 # Token Exchange V2 in RHBK — impersonation vs delegation, audience/scope semantics, DPoP/revocation pitfalls, and V1 legacy

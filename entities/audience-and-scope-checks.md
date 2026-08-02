@@ -16,6 +16,7 @@ symptoms:
   - "invalid_token"
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # Audience and Scope Checks

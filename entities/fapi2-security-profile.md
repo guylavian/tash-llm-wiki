@@ -19,6 +19,7 @@ symptoms:
   - "invalid_token"
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # FAPI 2.0 Security Profile

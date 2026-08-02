@@ -19,6 +19,7 @@ provenance_ambiguous: 0
 tags: [cluster-auth, security]
 status: draft
 updated: 2026-06-25
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Security Context Constraints (SCC)

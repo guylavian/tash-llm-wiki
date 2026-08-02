@@ -27,6 +27,7 @@ provenance:
 tags: [authz]
 status: draft
 updated: 2026-07-07
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # How OpenShift Networking Works — Services, Routes, DNS, and NetworkPolicy

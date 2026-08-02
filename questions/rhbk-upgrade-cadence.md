@@ -20,6 +20,7 @@ tags: [migration]
 status: draft
 aliases: [upgrade cadence, release cycle, RHBK upgrades]
 updated: 2026-07-05
+graph_community: "RHBK login storm OOMed despite the request-queue cap — what was missing"
 ---
 
 # RHBK — באיזו תדירות לשדרג?

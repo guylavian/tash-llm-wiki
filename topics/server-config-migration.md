@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [migration, server-config, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "RH-SSO 7.x → Red Hat Build of Keycloak Migration"
 ---
 
 # Migrating the RH-SSO 7.6 server configuration to RHBK

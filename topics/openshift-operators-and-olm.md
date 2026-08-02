@@ -17,6 +17,7 @@ provenance_ambiguous: 0
 tags: [operators-olm]
 status: draft
 updated: 2026-07-02
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # OpenShift Operators, OLM & Machine Config — Overview

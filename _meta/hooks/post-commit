@@ -2,9 +2,9 @@
 # Auto-sync the Graphify graph after a commit touches synthesis pages.
 # Install: git config core.hooksPath _meta/hooks
 TOP="$(git rev-parse --show-toplevel)"
-if git diff-tree --no-commit-id --name-only -r HEAD | grep -qE '^(topics|entities|questions)/'; then
+if git diff-tree --no-commit-id --name-only -r HEAD | grep -qE '^llm-wiki/(topics|entities|questions)/'; then
     # ponytail: fire-and-forget background sync; sync.log may be truncated if the
     # shell exits before sync-graph.sh finishes — rerun `sh _meta/sync-graph.sh` by hand if so.
-    ( sh "$TOP/_meta/sync-graph.sh" > "$TOP/_meta/sync.log" 2>&1 & )
+    ( sh "$TOP/llm-wiki/_meta/sync-graph.sh" > "$TOP/llm-wiki/_meta/sync.log" 2>&1 & )
 fi
 exit 0

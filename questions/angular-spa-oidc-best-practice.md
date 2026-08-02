@@ -19,6 +19,7 @@ provenance_ambiguous: 0
 tags: [clients]
 status: reviewed
 updated: 2026-06-17
+graph_community: "Tokens & Sessions"
 ---
 
 # Angular SPA against RHBK — OIDC best practice

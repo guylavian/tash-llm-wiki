@@ -16,6 +16,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "FSMO (Operations-Master) Roles"
 ---
 
 # What are domain and forest functional levels and how do they work?

@@ -27,6 +27,7 @@ provenance:
 tags: [security]
 status: draft
 updated: 2026-07-12
+graph_community: "Securing Active Directory (best practices)"
 ---
 
 # Microsoft's Defensive Security Model for Active Directory

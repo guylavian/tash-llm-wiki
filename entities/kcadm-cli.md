@@ -14,6 +14,7 @@ provenance_inferred: 0
 provenance_ambiguous: 0
 status: draft
 updated: 2026-07-02
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # kcadm.sh — Admin CLI

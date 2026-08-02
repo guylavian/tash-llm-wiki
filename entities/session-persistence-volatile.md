@@ -17,6 +17,7 @@ provenance_ambiguous: 0
 tags: [tokens]
 status: draft
 updated: 2026-07-02
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # Session Persistence — Database-backed vs Volatile Caches

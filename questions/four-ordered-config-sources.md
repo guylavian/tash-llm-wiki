@@ -15,6 +15,7 @@ provenance:
 tags: [server-config]
 status: draft
 updated: 2026-07-07
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # The four ordered configuration sources for RHBK

@@ -45,7 +45,7 @@ from wikikb import paths
 from wikikb.quality import coverage as covmod
 from wikikb.quality.lint import has_out_of_coverage_banner, unquote
 WIKI = str(paths.WIKI)
-PAGE_DIRS = ("topics", "entities", "questions")
+PAGE_DIRS = paths.PAGE_DIRS
 FM_RE = re.compile(r"^(---\n)(.*?)(\n---)", re.DOTALL)
 
 

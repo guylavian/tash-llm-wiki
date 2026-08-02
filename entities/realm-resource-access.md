@@ -16,6 +16,7 @@ provenance_inferred: 1
 provenance_ambiguous: 0
 status: draft
 updated: 2026-07-02
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Managing access to realm resources

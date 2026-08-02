@@ -19,6 +19,7 @@ provenance_ambiguous: 1
 tags: [tokens]
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # Logout ו-session lifecycle ב-RHBK 26 באתר Active-Passive — מה באמת מתבטל, ואיפה זה נשבר

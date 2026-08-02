@@ -1,0 +1,58 @@
+---
+title: "Manage the Search Center in SharePoint Server - SharePoint Server"
+type: reference
+domain: sharepoint
+slug: search-manage-the-search-center-in-sharepoint-server
+tier: reference
+source: https://learn.microsoft.com/en-us/sharepoint/search/manage-the-search-center-in-sharepoint-server
+family: search
+documentKind: "article"
+abstract: "Learn about pages that are created in a Search Center site in SharePoint Server, and see articles about how to configure Web Parts."
+---
+
+# Manage the Search Center in SharePoint Server - SharePoint Server
+
+Note
+
+Manage the Search Center in SharePoint Server
+
+# Manage the Search Center in SharePoint Server
+
+**APPLIES TO:** 2013 2016 2019 Subscription Edition SharePoint in Microsoft 365
+
+In a Search Center site, users get the **classic** search experience. When you create an Enterprise Search Center site collection as described in Create a Search Center site in SharePoint Server, SharePoint Server creates a default search home page and a default search results page. In addition, several pages known as search verticals are created. Search verticals are customized for searching specific content, such as People, Conversations, and Videos, and they display search results that are filtered and formatted for a specific content type or class.
+
+The following pages are created in an Enterprise Search Center site collection:
+
+**default.aspx:** the home page for the Search Center, and the page where end-users enter their queries.
+
+**results.aspx:** the default search results page for the Search Center. It is also the search results page for the **Everything** search vertical.
+
+**peopleresults.aspx:** the search results page for the **People** search vertical.
+
+**conversationresults.aspx:** the search results page for the **Conversations** search vertical.
+
+**videoresults.aspx:** the search results page for the **Videos** search vertical.
+
+**advanced.aspx:** the search page where end-users can apply some restrictions to their search phrases — for example, limiting the search to an exact phrase.
+
+These pages are located in the **Pages** library, and they contain Web Parts that you can customize to improve the end-user search experience. This article describes the Web Parts on these pages, and how you can configure the different Web Parts settings to improve how search results are displayed.
+
+By default, the Web Parts on the search vertical pages (results.aspx, peopleresults.aspx, conversationresults.aspx, videoresults.aspx, advanced.aspx) are the same. However the query in the **Search Results Web Part** is configured differently for each search vertical page. For each search vertical page, the query in the **Search Results Web Part** is directed to a particular result source. This can be a result source that defines the search vertical or any result source that you want to direct queries to when you create a custom search vertical. For example, for the **peopleresults.aspx** search vertical page, the query in the **Search Results Web Part** is limited to the **Local People Results (System)** result source. For the **videoresults.aspx** search vertical page, the query in the **Search Results Web Part** is limited to the **Local Video Results (System).**
+
+The following articles describe how to configure properties for each Web Part that is used in the Enterprise Search Center site:
+
+Configure properties of the Search Box Web Part in SharePoint Server
+
+Configure properties of the Search Results Web Part in SharePoint Server
+
+Configure properties of the Refinement Web Part in SharePoint Server
+
+Configure properties of the Search Navigation Web Part in SharePoint Server
+
+Additional resources
+
+## Additional resources
+
+- Last updated on 
+		2023-01-19

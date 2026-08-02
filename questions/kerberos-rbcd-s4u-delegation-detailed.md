@@ -22,6 +22,7 @@ provenance_ambiguous: 0
 tags: [federation]
 status: reviewed
 updated: 2026-07-02
+graph_community: "Group Managed Service Accounts (gMSA)"
 ---
 
 # Kerberos RBCD / S4U detailed — NTLM front-end, protocol transition, and the delegation authority shift

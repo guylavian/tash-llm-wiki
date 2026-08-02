@@ -19,7 +19,8 @@ symptoms:
   - "JWT in localStorage"
   - "Set-Cookie missing HttpOnly"
 status: reviewed
-updated: 2026-07-02
+updated: 2026-07-25
+graph_community: "Tokens & Sessions"
 ---
 
 # Token Storage in the Browser
@@ -119,3 +120,4 @@ The following are the concrete, observable failures a wrong implementation produ
 - [[token-revocation]] — server-side revocation to cover the logout gap
 - [[native-app-oauth]] — different storage constraints for native (non-browser) apps
 - [[sso-implementation-review]] — MOC: evaluating an SSO implementation for faults
+- [[securing-apps-oidc-saml]]

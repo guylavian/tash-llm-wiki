@@ -17,6 +17,7 @@ provenance_ambiguous: 0
 tags: [authn]
 status: reviewed
 updated: 2026-06-17
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Q: What is RHBK's default password hashing algorithm in 26.x, and how do I change it?

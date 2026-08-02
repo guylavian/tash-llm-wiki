@@ -24,6 +24,7 @@ provenance:
 tags: [authn, federation]
 status: draft
 updated: 2026-06-22
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Why does an AD password change take time to take effect in RHBK LDAP user federation?

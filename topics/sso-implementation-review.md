@@ -15,7 +15,8 @@ provenance_inferred: 62
 provenance_ambiguous: 0
 tags: [security, clients, concept]
 status: draft
-updated: 2026-06-17
+updated: 2026-07-25
+graph_community: "Tokens & Sessions"
 ---
 
 # SSO / OIDC Implementation Review — Evaluation-Lens MOC
@@ -108,3 +109,5 @@ To evaluate an implementation: step through the checklist, test each rule agains
 - [[oidc-client-best-practices]] — the RHBK-grounded sibling to this page; covers the same implementation concerns but with RHBK/Keycloak-specific configuration details and version references. This page (sso-implementation-review) is the upstream/standards layer; consult both when reviewing an implementation against a running RHBK deployment.
 - [[security-hardening-checklist]] — server-side hardening of the RHBK instance itself (realm settings, TLS, brute-force protection).
 - [[fapi2-security-profile]] — detailed treatment of the OpenID Foundation FAPI 2.0 Security Profile, which mandates a strict subset of the rules above.
+- [[client-authentication-methods]]
+- [[oidc-grant-types]]

@@ -17,6 +17,7 @@ symptoms:
 tags: [security, directory-services, concept]
 status: draft
 updated: 2026-06-18
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # Windows LAPS (Local Administrator Password Solution)

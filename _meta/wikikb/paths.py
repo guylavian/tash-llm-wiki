@@ -20,6 +20,24 @@ if _env.environ.get("WIKIKB_VAULT_ROOT"):
     WIKI = Path(_env.environ["WIKIKB_VAULT_ROOT"]).resolve()
 ROOT = WIKI.parent                         # repo root
 
+# The synthesis-layer page dirs — the ONE definition (was copy-pasted in 13 modules, so adding a
+# tier meant 13 edits and one of them would be forgotten). `outputs/` is the derived-artifact tier
+# (runbooks, cheat sheets, comparisons): a real page like any other — full frontmatter, linted,
+# indexed, crosslinked — that cites the topics/entities it was compiled from, so the next artifact
+# builds on every previous one instead of being re-derived outside the vault.
+PAGE_DIRS = ("topics", "entities", "questions", "outputs")
+
+# The page↔page wikilink grammar — the ONE definition (was byte-identical in lint.py, expand.py and
+# tkg/model.py, the three tools that build the link graph, with tkg's comment literally saying "Mirror
+# expand.py exactly"). Bare kebab slug per CLAUDE.md ("no directory, no .md"), with an OPTIONAL
+# `|display text` — Obsidian's alias form, which the vault already uses on 67 hand-authored page links
+# across 25 pages that every one of those tools silently dropped. The pipe was originally excluded to
+# keep crosslink's generated `## Sources` links (`[[note|Title]]`) out of the page graph; that job
+# belongs to excising the Sources block (which all three now do), not to the link grammar.
+import re as _re
+
+PAGELINK_RE = _re.compile(r"\[\[([a-z0-9][a-z0-9-]*)(?:\|[^\]\n]*)?\]\]")
+
 REFERENCE = WIKI / "reference"             # in-vault corpus tier (reference/<domain>/)
 REFERENCES = WIKI / "references"           # curated reference guides (ref: tier — folded into the vault 2026-07-07)
 EVAL = META / "eval"                       # eval + gate cases + committed goldens

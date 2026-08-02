@@ -13,6 +13,7 @@ question_tier: conceptual
 tags: [etherchannel, lan-switching]
 status: draft
 updated: 2026-07-05
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # What does `lacp fast-switchover` change, and what must be configured first?

@@ -17,6 +17,7 @@ provenance_inferred: 4
 provenance_ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "FSMO (Operations-Master) Roles"
 ---
 
 # How to deploy and promote domain controllers in an Active Directory forest

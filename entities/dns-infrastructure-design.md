@@ -21,6 +21,7 @@ provenance_ambiguous: 0
 tags: [ad-dns, logical-design, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # DNS Infrastructure Design

@@ -19,6 +19,7 @@ provenance_ambiguous: 0
 tags: [users, security, directory-services, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Group Managed Service Accounts (gMSA)"
 ---
 
 # Service Accounts in Active Directory

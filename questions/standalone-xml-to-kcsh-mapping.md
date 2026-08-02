@@ -15,6 +15,7 @@ provenance:
   extracted: 10
   inferred: 0
   ambiguous: 0
+graph_community: "RH-SSO 7.x → Red Hat Build of Keycloak Migration"
 ---
 
 # Mapping RH-SSO 7.6 standalone.xml to RHBK kc.sh options

@@ -20,6 +20,7 @@ provenance_ambiguous: 0
 tags: [workloads, concept]
 status: draft
 updated: 2026-06-25
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Kubernetes Pod

@@ -1,0 +1,70 @@
+---
+title: "UpdateFeatureState Method"
+type: reference
+domain: sccm
+slug: develop-updatefeaturestate-method-in-class-sms-site
+tier: reference
+source: https://learn.microsoft.com/en-us/intune/configmgr/develop/reference/core/servers/configure/updatefeaturestate-method-in-class-sms_site
+family: develop
+documentKind: "reference"
+abstract: "Learn how to update the enabled/disabled state of a feature using UpdateFeatureState WMI class method."
+---
+
+# UpdateFeatureState Method
+
+# UpdateFeatureState Method in Class SMS_Site
+The `UpdateFeatureState` Windows Management Instrumentation (WMI) class method, in Configuration Manager, updates the enabled/disabled state of a feature.
+
+ The following syntax is simplified from Managed Object Format (MOF) code and defines the method.
+
+## Syntax
+
+```
+SInt32 UpdateFeatureState (
+     String SiteCode,
+     UInt32 FeatureID,
+     Boolean IsEnabled
+);
+```
+
+#### Parameters
+ `SiteCode`
+ Data type: `String`
+
+ Qualifiers: [in]
+
+ Site code of site to check. NULL indicates the current site.
+
+ `FeatureID`
+ Data type: `UInt32`
+
+ Qualifiers: [in]
+
+ Feature identifier. Possible values are:
+
+|Value|Feature identifier|
+|-|-|
+|1|SleepServer|
+
+ `IsEnabled`
+ Data type: `Boolean`
+
+ Qualifiers: [in]
+
+ `true` if the feature is enabled.
+
+## Return Values
+ An `SInt32` data type that is 0 to indicate success or non-zero to indicate failure.
+
+ For information about handling returned errors, see [About Configuration Manager Errors](../../../../../develop/core/understand/about-configuration-manager-errors.md).
+
+## Requirements
+
+## Runtime Requirements
+ For more information, see [Configuration Manager Server Runtime Requirements](../../../../../develop/core/reqs/server-runtime-requirements.md).
+
+## Development Requirements
+ For more information, see [Configuration Manager Server Development Requirements](../../../../../develop/core/reqs/server-development-requirements.md).
+
+## See Also
+ [SMS_Site Server WMI Class](../../../../../develop/reference/core/servers/configure/sms_site-server-wmi-class.md)

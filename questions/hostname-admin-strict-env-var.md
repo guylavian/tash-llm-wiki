@@ -16,6 +16,7 @@ provenance:
 tags: [server-config]
 status: draft
 updated: 2026-07-07
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # What does the `KC_HOSTNAME_ADMIN_STRICT` environment variable do?

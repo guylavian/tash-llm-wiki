@@ -18,6 +18,7 @@ question_tier: conceptual
 tags: [tokens]
 status: draft
 updated: 2026-07-12
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Capping concurrent authentication sessions per browser/root session (authSessionsLimit)

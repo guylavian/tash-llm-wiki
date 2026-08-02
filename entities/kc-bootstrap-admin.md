@@ -13,6 +13,7 @@ provenance_ambiguous: 0
 tags: [server-config]
 status: reviewed
 updated: 2026-06-16
+graph_community: "RHBK Operator (Keycloak CR)"
 ---
 
 # Bootstrapping / Recovering an Admin Account

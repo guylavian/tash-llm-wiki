@@ -13,6 +13,7 @@ provenance_ambiguous: 0
 tags: [cluster-storage, provider]
 status: draft
 updated: 2026-07-02
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # CSI Driver (CSIDriver)

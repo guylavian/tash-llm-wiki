@@ -16,7 +16,7 @@ is the schema that tells you how to read and grow it.
 | Layer | Location | Mutability | Role |
 |---|---|---|---|
 | **Raw sources** (in-vault) | `reference/<domain>/` (imported doc bodies, one note per source), `_sources/<domain>/` (hand notes), `references/` (in-vault) | **IMMUTABLE** — never edit these notes | Ground truth per domain. Keycloak: **800 doc bodies as reference notes** in `reference/keycloak/` + a gated-KB pointer index; 12 curated reference guides. (Original harvest archived at `../corpora.bak/`.) |
-| **Synthesis** | `wiki/{topics,entities,questions}/` | LLM-maintained | Distilled topic/entity pages + answered questions, all cross-linked, all carry `domain:` |
+| **Synthesis** | `wiki/{topics,entities,questions,outputs}/` | LLM-maintained | Distilled topic/entity pages + answered questions + derived artifacts, all cross-linked, all carry `domain:` |
 | **Schema** | this `CLAUDE.md` | Human + LLM | Conventions and the ingest / query / lint workflows |
 
 **Hard rule:** writes go *only* to the synthesis layer of this vault. **Obsidian/the vault rules all the
@@ -40,6 +40,7 @@ regenerable from a harvest; the synthesis is downstream of it.
     ├── topics/             # synthesis pages per theme  (e.g. ldap-user-federation.md)
     ├── entities/           # one page per concrete thing: feature, config option, CLI flag, SPI
     ├── questions/          # answered queries, filed back as durable pages
+    ├── outputs/            # derived artifacts compiled FROM the synthesis (runbooks, cheat sheets, comparisons)
     ├── reference/<domain>/ # IMMUTABLE imported doc bodies, one Markdown note per source + _gated-kb-index.md
     ├── _sources/<domain>/  # raw hand-written note staging (notes-first domains)
     └── _meta/              # tooling — NOT content (excluded from all scanners)
@@ -87,7 +88,7 @@ Every wiki page starts with this frontmatter and body skeleton:
 ```markdown
 ---
 title: Human-readable title
-type: topic | entity | question
+type: topic | entity | question | output
 domain: keycloak                  # REQUIRED — which technology this page belongs to;
                                   #   validated against the domains declared in _meta/taxonomy.md
 slug: kebab-case-matching-filename
@@ -108,7 +109,7 @@ symptoms:            # OPTIONAL — only on failure-mode / troubleshooting pages
 aliases: [alt name, acronym]      # OPTIONAL — alternate names for dedup / search (Obsidian-native)
 question_tier: conceptual | support-kb | scenarios   # OPTIONAL, type:question only — the Confidence gate's H1 tier classification for this filed question (CLAUDE.md, Operation: QUERY); lint.py errors if the tier isn't in the domain's tiers-covered and the body has no H1 banner line
 # tags: [federation, ldap]      # Pass 2 — controlled vocab from _meta/taxonomy.md (optional until then)
-status: stub | draft | reviewed
+status: stub | draft | reviewed | needs-review | retracted   # `retracted` = withdrawn; fires the gate's H4 (Operation: RETRACT)
 updated: 2026-06-16             # ISO date; today is provided in context
 ---
 
@@ -144,6 +145,11 @@ resolution steps that need a Red Hat login.
   generated **`## Sources`** section of `[[links]]`. That is what connects the synthesis
   to the KB in the graph. Re-run after ingest; it's idempotent and never touches the
   `sources:` block.
+- **Graphify round-trip:** `_meta/sync-graph.sh` builds the curated graph for Graphify
+  (see `_meta/GRAPHIFY-SYNC.md`) AND writes its computed communities back as
+  `graph_community: "<name>"` frontmatter — generated, never hand-edit — giving
+  Obsidian the computed communities on top of the hand-curated `[[wikilinks]]`, best
+  of each layer.
 
 ### Source tiers — keep them distinct
 - **Ground-truth corpus** (`kb:` / `guide:` / `ref:`) — the offline, support-backed
@@ -582,6 +588,34 @@ local ±5-word context to lines of the page's cited `kb:` notes and reports:
 **Correction workflow:** read the quoted source line → fix the page against the source (version-
 attribute if sources disagree, per Contradictions/caveats) → bump `updated:` → `python3 -m wikikb
 build`. The incident fixture (`_meta/eval/fixtures/verify-sizing-incident.md`) keeps the class caught.
+
+## Operation: RETRACT (withdrawing a page — and everything downstream of it)
+
+Goal: take a page out of service *with its dependents*, when its ground truth stops holding —
+the cited note was superseded (26.0 → 26.6 churn), a VERIFY MISMATCH resolved as "the page was
+wrong, not the source", or a claim was falsified by the field. Deleting the page is the wrong
+move twice over: it destroys the audit trail, and it leaves every page that cited it still
+serving the withdrawn claim in silence.
+
+1. Set `status: retracted` on the page and bump `updated:`. Under **Contradictions / caveats**,
+   say *what* was withdrawn and *why*, and link the replacement (`[[new-slug]]`) if there is one.
+   Keep the body — a retracted page is evidence, not garbage.
+2. `python3 -m wikikb lint`. Two things fire, and they are the whole point:
+   - the page itself is noted as withdrawn, and `status: retracted` trips the Confidence gate's
+     **H4** arm in `gate_banner` — so *every* surface (`ask`, `serve`, `mcp`, `livebank`) banners
+     it rather than serving it as current. `status` stays ADDITIVE-ONLY: retracted can only raise
+     a banner, never suppress one.
+   - **the cascade**: every page holding a `[[link]]` to it is warned — `links [[slug]], which is
+     status: retracted — re-source or drop the claim`. Index links don't count as dependents.
+3. Work the cascade list: re-source each dependent against the current note, or drop the claim.
+   Bump each `updated:`. **Do not clear a warning by deleting the link** unless the claim itself
+   went with it — a dangling claim with its provenance edge cut is strictly worse than a flagged one.
+4. `python3 -m wikikb build`.
+
+Supersession is *detected* but never *inferred*: `tkg` marks a Source node `superseded_by` when a
+same-guide, strictly-newer reference note exists (never a `valid_until` — rule R4). That is a
+signal to review the citing page, **not** an automatic retraction. Retraction is always an
+explicit, human/LLM-authored judgment.
 
 ## Operation: STATUS (audit)
 

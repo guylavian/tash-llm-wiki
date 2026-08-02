@@ -13,6 +13,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-06-25
+graph_community: "RHBK observability stack — health, metrics, tracing, OpenTelemetry"
 ---
 
 # Phantom incident from double-encoded Alertmanager webhook obscures real Keycloak token-endpoint 401 surge (2026-06-25)

@@ -16,6 +16,7 @@ provenance:
 tags: [tokens]
 status: reviewed
 updated: 2026-07-07
+graph_community: "Tokens & Sessions"
 ---
 
 # How does a Backend-for-Frontend (BFF) protect against token theft in SPAs?

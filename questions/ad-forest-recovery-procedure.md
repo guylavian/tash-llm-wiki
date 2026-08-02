@@ -14,6 +14,7 @@ question_tier: conceptual
 status: draft
 updated: "2026-07-12"
 tags: "[troubleshooting, disaster-recovery, directory-services]"
+graph_community: "FSMO (Operations-Master) Roles"
 ---
 
 # Active Directory Forest Recovery Procedure

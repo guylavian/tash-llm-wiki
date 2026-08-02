@@ -18,6 +18,7 @@ tags: [users]
 status: draft
 updated: 2026-07-12
 aliases: [pass-the-hash, pass-the-ticket, credential theft AD, AD lateral movement]
+graph_community: "Securing Active Directory (best practices)"
 ---
 
 # How attackers target credential theft in Active Directory

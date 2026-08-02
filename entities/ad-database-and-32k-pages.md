@@ -18,6 +18,7 @@ symptoms:
 tags: [directory-services, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory DS Maximum Limits and Scalability"
 ---
 
 # AD Database and 32k Pages (NTDS.dit)

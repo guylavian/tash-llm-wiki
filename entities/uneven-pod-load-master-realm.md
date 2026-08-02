@@ -15,6 +15,7 @@ provenance_inferred: 0
 provenance_ambiguous: 0
 status: draft
 updated: 2026-07-02
+graph_community: "RHBK Troubleshooting — index by area"
 ---
 
 # Uneven pod load / LOGIN_ERROR flood behind Kong/NGINX ingress

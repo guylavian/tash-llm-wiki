@@ -1,0 +1,121 @@
+---
+title: "Set-SPRoutingMachinePool"
+type: reference
+domain: powershell
+slug: spps-set-sproutingmachinepool-2
+tier: reference
+source: https://learn.microsoft.com/en-us/powershell/module/spps/sharepoint/sharepoint-server-ps/SharePointServer/Set-SPRoutingMachinePool
+family: spps
+documentKind: "doc"
+---
+
+# Set-SPRoutingMachinePool
+
+# Set-SPRoutingMachinePool
+
+## SYNOPSIS
+Sets properties of a machine pool.
+
+## SYNTAX
+
+```
+Set-SPRoutingMachinePool [-Identity] <SPRoutingMachinePoolPipeBind>
+ [-AssignmentCollection <SPAssignmentCollection>] [-MachineTargets <SPRoutingRuleTargetPipeBind[]>]
+ [<CommonParameters>]
+```
+
+## DESCRIPTION
+Use the `Set-SPRoutingMachinePool` cmdlet to set properties of a machine pool by using the Identity parameter.
+
+For permissions and the most current information about Windows PowerShell for SharePoint Products, see the online documentation at [SharePoint Server Cmdlets](https://learn.microsoft.com/powershell/sharepoint/sharepoint-server/sharepoint-server-cmdlets).
+
+## EXAMPLES
+
+### EXAMPLE
+```powershell
+$wa = Get-SPWebApplication -Identity https://webAppUrl
+$rm = Get-SPRequestManagementSettings -Identity $wa
+$pool = Get-SPRoutingMachinePool -RequestManagementSettings $rm -Name 'MachinePool'
+$newMachine = Get-SPRoutingMachineInfo -RequestManagementSettings $rm -Name SP01
+Set-SPRoutingMachinePool -Identity $pool -MachineTargets ($pool.MachineTargets + $newMachine)
+```
+This example sets the routing machine pool on the specified Web Application. Using the Request Management settings of the Web Application, it retrieves the existing routing machine pool named 'MachinePool'. It then gets the routing machine info for a new machine to add to the pool. Lastly, it sets the pool with the existing machine targets plus the new machine target.
+
+## PARAMETERS
+
+### -Identity
+
+> Applicable: SharePoint Server Subscription Edition
+
+Specifies the name of the request management settings object to set.
+
+```yaml
+Type: SPRoutingMachinePoolPipeBind
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -AssignmentCollection
+
+> Applicable: SharePoint Server Subscription Edition
+
+Manages objects for the purpose of proper disposal.
+Use of objects, such as SPWeb or SPSite, can use large amounts of memory and use of these objects in Windows PowerShell scripts requires proper memory management.
+Using the SPAssignment object, you can assign objects to a variable and dispose of the objects after they are needed to free up memory.
+When SPWeb, SPSite, or SPSiteAdministration objects are used, the objects are automatically disposed of if an assignment collection or the Global parameter is not used.
+
+When the Global parameter is used, all objects are contained in the global store.
+If objects are not immediately used, or disposed of by using the `Stop-SPAssignment` command, an out-of-memory scenario can occur.
+
+```yaml
+Type: SPAssignmentCollection
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -MachineTargets
+
+> Applicable: SharePoint Server Subscription Edition
+
+Specifies the routing targets collection that the machine pool will contain.
+
+```yaml
+Type: SPRoutingRuleTargetPipeBind[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+## OUTPUTS
+
+## NOTES
+
+## RELATED LINKS
+
+[Add-SPRoutingMachinePool](Add-SPRoutingMachinePool.md)
+
+[Get-SPRoutingMachinePool](Get-SPRoutingMachinePool.md)
+
+[Remove-SPRoutingMachinePool](Remove-SPRoutingMachinePool.md)

@@ -36,7 +36,7 @@ sys.dont_write_bytecode = True
 from wikikb.build import crosslink  # reuse build_ref_index / source_tokens / resolve / top_fields
 
 WIKI = crosslink.WIKI
-PAGE_DIRS = ("topics", "entities", "questions")
+PAGE_DIRS = paths.PAGE_DIRS
 FM_RE = crosslink.FM_RE
 
 

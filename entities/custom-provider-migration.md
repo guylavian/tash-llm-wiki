@@ -19,6 +19,7 @@ provenance_ambiguous: 2
 tags: [migration]
 status: draft
 updated: 2026-07-02
+graph_community: "RH-SSO 7.x → Red Hat Build of Keycloak Migration"
 ---
 
 # Migrating custom providers, themes & admin-client artifacts to RHBK

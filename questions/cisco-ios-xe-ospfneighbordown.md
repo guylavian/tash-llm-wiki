@@ -17,6 +17,7 @@ symptoms:
   - "ospf_neighbor_state.*= 5"
 status: draft
 updated: 2026-07-02
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # OSPF Adjacency Stuck in EXSTART — dist-rtr-1 Gi0/1 to core-1 Gi0/2 (MTU Mismatch)

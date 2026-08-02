@@ -20,6 +20,7 @@ provenance_ambiguous: 0
 tags: [ha, tokens]
 status: reviewed
 updated: 2026-06-22
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # Active-Passive site failover with external Data Grid — why users got kicked out and had to re-login

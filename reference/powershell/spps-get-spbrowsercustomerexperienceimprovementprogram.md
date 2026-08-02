@@ -1,0 +1,155 @@
+---
+title: "Get-SPBrowserCustomerExperienceImprovementProgram"
+type: reference
+domain: powershell
+slug: spps-get-spbrowsercustomerexperienceimprovementprogram
+tier: reference
+source: https://learn.microsoft.com/en-us/powershell/module/spps/sharepoint/sharepoint-ps/Microsoft.SharePoint.Powershell/Get-SPBrowserCustomerExperienceImprovementProgram
+family: spps
+documentKind: "doc"
+---
+
+# Get-SPBrowserCustomerExperienceImprovementProgram
+
+# Get-SPBrowserCustomerExperienceImprovementProgram
+
+## SYNOPSIS
+
+Returns the current opt-in state for the browser Customer Experience Improvement Program.
+
+
+## SYNTAX
+
+### Farm
+```
+Get-SPBrowserCustomerExperienceImprovementProgram [-Farm] [-AssignmentCollection <SPAssignmentCollection>]
+ [<CommonParameters>]
+```
+
+### SiteSubscription
+```
+Get-SPBrowserCustomerExperienceImprovementProgram -SiteSubscription <SPSiteSubscriptionPipeBind>
+ [-AssignmentCollection <SPAssignmentCollection>] [<CommonParameters>]
+```
+
+### WebApplication
+```
+Get-SPBrowserCustomerExperienceImprovementProgram -WebApplication <SPWebApplicationPipeBind>
+ [-AssignmentCollection <SPAssignmentCollection>] [<CommonParameters>]
+```
+
+## DESCRIPTION
+This cmdlet contains more than one parameter set.
+You may only use parameters from one parameter set, and you may not combine parameters from different parameter sets.
+For more information about how to use parameter sets, see [Cmdlet parameter sets](https://learn.microsoft.com/powershell/scripting/developer/cmdlet/cmdlet-parameter-sets).
+
+The Get-SPBrowserCustomerExperienceImprovementProgram cmdlet reads the current opt-in state for the browser Customer Experience Improvement Program.
+
+For permissions and the most current information about Windows PowerShell for SharePoint Products, see the online documentation at [SharePoint Server Cmdlets](https://learn.microsoft.com/powershell/sharepoint/sharepoint-server/sharepoint-server-cmdlets).
+
+## EXAMPLES
+
+### EXAMPLE 1
+```
+Get-SPBrowserCustomerExperienceImprovementProgram -WebApplication https://WebAppexample1
+```
+
+This example returns the current Customer Experience Improvement Program opt-in state for the Web application, WebAppexample1.
+
+### EXAMPLE 2
+```
+Get-SPSiteSubscription https://SiteSubscription1 | Get-SPBrowserCustomerExperienceImprovementProgram
+```
+
+The following example returns the Customer Experience Improvement Program opt-in state for the site subscription, SiteSubscription1.
+
+## PARAMETERS
+
+### -Farm
+
+> Applicable: SharePoint Server 2010, SharePoint Server 2013, SharePoint Server 2016, SharePoint Server 2019
+
+Specifies that the opt-in state for the farm is returned by this cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Farm
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SiteSubscription
+
+> Applicable: SharePoint Server 2010, SharePoint Server 2013, SharePoint Server 2016, SharePoint Server 2019
+
+Returns the opt-in state for the specified site subscription.
+
+The type must be a valid URL, in the form https://server_name; a valid GUID, in the form 12345678-90ab-cdef-1234-567890bcdefgh; a valid name of a site subscription (for example, SiteSubscription1); or an instance of a valid SiteSubscription object.
+
+```yaml
+Type: SPSiteSubscriptionPipeBind
+Parameter Sets: SiteSubscription
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WebApplication
+
+> Applicable: SharePoint Server 2010, SharePoint Server 2013, SharePoint Server 2016, SharePoint Server 2019
+
+Returns the opt-in state for the specified SharePoint Web application.
+
+The type must be a valid URL, in the form https://server_name; a valid GUID, in the form 12345678-90ab-cdef-1234-567890bcdefgh; a valid name of SharePoint Web application (for example, MyOfficeApp1); or an instance of a valid SPWebApplication object.
+
+```yaml
+Type: SPWebApplicationPipeBind
+Parameter Sets: WebApplication
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AssignmentCollection
+
+> Applicable: SharePoint Server 2010, SharePoint Server 2013, SharePoint Server 2016, SharePoint Server 2019
+
+Manages objects for the purpose of proper disposal. Use of objects, such as SPWeb or SPSite, can use large amounts of memory and use of these objects in Windows PowerShell scripts requires proper memory management. Using the SPAssignment object, you can assign objects to a variable and dispose of the objects after they are needed to free up memory. When SPWeb, SPSite, or SPSiteAdministration objects are used, the objects are automatically disposed of if an assignment collection or the Global parameter is not used.
+
+When the Global parameter is used, all objects are contained in the global store. If objects are not immediately used, or disposed of by using the Stop-SPAssignment command, an out-of-memory scenario can occur.
+
+```yaml
+Type: SPAssignmentCollection
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+## OUTPUTS
+
+## NOTES
+
+## RELATED LINKS

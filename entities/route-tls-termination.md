@@ -15,6 +15,7 @@ updated: 2026-07-02
 symptoms:
   - "browser TLS error / certificate mismatch on a route"
   - "route reachable over HTTP when HTTPS-only expected"
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Route TLS Termination

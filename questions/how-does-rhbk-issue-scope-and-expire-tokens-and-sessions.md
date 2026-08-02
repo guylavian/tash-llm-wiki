@@ -17,6 +17,7 @@ provenance:
 tags: [tokens]
 status: draft
 updated: 2026-07-07
+graph_community: "Tokens & Sessions"
 ---
 
 # How RHBK issues, scopes, and expires tokens and sessions

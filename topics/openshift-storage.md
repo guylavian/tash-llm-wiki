@@ -22,6 +22,7 @@ symptoms:
   - "PVC stuck in Pending"
   - "pod stuck in ContainerCreating waiting for a volume"
   - "Multi-Attach error for volume"
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # OpenShift Storage

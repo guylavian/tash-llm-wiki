@@ -15,6 +15,7 @@ symptoms:
   - "405"
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # RP-Initiated Logout

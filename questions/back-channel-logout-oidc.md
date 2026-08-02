@@ -16,6 +16,7 @@ question_tier: conceptual
 tags: [clients]
 status: draft
 updated: 2026-07-12
+graph_community: "Tokens & Sessions"
 ---
 
 # What is back-channel logout in OpenID Connect?

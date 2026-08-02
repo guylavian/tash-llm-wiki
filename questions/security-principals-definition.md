@@ -19,6 +19,7 @@ provenance:
 tags: [security]
 status: draft
 updated: 2026-07-07
+graph_community: "Security Principals"
 ---
 
 # What are security principals in Active Directory?

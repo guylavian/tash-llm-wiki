@@ -18,6 +18,7 @@ symptoms:
 tags: [directory-services, deploy, troubleshooting, how-to]
 status: draft
 updated: 2026-07-02
+graph_community: "FSMO (Operations-Master) Roles"
 ---
 
 # Demote and Remove a Domain Controller

@@ -17,6 +17,7 @@ provenance:
 tags: [server-config, transaction, database]
 status: draft
 updated: 2026-07-12
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # What does the `KC_TRANSACTION_XA_RETRY_COUNT` environment variable configure?

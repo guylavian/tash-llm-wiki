@@ -17,6 +17,7 @@ provenance_ambiguous: 0
 tags: [authz]
 status: draft
 updated: 2026-07-02
+graph_community: "Fine-grained authorization (Authorization Services)"
 ---
 
 # Permission ticket and the UMA flow

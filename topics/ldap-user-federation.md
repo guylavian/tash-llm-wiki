@@ -16,6 +16,7 @@ provenance_ambiguous: 0
 tags: [federation, concept]
 status: reviewed
 updated: 2026-06-16
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # LDAP / Active Directory User Federation

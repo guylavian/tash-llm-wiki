@@ -17,6 +17,7 @@ symptoms:
 tags: [lan-switching, concept]
 status: reviewed
 updated: 2026-07-02
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # VLANs & Trunking (IOS XE)

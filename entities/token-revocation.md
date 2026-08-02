@@ -13,7 +13,8 @@ tags: [tokens, security, endpoint]
 symptoms:
   - "unsupported_token_type"
 status: reviewed
-updated: 2026-07-02
+updated: 2026-07-25
+graph_community: "Tokens & Sessions"
 ---
 
 # Token Revocation
@@ -85,3 +86,5 @@ If the AS only supports refresh-token revocation and not access-token revocation
 - [[cors-for-spa]] — CORS configuration needed for browser-side revocation calls
 - [[bff-token-handler]] — BFF pattern that centralises revocation away from the browser
 - [[sso-implementation-review]]
+- [[oidc-token-validation]]
+- [[oidc-client-best-practices]]

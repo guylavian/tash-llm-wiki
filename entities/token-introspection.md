@@ -16,7 +16,8 @@ symptoms:
   - "400 Bad Request"
   - "415 Unsupported Media Type"
 status: reviewed
-updated: 2026-07-02
+updated: 2026-07-25
+graph_community: "Tokens & Sessions"
 ---
 
 # Token Introspection
@@ -99,3 +100,5 @@ For confidential back-end services calling each other, introspection integrates 
 - [[service-to-service-client-credentials]] — M2M flows where introspection is the primary validation path
 - [[cors-for-spa]] — introspection is NOT a cross-origin browser call; CORS does not apply here
 - [[sso-implementation-review]] — MOC
+- [[oidc-client-best-practices]]
+- [[securing-apps-oidc-saml]]

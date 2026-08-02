@@ -1,0 +1,53 @@
+---
+title: "lodctr"
+type: reference
+domain: windows-server
+slug: administration-lodctr
+tier: reference
+source: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/lodctr
+family: administration
+documentKind: "reference"
+abstract: "Reference article for the lodctr command, which allows you to register or save performance counter name and registry settings in a file and designate trusted services."
+---
+
+# lodctr
+
+# lodctr
+
+
+
+Allows you to register or save performance counter name and registry settings in a file and designate trusted services.
+
+## Syntax
+
+```
+lodctr <filename> [/s:<filename>] [/r:<filename>] [/t:<servicename>]
+```
+
+### Parameters
+
+| Parameter | Description |
+| --------- | ----------- |
+| `<filename>` | Specifies the name of the initialization file that registers the performance counter name settings and explanatory text. |
+| /s:`<filename>` | Specifies the name of the file to which the performance counter registry settings and explanatory text are saved. |
+| /r | Restores counter registry settings and explanatory text from current registry settings and cached performance files related to the registry. |
+| /r:`<filename>` | Specifies the name of the file that restores the performance counter registry settings and explanatory text.<p>**Warning:** If you use this command, you'll overwrite all performance counter registry settings and explanatory text, replacing them with the configuration defined in the specified file. |
+| /t:`<servicename>` | Indicates that service `<servicename>` is trusted. |
+| /? | Displays help at the command prompt. |
+
+#### Remarks
+
+- If the information that you supply contains spaces, use quotation marks around the text (for example, "file name 1").
+- An exit code of **0** indicates the command line syntax was correct. It doesn't mean the operation was successful. Check the output from the command for potential error messages.
+
+### Examples
+
+To save the current performance registry settings and explanatory text to file *"perf backup1.txt"*, type:
+
+```
+lodctr /s:"perf backup1.txt"
+```
+
+## Related links
+
+- [Command-Line Syntax Key](command-line-syntax-key.md)

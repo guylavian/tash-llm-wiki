@@ -20,6 +20,7 @@ provenance_ambiguous: 0
 tags: [troubleshooting, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)

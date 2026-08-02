@@ -38,7 +38,8 @@ provenance_inferred: 14
 provenance_ambiguous: 1
 tags: [clients, tokens, security, concept]
 status: draft
-updated: 2026-06-18
+updated: 2026-07-25
+graph_community: "Tokens & Sessions"
 ---
 
 # Angular SPA + backend resource server on RHBK — best practice & the strongest signals it's built wrong
@@ -135,6 +136,8 @@ this specific stack.
 - [[oidc-client-best-practices]] · [[securing-apps-oidc-saml]] · [[client-libraries-by-stack]]
 
 ---
+- [[sso-implementation-review-framework]]
+- [[dpop-sender-constraining]]
 
 ## References
 

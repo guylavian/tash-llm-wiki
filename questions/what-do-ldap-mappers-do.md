@@ -15,6 +15,7 @@ provenance:
 tags: [federation, concept]
 status: draft
 updated: 2026-07-07
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Q: What do LDAP mappers do in RHBK federation?

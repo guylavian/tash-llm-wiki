@@ -32,9 +32,9 @@ WIKI = str(paths.WIKI)
 sys.dont_write_bytecode = True
 from wikikb.retrieval import kb       # reuse the exact tokenizer + scorer so page ranking matches search ranking
 
-PAGE_DIRS = ("topics", "entities", "questions")
+PAGE_DIRS = paths.PAGE_DIRS
 FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
-PAGELINK_RE = re.compile(r"\[\[([a-z0-9][a-z0-9-]*)\]\]")            # [[page-slug]] (no pipe)
+PAGELINK_RE = paths.PAGELINK_RE   # shared grammar: bare slug + optional |display
 SOURCES_BLOCK_RE = re.compile(r"## Sources\n<!-- crosslink:begin.*?-->(.*?)<!-- crosslink:end -->",
                               re.DOTALL)
 SOURCES_NOTE_RE = re.compile(r"\[\[([^\]|#]+)")                     # [[note-slug|Title]] inside it

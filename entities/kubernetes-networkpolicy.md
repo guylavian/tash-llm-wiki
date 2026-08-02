@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [cluster-networking, concept]
 status: draft
 updated: 2026-07-05
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Kubernetes NetworkPolicy

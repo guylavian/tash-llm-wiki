@@ -26,6 +26,7 @@ symptoms:
   - "KDC_ERR_PADATA_TYPE_NOSUPP"
 status: draft
 updated: 2026-07-02
+graph_community: "FSMO (Operations-Master) Roles"
 ---
 
 # Two DCs in different sites — split-brain replication delta + PAC signing errors

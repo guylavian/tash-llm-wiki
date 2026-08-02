@@ -17,6 +17,7 @@ symptoms:
   - "No 'Access-Control-Allow-Origin' header"
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # CORS for SPA OAuth Clients

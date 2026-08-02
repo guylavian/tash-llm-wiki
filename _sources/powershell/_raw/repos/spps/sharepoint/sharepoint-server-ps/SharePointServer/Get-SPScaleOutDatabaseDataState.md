@@ -1,0 +1,180 @@
+---
+external help file: Microsoft.SharePoint.PowerShell.dll-help.xml
+Module Name: SharePointServer
+online version: https://learn.microsoft.com/powershell/module/microsoft.sharepoint.powershell/get-spscaleoutdatabasedatastate
+applicable: SharePoint Server Subscription Edition
+title: Get-SPScaleOutDatabaseDataState
+schema: 2.0.0
+---
+
+# Get-SPScaleOutDatabaseDataState
+
+## SYNOPSIS
+
+Returns the state information about the specified scale-out database.
+
+
+## SYNTAX
+
+### UnattachedDatabase
+```
+Get-SPScaleOutDatabaseDataState -ConnectionString <String> [-AssignmentCollection <SPAssignmentCollection>]
+ [-Confirm] [-IsAzureDatabase] [-WhatIf] [<CommonParameters>]
+```
+
+### AttachedDatabase
+```
+Get-SPScaleOutDatabaseDataState -Database <SPDatabasePipeBind> [-AssignmentCollection <SPAssignmentCollection>]
+ [-Confirm] [-WhatIf] [<CommonParameters>]
+```
+
+## DESCRIPTION
+This cmdlet contains more than one parameter set.
+You may only use parameters from one parameter set, and you may not combine parameters from different parameter sets.
+For more information about how to use parameter sets, see [Cmdlet parameter sets](https://learn.microsoft.com/powershell/scripting/developer/cmdlet/cmdlet-parameter-sets).
+
+Use the Get-SPScaleOutDatabaseDataState cmdlet to return state information about the specified scale-out database or about the database which will be connected with the specified connection string.
+The database state information includes total count of partitions, total weight of the partitions, the range and the subranges of the database.
+
+For permissions and the most current information about Windows PowerShell for SharePoint Products, see the online documentation at [SharePoint Server Cmdlets](https://learn.microsoft.com/powershell/sharepoint/sharepoint-server/sharepoint-server-cmdlets).
+
+## EXAMPLES
+
+### EXAMPLE
+```powershell
+$databases = Get-SPScaleOutDatabase -ServiceApplication $serviceApplication
+$database = $databases[0]
+
+Get-SPScaleOutDatabaseDataState -Database $database
+```
+
+This example gets the data state of the scale-out database for the first scale-out database of the given service application.
+
+## PARAMETERS
+
+### -ConnectionString
+
+> Applicable: SharePoint Server Subscription Edition
+
+Specifies the connection string for the scale-out database from which to return the state information.
+
+```yaml
+Type: String
+Parameter Sets: UnattachedDatabase
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Database
+
+> Applicable: SharePoint Server Subscription Edition
+
+Specifies the scale-out database to return the state information about.
+
+```yaml
+Type: SPDatabasePipeBind
+Parameter Sets: AttachedDatabase
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -AssignmentCollection
+
+> Applicable: SharePoint Server Subscription Edition
+
+Manages objects for the purpose of proper disposal.
+Use of objects, such as SPWeb or SPSite, can use large amounts of memory and use of these objects in Windows PowerShell scripts requires proper memory management.
+Using the SPAssignment object, you can assign objects to a variable and dispose of the objects after they are needed to free up memory.
+When SPWeb, SPSite, or SPSiteAdministration objects are used, the objects are automatically disposed of if an assignment collection or the Global parameter is not used.
+
+When the Global parameter is used, all objects are contained in the global store.
+If objects are not immediately used, or disposed of by using the Stop-SPAssignment command, an out-of-memory scenario can occur.
+
+```yaml
+Type: SPAssignmentCollection
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Confirm
+
+> Applicable: SharePoint Server Subscription Edition
+
+Prompts you for confirmation before executing the command.
+For more information, type the following command: `get-help about_commonparameters`
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -IsAzureDatabase
+
+> Applicable: SharePoint Server Subscription Edition
+
+Specifies whether the state information of the scale-out database is in the form of a Microsoft SQL Azure Database.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: UnattachedDatabase
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+
+> Applicable: SharePoint Server Subscription Edition
+
+Displays a message that describes the effect of the command instead of executing the command.
+For more information, type the following command: `get-help about_commonparameters`
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+## OUTPUTS
+
+## NOTES
+
+## RELATED LINKS

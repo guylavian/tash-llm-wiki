@@ -17,6 +17,7 @@ provenance:
 tags: [server-config, tokens]
 status: reviewed
 updated: 2026-07-07
+graph_community: "Tokens & Sessions"
 ---
 
 # What is mTLS certificate binding for OAuth2 tokens?

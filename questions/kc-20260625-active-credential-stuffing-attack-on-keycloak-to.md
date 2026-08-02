@@ -15,6 +15,7 @@ provenance:
 tags: [users]
 status: draft
 updated: 2026-06-25
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # KC-20260625: Active Credential Stuffing Attack on Keycloak Token Endpoint

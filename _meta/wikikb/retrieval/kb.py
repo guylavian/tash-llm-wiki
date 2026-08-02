@@ -93,10 +93,56 @@ def _parse_gated(path, domain):
     return recs
 
 
+# --- parsed-corpus cache ------------------------------------------------------------------
+# load() used to re-read and re-parse the WHOLE domain corpus on EVERY call. That is right for a
+# CLI tool that runs once and exits (the context it was written in) and pathological for the
+# long-lived `wikikb serve` / `wikikb mcp` process: one /ask on the openshift domain (3908 notes,
+# 68 MB) pays it TWICE (ask.py:159 + nodes.py:191), and because each call builds its own private
+# list of dicts, every CONCURRENT request pays it again. Measured on this tree: ~78 MB of
+# transient heap per in-flight request, 643 MB at 8 concurrent — the OOMKill path under any
+# sane container memory limit. Cached: 8 concurrent = 108 MB / 0.195 s (was 643 MB / 1.19 s).
+#
+# Caching HERE rather than in each caller is the point: evaluate.py had already grown its own
+# private _recs_cache, which is the tell that the fix belonged at the one place every caller
+# routes through — serve, mcp, ask, nodes, expand, embed and faithfulness all get it for free.
+#
+# Keyed on a cheap mtime fingerprint, NOT a plain memoize, so the live-edit contract in
+# _meta/PRODUCTION.md ("the HTTP service reads files live, no restart needed for content") still
+# holds: an in-place edit to any note moves max(st_mtime_ns) and invalidates the entry. The
+# fingerprint costs ~7 ms over 3908 files against ~400 ms to re-parse them.
+#
+# ponytail: no lock. Two threads racing a cold entry both parse and one overwrites the other —
+# wasteful for a single request, never wrong (dict assignment is atomic under the GIL and the
+# value is replaced wholesale, never mutated in place). Callers only ever READ the records back
+# (verified: every kb.load call site builds a derived dict/list from them). A caller that ever
+# needs to MUTATE a record must copy it first, or this must start handing out copies.
+_CORPUS = {}
+
+
+def _fingerprint(d):
+    """max mtime across a domain's notes — moves on any add, delete, or in-place edit."""
+    try:
+        return max((os.stat(os.path.join(d, f)).st_mtime_ns
+                    for f in os.listdir(d) if f.endswith(".md")), default=0)
+    except OSError:
+        return 0
+
+
 def load(domain):
     d = reference_dir(domain)
     if not os.path.isdir(d):
         return None
+    stamp = _fingerprint(d)
+    hit = _CORPUS.get(domain)
+    if hit is not None and hit[0] == stamp:
+        return hit[1]
+    recs = _parse_corpus(d, domain)
+    _CORPUS[domain] = (stamp, recs)
+    return recs
+
+
+def _parse_corpus(d, domain):
+    """Read + parse every note in reference/<domain>/ — the former body of load()."""
     recs = []
     for fn in sorted(os.listdir(d)):
         if not fn.endswith(".md"):

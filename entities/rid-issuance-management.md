@@ -19,6 +19,7 @@ symptoms:
 tags: [directory-services, fsmo, troubleshooting, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "FSMO (Operations-Master) Roles"
 ---
 
 # RID Issuance Management

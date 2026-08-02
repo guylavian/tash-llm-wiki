@@ -14,6 +14,7 @@ provenance_inferred: 3
 provenance_ambiguous: 0
 status: draft
 updated: 2026-07-02
+graph_community: "RHBK Operator (Keycloak CR)"
 ---
 
 # Custom / pre-optimized RHBK images

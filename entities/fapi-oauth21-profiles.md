@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [clients]
 status: draft
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # FAPI & OAuth 2.1 Client Profiles

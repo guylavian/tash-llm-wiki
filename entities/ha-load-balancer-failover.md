@@ -19,6 +19,7 @@ provenance_ambiguous: 0
 tags: [ha]
 status: draft
 updated: 2026-07-02
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # HA Load Balancer & Site Failover (AWS Global Accelerator)

@@ -15,6 +15,7 @@ provenance:
   ambiguous: 0
 status: reviewed
 updated: 2026-07-07
+graph_community: "RHBK Operator (Keycloak CR)"
 ---
 
 # Creating a temporary admin user in RHBK for first start or recovery

@@ -45,15 +45,15 @@ except ImportError:                 # STRUCTURAL) if versions.py is ABSENT — g
 
 WIKI = str(paths.WIKI)
 REF = str(paths.REFERENCE)
-PAGE_DIRS = ("topics", "entities", "questions")
+PAGE_DIRS = paths.PAGE_DIRS
 
 # Mirror expand.py exactly so LINKS_TO matches the retrieval graph: bare [[page-slug]] only (no pipe).
 # The generated `## Sources` block is excised before scanning by reusing crosslink.SECTION_RE — the SAME
 # anchored regex crosslink.py writes/strips with (re.escape'd BEGIN/END), so the two can never drift.
 FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
-PAGELINK_RE = re.compile(r"\[\[([a-z0-9][a-z0-9-]*)\]\]")
+PAGELINK_RE = paths.PAGELINK_RE   # shared grammar: bare slug + optional |display
 
-TYPE_TO_LABEL = {"entity": "Entity", "topic": "Topic", "question": "Question"}
+TYPE_TO_LABEL = {"entity": "Entity", "topic": "Topic", "question": "Question", "output": "Output"}
 DOMAIN_PREFIX = "domain::"  # Domain node ids are namespaced so they can't collide with a page/source slug
 
 STRUCTURAL = "structural"

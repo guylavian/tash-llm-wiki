@@ -16,6 +16,7 @@ provenance_ambiguous: 0
 tags: [operator, server-config]
 status: draft
 updated: 2026-07-02
+graph_community: "RHBK Troubleshooting — index by area"
 ---
 
 # RHBK Operator fails "Proxy port is required!"

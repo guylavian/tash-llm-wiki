@@ -18,6 +18,7 @@ provenance:
 tags: [brokering, identity-provider, clients]
 status: reviewed
 updated: 2026-06-28
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # How does identity brokering work with an external OIDC identity provider in RHBK?

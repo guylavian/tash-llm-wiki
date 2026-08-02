@@ -23,6 +23,7 @@ provenance:
 tags: [authz]
 status: draft
 updated: 2026-07-12
+graph_community: "Fine-grained authorization (Authorization Services)"
 ---
 
 # How does RHBK's fine-grained authorization service work?

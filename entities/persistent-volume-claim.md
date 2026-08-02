@@ -17,6 +17,7 @@ updated: 2026-07-02
 symptoms:
   - "PVC stuck in Pending"
   - "pod stuck in ContainerCreating waiting for volume"
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # PersistentVolumeClaim (PVC)

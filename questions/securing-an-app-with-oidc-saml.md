@@ -19,6 +19,7 @@ provenance:
 tags: [clients]
 status: draft
 updated: 2026-07-07
+graph_community: "Tokens & Sessions"
 ---
 
 # How do you secure an application using RHBK's OIDC or SAML support?

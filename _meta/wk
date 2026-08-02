@@ -1,0 +1,5 @@
+#!/bin/sh
+# Run a wikikb tool from ANYWHERE: `_meta/wk lint`, `_meta/wk graphlinks --apply`.
+# The package lives at _meta/wikikb/, so `python3 -m wikikb` only resolves with _meta
+# on the path — this sets it instead of requiring a cd. No install, stdlib only.
+exec env PYTHONPATH="$(cd "$(dirname "$0")" && pwd)${PYTHONPATH:+:$PYTHONPATH}" python3 -m wikikb "$@"

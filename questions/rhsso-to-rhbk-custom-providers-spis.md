@@ -21,6 +21,7 @@ provenance_ambiguous: 0
 tags: [migration, spi]
 status: reviewed
 updated: 2026-06-17
+graph_community: "RH-SSO 7.x → Red Hat Build of Keycloak Migration"
 ---
 
 # RH-SSO 7.6 → RHBK 26 — custom providers & SPIs: rebuild vs. carry over

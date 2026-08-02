@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [directory-services, security, users, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Security Principals"
 ---
 
 # Default User Accounts

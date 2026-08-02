@@ -16,6 +16,7 @@ provenance_ambiguous: 0
 tags: [brokering]
 status: draft
 updated: 2026-07-02
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Intermittent AD identity-provider link loss (account-merge prompts)

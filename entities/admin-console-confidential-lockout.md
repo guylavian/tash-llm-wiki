@@ -15,6 +15,7 @@ provenance_inferred: 1
 provenance_ambiguous: 0
 status: draft
 updated: 2026-07-02
+graph_community: "RHBK Troubleshooting — index by area"
 ---
 
 # Admin console lockout after enabling Client Authentication on security-admin-console

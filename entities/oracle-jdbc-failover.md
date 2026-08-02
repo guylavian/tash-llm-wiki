@@ -16,6 +16,7 @@ provenance_ambiguous: 0
 tags: [ha]
 status: draft
 updated: 2026-07-02
+graph_community: "RHBK Troubleshooting — index by area"
 ---
 
 # Oracle JDBC failover broken over TCPS at RHBK startup

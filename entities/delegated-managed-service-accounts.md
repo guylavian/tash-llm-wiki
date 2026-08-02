@@ -17,6 +17,7 @@ provenance_ambiguous: 0
 tags: [users, security, directory-services]
 status: draft
 updated: 2026-07-02
+graph_community: "Group Managed Service Accounts (gMSA)"
 ---
 
 # Delegated Managed Service Accounts (dMSA)

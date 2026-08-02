@@ -15,6 +15,7 @@ provenance:
 tags: [ha]
 status: draft
 updated: 2026-07-05
+graph_community: "RH-SSO 7.x → Red Hat Build of Keycloak Migration"
 ---
 
 # Behavior of `KC_CACHE_EMBEDDED_MCAST_PORT` with `--cache=local`

@@ -13,6 +13,7 @@ provenance_ambiguous: 0
 tags: [clients, security, failure-mode]
 status: reviewed
 updated: 2026-06-17
+graph_community: "Tokens & Sessions"
 ---
 
 # Issuer Identification and Mix-Up Attack Defense

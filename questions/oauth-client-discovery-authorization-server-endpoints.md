@@ -19,6 +19,7 @@ provenance:
 tags: [authz, clients]
 status: draft
 updated: 2026-07-07
+graph_community: "Tokens & Sessions"
 ---
 
 # How do OAuth clients discover an authorization server's endpoints and capabilities?

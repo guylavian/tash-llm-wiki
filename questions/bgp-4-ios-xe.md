@@ -16,6 +16,7 @@ provenance:
   ambiguous: 0
 status: reviewed
 updated: 2026-07-07
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # What is BGP-4 and how does it work on IOS XE?

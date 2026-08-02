@@ -16,6 +16,7 @@ provenance:
 question_tier: conceptual
 status: draft
 updated: 2026-07-12
+graph_community: "Group Managed Service Accounts (gMSA)"
 ---
 
 # Types of Service Accounts in Active Directory

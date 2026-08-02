@@ -17,6 +17,7 @@ tags: [clients, server-config, migration]
 status: draft
 question_tier: conceptual
 updated: 2026-07-12
+graph_community: "Tokens & Sessions"
 ---
 
 # What changes when client apps operate in air-gapped networks without internet?

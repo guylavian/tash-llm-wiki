@@ -16,6 +16,7 @@ provenance_ambiguous: 0
 tags: [federation]
 status: reviewed
 updated: 2026-06-16
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Q: Should I enable "Import Users" for my LDAP provider?

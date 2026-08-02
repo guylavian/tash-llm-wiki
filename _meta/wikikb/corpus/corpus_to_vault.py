@@ -34,6 +34,10 @@ ROOT = str(paths.ROOT)
 CORPORA = os.path.join(ROOT, "corpora")
 WIKI = str(paths.WIKI)
 REF = str(paths.REFERENCE)
+# The lock hashes reference/<domain>/ — it is VAULT DATA, so it must follow WIKI (which
+# WIKIKB_VAULT_ROOT redirects), NOT META (which it does not). Pointing it at META made a
+# sandboxed run write its lock into the LIVE repo while its notes went to the sandbox.
+# The original crash under the override was a missing parent dir, not the wrong root.
 LOCK = os.path.join(WIKI, "_meta", "reference.lock.json")
 
 
@@ -180,6 +184,7 @@ def write_lock(domain):
     d = os.path.join(REF, domain)
     lock.setdefault("notes", {})[domain] = {fn: _sha256(os.path.join(d, fn))
                                             for fn in managed_notes(domain)}
+    os.makedirs(os.path.dirname(LOCK), exist_ok=True)   # sandboxed vault (WIKIKB_VAULT_ROOT) has no _meta/ yet
     with open(LOCK, "w", encoding="utf-8") as fh:
         json.dump(lock, fh, indent=2, sort_keys=True)
         fh.write("\n")

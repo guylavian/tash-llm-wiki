@@ -15,6 +15,7 @@ question_tier: conceptual
 tags: [authn, authz]
 status: draft
 updated: 2026-07-12
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # What does `New-ADFineGrainedPasswordPolicySilo` create?

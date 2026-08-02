@@ -6,8 +6,9 @@ provenance/summary, provenance drift, link hubs, and stale pages. With --status
 it also prints the delta-manifest audit (ingested-vs-pending). See wiki/CLAUDE.md
 for the schema this enforces.
 
-Only the content dirs (topics/ entities/ questions/) are scanned; `_meta/` (this
-script's home + the manifest) is tooling, not content, and is never scanned.
+Only the content dirs (paths.PAGE_DIRS — topics/ entities/ questions/ outputs/) are
+scanned; `_meta/` (this script's home + the manifest) is tooling, not content, and is
+never scanned.
 
 Usage:
     python3 -m wikikb lint            # health check
@@ -23,10 +24,27 @@ import sys
 
 from wikikb import paths
 WIKI = str(paths.WIKI)
-PAGE_DIRS = ("topics", "entities", "questions")
+PAGE_DIRS = paths.PAGE_DIRS
 TAXONOMY = str(paths.TAXONOMY)
-LINK_RE = re.compile(r"\[\[([a-z0-9][a-z0-9-]*)\]\]")
+LINK_RE = paths.PAGELINK_RE   # shared grammar: bare slug + optional |display
 FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
+
+
+_SECTION_RE = None
+
+
+def crosslink_section_re():
+    """crosslink.py's OWN anchored `## Sources` regex, imported lazily so lint keeps working
+    (scanning the block, as before) if the import ever fails. Reusing it — rather than
+    re-deriving the markers here — is why the two can never drift apart."""
+    global _SECTION_RE
+    if _SECTION_RE is None:
+        try:
+            from wikikb.build import crosslink
+            _SECTION_RE = crosslink.SECTION_RE
+        except Exception:                       # noqa: BLE001 — degrade, never crash the linter
+            _SECTION_RE = re.compile(r"(?!x)x")   # matches nothing
+    return _SECTION_RE
 
 
 def page_files():
@@ -187,6 +205,8 @@ def gate_banner(fm, question_tier=None, covered=None):
     status = fm.get("status")
     if status == "needs-review":                          # H4 — explicit; alone
         reasons.append("status: needs-review (H4)")
+    if status == "retracted":                             # H4 — withdrawn; alone (see Operation: RETRACT)
+        reasons.append("status: retracted (H4) — this page was withdrawn; do not serve as current")
     prov = provenance_of(fm)                               # L — provisional, only in combination
     if status != "reviewed" and isinstance(prov, dict):
         ext, inf = prov.get("extracted", 0), prov.get("inferred", 0)
@@ -638,7 +658,12 @@ def main():
 
     referenced = {}     # slug -> set of pages (or index files) that link to it
     for slug, (_d, _p, text, _fm) in pages.items():
-        for target in LINK_RE.findall(text):
+        # Excise crosslink's GENERATED `## Sources` block first — the same thing expand.py and
+        # tkg/model.py already do. Its `[[note|Title]]` entries are provenance edges to the
+        # reference tier, not hand-authored page links; counting them would make every cited
+        # reference note look like a link hub. (Before the shared pipe-tolerant grammar, the
+        # `(no pipe)` rule excluded them by accident — this makes the exclusion deliberate.)
+        for target in LINK_RE.findall(crosslink_section_re().sub("", text)):
             referenced.setdefault(target, set()).add(slug)
     for fn in index_files:
         p = os.path.join(WIKI, fn)
@@ -707,7 +732,7 @@ def main():
         # CITATION-GROUNDING gate — distinctive claims absent from every cited source. A `reviewed`
         # page asserting an ungrounded env var / CLI flag is a fabricated/misattributed citation: a
         # hard ERROR (the SSO_HTTPS_CIPHER_SUITES class). Draft pages get a WARNING to verify.
-        if fm.get("type") in ("topic", "entity", "question"):
+        if fm.get("type") in ("topic", "entity", "question", "output"):
             ungrounded = ungrounded_citations(text, fm)
             if ungrounded:
                 shown = ", ".join(ungrounded[:6]) + ("…" if len(ungrounded) > 6 else "")
@@ -756,8 +781,18 @@ def main():
         # orphan check (spans index.md + every index.<domain>.md)
         in_index = slug in referenced and bool(referenced[slug] & index_sources)
         linked = slug in referenced and any(s not in index_sources for s in referenced[slug])
-        if not in_index and not linked and fm.get("type") != "question":
+        if not in_index and not linked and fm.get("type") not in ("question", "output"):
             warnings.append(f"{rel}: orphan (no inbound [[links]] and not in any index)")
+
+    # RETRACTION CASCADE (Operation: RETRACT) — withdrawing a page is only half the job; the pages
+    # that cite it keep serving its claim. `status: retracted` fires the gate's H4 on the page
+    # itself (gate_banner, every serve/mcp/ask surface); this arm surfaces the DEPENDENTS, which
+    # nothing else can see. Superseded-version churn (26.0 -> 26.6) is the live case.
+    for slug, (_d, _p, _t, fm) in pages.items():
+        if not fm or fm.get("status") != "retracted":
+            continue
+        for src in sorted(referenced.get(slug, set()) - index_sources):
+            warnings.append(f"{src}: links [[{slug}]], which is status: retracted — re-source or drop the claim")
 
     # F6 — near-duplicate question pages (soft warning; see duplicate_question_pairs docstring)
     for dup in duplicate_question_pairs(pages):
@@ -860,7 +895,7 @@ def main():
         # NO module-scope `import cost`/`llm` anywhere in lint.py — so LINT/STATUS stays stdlib-only
         # and green when the optional online tier was never installed. Missing ledger -> a notice.
         print("\n  --- LLM spend (from _meta/eval/cost_report.json; optional online tier) ---")
-        report = os.path.join(WIKI, "_meta", "eval", "cost_report.json")
+        report = str(paths.COST_REPORT)   # paths.*, NOT WIKI/_meta (diverges under WIKIKB_VAULT_ROOT)
         if os.path.isfile(report):
             try:
                 import json

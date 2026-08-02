@@ -26,6 +26,7 @@ symptoms:
 tags: [directory-services, replication, virtualization, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory Replication & Site Topology"
 ---
 
 # Virtualized Domain Controllers

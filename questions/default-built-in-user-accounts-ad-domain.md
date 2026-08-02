@@ -12,6 +12,7 @@ provenance_ambiguous: 0
 question_tier: conceptual
 status: draft
 updated: 2026-07-12
+graph_community: "Security Principals"
 ---
 
 # What are the default built-in user accounts created when provisioning an AD domain?

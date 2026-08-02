@@ -20,6 +20,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # Why Red Hat's HA guide prefers consistency over availability — and what it means for a two-site setup

@@ -24,6 +24,7 @@ symptoms:
 tags: [security, directory-services, troubleshooting]
 status: draft
 updated: 2026-07-02
+graph_community: "Securing Active Directory (best practices)"
 ---
 
 # Monitoring Active Directory for Signs of Compromise

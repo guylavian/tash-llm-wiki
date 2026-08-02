@@ -17,6 +17,7 @@ question_tier: conceptual
 tags: [authn]
 status: draft
 updated: 2026-07-12
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # What are fine-grained password policies and when do you use them?

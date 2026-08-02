@@ -18,6 +18,7 @@ question_tier: conceptual
 tags: [ha]
 status: draft
 updated: 2026-07-12
+graph_community: "What does the KC_CACHE_STACK_MODE environment variable configure?"
 ---
 
 # What does `KC_CACHE_STACK_MODE` configure?

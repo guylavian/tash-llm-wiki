@@ -27,7 +27,7 @@ from wikikb import paths
 META = str(paths.META)
 WIKI = str(paths.WIKI)
 TAXONOMY = str(paths.TAXONOMY)
-PAGE_DIRS = ("topics", "entities", "questions")
+PAGE_DIRS = paths.PAGE_DIRS
 FM_RE = re.compile(r"^(---\n)(.*?)(\n---)", re.DOTALL)
 BACKTICK_RE = re.compile(r"`([a-z0-9][a-z0-9.\-]*)`")
 

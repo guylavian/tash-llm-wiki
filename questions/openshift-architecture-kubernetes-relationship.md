@@ -18,6 +18,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # OpenShift Container Platform 4 Architecture and Relationship to Kubernetes

@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [directory-services, security, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "FSMO (Operations-Master) Roles"
 ---
 
 # Read-Only Domain Controller (RODC)

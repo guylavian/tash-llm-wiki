@@ -24,6 +24,7 @@ provenance_inferred: 3
 provenance_ambiguous: 0
 status: reviewed
 updated: 2026-07-02
+graph_community: "FSMO (Operations-Master) Roles"
 ---
 
 # FSMO Transfer vs Seize — DC1 מת, איך להחזיר תפקוד, ומתי אפשר להחזיר את המת לחיים

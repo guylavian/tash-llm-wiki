@@ -22,6 +22,7 @@ provenance:
 question_tier: support-kb
 status: draft
 updated: 2026-07-09
+graph_community: "Tokens & Sessions"
 ---
 
 # Login redirect loop after successful authentication — browser bounces between Keycloak and app until "Too Many Redirects"

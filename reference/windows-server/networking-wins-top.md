@@ -1,0 +1,23 @@
+---
+title: "Windows Internet Name Service (WINS)"
+type: reference
+domain: windows-server
+slug: networking-wins-top
+tier: reference
+source: https://learn.microsoft.com/en-us/windows-server/networking/technologies/wins/wins-top
+family: networking
+documentKind: "concept-article"
+abstract: "This topic provides information about decommissioning WINS and using DNS for name resolution services on your network."
+---
+
+# Windows Internet Name Service (WINS)
+
+#  Windows Internet Name Service (WINS)
+
+Windows Internet Name Service (WINS) is a legacy computer name registration and resolution service that maps computer NetBIOS names to IP addresses.
+
+If you do not already have WINS deployed on your network, do not deploy WINS - instead, deploy Domain Name System \(DNS\). DNS also provides computer name registration and resolution services, and includes many additional benefits over WINS, such as integration with Active Directory Domain Services.
+
+For more information, see [Domain Name System (DNS)](../../dns/dns-top.md)
+
+If you have already deployed WINS on your network, it is recommended that you deploy DNS and then decommission WINS.

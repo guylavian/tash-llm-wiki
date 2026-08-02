@@ -22,6 +22,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-06-24
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # Parallel bulk user import — silent failures (201 returned but user missing)

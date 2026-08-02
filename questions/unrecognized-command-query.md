@@ -15,6 +15,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-12
+graph_community: "Why do I get "Unrecognized command '/query'"?"
 ---
 
 # Why do I get "Unrecognized command '/query'"?

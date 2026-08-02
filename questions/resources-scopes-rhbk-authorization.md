@@ -18,6 +18,7 @@ question_tier: conceptual
 tags: [authz]
 status: draft
 updated: 2026-07-12
+graph_community: "Fine-grained authorization (Authorization Services)"
 ---
 
 # What are resources and scopes in RHBK authorization?

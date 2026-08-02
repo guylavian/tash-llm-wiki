@@ -19,6 +19,7 @@ provenance:
   ambiguous: 0
 question_tier: scenarios
 updated: 2026-07-12
+graph_community: "FSMO (Operations-Master) Roles"
 ---
 
 # Seize FSMO roles after catastrophic loss of primary DC (PDC Emulator + RID Master)

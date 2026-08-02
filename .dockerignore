@@ -8,3 +8,19 @@ _meta/.venv-embed
 graphify-out
 Dockerfile
 .dockerignore
+
+# Proven NEVER read by the query-serving path (do_health/do_route/do_search/do_ask/do_page/do_expand/
+# do_mcp_post) — deep-research RESEARCH 3: the only things `serve`/`ask`/`mcp` ever open are
+# reference/<domain>/, topics|entities|questions|outputs/, and _meta/taxonomy.md. Excluded from EVERY
+# image's build context (root Dockerfile included, not just deploy/openshift/Containerfile) — smaller
+# context, faster builds, and _sources/ in particular (644MB of hand-notes raw tier) never leaves disk.
+# _meta/models and _meta/embeddings (the optional dense/hybrid layer) are DELIBERATELY NOT listed here:
+# deploy/openshift/Containerfile's `dense` build target COPIES them explicitly, so they must stay
+# available in the context; the root Dockerfile's `COPY .` also still picks them up for its full/online
+# variant.
+_sources
+references
+_meta/eval
+_meta/tests
+_meta/tkg
+_meta/harvest

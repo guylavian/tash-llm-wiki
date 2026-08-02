@@ -16,6 +16,7 @@ provenance_ambiguous: 0
 tags: [server-config]
 status: draft
 updated: 2026-07-07
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # What are the primary Active Directory management tools?

@@ -57,7 +57,7 @@ from wikikb.build import crosslink
 
 WIKI = str(paths.WIKI)
 REF = os.path.join(WIKI, "reference")
-PAGE_DIRS = ("topics", "entities", "questions")
+PAGE_DIRS = paths.PAGE_DIRS
 
 # number + unit/rate adjacency. Rate forms ("/s", "per second") and count units. A bare number
 # with no unit (versions, years, step numbers) is deliberately NOT a claim.

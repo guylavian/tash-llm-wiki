@@ -17,6 +17,7 @@ symptoms:
   - "pod cannot resolve <service>.<namespace>.svc.cluster.local"
   - "CoreDNS Degraded / DNS Operator DEGRADED"
   - "pod stuck due to excessive DNS search domains"
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Cluster DNS

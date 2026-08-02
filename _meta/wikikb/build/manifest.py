@@ -43,7 +43,7 @@ REFERENCES = str(paths.REFERENCES)
 MANIFEST = str(paths.MANIFEST)
 CORPORA = os.path.join(ROOT, "corpora")
 
-PAGE_DIRS = ("topics", "entities", "questions")
+PAGE_DIRS = paths.PAGE_DIRS
 FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 # a source token: "- kb:7032207", "- ref:foo.md", "- web:https://... (label)"
 SRC_RE = re.compile(r"^\s*-\s*((?:kb|guide|ref|web):\S+)")

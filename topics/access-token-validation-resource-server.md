@@ -22,6 +22,7 @@ symptoms:
   - "HTTP 403"
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # Access Token Validation at the Resource Server

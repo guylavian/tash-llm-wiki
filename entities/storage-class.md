@@ -17,6 +17,7 @@ updated: 2026-07-02
 symptoms:
   - "PVC Pending — no default StorageClass and none specified"
   - "pod unschedulable after PV bound ahead of scheduling (topology mismatch)"
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # StorageClass

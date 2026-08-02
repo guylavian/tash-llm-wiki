@@ -2,6 +2,7 @@
 origin: eval-cohort
 title: KC_DB_POOL_VALIDATION_TIMEOUT does not exist in RHBK
 type: question
+question_tier: support-kb
 domain: keycloak
 slug: kc-db-pool-validation-timeout
 status: draft
@@ -21,6 +22,7 @@ provenance:
   inferred: 0
   ambiguous: 0
 updated: 2026-07-12
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # KC_DB_POOL_VALIDATION_TIMEOUT does not exist in RHBK

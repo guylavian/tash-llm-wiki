@@ -16,6 +16,7 @@ provenance:
 question_tier: conceptual
 status: draft
 updated: 2026-07-12
+graph_community: "Active Directory — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # How AD-integrated DNS zones differ from traditional zone transfers

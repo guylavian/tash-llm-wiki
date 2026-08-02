@@ -16,7 +16,8 @@ symptoms:
   - "kid not found"
   - "invalid_signature"
 status: reviewed
-updated: 2026-07-02
+updated: 2026-07-25
+graph_community: "Tokens & Sessions"
 ---
 
 # Authorization Server Metadata Discovery
@@ -137,3 +138,4 @@ The issuer identifier is the binding anchor for multi-AS deployments. Each disco
 - [[token-exchange]]
 - [[securing-apps-oidc-saml]]
 - [[sso-implementation-review]]
+- [[dpop-sender-constraining]]

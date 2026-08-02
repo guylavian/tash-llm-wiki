@@ -382,7 +382,7 @@ def report_measure(rows, recorder, active):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--cases", default=os.path.join(WIKI, "_meta", "eval", "cases.jsonl"))
+    ap.add_argument("--cases", default=str(paths.EVAL / "cases.jsonl"))   # live _meta, not the vault snapshot
     ap.add_argument("--k", default="5,10", help="comma-separated recall cutoffs (default 5,10)")
     ap.add_argument("--kmax", type=int, default=10, help="recall window + max notes skimmed (default 10)")
     ap.add_argument("--miss-opens", type=int, default=2, help="full notes opened on a miss (default 2)")

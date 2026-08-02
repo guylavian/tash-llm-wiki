@@ -19,6 +19,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-02
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # How to scale RHBK on OpenShift — StatefulSet resources and PostgreSQL database resources

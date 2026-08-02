@@ -21,6 +21,7 @@ provenance:
 tags: [clients, tokens, users]
 status: draft
 updated: 2026-07-09
+graph_community: "Tokens & Sessions"
 ---
 
 # Client-credentials burst load — tokens rejected as expired seconds after issuance

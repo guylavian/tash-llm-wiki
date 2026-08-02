@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [migration]
 status: draft
 updated: 2026-07-02
+graph_community: "RH-SSO 7.x → Red Hat Build of Keycloak Migration"
 ---
 
 # EAP → Quarkus configuration model migration

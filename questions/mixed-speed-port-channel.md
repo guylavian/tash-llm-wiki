@@ -18,6 +18,7 @@ symptoms:
   - "%EC_ERR_CFG"
 status: draft
 updated: 2026-07-02
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Why a mixed 1G + 10G LACP port-channel causes out-of-order packets and terrible throughput

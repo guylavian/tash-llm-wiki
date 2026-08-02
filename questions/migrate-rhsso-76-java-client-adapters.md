@@ -16,6 +16,7 @@ provenance:
 tags: [clients, migration]
 status: draft
 updated: 2026-07-07
+graph_community: "Tokens & Sessions"
 ---
 
 # How to migrate RH-SSO 7.6 Java client adapters

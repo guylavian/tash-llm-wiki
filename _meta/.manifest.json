@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-19",
+  "generated": "2026-07-23",
   "sources": {
     "guide:authorization_services_guide": {
       "first_ingested": "2026-06-17",
@@ -1523,6 +1523,47 @@
         "realm-resource-access"
       ]
     },
+    "kb:administration-add-or-remove-a-service-application-connection-to-a-web-application": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-farm-topology",
+        "sharepoint-overview"
+      ]
+    },
+    "kb:administration-attach-or-detach-content-databases": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-content-databases"
+      ]
+    },
+    "kb:administration-back-up-a-service-application": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-backup-restore"
+      ]
+    },
+    "kb:administration-manage-the-distributed-cache-service": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-distributed-cache"
+      ]
+    },
+    "kb:administration-plan-for-feeds-and-the-distributed-cache-service": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-distributed-cache"
+      ]
+    },
     "kb:application-security-checklist": {
       "first_ingested": "2026-07-02",
       "hash": null,
@@ -2358,6 +2399,135 @@
         "rhbk-observability-endpoints-signals"
       ]
     },
+    "kb:exchange-exchange-servertoc-p0001-0040": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-hybrid-deployment",
+        "exchange-overview"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p0241-0280": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-certificates",
+        "exchange-client-access-namespace",
+        "exchange-implementation-review",
+        "exchange-overview",
+        "exchange-transport-pipeline"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p0641-0680": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-hybrid-deployment"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p1001-1040": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-recipient-types"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p1041-1080": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-recipient-types"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p1521-1560": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-implementation-review",
+        "exchange-overview",
+        "exchange-transport-pipeline"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p1561-1600": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-anonymous-relay-5-7-1",
+        "exchange-implementation-review",
+        "exchange-mail-queues"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p1721-1760": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-implementation-review",
+        "exchange-mail-queues"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p1841-1880": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-anonymous-relay-5-7-1",
+        "exchange-implementation-review",
+        "exchange-mail-queues"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p2601-2640": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-dag-quorum-loss-dismount",
+        "exchange-database-availability-groups",
+        "exchange-implementation-review"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p2641-2680": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-database-availability-groups"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p2681-2720": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-dag-quorum-loss-dismount",
+        "exchange-database-availability-groups"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p2921-2960": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-antispam-antimalware",
+        "exchange-implementation-review"
+      ]
+    },
+    "kb:exchange-exchange-servertoc-p3041-3080": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-antispam-antimalware",
+        "exchange-implementation-review"
+      ]
+    },
     "kb:exemplars-": {
       "first_ingested": "2026-06-17",
       "hash": null,
@@ -2458,6 +2628,15 @@
         "vault-spi"
       ]
     },
+    "kb:hybrid-cloud-hybrid-search-faq": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-farm-topology",
+        "sharepoint-overview"
+      ]
+    },
     "kb:identity_broker": {
       "first_ingested": "2026-06-17",
       "hash": null,
@@ -2503,6 +2682,50 @@
         "ocp-scc-root-crashloopbackoff-route-503",
         "openshift-networking-services-routes-dns-networkpolicy",
         "openshift-route"
+      ]
+    },
+    "kb:install-multiple-servers-for-a-three-tier-farm": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-farm-topology",
+        "sharepoint-overview"
+      ]
+    },
+    "kb:install-overview-of-minrole-server-roles-in-sharepoint-server": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-farm-topology",
+        "sharepoint-overview"
+      ]
+    },
+    "kb:install-planning-for-a-minrole-server-deployment-in-sharepoint-server": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-distributed-cache",
+        "sharepoint-distributed-cache-maintenance",
+        "sharepoint-farm-topology",
+        "sharepoint-implementation-review",
+        "sharepoint-overview"
+      ]
+    },
+    "kb:install-software-boundaries-limits-2019": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-content-database-size-limits",
+        "sharepoint-content-databases",
+        "sharepoint-distributed-cache",
+        "sharepoint-distributed-cache-maintenance",
+        "sharepoint-overview",
+        "sharepoint-search-service",
+        "sharepoint-web-applications"
       ]
     },
     "kb:javascript-adapter-": {
@@ -2957,6 +3180,27 @@
         "kubernetes-pod",
         "ocp-scc-root-crashloopbackoff-route-503",
         "openshift-implementation-review"
+      ]
+    },
+    "kb:powershell-powershell-scripting-powershell-7-6-p0081-0120": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "exchange-online-powershell-cmdlets",
+        "exchange-online-unattended-script-authentication",
+        "powershell-classes",
+        "powershell-error-handling",
+        "powershell-execution-policy",
+        "powershell-functions",
+        "powershell-implementation-review",
+        "powershell-modules",
+        "powershell-overview",
+        "powershell-pipeline-and-objects",
+        "powershell-pipeline-parameter-binding",
+        "powershell-profiles-and-providers",
+        "powershell-remoting",
+        "sharepoint-powershell-cmdlets"
       ]
     },
     "kb:red_hat_build_of_keycloak_features_and_concepts": {
@@ -3450,6 +3694,23 @@
         "rhbk-upgrade-cadence"
       ]
     },
+    "kb:search-best-practices-of-disaster-recovery-for-search": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-backup-restore",
+        "sharepoint-search-service"
+      ]
+    },
+    "kb:search-search-architecture-overview": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-search-service"
+      ]
+    },
     "kb:securing-routes": {
       "first_ingested": "2026-07-02",
       "hash": null,
@@ -3459,6 +3720,25 @@
         "openshift-networking-services-routes-dns-networkpolicy",
         "openshift-route",
         "route-tls-termination"
+      ]
+    },
+    "kb:security-for-sharepoint-server-authentication-overview": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-authentication",
+        "sharepoint-overview"
+      ]
+    },
+    "kb:security-for-sharepoint-server-plan-user-authentication": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-authentication",
+        "sharepoint-overview",
+        "sharepoint-web-applications"
       ]
     },
     "kb:security-platform": {
@@ -3489,6 +3769,14 @@
       "pages": [
         "kubernetes-service",
         "openshift-networking-services-routes-dns-networkpolicy"
+      ]
+    },
+    "kb:sharepoint-server-md-sharepoint-server": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-overview"
       ]
     },
     "kb:single-cluster-introduction": {
@@ -3540,12 +3828,126 @@
         "storage-class"
       ]
     },
+    "kb:storage-storage-spaces-direct-overview": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "dfs-replication",
+        "failover-cluster-quorum",
+        "hyper-v",
+        "remote-desktop-services",
+        "server-core",
+        "storage-replica",
+        "storage-spaces-direct",
+        "windows-admin-center",
+        "windows-server-credential-protection",
+        "windows-server-dns-role",
+        "windows-server-implementation-review",
+        "windows-server-kerberos-auth-stack",
+        "windows-server-overview",
+        "windows-server-rdsh-on-server-core",
+        "windows-server-s2d-two-node-quorum",
+        "wsus"
+      ]
+    },
     "kb:tasks-force-delete-stateful-set-pod": {
       "first_ingested": "2026-07-19",
       "hash": null,
       "last_seen": "2026-07-19",
       "pages": [
         "terminationgraceperiodseconds-zero-sigterm"
+      ]
+    },
+    "kb:technical-reference-cached-objects-have-been-evicted": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-distributed-cache",
+        "sharepoint-implementation-review",
+        "sharepoint-management-shell"
+      ]
+    },
+    "kb:technical-reference-content-databases-contain-orphaned-apps": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-content-databases",
+        "sharepoint-implementation-review"
+      ]
+    },
+    "kb:technical-reference-content-databases-contain-orphaned-items": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-content-databases",
+        "sharepoint-implementation-review"
+      ]
+    },
+    "kb:technical-reference-database-types-and-descriptions": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-search-service"
+      ]
+    },
+    "kb:technical-reference-databases-within-this-farm-are-set-to-read-only-and-will-fail-to-upgrade-unless": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-content-databases"
+      ]
+    },
+    "kb:technical-reference-firewall-client-settings-on-the-cache-host-are-incorrect": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-distributed-cache",
+        "sharepoint-implementation-review"
+      ]
+    },
+    "kb:technical-reference-one-of-the-cache-hosts-in-the-cluster-is-down": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-distributed-cache",
+        "sharepoint-distributed-cache-maintenance",
+        "sharepoint-implementation-review"
+      ]
+    },
+    "kb:technical-reference-one-or-more-web-applications-are-configured-to-use-windows-classic-authenticatio": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-authentication",
+        "sharepoint-implementation-review"
+      ]
+    },
+    "kb:technical-reference-search-in-sharepoint-server": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-implementation-review",
+        "sharepoint-search-service"
+      ]
+    },
+    "kb:technical-reference-some-content-databases-are-growing-too-large": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-content-database-size-limits",
+        "sharepoint-content-databases",
+        "sharepoint-implementation-review"
       ]
     },
     "kb:telemetry-": {
@@ -3611,6 +4013,24 @@
         "openshift-operators-and-olm"
       ]
     },
+    "kb:upgrade-and-update-install-a-software-update": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-distributed-cache",
+        "sharepoint-distributed-cache-maintenance"
+      ]
+    },
+    "kb:upgrade-and-update-upgrade-content-databases": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-content-database-size-limits",
+        "sharepoint-content-databases"
+      ]
+    },
     "kb:user-storage-federation": {
       "first_ingested": "2026-06-17",
       "hash": null,
@@ -3657,6 +4077,16 @@
       "pages": [
         "kubernetes-deployment",
         "openshift-workloads"
+      ]
+    },
+    "kb:what-s-new-new-and-improved-features-in-sharepoint-server-subscription-edition": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sharepoint-distributed-cache",
+        "sharepoint-distributed-cache-maintenance",
+        "sharepoint-management-shell"
       ]
     },
     "note:_sources/cisco-ios-xe/bgp-routing.md": {
@@ -4386,6 +4816,28 @@
       "last_seen": "2026-07-19",
       "pages": [
         "unrecognized-command-query"
+      ]
+    },
+    "reference/sccm/": {
+      "first_ingested": "2026-07-23",
+      "hash": null,
+      "last_seen": "2026-07-23",
+      "pages": [
+        "sccm-admin-service",
+        "sccm-application-deployment",
+        "sccm-client-health",
+        "sccm-co-management",
+        "sccm-collections",
+        "sccm-compliance-baselines",
+        "sccm-content-distribution-fails-0x8007052e",
+        "sccm-distribution-points",
+        "sccm-implementation-review",
+        "sccm-overview",
+        "sccm-powershell-module",
+        "sccm-remote-console-access-denied-dcom-hardening",
+        "sccm-site-hierarchy",
+        "sccm-software-updates-and-adr",
+        "sccm-task-sequences-and-osd"
       ]
     },
     "web:https://access.redhat.com/solutions/7125224": {

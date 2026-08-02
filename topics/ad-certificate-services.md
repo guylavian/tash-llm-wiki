@@ -14,6 +14,7 @@ provenance_ambiguous: 0
 tags: [ad-certificate-services, security, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # Active Directory Certificate Services (AD CS)

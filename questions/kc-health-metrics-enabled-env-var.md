@@ -20,6 +20,7 @@ tags: [observability, env-var, configuration]
 question_tier: conceptual
 status: reviewed
 updated: 2026-07-12
+graph_community: "RHBK observability stack — health, metrics, tracing, OpenTelemetry"
 ---
 
 # What does `KC_HEALTH_METRICS_ENABLED` turn on?

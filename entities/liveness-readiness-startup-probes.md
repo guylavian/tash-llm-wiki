@@ -17,6 +17,7 @@ symptoms:
 tags: [workloads, troubleshooting, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # Liveness, Readiness, and Startup Probes

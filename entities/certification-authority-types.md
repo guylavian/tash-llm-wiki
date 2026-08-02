@@ -13,6 +13,7 @@ provenance_ambiguous: 0
 tags: [ad-certificate-services, concept]
 status: draft
 updated: 2026-06-18
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # CA types — Enterprise/Standalone × Root/Subordinate

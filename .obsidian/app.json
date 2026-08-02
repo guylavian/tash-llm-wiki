@@ -2,8 +2,6 @@
   "userIgnoreFilters": [
     "_meta/",
     "_sources/",
-    "reference/",
-    "references/",
     "AGENTS.md",
     "SKILL.md"
   ]

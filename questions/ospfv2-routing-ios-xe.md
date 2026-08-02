@@ -21,6 +21,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-07-12
+graph_community: "Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # How does OSPFv2 routing work on IOS XE?

@@ -16,6 +16,7 @@ question_tier: conceptual
 tags: [ad-authn, security]
 status: draft
 updated: 2026-07-05
+graph_community: "Group Managed Service Accounts (gMSA)"
 ---
 
 # Are classic KCD and RBCD mutually exclusive on the same accounts?

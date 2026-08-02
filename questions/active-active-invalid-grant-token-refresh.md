@@ -25,6 +25,7 @@ symptoms:
 tags: [tokens]
 status: reviewed
 updated: 2026-06-22
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # RHBK 26 cross-site Active-Active — intermittent 'invalid_grant' on token refresh

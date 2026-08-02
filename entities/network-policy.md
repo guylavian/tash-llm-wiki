@@ -16,6 +16,7 @@ updated: 2026-07-02
 symptoms:
   - "expected traffic silently dropped between pods after a NetworkPolicy is added"
   - "pod unexpectedly reachable from other namespaces"
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # NetworkPolicy

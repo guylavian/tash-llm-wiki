@@ -19,6 +19,7 @@ symptoms:
   - "invalid_redirect_uri"
 status: reviewed
 updated: 2026-07-02
+graph_community: "Tokens & Sessions"
 ---
 
 # Native App OAuth 2.0 (RFC 8252 / OAuth 2.1)

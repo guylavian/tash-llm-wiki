@@ -1,22 +1,303 @@
 {
-  "collapse-filter": true,
-  "search": "",
+  "collapse-filter": false,
+  "search": "-path:reference/ -path:_sources/ -path:references/",
   "showTags": false,
   "showAttachments": false,
   "hideUnresolved": false,
   "showOrphans": true,
   "collapse-color-groups": true,
-  "colorGroups": [],
+  "colorGroups": [
+    {
+      "query": "[\"graph_community\":\"Tokens & Sessions\"]",
+      "color": {
+        "a": 1,
+        "rgb": 15028304
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 15036240
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Keycloak as IaC — the Terraform Provider (keycloak/keycloak)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 15044176
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"RHBK Server Configuration — sources, build vs runtime, precedence\"]",
+      "color": {
+        "a": 1,
+        "rgb": 15051856
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Cisco IOS XE — Implementation Review (Evaluation-Lens MOC)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 15059792
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"RH-SSO 7.x → Red Hat Build of Keycloak Migration\"]",
+      "color": {
+        "a": 1,
+        "rgb": 14738768
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"FSMO (Operations-Master) Roles\"]",
+      "color": {
+        "a": 1,
+        "rgb": 12707152
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"RHBK Operator (Keycloak CR)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 10675536
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Active Directory — Domain Services Overview\"]",
+      "color": {
+        "a": 1,
+        "rgb": 8643920
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Distributed Caches (Infinispan) in RHBK\"]",
+      "color": {
+        "a": 1,
+        "rgb": 6612304
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Fine-grained authorization (Authorization Services)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 5301594
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Windows Server — Overview\"]",
+      "color": {
+        "a": 1,
+        "rgb": 5301625
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Active Directory Replication & Site Topology\"]",
+      "color": {
+        "a": 1,
+        "rgb": 5301656
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"RHBK observability stack — health, metrics, tracing, OpenTelemetry\"]",
+      "color": {
+        "a": 1,
+        "rgb": 5301687
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Configuration Manager (SCCM) — Implementation Review (Evaluation-Lens MOC)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 5301718
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Active Directory — Implementation Review (Evaluation-Lens MOC)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 5297893
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"PowerShell — Implementation Review (Evaluation-Lens MOC)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 5289957
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Exchange Server — Implementation Review (Evaluation-Lens MOC)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 5282021
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Securing Active Directory (best practices)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 5274085
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"SharePoint Server — Implementation Review (Evaluation-Lens MOC)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 5266149
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Group Managed Service Accounts (gMSA)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 6574309
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"RHBK Troubleshooting — index by area\"]",
+      "color": {
+        "a": 1,
+        "rgb": 8605925
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Security Principals\"]",
+      "color": {
+        "a": 1,
+        "rgb": 10637541
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Active Directory DS Maximum Limits and Scalability\"]",
+      "color": {
+        "a": 1,
+        "rgb": 12669157
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"What does the KC_CACHE_STACK_MODE environment variable configure?\"]",
+      "color": {
+        "a": 1,
+        "rgb": 14700773
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"RHBK login storm OOMed despite the request-queue cap — what was missing\"]",
+      "color": {
+        "a": 1,
+        "rgb": 15028427
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"KeycloakHighServerErrorRate — DB Connection Pool Exhaustion via Slow Queries (2026-06-28)\"]",
+      "color": {
+        "a": 1,
+        "rgb": 15028396
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"kubernetes.io/preferred-zone node label does not exist\"]",
+      "color": {
+        "a": 1,
+        "rgb": 15028366
+      }
+    },
+    {
+      "query": "[\"graph_community\":\"Why do I get \"Unrecognized command '/query'\"?\"]",
+      "color": {
+        "a": 1,
+        "rgb": 15028335
+      }
+    },
+    {
+      "query": "path:reference/active-directory/",
+      "color": {
+        "a": 1,
+        "rgb": 12027012
+      }
+    },
+    {
+      "query": "path:reference/cisco-ios-xe/",
+      "color": {
+        "a": 1,
+        "rgb": 12035716
+      }
+    },
+    {
+      "query": "path:reference/exchange/",
+      "color": {
+        "a": 1,
+        "rgb": 10925956
+      }
+    },
+    {
+      "query": "path:reference/keycloak/",
+      "color": {
+        "a": 1,
+        "rgb": 8697732
+      }
+    },
+    {
+      "query": "path:reference/openshift/",
+      "color": {
+        "a": 1,
+        "rgb": 8697766
+      }
+    },
+    {
+      "query": "path:reference/powershell/",
+      "color": {
+        "a": 1,
+        "rgb": 8693431
+      }
+    },
+    {
+      "query": "path:reference/sccm/",
+      "color": {
+        "a": 1,
+        "rgb": 8684727
+      }
+    },
+    {
+      "query": "path:reference/sharepoint/",
+      "color": {
+        "a": 1,
+        "rgb": 10912951
+      }
+    },
+    {
+      "query": "path:reference/windows-server/",
+      "color": {
+        "a": 1,
+        "rgb": 12027046
+      }
+    },
+    {
+      "query": "path:reference/",
+      "color": {
+        "a": 1,
+        "rgb": 8947848
+      }
+    },
+    {
+      "query": "path:references/",
+      "color": {
+        "a": 1,
+        "rgb": 4877194
+      }
+    }
+  ],
   "collapse-display": false,
   "showArrow": false,
-  "textFadeMultiplier": 0,
-  "nodeSizeMultiplier": 1,
-  "lineSizeMultiplier": 1,
+  "textFadeMultiplier": 1.2,
+  "nodeSizeMultiplier": 0.801993967828418,
+  "lineSizeMultiplier": 0.606585120643432,
   "collapse-forces": false,
-  "centerStrength": 0.518713248970312,
-  "repelStrength": 10,
-  "linkStrength": 1,
-  "linkDistance": 250,
-  "scale": 0.22088802605985405,
+  "centerStrength": 0.555729166666667,
+  "repelStrength": 8.00260416666667,
+  "linkStrength": 0.463932291666667,
+  "linkDistance": 258,
+  "scale": 0.4584995186713726,
   "close": false
 }

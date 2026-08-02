@@ -1358,6 +1358,194 @@ check("grade300 legacy partial cohort (137/300) exits 2 (incomplete), scoreboard
       os.path.isfile(_leg) and _p.returncode == 2 and "INCOMPLETE" in _p.stdout and "answered" in _p.stdout,
       f"rc={_p.returncode}")
 
+# NN+3. RETRACT (Operation: RETRACT) + the outputs/ tier, on a THROWAWAY vault via WIKIKB_VAULT_ROOT
+# (never the live one): a retracted page must (a) trip gate_banner's H4 and (b) cascade a warning
+# onto the page that links it. Also asserts outputs/ is a first-class page dir — lint discovers a
+# page there at all, which is the whole of idea #1. PAGE_DIRS is read from paths so a module that
+# forgets to re-import it can't silently drop the tier.
+import tempfile as _tf
+from wikikb import paths as _paths
+check("paths.PAGE_DIRS includes the outputs/ derived-artifact tier", "outputs" in _paths.PAGE_DIRS,
+      repr(_paths.PAGE_DIRS))
+_FM = ("---\ntitle: {t}\ntype: {ty}\ndomain: keycloak\nslug: {s}\nsummary: s\nsources:\n  - kb:1\n"
+       "provenance_extracted: 3\nprovenance_inferred: 0\nprovenance_ambiguous: 0\n"
+       "status: {st}\nupdated: 2026-07-24\n---\n\n# {t}\n\n**def.**\n\n{body}\n")
+with _tf.TemporaryDirectory() as _tmp:
+    for _d in _paths.PAGE_DIRS:
+        os.makedirs(os.path.join(_tmp, _d), exist_ok=True)
+    open(os.path.join(_tmp, "entities", "gone.md"), "w").write(
+        _FM.format(t="Gone", ty="entity", s="gone", st="retracted", body="withdrawn."))
+    open(os.path.join(_tmp, "outputs", "book.md"), "w").write(
+        _FM.format(t="Book", ty="output", s="book", st="draft", body="cites [[gone]]."))
+    _env = dict(os.environ, WIKIKB_VAULT_ROOT=_tmp, PYTHONPATH=META)
+    _rp = subprocess.run([PY, "-m", "wikikb", "lint"], capture_output=True, text=True, cwd=META, env=_env)
+    _cascade = "links [[gone]], which is status: retracted" in _rp.stdout
+    _found_output = "outputs" in _rp.stdout.splitlines()[0] and "2 pages" in _rp.stdout
+_h4r = _lint.gate_banner({"status": "retracted", "provenance_extracted": "3", "provenance_inferred": "0"})
+check("RETRACT: status: retracted fires gate H4 AND lint cascades onto the citing page; outputs/ is scanned",
+      any("retracted" in r for r in _h4r) and _cascade and _found_output,
+      f"h4={_h4r} cascade={_cascade} outputs_scanned={_found_output}")
+
+# 81. MCP-over-HTTP transport + Bearer auth (the n8n-facing surface). Covers, in ONE server start:
+#   * POST /mcp handshake — initialize / notifications/initialized (202, EMPTY body: it's a
+#     notification, and returning a JSON-RPC body there is the classic transport bug) / tools/list.
+#   * GET /mcp -> 405. Declining the optional SSE stream is spec-legal (transports#GET), and the
+#     reference TypeScript SDK — what n8n embeds — treats 405 here as an expected non-error. If this
+#     ever regresses to 404/500, n8n's client errors instead of proceeding.
+#   * Origin -> 403 when present-but-not-allowlisted (the DNS-rebinding MUST), while a request with
+#     NO Origin still passes — n8n is a backend HTTP client and never sends one, so a naive
+#     "require Origin" implementation would break the only real consumer.
+#   * Auth: unset WIKIKB_API_TOKEN = today's exact no-auth behavior; set = 401 without/with a wrong
+#     token, 200 with the right one, /health always open (kubelet probes carry no credentials).
+#   * REGRESSION: a non-ASCII Bearer token must yield a clean 401. hmac.compare_digest raises
+#     TypeError on non-ASCII str and _check_auth runs OUTSIDE the handlers' try/except, so this
+#     previously killed the request thread and returned a dead connection (curl exit 52) + a stderr
+#     traceback to any UNAUTHENTICATED caller. Fixed by comparing bytes; this pins it.
+_tok = "tok-selftest-123"
+_a_sock = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+_a_sock.bind(("127.0.0.1", 0))
+_a_port = _a_sock.getsockname()[1]
+_a_sock.close()
+_a_srv = subprocess.Popen([PY, "-m", "wikikb", "serve", "--port", str(_a_port)], cwd=META,
+                          env=dict(_ENV, WIKIKB_API_TOKEN=_tok),
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+
+def _http(method, path, token=None, origin=None, body=None, timeout=10, extra=None):
+    """-> (status, body_bytes). Never raises on an HTTP error status; returns it."""
+    req = _urlreq.Request("http://127.0.0.1:%d%s" % (_a_port, path), method=method,
+                          data=(_json.dumps(body).encode() if body is not None else None))
+    if body is not None:
+        req.add_header("Content-Type", "application/json")
+        req.add_header("Accept", "application/json, text/event-stream")
+    if token is not None:
+        req.add_header("Authorization", "Bearer " + token)
+    if origin is not None:
+        req.add_header("Origin", origin)
+    for _k, _v in (extra or {}).items():                 # modern-era MCP transport headers
+        req.add_header(_k, _v)
+    try:
+        with _urlreq.urlopen(req, timeout=timeout) as r:
+            return r.status, r.read()
+    except _urlreq.HTTPError as e:
+        return e.code, e.read()
+
+
+_mcp_http = {}
+try:
+    _deadline = _time.time() + 8
+    while _time.time() < _deadline:
+        try:
+            if _http("GET", "/health")[0] == 200:
+                break
+        except Exception:
+            _time.sleep(0.2)
+    _mcp_http["health_open"] = _http("GET", "/health")[0] == 200          # no token: probes must work
+    _mcp_http["no_token_401"] = _http("GET", "/route?q=ldap")[0] == 401
+    _mcp_http["bad_token_401"] = _http("GET", "/route?q=ldap", token="wrong")[0] == 401
+    _mcp_http["good_token_200"] = _http("GET", "/route?q=ldap", token=_tok)[0] == 200
+    _mcp_http["nonascii_401"] = _http("GET", "/route?q=ldap", token="tökén")[0] == 401   # regression
+    _st, _bd = _http("POST", "/mcp", token=_tok,
+                     body={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}})
+    _mcp_http["initialize"] = _st == 200 and _json.loads(_bd)["result"]["serverInfo"]["name"] == "wikikb"
+    _st, _bd = _http("POST", "/mcp", token=_tok, body={"jsonrpc": "2.0", "method": "notifications/initialized"})
+    _mcp_http["notif_202_empty"] = _st == 202 and _bd == b""
+    _st, _bd = _http("POST", "/mcp", token=_tok, body={"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
+    _mcp_http["tools_list"] = _st == 200 and {t["name"] for t in _json.loads(_bd)["result"]["tools"]} == {
+        "ask", "search", "route", "read_page"}
+    _mcp_http["get_mcp_405"] = _http("GET", "/mcp", token=_tok)[0] == 405
+    _mcp_http["origin_403"] = _http("POST", "/mcp", token=_tok, origin="http://evil.example",
+                                    body={"jsonrpc": "2.0", "id": 3, "method": "tools/list"})[0] == 403
+    _mcp_http["no_origin_ok"] = _http("POST", "/mcp", token=_tok,
+                                      body={"jsonrpc": "2.0", "id": 4, "method": "tools/list"})[0] == 200
+    # REGRESSION (Slowloris): both write-side handlers read exactly Content-Length bytes, so with no
+    # per-connection deadline a client that declares 500 bytes and sends 16 parks a worker thread
+    # FOREVER (verified pre-fix: no response after 20s). Asserted as a config invariant rather than
+    # by actually stalling a socket — the real behavior test costs a full timeout of wall-clock, which
+    # has no place in a suite this size. socketserver applies this in setup(); if it goes back to
+    # None, the DoS is back.
+    from wikikb.serve.serve import Handler as _H
+    _mcp_http["slowloris_guard"] = isinstance(_H.timeout, (int, float)) and 0 < _H.timeout <= 60
+    # REGRESSION (version negotiation): initialize used to echo params.protocolVersion VERBATIM, so a
+    # client asking for 'not-a-real-version-99' got it back as the negotiated version — the server
+    # claiming support for a protocol it has never heard of. Pure function, so assert it directly.
+    from wikikb.mcp import mcp as _mcpmod
+    _mcp_http["version_negotiation"] = (
+        _mcpmod._negotiate_version("2025-03-26") == "2025-03-26"          # supported -> echoed
+        and _mcpmod._negotiate_version("not-a-real-version-99") == _mcpmod.SUPPORTED_VERSIONS[0]
+        and _mcpmod._negotiate_version(None) == _mcpmod.SUPPORTED_VERSIONS[0]
+        and _mcpmod._negotiate_version({"a": 1}) == _mcpmod.SUPPORTED_VERSIONS[0])  # non-str junk
+
+    # DUAL-ERA (MCP 2026-07-28). That revision deleted the `initialize` handshake, the GET stream and
+    # protocol sessions; per the spec's compatibility matrix a modern client against a legacy-only
+    # server FAILS. The server therefore speaks both and picks per REQUEST, from the presence of
+    # `params._meta[protocolVersion]` — never from connection state.
+    #
+    # The load-bearing assertion here is the LEGACY one: `legacy_no_resulttype` pins that the modern
+    # envelope has not leaked into the legacy path. Every client in the field today (n8n's bundled TS
+    # SDK, Claude Code) is legacy, so an era leak would break the only real consumers — a bug the
+    # modern-era checks below would all still happily pass.
+    _MV, _MC = _mcpmod.META_VERSION, _mcpmod.META_CLIENT_CAPS
+
+    def _modern(method, params=None, ver="2026-07-28", caps=True):
+        _p = dict(params or {})
+        _p["_meta"] = {_MV: ver, **({_MC: {}} if caps else {})}
+        return {"jsonrpc": "2.0", "id": 9, "method": method, "params": _p}
+
+    def _mh(method, ver="2026-07-28", name=None):
+        _h = {"MCP-Protocol-Version": ver, "Mcp-Method": method}
+        if name is not None:
+            _h["Mcp-Name"] = name
+        return _h
+
+    _st, _bd = _http("POST", "/mcp", token=_tok, body={"jsonrpc": "2.0", "id": 8, "method": "tools/list"})
+    _mcp_http["legacy_no_resulttype"] = _st == 200 and "resultType" not in _json.loads(_bd)["result"]
+    _st, _bd = _http("POST", "/mcp", token=_tok, body=_modern("server/discover"),
+                     extra=_mh("server/discover"))
+    _r = _json.loads(_bd).get("result", {})
+    _mcp_http["modern_discover"] = (
+        _st == 200 and _r.get("resultType") == "complete"
+        and "2026-07-28" in _r.get("supportedVersions", [])          # advertises BOTH eras, honestly
+        and "2025-11-25" in _r.get("supportedVersions", [])
+        and _r.get("_meta", {}).get(_mcpmod.META_SERVER_INFO, {}).get("name") == "wikikb")
+    _st, _bd = _http("POST", "/mcp", token=_tok, body=_modern("tools/list"), extra=_mh("tools/list"))
+    _mcp_http["modern_tools_list"] = _st == 200 and _json.loads(_bd)["result"]["resultType"] == "complete"
+    # Header/body disagreement MUST be rejected: otherwise a Route routing on the header and this
+    # server executing on the body act on two different truths.
+    _st, _bd = _http("POST", "/mcp", token=_tok, body=_modern("tools/list"), extra=_mh("tools/call"))
+    _mcp_http["modern_header_mismatch"] = _st == 400 and _json.loads(_bd)["error"]["code"] == -32020
+    _st, _bd = _http("POST", "/mcp", token=_tok, body=_modern("tools/list"),
+                     extra={"Mcp-Method": "tools/list"})              # no MCP-Protocol-Version
+    _mcp_http["modern_missing_version_hdr"] = _st == 400 and _json.loads(_bd)["error"]["code"] == -32020
+    _st, _bd = _http("POST", "/mcp", token=_tok, body=_modern("tools/list", ver="1900-01-01"),
+                     extra=_mh("tools/list", ver="1900-01-01"))
+    _e2 = _json.loads(_bd)["error"]
+    _mcp_http["modern_unsupported_version"] = (_st == 400 and _e2["code"] == -32022
+                                               and "2026-07-28" in _e2["data"]["supported"])
+    _st, _bd = _http("POST", "/mcp", token=_tok, body=_modern("tools/list", caps=False),
+                     extra=_mh("tools/list"))
+    _mcp_http["modern_missing_caps"] = _st == 400 and _json.loads(_bd)["error"]["code"] == -32602
+    # 404, NOT 200: the JSON-RPC body is what distinguishes this from a legacy HTTP+SSE server's 404.
+    _st, _bd = _http("POST", "/mcp", token=_tok, body=_modern("no/such"), extra=_mh("no/such"))
+    _mcp_http["modern_unknown_method_404"] = _st == 404 and _json.loads(_bd)["error"]["code"] == -32601
+    # Mcp-Name may arrive Base64-sentinel-encoded; servers MUST decode before comparing to the body.
+    import base64 as _base64
+    _b64 = "=?base64?" + _base64.b64encode(b"route").decode() + "?="
+    _st, _bd = _http("POST", "/mcp", token=_tok,
+                     body=_modern("tools/call", {"name": "route", "arguments": {"q": "ldap"}}),
+                     extra=_mh("tools/call", name=_b64), timeout=30)
+    _mcp_http["modern_b64_mcp_name"] = _st == 200
+except Exception as _e:                                        # noqa: BLE001
+    _mcp_http["exception"] = repr(_e)
+finally:
+    _a_srv.kill()
+check("MCP-over-HTTP: handshake (init/202-notif/tools-list), GET 405, Origin 403 but no-Origin OK, "
+      "Bearer auth incl. non-ASCII token -> 401, slowloris deadline, version negotiation, and the "
+      "2026-07-28 dual-era surface (discover/resultType/-32020/-32022/-32602/404) with NO era leak "
+      "into the legacy path",
+      all(v is True for v in _mcp_http.values()) and len(_mcp_http) == 22,
+      str(_mcp_http))
+
 failed = [n for n, ok, _ in checks if not ok]
 print(f"\n{len(checks) - len(failed)}/{len(checks)} checks passed")
 sys.exit(1 if failed else 0)

@@ -24,6 +24,7 @@ tags:
   - security
   - resource-server
   - oauth2
+graph_community: "Tokens & Sessions"
 ---
 
 # What must a resource server cryptographically verify on inbound access tokens?

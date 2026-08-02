@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [server-config, db]
 status: draft
 updated: 2026-07-12
+graph_community: "RHBK Server Configuration — sources, build vs runtime, precedence"
 ---
 
 # Q: What does the KC_DB_URL_PASSWORD environment variable control?

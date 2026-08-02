@@ -1,0 +1,34 @@
+---
+title: "Print command-line tool reference"
+type: reference
+domain: windows-server
+slug: administration-print-command-reference
+tier: reference
+source: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/print-command-reference
+family: administration
+documentKind: "reference"
+abstract: "Reference article for using the print command-line tools."
+---
+
+# Print command-line tool reference
+
+# Print command-line tool reference
+
+
+
+Information and links to each of the associated print command-line tools:
+
+| Command | Description |
+|--|--|
+| [lpq](lpq.md) | Displays the status of a print queue on a computer running Line printer Daemon (LPD). |
+| [lpr](lpr.md) | Sends a file to a computer or printer sharing device running the Line printer Daemon (LPD) service in preparation for printing. |
+| [Net print](net-print.md) | Displays information about a specified printer queue, displays information about a specified print job, or controls a specified print job. |
+| [print](print.md) | Sends a text file to a printer. |
+| [prncnfg](prncnfg.md) | Configures or displays configuration information about a printer. |
+| [prndrvr](prndrvr.md) | Adds, deletes, and lists printer drivers. |
+| [prnjobs](prnjobs.md) | Pauses, resumes, cancels, and lists print jobs. |
+| [prnmngr](prnmngr.md) | Adds, deletes, and lists printers or printer connections, in addition to setting and displaying the default printer. |
+| [prnport](prnport.md) | Creates, deletes, and lists standard TCP/IP printer ports, in addition to displaying and changing port configuration. |
+| [prnqctl](prnqctl.md) | Prints a test page, pauses or resumes a printer, and clears a printer queue. |
+| [pubprn](pubprn.md) | Publishes a printer to the active directory directory service. |
+| [rundll32 printui.dll,printUIEntry](rundll32-printui.md) | Enables you to automate the installation and configuration of printers using scripts or the command prompt. |

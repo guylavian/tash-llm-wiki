@@ -18,6 +18,7 @@ provenance_inferred: 2
 provenance_ambiguous: 0
 status: draft
 updated: 2026-07-07
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # How OpenShift authenticates requests and what pod-admission gates control workloads

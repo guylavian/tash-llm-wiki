@@ -16,6 +16,7 @@ tags: [group-policy, directory-services, concept]
 question_tier: conceptual
 status: draft
 updated: 2026-07-12
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # How does Group Policy centrally manage computer and user settings in Active Directory?

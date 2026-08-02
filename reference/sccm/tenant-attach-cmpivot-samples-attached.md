@@ -1,0 +1,28 @@
+---
+title: "Tenant attached CMPivot sample scripts"
+type: reference
+domain: sccm
+slug: tenant-attach-cmpivot-samples-attached
+tier: reference
+source: https://learn.microsoft.com/en-us/intune/configmgr/tenant-attach/cmpivot-samples-attached
+family: tenant-attach
+documentKind: "sample"
+abstract: "Script samples for CMPivot for Microsoft Intune tenant attached devices."
+---
+
+# Tenant attached CMPivot sample scripts
+
+# Tenant attach: CMPivot sample scripts
+<!---->
+*Applies to: Configuration Manager (current branch)*
+
+Run [CMPivot](cmpivot-start.md) queries from Microsoft Intune admin center. Below are a few common query needs and how CMPivot can be used to meet them. CMPivot uses a subset of the [Kusto Query Language (KQL)](/azure/kusto/query/).
+
+Below are a few common query needs and how CMPivot can be used to meet them. CMPivot uses a subset of the [Kusto Query Language (KQL)](/azure/kusto/query/).
+
+[!INCLUDE [Sample scripts for both Microsoft Intune and Configuration Manager use](../core/servers/manage/includes/cmpivot-samples-shared.md)]
+
+## Next steps
+
+For more information, see [Launch CMPivot from the admin center](cmpivot-start.md)
+For more information on entities for your queries, see [Microsoft Intune tenant attach: CMPivot usage overview](cmpivot-overview-attached.md).

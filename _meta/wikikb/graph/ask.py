@@ -187,6 +187,9 @@ def main():
                          "installed.)")
     ap.add_argument("--no-expand", action="store_true",
                     help="disable synthesized-page graph expansion; retain lexical candidates unchanged")
+    ap.add_argument("--file-back", action="store_true", dest="file_back",
+                    help="persist the answer as a questions/<slug>.md DRAFT page (skipped when "
+                         "withheld/duplicate — see graph/fileback.py)")
     args = ap.parse_args()
 
     query = args.query
@@ -201,11 +204,17 @@ def main():
     refs = references(st.get("domain"), st.get("used", []))
     out = public_result(query, st, refs, strict=resolve_strict(args.strict))
 
+    if args.file_back:
+        from wikikb.graph import fileback
+        out["filed"] = fileback.file_answer(out, question_tier=args.question_tier)
+
     if args.json:
         print(json.dumps(out, indent=2, ensure_ascii=False))
         return
 
     print(out.get("answer") or "(no answer)")
+    if args.file_back:
+        print("\nfile-back: %s (%s)" % (out["filed"]["reason"], out["filed"].get("path")))
 
 
 if __name__ == "__main__":

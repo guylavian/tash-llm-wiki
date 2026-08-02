@@ -56,6 +56,32 @@ tags: [federation, concept, v26.6]
 - `operators-olm` — Operators, Operator Lifecycle Manager (OLM), ClusterOperators, MachineConfig, day-2 cluster management
 - `builds-images` — image streams, BuildConfigs, Source-to-Image (S2I), the internal registry, image pull/signature policy
 - `cluster-auth` — RBAC (Roles/Bindings), ServiceAccounts, OpenShift OAuth, Security Context Constraints (SCC), identity providers
+<!-- windows-server areas (corpus-backed: MicrosoftDocs/windowsserverdocs) -->
+- `win-storage` — Storage Spaces (Direct), Storage Replica, Storage Migration Service, DFS namespaces/replication, ReFS, dedup, iSCSI, NFS, FSRM
+- `failover-clustering` — failover clusters, quorum, cluster sets, CSV, cluster-aware updating
+- `hyper-v` — Hyper-V hosts and VMs, checkpoints, live migration, virtual switches, nested virtualization
+- `win-networking` — DNS Server role, SDN, BranchCache, Network ATC, NCSI, Windows Time Service
+- `remote-services` — Remote Desktop Services, Remote Access (VPN/DirectAccess/RRAS), Web Application Proxy
+- `win-administration` — Server Core, Server Manager, Windows Admin Center, WSUS, OpenSSH, windows-commands, performance tuning, Azure Arc, licensing/editions
+- `win-authn` — Windows authentication stack: Kerberos, NTLM, credentials protection, TLS/Schannel, UAC, LAPS
+<!-- sccm areas (corpus-backed: MicrosoftDocs/memdocs intune/configmgr + PDF set) -->
+- `sccm-core` — site infrastructure, hierarchy, site systems, clients, collections, console, admin service/SDK
+- `sccm-apps` — application management, deployments, Software Center, app model
+- `sccm-osd` — operating system deployment, task sequences, boot images, MDT
+- `sccm-updates` — software updates management, ADRs, WSUS integration, patching
+- `sccm-compliance` — compliance settings, baselines, co-management, endpoint protection integration
+<!-- powershell areas (corpus-backed: PowerShell 7.6 scripting PDF + office-docs-powershell cmdlet refs) -->
+- `ps-language` — syntax, operators, pipelines, functions, scripting constructs, classes, error handling
+- `ps-modules` — module system + per-product cmdlet reference docsets (server & online admin modules)
+- `ps-remoting` — PowerShell remoting, sessions, WinRM/SSH transports, implicit remoting
+<!-- exchange areas (corpus-backed: Exchange Server PDF docset) -->
+- `exchange-mailflow` — transport pipeline, connectors, queues, routing, transport rules
+- `exchange-recipients` — mailboxes, recipient types, address lists, permissions
+- `exchange-ha` — DAGs, database copies, site resilience, backup/restore
+<!-- sharepoint areas (corpus-backed: SharePoint Server PDF docset + SP PowerShell) -->
+- `sp-farm` — farm topology, service applications, central administration, distributed cache
+- `sp-content` — web applications, site collections, content databases, storage
+- `sp-search` — search service application, crawling, index, query
 
 ## Kinds
 - `concept` — broad synthesis / how-something-works (usually topics/)
@@ -127,6 +153,46 @@ tier* — the failure `provenance_*` counts cannot see.
 - sources: [reference/openshift/, corpora/openshift/, _sources/openshift/]   # 3,813 doc bodies: 1,602 Kubernetes (kubernetes/website) + 2,211 OpenShift 4.22 assemblies (openshift/openshift-docs, via adoc_to_corpus)
 - review-moc: openshift-implementation-review
 - tiers-covered: [conceptual]         # Kubernetes + OpenShift conceptual docs (4.22). Older OCP 4.8–4.21 + release-notes/known-issues history: re-run adoc_to_corpus per branch (see _meta/ADD-DOMAIN.md)
+
+### windows-server
+- domain: windows-server
+- areas: [win-storage, failover-clustering, hyper-v, win-networking, remote-services, win-administration, win-authn, security, troubleshooting]
+- shape: corpus-backed
+- sources: [reference/windows-server/, corpora/windows-server/, _sources/windows-server/]   # MicrosoftDocs/windowsserverdocs minus identity/ad-{ds,fs,rms} (ad-ds lives in active-directory; ad-fs/ad-rms/windows-defender excluded by owner decision 2026-07-23)
+- review-moc: windows-server-implementation-review
+- tiers-covered: [conceptual]   # MS Learn conceptual docs
+
+### sccm
+- domain: sccm
+- areas: [sccm-core, sccm-apps, sccm-osd, sccm-updates, sccm-compliance, ps-modules, security, troubleshooting]
+- shape: corpus-backed
+- sources: [reference/sccm/, corpora/sccm/, _sources/sccm/]   # memdocs intune/configmgr markdown + intune-configmgr-* / troubleshoot-mem-configmgr / powershell-sccm PDF set
+- review-moc: sccm-implementation-review
+- tiers-covered: [conceptual, support-kb]   # troubleshoot-mem-configmgr PDF is the break-fix tier
+
+### powershell
+- domain: powershell
+- areas: [ps-language, ps-modules, ps-remoting, security, troubleshooting]
+- shape: corpus-backed
+- sources: [reference/powershell/, corpora/powershell/, _sources/powershell/]   # PowerShell 7.6 scripting PDF + office-docs-powershell + OfficeDocs-SharePoint-PowerShell cmdlet refs
+- review-moc: powershell-implementation-review
+- tiers-covered: [conceptual]
+
+### exchange
+- domain: exchange
+- areas: [exchange-mailflow, exchange-recipients, exchange-ha, ps-modules, security, troubleshooting, migration]
+- shape: corpus-backed
+- sources: [reference/exchange/, corpora/exchange/, _sources/exchange/]   # Exchange Server docset PDF (exchange-servertoc)
+- review-moc: exchange-implementation-review
+- tiers-covered: [conceptual]
+
+### sharepoint
+- domain: sharepoint
+- areas: [sp-farm, sp-content, sp-search, ps-modules, security, troubleshooting, migration]
+- shape: corpus-backed
+- sources: [reference/sharepoint/, corpora/sharepoint/, _sources/sharepoint/]   # SharePoint Server docset PDF (sharepoint-spstoc) + SP PowerShell refs
+- review-moc: sharepoint-implementation-review
+- tiers-covered: [conceptual]
 
 <!-- Template — copy per new technology (placeholders are ignored by lint/index):
 ### <domain>

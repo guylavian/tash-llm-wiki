@@ -13,6 +13,7 @@ provenance_ambiguous: 0
 tags: [replication, sites-topology, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory Replication & Site Topology"
 ---
 
 # Knowledge Consistency Checker (KCC)

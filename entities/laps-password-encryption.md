@@ -13,6 +13,7 @@ provenance_ambiguous: 0
 tags: [security, directory-services]
 status: draft
 updated: 2026-06-18
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # Windows LAPS — AD password encryption & access model

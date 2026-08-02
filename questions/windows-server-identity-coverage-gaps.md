@@ -14,6 +14,7 @@ provenance_ambiguous: 0
 tags: [directory-services, migration, troubleshooting]
 status: reviewed
 updated: 2026-06-18
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # What does windows-server-identity.pdf cover that the AD brain is missing?

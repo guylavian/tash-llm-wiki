@@ -15,6 +15,7 @@ provenance_ambiguous: 0
 tags: [replication, directory-services, sites-topology, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "Active Directory Replication & Site Topology"
 ---
 
 # Global Catalog

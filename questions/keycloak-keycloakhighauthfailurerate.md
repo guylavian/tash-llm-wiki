@@ -15,6 +15,7 @@ provenance:
   ambiguous: 0
 status: draft
 updated: 2026-06-25
+graph_community: "RHBK observability stack — health, metrics, tracing, OpenTelemetry"
 ---
 
 # KeycloakHighAuthFailureRate — Keys cache flushed + DB pool starvation → cascade 401s

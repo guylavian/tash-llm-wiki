@@ -21,6 +21,7 @@ question_tier: conceptual
 tags: [migration]
 status: draft
 updated: 2026-07-12
+graph_community: "RH-SSO 7.x → Red Hat Build of Keycloak Migration"
 ---
 
 # What is involved in migrating from RH-SSO 7.6 to RHBK?

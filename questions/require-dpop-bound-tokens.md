@@ -19,6 +19,7 @@ provenance:
 tags: [clients, dpop, tokens, security]
 status: reviewed
 updated: 2026-06-28
+graph_community: "Tokens & Sessions"
 ---
 
 # How to require DPoP-bound tokens for a client in RHBK

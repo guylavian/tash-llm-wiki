@@ -17,6 +17,7 @@ question_tier: conceptual
 tags: [ha]
 status: draft
 updated: 2026-07-12
+graph_community: "Distributed Caches (Infinispan) in RHBK"
 ---
 
 # What are the two documented RHBK HA architectures?

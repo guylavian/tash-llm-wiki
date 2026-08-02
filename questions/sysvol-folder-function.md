@@ -19,6 +19,7 @@ provenance:
   ambiguous: 0
 question_tier: conceptual
 updated: 2026-07-09
+graph_community: "Active Directory Replication & Site Topology"
 ---
 
 # What is the function of the SYSVOL folder?

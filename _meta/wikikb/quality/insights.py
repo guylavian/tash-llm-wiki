@@ -32,7 +32,7 @@ from wikikb import paths
 WIKI = str(paths.WIKI)
 sys.dont_write_bytecode = True
 
-PAGE_DIRS = ("topics", "entities", "questions")
+PAGE_DIRS = paths.PAGE_DIRS
 FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 WIKILINK_RE = re.compile(r"\[\[([^\]|#]+)")
 
@@ -56,7 +56,7 @@ def load_pages():
         if not os.path.isdir(full):
             continue
         for fn in sorted(os.listdir(full)):
-            if not fn.endswith(".md"):
+            if not fn.endswith(".md") or fn == "README.md":   # a tier's README is docs, not a page
                 continue
             slug = fn[:-3]
             text = open(os.path.join(full, fn), encoding="utf-8", errors="replace").read()

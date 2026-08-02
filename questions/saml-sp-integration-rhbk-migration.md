@@ -19,6 +19,7 @@ question_tier: conceptual
 tags: [clients, migration]
 status: draft
 updated: 2026-07-12
+graph_community: "Tokens & Sessions"
 ---
 
 # How do SAML service-provider apps integrate with RHBK and what survives migration?

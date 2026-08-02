@@ -14,7 +14,8 @@ symptoms:
   - "alg: none"
   - "HTTP 400"
 status: reviewed
-updated: 2026-07-02
+updated: 2026-07-25
+graph_community: "Tokens & Sessions"
 ---
 
 # Back-Channel Logout
@@ -82,3 +83,4 @@ The browser is not involved in back-channel logout delivery at all. The SPA may 
 - [[securing-apps-oidc-saml]] — integration-level guidance for configuring logout
 - [[cors-for-spa]] — not applicable to back-channel (server-to-server), but relevant for the SPA side receiving downstream signals
 - [[sso-implementation-review]] — MOC: evaluating SSO implementations end to end
+- [[dpop]]

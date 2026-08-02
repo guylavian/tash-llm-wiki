@@ -13,6 +13,7 @@ provenance:
 status: draft
 updated: 2026-07-12
 question_tier: conceptual
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
 ---
 
 # haproxy.router.openshift.io/disable-cookie does not exist

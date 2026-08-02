@@ -20,6 +20,7 @@ provenance_ambiguous: 2
 tags: [operator, concept]
 status: draft
 updated: 2026-07-02
+graph_community: "RHBK Operator (Keycloak CR)"
 ---
 
 # Deploying RHBK with the Operator (Keycloak CR end to end)

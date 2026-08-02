@@ -18,6 +18,7 @@ question_tier: conceptual
 tags: [tokens]
 status: reviewed
 updated: 2026-07-12
+graph_community: "Tokens & Sessions"
 ---
 
 # What rules define how access tokens must be transmitted and handled?

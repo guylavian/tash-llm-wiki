@@ -15,6 +15,7 @@ tags: [authn, authz]
 status: draft
 question_tier: conceptual
 updated: 2026-07-12
+graph_community: "Active Directory — Domain Services Overview"
 ---
 
 # What does the `Get-ADFineGrainedPasswordPolicyResult` PowerShell cmdlet return?

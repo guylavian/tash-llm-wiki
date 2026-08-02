@@ -33,8 +33,15 @@ def main():
         a = n.get("attrs", {})
         if n["label"] == "Source":
             path = "reference/%s/%s.md" % (n["domain"], n["id"])
-        else:
+        elif a.get("type") in PAGE_DIR:
             path = "%s/%s.md" % (PAGE_DIR[a["type"]], n["id"])
+        else:
+            # ponytail: malformed page missing type:/domain: frontmatter (schema
+            # violation upstream, e.g. questions/kubernetes-preferred-zone-...) —
+            # skip rather than crash the whole export; fix the page's frontmatter
+            # to recover it.
+            print("SKIP node with missing/unknown type: %s" % n["id"])
+            continue
         node = {
             "id": n["id"], "label": n.get("title") or n["id"],
             "norm_label": n["id"], "file_type": "document",

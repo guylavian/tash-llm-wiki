@@ -63,6 +63,40 @@ ROUTER_HINTS = {
         "stackwise", "netconf", "restconf", "asdot", "asplain", "adjacency", "spanning-tree",
         "trunk", "ios-xe",
     },
+    "windows-server": {
+        "hyper-v", "hyperv", "vhdx", "s2d", "wsus", "rds", "rdsh", "refs", "iscsi",
+        "dedup", "smb", "witness", "clusteraware", "servercore", "livemigration",
+    },
+    "sccm": {
+        "sccm", "configmgr", "mecm", "memcm", "cmg", "adr", "osd", "ccm", "ccmexec",
+        "sms", "wds", "mdt",
+    },
+    "powershell": {
+        "powershell", "pwsh", "cmdlet", "cmdlets", "runspace", "winrm", "jea",
+        "scriptblock", "pssession", "psremoting",
+    },
+    "exchange": {
+        "exchange", "dag", "mailbox", "mailboxes", "transport", "owa", "ecp",
+        "autodiscover", "smtp", "edgesync", "mailflow", "recipient", "relay",
+    },
+    "sharepoint": {
+        "sharepoint", "minrole", "spfarm", "spsite", "spweb", "crawl", "spshell",
+    },
+}
+
+# An explicit product NAME in the query is itself a dominant signal: when the named
+# domain ALSO ranks first on vocabulary overlap, route confidently even below the
+# margin bar. Ranked-first guards the ambiguous cases ("token exchange" stays with
+# keycloak, whose dpop/token vocabulary outranks the literal word "exchange").
+NAME_TOKENS = {
+    "keycloak": {"keycloak", "rhbk"},
+    "openshift": {"openshift"},
+    "cisco-ios-xe": {"ios-xe"},
+    "windows-server": {"hyper-v", "hyperv"},
+    "sccm": {"sccm", "configmgr", "mecm"},
+    "powershell": {"powershell", "pwsh"},
+    "exchange": {"exchange"},
+    "sharepoint": {"sharepoint"},
 }
 
 _profiles = None
@@ -181,6 +215,12 @@ def route(query):
         return ranked, False                                  # no signal: read the global router
     if top >= CONF_MIN and (top - second) >= CONF_MARGIN:
         return [ranked[0]], True                              # one domain dominates: confident
+    qtok = set(kb.toks(query))
+    named = [d for d, toks in NAME_TOKENS.items() if qtok & toks]
+    if len(named) == 1 and named[0] == ranked[0] and scores[ranked[0]] > 0:
+        return [ranked[0]], True                              # ONE product named + ranked first: confident
+        # two+ product names in one query (e.g. "sharepoint powershell cmdlets") is genuinely
+        # ambiguous — fall through to the abstain path; the margin rule alone may still fire.
     return [d for d in ranked if scores[d] > 0] or ranked, False
 
 

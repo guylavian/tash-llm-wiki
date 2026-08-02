@@ -16,6 +16,7 @@ question_tier: conceptual
 tags: [authn]
 status: draft
 updated: 2026-07-12
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
 ---
 
 # What realm feature protects accounts from brute force attacks?
