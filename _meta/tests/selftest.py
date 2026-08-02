@@ -73,9 +73,40 @@ check("reference notes carry abstract:", abstracts > 0, f"{abstracts} notes with
 rc, out = run("lint.py", "--strict")
 check("lint --strict is clean (no errors)", rc == 0, out[-200:])
 
-# 5. routing + reference indexes are not stale
+# 5. routing + reference indexes are not stale, AND index.py writes an index ONLY for a domain
+# declared in taxonomy.md. The second half is the regression for the
+# `index.[windows-server, active-directory].md` artifact: a page carried
+# `domain: [windows-server, active-directory]` (a YAML LIST), the frontmatter parser read it back as
+# that literal string, and the write loop minted an index file for it. index.py and lint.py BOTH
+# warned "undeclared domain" and wrote/passed anyway. Runs against a throwaway vault via
+# WIKIKB_VAULT_ROOT so it never touches the real one; also asserts the prune removes a pre-existing
+# orphan index, NEVER touches index.md (the vault's home note), and still indexes a declared domain.
 rc, out = run("index.py", "--check")
-check("index --check up to date", rc == 0, out[-200:])
+import tempfile as _tfi
+with _tfi.TemporaryDirectory() as _vd:
+    os.makedirs(os.path.join(_vd, "questions"))
+    os.makedirs(os.path.join(_vd, "reference", "windows-server"))
+    _pg = ("---\ntitle: Bad\nslug: bad-domain-list\ntype: question\n"
+           "domain: [windows-server, active-directory]\nsummary: list-valued domain\n"
+           "sources:\n  - note:x.md\n---\n\n# Bad\n")
+    open(os.path.join(_vd, "questions", "bad-domain-list.md"), "w").write(_pg)
+    open(os.path.join(_vd, "questions", "good.md"), "w").write(
+        _pg.replace("[windows-server, active-directory]", "windows-server")
+           .replace("bad-domain-list", "good-page"))
+    open(os.path.join(_vd, "index.md"), "w").write("# Wiki — Index\n\n## Topics\n- nothing\n")
+    open(os.path.join(_vd, "index.[windows-server, active-directory].md"), "w").write("stale\n")
+    _ri = subprocess.run([PY, "-m", "wikikb", "index"], capture_output=True, text=True,
+                         cwd=META, env=dict(_ENV, WIKIKB_VAULT_ROOT=_vd))
+    _files = sorted(f for f in os.listdir(_vd) if f.startswith("index.") and f.endswith(".md"))
+    _guard = (_ri.returncode == 0
+              and not any(f.startswith("index.[") for f in _files)          # no bogus index written
+              and os.path.exists(os.path.join(_vd, "index.md"))             # home note spared
+              and "index.windows-server.md" in _files                       # declared domain still indexed
+              and "windows-server, active-directory" not in open(
+                  os.path.join(_vd, "index.md"), encoding="utf-8").read())   # router clean
+check("index --check up to date, and an undeclared/list-valued domain: writes no index, prunes the "
+      "orphan, spares index.md, still indexes the declared domain",
+      rc == 0 and _guard, f"check_rc={rc} guard_files={_files} {out[-160:]}")
 
 # 6. every kb: token resolves (crosslink reports no 'unresolved kb:' line). ref:/guide: misses
 # print on their own line and are a REPORT (mis-tiered names on pages), not this invariant.
@@ -1558,41 +1589,6 @@ check("MCP-over-HTTP: handshake (init/202-notif/tools-list), GET 405, Origin 403
       "into the legacy path",
       all(v is True for v in _mcp_http.values()) and len(_mcp_http) == 22,
       str(_mcp_http))
-
-# 61. index.py writes a routing index ONLY for a domain declared in taxonomy.md. Regression for the
-# `index.[windows-server, active-directory].md` artifact: a page carried `domain: [windows-server,
-# active-directory]` (a YAML LIST), the frontmatter parser read it as a literal string, and the write
-# loop minted `index.<that string>.md`. Both index.py and lint.py warned about the undeclared domain
-# and wrote/passed anyway. Also asserts the prune removes a pre-existing orphan index and NEVER
-# touches `index.md` (the vault's home note), and that a declared domain still gets its index.
-import tempfile as _tf3
-with _tf3.TemporaryDirectory() as _vd:
-    os.makedirs(os.path.join(_vd, "questions"))
-    os.makedirs(os.path.join(_vd, "reference", "windows-server"))
-    _pg = ("---\ntitle: Bad\nslug: bad-domain-list\ntype: question\n"
-           "domain: [windows-server, active-directory]\nsummary: list-valued domain\n"
-           "sources:\n  - note:x.md\n---\n\n# Bad\n")
-    open(os.path.join(_vd, "questions", "bad-domain-list.md"), "w").write(_pg)
-    open(os.path.join(_vd, "questions", "good.md"), "w").write(
-        _pg.replace("[windows-server, active-directory]", "windows-server")
-           .replace("bad-domain-list", "good-page"))
-    _home = "# Wiki — Index\n\n## Topics\n- nothing\n"
-    open(os.path.join(_vd, "index.md"), "w").write(_home)
-    # a pre-existing orphan the prune must remove, and a real one it must keep
-    open(os.path.join(_vd, "index.[windows-server, active-directory].md"), "w").write("stale\n")
-    _env3 = dict(_ENV, WIKIKB_VAULT_ROOT=_vd)
-    _ri = subprocess.run([PY, "-m", "wikikb", "index"], capture_output=True, text=True,
-                         cwd=META, env=_env3)
-    _files = sorted(f for f in os.listdir(_vd) if f.startswith("index.") and f.endswith(".md"))
-    _no_bogus = not any(f.startswith("index.[") for f in _files)
-    _kept_home = "index.md" in _files and os.path.exists(os.path.join(_vd, "index.md"))
-    _kept_real = "index.windows-server.md" in _files
-    _router_clean = "windows-server, active-directory" not in open(
-        os.path.join(_vd, "index.md"), encoding="utf-8").read()
-    check("index.py: undeclared/list-valued domain: writes no index, prunes the orphan, spares "
-          "index.md, still indexes the declared domain",
-          _ri.returncode == 0 and _no_bogus and _kept_home and _kept_real and _router_clean,
-          f"files={_files} rc={_ri.returncode} out={(_ri.stdout + _ri.stderr)[-200:]}")
 
 failed = [n for n, ok, _ in checks if not ok]
 print(f"\n{len(checks) - len(failed)}/{len(checks)} checks passed")
