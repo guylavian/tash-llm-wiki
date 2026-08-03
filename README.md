@@ -1,8 +1,9 @@
 # llm-wiki — multi-domain LLM-maintained knowledge wiki
 
 An **LLM-maintained, multi-domain knowledge wiki** — Keycloak / Red Hat build of
-Keycloak (RHBK), OpenShift/Kubernetes, Active Directory, and Cisco IOS-XE, with new
-domains onboarded via ADD-DOMAIN — following Andrej Karpathy's "LLM Wiki" pattern:
+Keycloak (RHBK), OpenShift/Kubernetes, PowerShell, SCCM, Windows Server, SharePoint,
+Exchange, Active Directory, and Cisco IOS-XE, with new domains onboarded via
+ADD-DOMAIN — following Andrej Karpathy's "LLM Wiki" pattern:
 immutable raw corpora stay frozen in the vault, the wiki is the *compiled,
 cross-linked synthesis* on top, and it compounds across sessions because every
 answered question is filed back as a durable page.
@@ -14,14 +15,22 @@ all the data.
 
 ## What's here
 
-| Domain | Shape | Raw tier |
-|---|---|---|
-| **keycloak** | corpus-backed | 800 immutable doc-body notes in `reference/keycloak/` |
-| **openshift** | corpus-backed | 3,813 notes (Kubernetes + OpenShift 4.22 docs) in `reference/openshift/` |
-| **active-directory** | corpus-backed | 221 notes in `reference/active-directory/` + hand notes in `_sources/` |
-| **cisco-ios-xe** | corpus-backed | 167 notes in `reference/cisco-ios-xe/` |
+Nine corpus-backed domains; each raw tier is immutable doc-body notes under
+`reference/<domain>/`, with hand notes staged in `_sources/<domain>/`.
 
-Synthesis so far: **51 topics · 216 entities · 88 answered questions**, all
+| Domain | Raw notes | Tiers covered |
+|---|---|---|
+| **powershell** | 4,579 | conceptual |
+| **openshift** | 3,908 | conceptual (Kubernetes + OpenShift 4.22) |
+| **sccm** | 2,773 | conceptual, support-kb |
+| **windows-server** | 2,006 | conceptual |
+| **sharepoint** | 936 | conceptual |
+| **keycloak** | 833 | conceptual, support-kb |
+| **active-directory** | 313 | conceptual |
+| **cisco-ios-xe** | 173 | conceptual |
+| **exchange** | 80 | conceptual |
+
+Synthesis so far: **66 topics · 267 entities · 153 answered questions**, all
 cross-linked with `[[slug]]`.
 
 ## Layout
