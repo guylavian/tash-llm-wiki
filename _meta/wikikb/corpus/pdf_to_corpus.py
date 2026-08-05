@@ -227,7 +227,7 @@ def main():
         args.src, args.domain, url_base, args.family or args.domain,
         args.version, args.guide, args.kind, args.chunk_pages)
 
-    outdir = os.path.join(ROOT, "corpora", args.domain)
+    outdir = os.path.join(str(paths.CORPORA), args.domain)
     rel = os.path.relpath(outdir, ROOT)
     n_docs = len(methods)
     print("domain=%s  src=%s" % (args.domain, args.src))

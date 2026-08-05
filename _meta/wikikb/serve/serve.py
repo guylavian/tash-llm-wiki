@@ -76,6 +76,31 @@ FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 # MATCH (falls into the disabled/unknown branch) rather than needing separate sanitizing. Domain
 # membership in the taxonomy is still checked separately (do_upload) since that's semantic, not shape.
 UPLOAD_RE = re.compile(r"^/upload/([a-z0-9][a-z0-9-]*)/([A-Za-z0-9][A-Za-z0-9._-]*\.pdf)$")
+
+
+# --- runtime configuration (env defaults; an explicit CLI flag still wins) ----------------
+# Added 2026-08-05 so a container is configured by .env alone and the image's CMD can stay a
+# static exec-form array (exec form does no shell variable expansion, so `--port $PORT` in CMD
+# would be passed through as the literal string "$PORT").
+def _env_route(name, default):
+    """Normalize an env-supplied URL path: exactly one leading '/', no trailing '/'.
+    Empty/whitespace falls back to `default` rather than mounting the endpoint at '/', which
+    would shadow every other route."""
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    if not raw.startswith("/"):
+        raw = "/" + raw
+    return raw.rstrip("/") or default
+
+
+# The MCP-over-HTTP mount point. Relocating it does NOT widen the surface: the old path falls
+# through to the same _no_such_endpoint() any unknown path gets, so a moved endpoint is
+# indistinguishable from an absent one (the same unfingerprintable property do_PUT relies on).
+MCP_PATH = _env_route("WIKIKB_MCP_PATH", "/mcp")
+DEFAULT_PORT = int(os.environ.get("WIKIKB_PORT") or 8642)
+DEFAULT_BIND = os.environ.get("WIKIKB_BIND") or "127.0.0.1"
+
 UPLOAD_MAX_BYTES = 50 * 1024 * 1024  # 50 MB cap (CLAUDE.md A3 trust-boundary checklist)
 MCP_MAX_BYTES = 2 * 1024 * 1024      # 2 MB cap on a single POST /mcp JSON-RPC body — same idea,
                                       # much smaller ceiling (tool-call args are small text, not a PDF)
@@ -464,11 +489,11 @@ class Handler(BaseHTTPRequestHandler):
             elif path.startswith("/page/"):
                 status, obj = do_page(path[len("/page/"):], int(qs.get("offset", 0)),
                                       int(qs.get("max_chars", PAGE_MAX_CHARS)))
-            elif path == "/mcp":
+            elif path == MCP_PATH:
                 # Declining the optional standalone SSE stream is spec-legal (transports#GET item 3);
                 # the reference TS SDK client treats 405 here as an expected non-error (RESEARCH 2).
-                status, obj = 405, {"error": "GET not supported at /mcp (no standalone SSE stream; "
-                                             "use POST /mcp)"}
+                status, obj = 405, {"error": "GET not supported at %s (no standalone SSE stream; "
+                                             "use POST %s)" % (MCP_PATH, MCP_PATH)}
             else:
                 status, obj = _no_such_endpoint()
         except Exception as e:                              # noqa: BLE001 — a bad request must never kill the thread

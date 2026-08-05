@@ -41,7 +41,7 @@ WIKI = str(paths.WIKI)
 ROOT = str(paths.ROOT)
 REFERENCES = str(paths.REFERENCES)
 MANIFEST = str(paths.MANIFEST)
-CORPORA = os.path.join(ROOT, "corpora")
+CORPORA = str(paths.CORPORA)
 
 PAGE_DIRS = paths.PAGE_DIRS
 FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)

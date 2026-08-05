@@ -31,7 +31,7 @@ import sys
 
 from wikikb import paths
 ROOT = str(paths.ROOT)
-CORPORA = os.path.join(ROOT, "corpora")
+CORPORA = str(paths.CORPORA)
 WIKI = str(paths.WIKI)
 REF = str(paths.REFERENCE)
 # The lock hashes reference/<domain>/ — it is VAULT DATA, so it must follow WIKI (which
