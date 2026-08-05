@@ -317,6 +317,15 @@ _rc_up, _out_up = run("upload_probe.py")
 check("upload_probe passes (disabled 404-identical + enabled trust-boundary checklist)",
       _rc_up == 0, _out_up[-300:])
 
+# 18b2. Operation modes (WIKIKB_MODE=airgapped|online) + the ingest job runner. Same real-server-
+# over-a-real-socket pattern as upload_probe: airgapped hides the scrape surface byte-identically to
+# an unknown path (and omits it from /openapi.json), online mounts it at 501, an unknown mode refuses
+# to start, and the runner's coalescing/stop-at-first-failure rules hold. Runs only READ-ONLY steps,
+# so it never mutates the vault.
+_rc_md, _out_md = run("mode_probe.py")
+check("mode_probe passes (airgapped/online split, egress guard, job runner)",
+      _rc_md == 0, _out_md[-300:])
+
 # 18c. Phase-3 (fabricated-citation class): answer-side identifier grounding — a distinctive
 # identifier asserted in the ANSWER but absent from the cited context is flagged loudly (+
 # ungrounded_identifiers state field), never served silent. Analogue of gate_probe.py.
@@ -523,16 +532,19 @@ check("restructure: _meta/bin/ removed, wikikb/ package + 7 subpackages + tests/
 # 36. Restructure (guard): NO bare OR un-grouped sibling import survives — every intra-package import of
 # a module that lives in a subpackage must be `from wikikb.<group> import X`. A bare `import tags` or an
 # un-grouped `from wikikb import tags` would ModuleNotFoundError under `python -m wikikb.<tool>` and,
-# inside a try/except, SILENTLY disable a validator (the exact regression the review caught). `paths`
-# alone is top-level, so `from wikikb import paths` is allowed; bare `import paths` is not.
+# inside a try/except, SILENTLY disable a validator (the exact regression the review caught).
+# `paths` and `modes` are the TOP-LEVEL modules — one definition each, no intra-package dependencies,
+# imported from everywhere (modes.py is imported by serve/ AND scrape/, so it cannot live in either) —
+# so `from wikikb import paths|modes` is allowed; the bare `import paths|modes` form is not.
 # Built DYNAMICALLY from the tree (not a hand-maintained list) so a NEW module added to any subpackage
-# is automatically covered — no blind spot. paths/__init__/__main__ are top-level package infra, excluded.
+# is automatically covered — no blind spot. The four names below are top-level package infra, excluded.
+_TOP_LEVEL = ("__init__.py", "__main__.py", "paths.py", "modes.py")
 _SUBPKG_MODS = tuple(sorted(
     _fn[:-3] for _r, _d, _fs in os.walk(PKG) if "__pycache__" not in _r
     for _fn in _fs
-    if _fn.endswith(".py") and _fn not in ("__init__.py", "__main__.py", "paths.py")))
+    if _fn.endswith(".py") and _fn not in _TOP_LEVEL))
 _alt = "|".join(_SUBPKG_MODS)
-_bare = re.compile(r"^\s*import (%s|paths)\b" % _alt)                 # a bare sibling import (always wrong)
+_bare = re.compile(r"^\s*import (%s|paths|modes)\b" % _alt)           # a bare sibling import (always wrong)
 _ungrouped = re.compile(r"^\s*from wikikb import (%s)\b" % _alt)      # must be `from wikikb.<group> import`
 _bad_sib = []
 for _root, _dirs, _files in os.walk(PKG):

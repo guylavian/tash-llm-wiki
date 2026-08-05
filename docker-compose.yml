@@ -11,6 +11,12 @@
 # does not persist. Mounting the parent keeps vault/ and corpora/ siblings on the
 # same host volume, exactly as they are in the repo.
 #
+# OPERATION MODE: `WIKIKB_MODE` in .env picks what this service IS.
+#   airgapped (default) — vault + MCP + the PDF upload/ingest chain. No egress.
+#   online              — the same, plus the web-scraper surface.
+# Both modes serve the same endpoints; online only ADDS. Switching is `WIKIKB_MODE=online
+# docker compose up -d` — no separate image, no separate compose file.
+#
 #   HOST                              CONTAINER
 #   ${HOST_VAULT_DIR} .............. /data/vault      (content — the portable dir)
 #   ${HOST_VAULT_DIR}/../corpora ... /data/corpora    (harvest staging, in-flight)
@@ -36,6 +42,12 @@ services:
     env_file: .env
 
     environment:
+      # OPERATION MODE — airgapped (default) or online. Additive: online serves the
+      # same surface plus the web scraper. Default here rather than inherited-only so
+      # an empty .env still starts in the posture that can do less; an unknown value
+      # makes the container exit 2 with a message instead of guessing.
+      WIKIKB_MODE: ${WIKIKB_MODE:-airgapped}
+
       # Set explicitly rather than inherited, so the container's view cannot drift
       # from the mount paths declared below.
       WIKIKB_VAULT_ROOT: /data/vault

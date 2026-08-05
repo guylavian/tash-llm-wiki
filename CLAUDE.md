@@ -625,6 +625,69 @@ The scripts live under `_meta/wikikb/` (stdlib-only, air-gapped): `lint.py`,
 commands are **thin pointers back here** — keep the behavior described here, not
 duplicated there, so they can't drift.
 
+### Operation modes — `airgapped` vs `online` (env `WIKIKB_MODE`)
+
+The application runs in exactly one of two modes, and they are **additive**: `online` is a
+strict *superset* of `airgapped`, so a client written against one works verbatim against the
+other. The single definition lives in `_meta/wikikb/modes.py`; nothing else re-derives it.
+
+| | `airgapped` (**default**) | `online` |
+|---|---|---|
+| Vault read surface (`/route` `/search` `/ask` `/expand` `/page`) | ✅ | ✅ |
+| MCP (stdio **and** `POST /mcp`) | ✅ | ✅ |
+| PDF write surface (`PUT /upload`, `POST /ingest`) + the conversion chain | ✅ | ✅ |
+| Web scraper (`POST /scrape`, `GET /scrape/sources`) | — | ✅ (seam; 501 until written) |
+| Outbound network | **never** | only from `wikikb/scrape/` |
+
+- **A typo REFUSES TO START.** `WIKIKB_MODE=onlien` exits 2 naming the valid modes rather than
+  falling back to a default — a mode is a posture, and silently getting the wrong one (in
+  *either* direction) is the failure that check exists for. `offline` is an accepted alias for
+  `airgapped`; the canonical name is what `/health` and the logs report.
+- **Airgapped hides, it doesn't 403.** The `/scrape` paths answer byte-identically to any
+  unknown path and are absent from `/openapi.json` — the same unfingerprintable posture the
+  disabled upload surface already had. A spec that documents an endpoint the instance answers as
+  "unknown path" would be a lying spec.
+- **The guard is at the socket, not the router.** `modes.require_online()` is called inside
+  `scrape.fetch()`, so a future mis-wired route still cannot reach the network from a sealed box.
+- `GET /health` reports `mode` + `capabilities` (what the MODE permits) separately from
+  `uploads` / `auto_ingest` (what THIS process switched on), so "wrong mode" and "forgot
+  `--allow-upload`" stay distinguishable.
+- Why not call it `offline`: that word is already load-bearing here for a *different* axis —
+  whether `ask` synthesizes prose through the LLM gateway or falls back to extractive answers
+  (`WIKI_LLM`, the `wikikb/online/` LiteLLM subpackage, which has nothing to do with scraping).
+
+#### Upload → Markdown → links, as a background job
+
+`PUT /upload/<domain>/<file>.pdf` stores the file **and queues the conversion chain**; the
+response is `201` (the file is durable) carrying a `job_id` to poll at `GET /jobs/<id>`. The
+chain is exactly the three commands **Operation: INGEST** prescribes, run by
+`_meta/wikikb/serve/jobs.py`:
+
+    pdf_to_corpus --append --apply  →  corpus_to_vault --apply  →  build
+
+`build`'s **crosslink** step is what "links it to the other Markdown files" — it resolves each
+page's `kb:` tokens to the new reference note and writes the generated `## Sources` wikilinks.
+
+- **`--append` is not optional.** Without it `pdf_to_corpus` truncates
+  `corpora/<domain>/index.jsonl` and rewrites it from just the PDFs in `--src`; the next
+  `corpus_to_vault --apply` would then regenerate `reference/<domain>/` from that truncated
+  index. One uploaded PDF would silently destroy an 800-note ground-truth tier.
+- **One serialized worker.** `build` regenerates whole-vault artifacts (indexes, crosslinks,
+  tkg), so two concurrent runs would interleave writes. A second *queued* ingest for the same
+  domain **coalesces** into the first — the chain reads the whole `_raw/pdfs/` directory, so the
+  pending job sees the new file anyway.
+- **The chain stops at the first failed step**, same contract as `build` itself: continuing past
+  a failed extraction would fold a stale corpus into the immutable tier.
+- The chain lands the document as an **immutable reference note**. It does not write synthesis
+  pages — the citation contract is applied when a page is authored against it.
+- `WIKIKB_AUTO_INGEST=0` restores store-only uploads; `POST /ingest/<domain>` then triggers the
+  chain by hand (the batch path: several drops, one `build`). Both share the `--allow-upload`
+  opt-in — `/ingest` writes to the vault, so it is part of the one write surface.
+- Job state is **in-memory and lost on restart**: it is progress reporting, not provenance. The
+  durable record of what was ingested is the vault plus `.manifest.json`.
+- Verified by `_meta/tests/mode_probe.py` (both modes over a real socket, the egress guard, and
+  the runner's coalescing / stop-at-first-failure rules), wired into `selftest.py`.
+
 ### Serving the wiki to agents (HTTP + MCP)
 
 `python3 -m wikikb serve` runs a stateless, stdlib-only JSON API; `python3 -m wikikb mcp`
@@ -635,6 +698,9 @@ endpoint / tool list.
 
 - `serve` binds loopback (`127.0.0.1`) **by default** — binding a real interface is the
   operator's explicit `--bind` choice, never the tool's default.
+- Which endpoints exist depends on the **operation mode** above; `GET /openapi.json` and the
+  offline `GET /docs` page are built from the live config (mode, MCP mount, auth posture,
+  resolved vault) so they cannot drift from what is actually served.
 - Register the MCP server with `claude mcp add wikikb -- python3 -m wikikb mcp`
   (cwd `_meta/`, or set `PYTHONPATH`).
 - Tools are advertised **`wiki_`-prefixed** (`wiki_ask` · `wiki_search` · `wiki_route` ·

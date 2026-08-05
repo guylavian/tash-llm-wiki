@@ -36,14 +36,24 @@ ENV PYTHONIOENCODING=utf-8
 #   -e WIKI_LLM=local -e WIKI_LLM_MODEL=ollama/qwen2.5:3b -e WIKI_LLM_API_BASE=http://host.docker.internal:11434
 EXPOSE 8642
 
+# OPERATION MODE (WIKIKB_MODE) — one image, two postures, chosen at run time:
+#   airgapped (default) vault + MCP + the PDF upload/ingest chain; no outbound connection, and the
+#                       /scrape paths answer exactly like an unknown path (not fingerprintable).
+#   online              the same surface PLUS the web scraper (mounted, 501 until implemented).
+# The modes are ADDITIVE, so nothing is lost by running airgapped. An unknown value exits 2 rather
+# than falling back — a mode is a posture, not a preference.
+#   docker run --rm -p 8642:8642 -e WIKIKB_MODE=online llm-wiki:amd64
+
 # Client PDF upload (opt-in, off by default — see serve.py's do_PUT for the trust boundary): mount the
 # vault so an upload actually persists past the container's lifetime, enable uploads explicitly, then
 # PUT the raw file (no multipart) to /upload/<domain>/<filename>.pdf:
 #   docker run --rm -p 8642:8642 -v /srv/llm-wiki/vault:/data/vault \
 #     -e WIKIKB_VAULT_ROOT=/data/vault -e WIKIKB_ALLOW_UPLOAD=1 llm-wiki:amd64
 #   curl -T guide.pdf http://localhost:8642/upload/keycloak/guide.pdf
-# Uploads land ONLY in vault/_sources/<domain>/_raw/pdfs/ (never reference/ or corpora/); the operator
-# still runs pdf_to_corpus -> corpus_to_vault -> wikikb build to fold a drop in (CLAUDE.md, INGEST).
+#   curl http://localhost:8642/jobs/<job_id>          # the conversion the upload queued
+# Uploads land ONLY in vault/_sources/<domain>/_raw/pdfs/ (never reference/ or corpora/). Storing the
+# file also QUEUES pdf_to_corpus --append -> corpus_to_vault -> build as a background job, so the drop
+# becomes crosslinked Markdown without a second command; WIKIKB_AUTO_INGEST=0 restores store-only.
 
 # API docs: GET /docs is a self-contained HTML reference (no CDN — it renders air-gapped); GET
 # /openapi.json is the OpenAPI 3.1 document to point Swagger UI / Postman / an SDK generator at.
@@ -59,7 +69,10 @@ EXPOSE 8642
 # alongside its caller; inside a container, loopback is reachable only from INSIDE the container, so
 # the image binds the container's own 0.0.0.0 and relies on `docker run -p` to control real exposure.
 # Set WIKIKB_API_TOKEN whenever that published port is reachable from anything but localhost.
+# WIKIKB_MODE is baked as the DEFAULT posture, not a preference: an image whose mode is unset would
+# behave differently depending on the operator's shell. airgapped is the mode that can do less.
 ENV WIKIKB_BIND=0.0.0.0 \
     WIKIKB_PORT=8642 \
-    WIKIKB_MCP_PATH=/mcp
+    WIKIKB_MCP_PATH=/mcp \
+    WIKIKB_MODE=airgapped
 CMD ["python3", "-m", "wikikb", "serve"]

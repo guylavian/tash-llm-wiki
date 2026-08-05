@@ -22,6 +22,8 @@ being served the way a hand-maintained YAML file would.
 import json
 import os
 
+from wikikb import modes
+
 # One schema per response shape serve.py actually returns. Kept inline (not $ref-heavy) because the
 # surface is small and a flat spec is far easier to eyeball against the handlers it documents.
 _ERROR = {
@@ -50,7 +52,8 @@ def _errors(*codes):
     return out
 
 
-def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.0.0"):
+def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.1.0",
+               mode=modes.AIRGAPPED):
     """Return the OpenAPI 3.1 document as a dict.
 
     mcp_path      — live value of serve.MCP_PATH, so relocating the MCP mount is reflected here.
@@ -59,6 +62,10 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.0.0"
                     advertising auth that isn't enforced is worse than advertising none.
     vault         — the resolved vault path, surfaced in the description so an operator reading
                     /docs can confirm which corpus this instance is actually serving.
+    mode          — the live WIKIKB_MODE. The scrape paths are emitted ONLY in online mode, for the
+                    same reason serve.py hides them there: a spec that documents an endpoint this
+                    instance answers as "unknown path" is a spec that lies, and it would also hand a
+                    reader of an airgapped /docs a map of a surface that does not exist here.
     """
     spec = {
         "openapi": "3.1.0",
@@ -70,6 +77,13 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.0.0"
                 "translation to the same functions the `python3 -m wikikb <tool>` CLI calls — nothing "
                 "is re-implemented.\n\n"
                 + (f"**Vault served by this instance:** `{vault}`\n\n" if vault else "")
+                + f"**Operation mode:** `{mode}`. "
+                + ("Airgapped — vault, MCP and the PDF ingest chain; no outbound network, and the "
+                   "web-scraper paths are absent (they answer exactly like an unknown path).\n\n"
+                   if mode != modes.ONLINE else
+                   "Online — everything airgapped serves, plus the web-scraper surface. The modes "
+                   "are additive, so a client written against an airgapped instance works here "
+                   "unchanged.\n\n")
                 + "**Answers are gated.** `/ask` applies the Confidence gate before returning: a "
                 "response resting on synthesis rather than extracted sources carries a `⚠️` banner. "
                 "Treat a banner as 'verify before acting', not as prose decoration."
@@ -80,6 +94,8 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.0.0"
             {"name": "retrieval", "description": "Route, search, expand, and read pages."},
             {"name": "answers", "description": "Gated, cited synthesis."},
             {"name": "ingest", "description": "Write surface — opt-in, off by default."},
+            {"name": "jobs", "description": "Background conversion jobs queued by the write surface."},
+            {"name": "scrape", "description": "Web harvest — ONLINE MODE ONLY."},
             {"name": "meta", "description": "Health and machine-readable description."},
         ],
         "paths": {},
@@ -91,12 +107,23 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.0.0"
             "description": ("Intentionally UNAUTHENTICATED even when a bearer token is configured, so "
                             "kubelet-style probes (which cannot attach custom headers) still work. "
                             "Returns the declared domains and total page count — useful for confirming "
-                            "a bind-mounted vault actually landed."),
+                            "a bind-mounted vault actually landed.\n\n"
+                            "`capabilities` is what the MODE permits; `uploads`/`auto_ingest` are what "
+                            "THIS process switched on. They are reported separately so 'wrong mode' and "
+                            "'forgot --allow-upload' are distinguishable."),
             "security": [],
             "responses": {"200": _json_response("Server is up.", {
                 "type": "object",
                 "properties": {
                     "status": {"type": "string", "example": "ok"},
+                    "mode": {"type": "string", "enum": list(modes.MODES)},
+                    "capabilities": {"type": "object", "properties": {
+                        "vault": {"type": "boolean"}, "mcp": {"type": "boolean"},
+                        "ingest": {"type": "boolean"},
+                        "scrape": {"type": "boolean", "description": "true only in online mode"}}},
+                    "uploads": {"type": "boolean", "description": "PUT /upload enabled on this process"},
+                    "auto_ingest": {"type": "boolean",
+                                    "description": "an upload also queues the conversion chain"},
                     "domains": {"type": "array", "items": {"type": "string"}},
                     "pages": {"type": "integer", "description": "synthesis pages discovered in the vault"},
                 },
@@ -237,9 +264,17 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.0.0"
                 "disabled the response is byte-identical to an unknown path, so the surface is not "
                 "fingerprintable.\n\n"
                 "Body is the RAW file (`curl -T file.pdf ...`), not multipart. Stores only under "
-                "`vault/_sources/<domain>/_raw/pdfs/` — never the immutable reference tier. Storing a "
-                "PDF does NOT ingest it: an operator still runs `pdf_to_corpus` → `corpus_to_vault` → "
-                "`wikikb build`, which is where provenance and the citation contract get applied."),
+                "`vault/_sources/<domain>/_raw/pdfs/` — never the immutable reference tier.\n\n"
+                "Storing the file also QUEUES the conversion chain in the background — "
+                "`pdf_to_corpus --append` → `corpus_to_vault` → `build` (whose crosslink step is what "
+                "links the new document to the other Markdown files) — and returns a `job_id`; poll "
+                "`GET /jobs/{id}`. The response is 201, not 202, because the file itself is durable "
+                "by the time it answers; the job is reported alongside.\n\n"
+                "Set `WIKIKB_AUTO_INGEST=0` for the old store-only behaviour and drive the chain with "
+                "`POST /ingest/{domain}` instead — the batch path when several PDFs should share one "
+                "`build`. Note that synthesis pages are NOT written by the chain: it lands the "
+                "document as an immutable reference note, and the citation contract is applied when a "
+                "page is authored against it."),
             "parameters": [
                 {"name": "domain", "in": "path", "required": True,
                  "schema": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"}, "example": "keycloak"},
@@ -250,10 +285,15 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.0.0"
             "requestBody": {"required": True, "content": {"application/pdf": {
                 "schema": {"type": "string", "format": "binary"}}}},
             "responses": {
-                "200": _json_response("Stored.", {
+                "201": _json_response("Stored (and, unless auto-ingest is off, conversion queued).", {
                     "type": "object",
-                    "properties": {"stored": {"type": "string"},
-                                   "next": {"type": "string", "description": "the ingest command to run"}},
+                    "properties": {
+                        "stored": {"type": "string", "description": "path relative to the vault root"},
+                        "ingest": {"type": "string",
+                                   "description": "queued | coalesced into pending job | disabled | not queued"},
+                        "job_id": {"type": "string"},
+                        "status_url": {"type": "string", "example": "/jobs/9f2c1a0b4d7e"},
+                        "next": {"type": "string", "description": "what to do next, in words"}},
                 }),
                 **_errors(
                     (404, "Uploads disabled, or path shape not matched (deliberately indistinguishable)."),
@@ -265,6 +305,105 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.0.0"
             },
         }
     }
+
+    spec["paths"]["/ingest/{domain}"] = {
+        "post": {
+            "tags": ["ingest"], "summary": "Queue the conversion chain for a domain (opt-in)",
+            "description": (
+                "Runs the same three steps an upload queues — `pdf_to_corpus --append` → "
+                "`corpus_to_vault` → `build` — over everything currently in "
+                "`vault/_sources/{domain}/_raw/pdfs/`. Use it to batch several drops into one "
+                "`build`, or to retry after a failed job.\n\n"
+                "Gated by the SAME `--allow-upload` opt-in as `/upload`: it writes to the vault, so "
+                "it is part of the one write surface, not a second one that could stay open after "
+                "uploads were deliberately disabled. Disabled ⇒ indistinguishable from an unknown path.\n\n"
+                "A submission for a domain that already has a QUEUED job returns that job "
+                "(`coalesced: true`) instead of a duplicate — the chain reads the whole directory, so "
+                "the pending job will see the new files anyway."),
+            "parameters": [{"name": "domain", "in": "path", "required": True,
+                            "schema": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+                            "example": "keycloak"}],
+            "responses": {
+                "202": _json_response("Job queued.", {
+                    "type": "object",
+                    "properties": {"job_id": {"type": "string"}, "status_url": {"type": "string"},
+                                   "state": {"type": "string"}, "coalesced": {"type": "boolean"},
+                                   "steps": {"type": "array", "items": {"type": "string"}}},
+                }),
+                **_errors((400, "Domain not declared in the vault taxonomy."),
+                          (404, "Write surface disabled (indistinguishable from an unknown path)."),
+                          (429, "Job queue full — retry once the backlog drains.")),
+            },
+        }
+    }
+
+    _JOB = {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string"}, "kind": {"type": "string", "example": "ingest"},
+            "state": {"type": "string", "enum": ["queued", "running", "done", "failed"]},
+            "domain": {"type": "string"},
+            "created": {"type": "number"}, "started": {"type": ["number", "null"]},
+            "finished": {"type": ["number", "null"]},
+            "steps": {"type": "array", "items": {"type": "string"}},
+            "current_step": {"type": ["string", "null"]},
+            "results": {"type": "array", "items": {"type": "object", "properties": {
+                "step": {"type": "string"}, "exit": {"type": "integer"},
+                "seconds": {"type": "number"},
+                "log": {"type": "array", "items": {"type": "string"},
+                        "description": "tail of the step's combined output, capped"}}}},
+            "error": {"type": "string"},
+        },
+    }
+
+    spec["paths"]["/jobs"] = {
+        "get": {
+            "tags": ["jobs"], "summary": "Recent jobs (newest first)",
+            "description": ("Job state is IN-MEMORY and lost on restart: it is progress reporting, not "
+                            "provenance. The durable record of what was ingested is the vault plus "
+                            "`.manifest.json`."),
+            "responses": {"200": _json_response("Recent jobs plus runner stats.", {
+                "type": "object",
+                "properties": {"jobs": {"type": "array", "items": _JOB},
+                               "stats": {"type": "object", "properties": {
+                                   "pending": {"type": "integer"}, "retained": {"type": "integer"},
+                                   "worker": {"type": "boolean"}}}}})},
+        }
+    }
+
+    spec["paths"]["/jobs/{id}"] = {
+        "get": {
+            "tags": ["jobs"], "summary": "One job's state and step log",
+            "description": ("Steps run in order and STOP at the first failure — continuing past a "
+                            "failed extraction would fold a stale corpus into the reference tier. On "
+                            "`failed`, the last entry in `results` carries the exit code and the tail "
+                            "of that step's output."),
+            "parameters": [{"name": "id", "in": "path", "required": True,
+                            "schema": {"type": "string", "pattern": "^[0-9a-f]{12}$"}}],
+            "responses": {"200": _json_response("The job.", _JOB),
+                          **_errors((400, "Malformed job id."),
+                                    (404, "No such job, or its record has been evicted."))},
+        }
+    }
+
+    if mode == modes.ONLINE:
+        spec["paths"]["/scrape"] = {
+            "post": {
+                "tags": ["scrape"], "summary": "Harvest a web source (ONLINE MODE ONLY)",
+                "description": ("Mounted only when `WIKIKB_MODE=online`; in airgapped mode this path "
+                                "answers exactly like an unknown path and is absent from this "
+                                "document.\n\n**Not implemented yet** — `wikikb/scrape/scrape.py` is "
+                                "the declared seam and currently answers 501. When written, a scrape "
+                                "lands in `vault/_sources/{domain}/_raw/web/` and runs through the "
+                                "same job runner as the PDF chain."),
+                "responses": {**_errors((501, "Not implemented yet — see wikikb/scrape/scrape.py."))},
+            }
+        }
+        spec["paths"]["/scrape/sources"] = {
+            "get": {"tags": ["scrape"], "summary": "Configured scrape sources (ONLINE MODE ONLY)",
+                    "description": "**Not implemented yet** — answers 501.",
+                    "responses": {**_errors((501, "Not implemented yet."))}}
+        }
 
     spec["paths"][mcp_path] = {
         "post": {
@@ -416,10 +555,15 @@ def docs_html():
     return _DOCS_HTML
 
 
-def spec_json(mcp_path="/mcp", auth_required=False, vault=None):
-    return json.dumps(build_spec(mcp_path, auth_required, vault), indent=2, ensure_ascii=False)
+def spec_json(mcp_path="/mcp", auth_required=False, vault=None, mode=modes.AIRGAPPED):
+    return json.dumps(build_spec(mcp_path, auth_required, vault, mode=mode),
+                      indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":                      # `python3 -m wikikb.serve.openapi > openapi.json`
+    # current_safe(), not current(): dumping the spec must not die on a bad WIKIKB_MODE — that is
+    # serve.main()'s refusal to make, and an operator generating a client is often not on the box
+    # whose env is misconfigured.
     print(spec_json(os.environ.get("WIKIKB_MCP_PATH", "/mcp"),
-                    bool(os.environ.get("WIKIKB_API_TOKEN"))))
+                    bool(os.environ.get("WIKIKB_API_TOKEN")),
+                    mode=modes.current_safe()[0]))

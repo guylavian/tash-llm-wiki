@@ -71,8 +71,25 @@ open http://localhost:8642/docs           # self-contained API reference (no CDN
 ```
 
 Content lives on the host and the image holds only code, so updating pages never
-rebuilds the image. `.env` controls the vault mount, the published port, the MCP route
-(`WIKIKB_MCP_PATH`, default `/mcp`), auth, and whether the PDF upload surface is enabled.
+rebuilds the image. `.env` controls the operation mode, the vault mount, the published
+port, the MCP route (`WIKIKB_MCP_PATH`, default `/mcp`), auth, and whether the PDF
+upload surface is enabled.
+
+### Two operation modes (`WIKIKB_MODE`)
+
+One image, one compose file, two postures — and they are **additive**, so `online` is a
+strict superset of `airgapped` and a client written against either works against both:
+
+| | `airgapped` (default) | `online` |
+|---|---|---|
+| Vault + MCP + PDF upload/ingest | ✅ | ✅ |
+| Web scraper (`/scrape`) | — | ✅ *(seam — answers 501 until implemented)* |
+| Outbound network | never | scraper only |
+
+In airgapped mode the `/scrape` paths answer exactly like an unknown path and are absent
+from `/openapi.json`, so a sealed instance doesn't advertise a surface it refuses to
+serve. An unknown `WIKIKB_MODE` **refuses to start** rather than guessing a default.
+`GET /health` reports the live mode and its capabilities.
 
 > A bind mount **shadows** the image's baked `vault/` rather than merging with it —
 > seed the host directory first (`cp -a ./vault/. $HOST_VAULT_DIR/`) or you will serve
@@ -102,6 +119,21 @@ python3 _meta/tests/selftest.py               # run the test suite
 API (`/route /search /ask /page /expand`); `python3 -m wikikb mcp` serves them
 over MCP stdio (`claude mcp add wikikb -- python3 -m wikikb mcp`). See
 `CLAUDE.md` → "Serving the wiki".
+
+**Adding a PDF over HTTP** (write surface, opt-in via `WIKIKB_ALLOW_UPLOAD=1`):
+
+```bash
+curl -T guide.pdf http://localhost:8642/upload/keycloak/guide.pdf
+# -> 201 {"stored": "...", "job_id": "9f2c1a0b4d7e", "status_url": "/jobs/9f2c1a0b4d7e"}
+curl http://localhost:8642/jobs/9f2c1a0b4d7e
+```
+
+Storing the file also **queues the conversion** in the background —
+`pdf_to_corpus --append` → `corpus_to_vault` → `build` — so the drop becomes an
+immutable reference note that is crosslinked into the rest of the Markdown, without a
+second command. One serialized worker; a second queued job for the same domain coalesces
+into the first. `WIKIKB_AUTO_INGEST=0` keeps uploads store-only and lets you batch several
+drops into one run with `POST /ingest/<domain>`.
 
 ## Rules
 

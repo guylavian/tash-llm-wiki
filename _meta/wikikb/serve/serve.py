@@ -11,13 +11,24 @@ stdlib only: http.server.ThreadingHTTPServer + urllib.parse + json. No socket op
 the listener binds inside main(). Default bind is 127.0.0.1 (loopback only); binding a real interface
 (--bind 0.0.0.0/<lan-ip>) is the operator's explicit choice, not this module's default.
 
+OPERATION MODES (WIKIKB_MODE — see wikikb/modes.py for the full contract):
+    airgapped (default)  everything below EXCEPT the /scrape surface, which answers exactly like an
+                         unknown path — so an online-only endpoint is not fingerprintable on a
+                         sealed box. No outbound connection is ever opened.
+    online               the same surface PLUS POST /scrape + GET /scrape/sources.
+The modes are additive: `online` is a strict superset, so a client written against an airgapped
+instance keeps working verbatim against an online one. An unknown WIKIKB_MODE value REFUSES TO
+START (exit 2) rather than falling back to a default — a mode is a posture, and silently getting
+the wrong one in either direction is the failure that check exists for.
+
 Usage:
     python3 -m wikikb serve                             # http://127.0.0.1:8642
     python3 -m wikikb serve --port 9000 --bind 0.0.0.0   # operator's explicit non-loopback choice
     python3 -m wikikb serve --allow-upload               # opt in to PUT /upload (see below); off by default
+    WIKIKB_MODE=online python3 -m wikikb serve           # + the web-scraper surface
 
 Endpoints (all JSON; errors are {"error": "..."} with a non-2xx status):
-    GET /health                                    -> {"status","domains","pages"}
+    GET /health                                    -> {"status","mode","capabilities","domains","pages"}
     GET /route?q=...                               -> {"domains":[...],"confident":bool}
     GET /search?domain=D&q=...&k=5                  -> [{"id","title","score","snippet"}, ...]
     GET /ask?q=...&domain=D&k=5&tier=conceptual     -> same shape as `wikikb ask --json`
@@ -30,9 +41,21 @@ Endpoints (all JSON; errors are {"error": "..."} with a non-2xx status):
                                                         no vendored JS, renders air-gapped (point
                                                         stock Swagger UI at /openapi.json for
                                                         try-it-out)
-    PUT /upload/<domain>/<filename>.pdf             -> {"stored","next"}  (raw body, e.g. `curl -T x.pdf`;
-                                                        the ONLY write surface, opt-in via --allow-upload,
-                                                        default OFF; see do_PUT for the trust boundary)
+    PUT /upload/<domain>/<filename>.pdf             -> {"stored","job_id","status_url"}  (raw body, e.g.
+                                                        `curl -T x.pdf`; opt-in via --allow-upload, default
+                                                        OFF; see do_PUT for the trust boundary). Storing the
+                                                        file also QUEUES the conversion chain — pdf→corpus→
+                                                        immutable reference notes→crosslink — as a background
+                                                        job; poll it at /jobs/<id>. WIKIKB_AUTO_INGEST=0
+                                                        keeps the old store-only behaviour.
+    POST /ingest/<domain>                           -> {"job_id","status_url"}  (queue the same chain by
+                                                        hand: the batch path — drop several PDFs, ingest
+                                                        once. Same opt-in as /upload.)
+    GET /jobs                                       -> {"jobs":[...],"stats":{...}}
+    GET /jobs/<id>                                  -> {"id","state","steps","results",...}
+    POST /scrape                                    -> ONLINE MODE ONLY (501 until wikikb/scrape/ is
+    GET  /scrape/sources                               implemented). In airgapped mode both are
+                                                        indistinguishable from an unknown path.
     POST /mcp                                       -> MCP Streamable HTTP transport (JSON-RPC 2.0,
                                                         one message per call; no SSE, no sessions — see
                                                         do_mcp_post). DUAL-ERA: serves both the legacy
@@ -60,6 +83,7 @@ import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
+from wikikb import modes
 from wikikb import paths
 WIKI = str(paths.WIKI)
 sys.dont_write_bytecode = True
@@ -71,6 +95,7 @@ from wikikb.retrieval import kb
 from wikikb.retrieval import expand as expandmod
 from wikikb.graph import ask as askmod
 from wikikb.serve import openapi        # OpenAPI 3.1 description + the offline /docs page
+from wikikb.serve import jobs as jobsmod  # background runner for the ingest chain (no thread at import)
 
 PAGE_DIRS = paths.PAGE_DIRS
 # Same slug shape lint.py's LINK_RE / expand.py's PAGELINK_RE use: kebab-case only. This is what makes
@@ -84,6 +109,10 @@ FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 # MATCH (falls into the disabled/unknown branch) rather than needing separate sanitizing. Domain
 # membership in the taxonomy is still checked separately (do_upload) since that's semantic, not shape.
 UPLOAD_RE = re.compile(r"^/upload/([a-z0-9][a-z0-9-]*)/([A-Za-z0-9][A-Za-z0-9._-]*\.pdf)$")
+# POST /ingest/<domain> — the batch trigger for the same chain an upload queues automatically.
+INGEST_RE = re.compile(r"^/ingest/([a-z0-9][a-z0-9-]*)$")
+# GET /jobs/<id> — job ids are uuid4 hex prefixes (jobs.Job.id), so the shape check is exact.
+JOB_ID_RE = re.compile(r"^[0-9a-f]{12}$")
 
 
 # --- runtime configuration (env defaults; an explicit CLI flag still wins) ----------------
@@ -108,6 +137,18 @@ def _env_route(name, default):
 MCP_PATH = _env_route("WIKIKB_MCP_PATH", "/mcp")
 DEFAULT_PORT = int(os.environ.get("WIKIKB_PORT") or 8642)
 DEFAULT_BIND = os.environ.get("WIKIKB_BIND") or "127.0.0.1"
+
+# The operation mode. Resolved at import with current_safe() rather than current(): mcp.py imports
+# THIS module, so a bad WIKIKB_MODE must not become an import-time traceback inside an unrelated
+# tool. On an unresolvable value MODE is the fail-closed default and MODE_ERROR carries the message;
+# main() refuses to start the listener, which is where "fail loud on a typo" is actually enforced.
+MODE, MODE_ERROR = modes.current_safe()
+
+# Whether storing a PDF also QUEUES the conversion chain. Default ON (that is the point of the
+# write surface: an upload should produce linked Markdown, not a file someone must remember to
+# process). Set 0/false to keep the pre-2026-08-05 store-only behaviour and drive ingest by hand
+# via POST /ingest/<domain> — the batch path, one build for several drops.
+AUTO_INGEST = (os.environ.get("WIKIKB_AUTO_INGEST") or "1").strip().lower() not in ("0", "false", "no", "off")
 
 UPLOAD_MAX_BYTES = 50 * 1024 * 1024  # 50 MB cap (CLAUDE.md A3 trust-boundary checklist)
 MCP_MAX_BYTES = 2 * 1024 * 1024      # 2 MB cap on a single POST /mcp JSON-RPC body — same idea,
@@ -139,10 +180,20 @@ def find_page(slug):
 
 # ---------- endpoint handlers: (status, json-able-object) --------------------------------------
 
-def do_health():
+def do_health(allow_upload=False):
+    """Liveness + what this instance actually IS.
+
+    `capabilities` is MODE-derived (what the posture permits); `uploads`/`auto_ingest` are
+    PROCESS-derived (what this run switched on). Reporting them separately is deliberate — an
+    operator debugging "why did my PUT 404" needs to tell "wrong mode" apart from "forgot
+    --allow-upload", and a single merged flag would hide exactly that distinction.
+    """
     domains = sorted(tags.load_domains())
     pages = sum(1 for _ in lintmod.page_files())
-    return 200, {"status": "ok", "domains": domains, "pages": pages}
+    return 200, {"status": "ok", "mode": MODE, "capabilities": modes.capabilities(MODE),
+                 "uploads": bool(allow_upload),
+                 "auto_ingest": bool(allow_upload and AUTO_INGEST),
+                 "domains": domains, "pages": pages}
 
 
 def do_route(q):
@@ -435,11 +486,75 @@ def do_upload(domain, filename, content_length_header, rfile):
     with os.fdopen(fd, "wb") as fh:
         fh.write(body)
 
-    return 201, {
-        "stored": os.path.relpath(target, WIKI),
-        "next": ("python3 -m wikikb pdf_to_corpus --src _sources/%s/_raw/pdfs --domain %s --apply"
-                 % (domain, domain)),
-    }
+    out = {"stored": os.path.relpath(target, WIKI)}
+    # 201 Created, not 202: the resource named in the request-target IS created and durable by the
+    # time we answer. The queued conversion is reported as an ADDITIONAL field rather than by
+    # downgrading the status, so a client that only cares about the file keeps its old contract.
+    if AUTO_INGEST:
+        try:
+            job, coalesced = jobsmod.submit_ingest(domain, detail={"uploaded": out["stored"]})
+        except RuntimeError as e:                       # queue full — the file is stored regardless,
+            out["ingest"] = "not queued: %s" % e         # so say so instead of failing the upload
+            out["next"] = "POST /ingest/%s once the backlog drains" % domain
+            return 201, out
+        out["job_id"] = job.id
+        out["status_url"] = "/jobs/%s" % job.id
+        # `coalesced` is not a degraded outcome: the chain reads the WHOLE _raw/pdfs/ directory, so
+        # the pending job it folded into will see this file too (see jobs.Runner.submit).
+        out["ingest"] = "coalesced into pending job" if coalesced else "queued"
+        out["next"] = "GET /jobs/%s" % job.id
+    else:
+        out["ingest"] = "disabled (WIKIKB_AUTO_INGEST=0)"
+        out["next"] = ("POST /ingest/%s   (or: python3 -m wikikb pdf_to_corpus --src "
+                       "_sources/%s/_raw/pdfs --domain %s --append --apply)" % (domain, domain, domain))
+    return 201, out
+
+
+def do_ingest(domain):
+    """POST /ingest/<domain> — queue the conversion chain by hand.
+
+    The batch path: drop several PDFs with WIKIKB_AUTO_INGEST=0, then run ONE chain over all of
+    them. Also the retry path when an upload's job failed and the cause has been fixed.
+    """
+    if domain not in tags.load_domains():
+        return 400, {"error": "unknown domain: %s (see GET /health)" % domain}
+    try:
+        job, coalesced = jobsmod.submit_ingest(domain, detail={"trigger": "POST /ingest"})
+    except RuntimeError as e:
+        return 429, {"error": str(e)}
+    return 202, {"job_id": job.id, "status_url": "/jobs/%s" % job.id,
+                 "state": job.state, "coalesced": coalesced,
+                 "steps": [name for name, _ in job.steps]}
+
+
+def do_job(job_id):
+    if not JOB_ID_RE.match(job_id or ""):
+        return 400, {"error": "invalid job id"}
+    job = jobsmod.RUNNER.get(job_id)
+    if job is None:
+        # Also the answer for a job that has been evicted after MAX_RETAINED — indistinguishable on
+        # purpose: "we no longer hold a record" and "no such id" are the same fact to a client.
+        return 404, {"error": "no such job: %s" % job_id}
+    return 200, job.to_dict()
+
+
+def do_jobs():
+    return 200, {"jobs": [j.to_dict() for j in jobsmod.RUNNER.list()],
+                 "stats": jobsmod.RUNNER.stats()}
+
+
+def do_scrape(path):
+    """POST /scrape · GET /scrape/sources — ONLINE MODE ONLY.
+
+    Reached only after the caller has been confirmed to be in online mode (airgapped falls through
+    to _no_such_endpoint() before ever getting here), so this is purely the not-yet-implemented
+    answer. 501 with a pointer at the module to write, rather than a 404 that would wrongly say the
+    online surface is absent when the mode says it is present.
+    """
+    return 501, {"error": "web scraping is not implemented yet",
+                 "mode": MODE,
+                 "seam": "wikikb/scrape/scrape.py — fetch()/sources()",
+                 "path": path}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -494,7 +609,16 @@ class Handler(BaseHTTPRequestHandler):
                 return
         try:
             if path == "/health":
-                status, obj = do_health()
+                status, obj = do_health(getattr(self.server, "allow_upload", False))
+            elif path == "/jobs":
+                status, obj = do_jobs()
+            elif path.startswith("/jobs/"):
+                status, obj = do_job(path[len("/jobs/"):])
+            elif path == "/scrape/sources":
+                # Online-only. In airgapped mode this falls through to the SAME
+                # _no_such_endpoint() an unknown path gets — the disabled-upload posture applied to
+                # the mode split, so a sealed instance does not advertise what it refuses to do.
+                status, obj = do_scrape(path) if MODE == modes.ONLINE else _no_such_endpoint()
             elif path == "/route":
                 status, obj = do_route(qs.get("q", ""))
             elif path == "/search":
@@ -512,7 +636,7 @@ class Handler(BaseHTTPRequestHandler):
                 # description cannot drift from what is actually being served.
                 self._reply_raw(200, "application/json; charset=utf-8",
                                 openapi.spec_json(MCP_PATH, bool(os.environ.get("WIKIKB_API_TOKEN")),
-                                                  str(paths.WIKI)).encode("utf-8"))
+                                                  str(paths.WIKI), mode=MODE).encode("utf-8"))
                 return
             elif path == "/docs":
                 self._reply_raw(200, "text/html; charset=utf-8", openapi.docs_html().encode("utf-8"))
@@ -530,9 +654,63 @@ class Handler(BaseHTTPRequestHandler):
         # one line per request to stderr; BaseHTTPRequestHandler's default log_message already
         # does this via send_response() -> log_request(), so nothing further is needed here.
 
+    def _drain_body(self, cap):
+        """Read and return at most `cap` bytes of body, or None after replying with the error.
+
+        Every POST path must consume its declared body even when it ignores the content: leaving
+        unread bytes in the socket desynchronizes a keep-alive connection, so the NEXT request on it
+        is parsed starting mid-body. Same required/numeric/bounded shape as do_upload's
+        Content-Length handling — a missing length is 411, an oversized one is 413 off the header
+        alone, never by reading it first.
+        """
+        length_header = self.headers.get("Content-Length")
+        if length_header is None:
+            self._reply(411, {"error": "Content-Length required"})
+            return None
+        try:
+            length = int(length_header)
+        except ValueError:
+            self._reply(400, {"error": "invalid Content-Length"})
+            return None
+        if length < 0 or length > cap:
+            self._reply(413, {"error": "payload too large (max %d bytes)" % cap})
+            return None
+        raw = self.rfile.read(length)
+        if len(raw) != length:
+            self._reply(400, {"error": "short read: expected %d bytes, got %d" % (length, len(raw))})
+            return None
+        return raw
+
     def do_POST(self):
         path = urlsplit(self.path).path.rstrip("/") or "/"
         if path != MCP_PATH:
+            # Auth FIRST on the non-MCP write paths, matching do_GET (which gates everything except
+            # /health before dispatch). The MCP branch below keeps its existing order untouched.
+            err = _check_auth(self.headers)
+            if err:
+                self._reply(*err)
+                return
+            m = INGEST_RE.match(path)
+            if m:
+                # Same opt-in as /upload, and the same unfingerprintable refusal when it is off:
+                # /ingest triggers writes to the vault, so it is part of the write surface, not a
+                # separate one that could be left open after uploads were deliberately disabled.
+                if not getattr(self.server, "allow_upload", False):
+                    self._reply(*_no_such_endpoint())
+                    return
+                if self._drain_body(MCP_MAX_BYTES) is None:
+                    return
+                try:
+                    status, obj = do_ingest(m.group(1))
+                except Exception as e:                  # noqa: BLE001 — never kill the thread
+                    status, obj = 500, {"error": str(e)}
+                self._reply(status, obj)
+                return
+            if path == "/scrape" and MODE == modes.ONLINE:
+                if self._drain_body(MCP_MAX_BYTES) is None:
+                    return
+                self._reply(*do_scrape(path))
+                return
             self._reply(*_no_such_endpoint())
             return
         err = _check_auth(self.headers)
@@ -622,6 +800,13 @@ def main():
                          "vault/_sources/<domain>/_raw/pdfs/, never the immutable reference tier; "
                          "env WIKIKB_ALLOW_UPLOAD=1)")
     args = ap.parse_args()
+    # REFUSE TO START on an unresolvable WIKIKB_MODE. Falling back to a default here would mean a
+    # typo silently changes the deployment's posture — either quietly disabling the scraper an
+    # operator believes is running, or (the direction that actually matters) leaving them believing
+    # a box is sealed. Exit 2 is the same "misconfiguration, not a runtime error" code build.py uses.
+    if MODE_ERROR:
+        print("wikikb serve: REFUSED — " + MODE_ERROR, file=sys.stderr)
+        sys.exit(2)
     # Pre-warm the two module-level read caches (route.py's domain profiles, expand.py's page graph)
     # ONCE here, single-threaded, before ThreadingHTTPServer starts handing requests to worker threads.
     # After this point every request only READS them — no locking needed (ponytail: a shared mutable
@@ -633,8 +818,17 @@ def main():
     # Print which auth posture is live — an operator staring at a fresh container's logs needs to see
     # at a glance whether WIKIKB_API_TOKEN was actually picked up, not just trust that they set it.
     auth_mode = "auth: Bearer token required" if os.environ.get("WIKIKB_API_TOKEN") else "auth: OFF (set WIKIKB_API_TOKEN to require it)"
+    uploads = ""
+    if args.allow_upload:
+        uploads = "  [uploads ENABLED%s]" % ("" if AUTO_INGEST else ", auto-ingest OFF")
     print("wikikb serve: http://%s:%d  (Ctrl-C to stop)%s  [%s]" % (
-        args.bind, args.port, "  [uploads ENABLED]" if args.allow_upload else "", auth_mode), file=sys.stderr)
+        args.bind, args.port, uploads, auth_mode), file=sys.stderr)
+    # The mode decides whether an outbound-capable surface exists at all, so it belongs in the first
+    # lines of `docker logs` next to the vault path — the two settings an operator most often gets
+    # wrong and cannot otherwise see without making a request.
+    print("wikikb serve: mode=%s%s" % (
+        MODE, "  [web scraper mounted — not implemented yet]" if MODE == modes.ONLINE else
+              "  (no outbound network)"), file=sys.stderr)
     # The vault and MCP mount are both relocatable now, and getting either wrong produces a server
     # that starts cleanly and then answers every query from the wrong (or an empty) corpus. Print
     # them so a misconfigured mount is visible in the first lines of `docker logs`, not later as

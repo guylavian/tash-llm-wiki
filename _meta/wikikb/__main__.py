@@ -39,6 +39,7 @@ TOOLS = {
     "tkg": "tkg",          # the temporal-knowledge-graph CLI lives at wikikb/tkg/tkg.py
     "serve": "serve",      # stateless JSON API over the wiki for SRE/agent consumption (loopback default)
     "mcp": "mcp",          # MCP (Model Context Protocol) stdio server for MCP-host consumption
+    "scrape": "scrape",    # ONLINE-mode web harvest (WIKIKB_MODE=online); seam, not implemented yet
 }
 
 
