@@ -3,18 +3,18 @@
 # Build:  docker buildx build --platform linux/amd64 -t llm-wiki:amd64 --load .
 # Run:    docker run --rm -p 8642:8642 llm-wiki:amd64                    # JSON API on :8642
 #         docker run --rm -i llm-wiki:amd64 python3 -m wikikb mcp        # MCP over stdio
-# Python 3.12: the requirements-online.txt pins all ship cp312 manylinux wheels (cp314 lags).
+# Python 3.12: the requirements.txt pins all ship cp312 manylinux wheels (cp314 lags).
 FROM --platform=linux/amd64 python:3.12-slim
 
-# CPU-only torch first — the default PyPI linux torch bundles CUDA (~2.5 GB of dead weight here).
-RUN pip install --no-cache-dir torch==2.12.1 --index-url https://download.pytorch.org/whl/cpu
+# The pins live in the two requirements files, not inline here — see their headers for WHY each
+# version. Copied BEFORE the vault so a content-only change doesn't invalidate the pip layers.
+COPY requirements.txt requirements-torch-cpu.txt /wiki/
 
-# Pinned to the VERIFIED working set from this repo's .venv-online/.venv-embed (py3.12) —
-# requirements-online.txt's tokenizers==0.21.0 pin conflicts with litellm 1.83.7 and is
-# documented in that file as unverified.
-RUN pip install --no-cache-dir \
-    litellm==1.83.7 langgraph==1.2.6 tokenizers==0.22.2 \
-    numpy==2.5.0 sentence-transformers==5.6.0 transformers==5.12.1
+# CPU-only torch first, from its own index — the default PyPI linux torch bundles CUDA (~2.5 GB of
+# dead weight here). The --index-url is inside requirements-torch-cpu.txt, hence the separate file:
+# it must NOT apply to the pins below (litellm/langgraph aren't on download.pytorch.org).
+RUN pip install --no-cache-dir -r /wiki/requirements-torch-cpu.txt \
+ && pip install --no-cache-dir -r /wiki/requirements.txt
 
 COPY . /wiki
 ENV PYTHONPATH=/wiki/_meta

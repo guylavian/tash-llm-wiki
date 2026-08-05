@@ -1,0 +1,21 @@
+# requirements.txt — the pinned dependency set baked into the root Dockerfile image
+# (llm-wiki:amd64: the full optional tier — LLM gateway, LangGraph orchestration, dense/hybrid
+# retrieval). The base repo itself stays zero-pip: none of this is needed to run the stdlib
+# toolchain. Installed by the Dockerfile with `pip install -r requirements.txt`.
+#
+# torch is NOT here — it installs from PyTorch's CPU index via requirements-torch-cpu.txt.
+#
+# These are the VERIFIED working versions from this repo's .venv-online/.venv-embed on py3.12,
+# NOT the pins in _meta/requirements-online.txt: that file's tokenizers==0.21.0 conflicts with
+# litellm 1.83.7 and is documented there as unverified. All of these ship cp312 manylinux
+# wheels (cp314 lags), which is why the image is python:3.12-slim.
+
+# --- LLM gateway + orchestration (optional online tier) ---
+litellm==1.83.7
+langgraph==1.2.6
+
+# --- dense / hybrid retrieval stack ---
+tokenizers==0.22.2
+numpy==2.5.0
+sentence-transformers==5.6.0
+transformers==5.12.1

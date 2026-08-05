@@ -1,0 +1,7 @@
+# requirements-torch-cpu.txt — torch ONLY, from PyTorch's CPU wheel index.
+# Kept separate from requirements.txt on purpose: the default PyPI linux torch bundles CUDA
+# (~2.5 GB of dead weight for this image), and pointing --index-url at download.pytorch.org
+# for the whole install would break the other pins (litellm/langgraph aren't hosted there).
+--index-url https://download.pytorch.org/whl/cpu
+
+torch==2.12.1
