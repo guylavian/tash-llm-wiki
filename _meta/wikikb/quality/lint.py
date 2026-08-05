@@ -615,7 +615,7 @@ def main():
                     help="local model context window; a per-domain index over ~25%% of it is flagged")
     args = ap.parse_args()
 
-    # shared taxonomy (from tags.py / _meta/taxonomy.md); empty if unavailable
+    # shared taxonomy (from tags.py / vault/taxonomy.md); empty if unavailable
     sys.dont_write_bytecode = True
     try:
         from wikikb.build import tags as tagmod
@@ -755,7 +755,7 @@ def main():
                     errors.append(f"{rel}: question_tier '{qtier}' not in domain `{dom}`'s "
                                   f"tiers-covered {covered} — missing H1 out-of-coverage banner")
 
-        # tag checks (Pass 2 — validated against _meta/taxonomy.md)
+        # tag checks (Pass 2 — validated against vault/taxonomy.md)
         if tagmod is not None:
             page_tags = tagmod.parse_tags(fm.get("_block", ""))
             if page_tags is None:

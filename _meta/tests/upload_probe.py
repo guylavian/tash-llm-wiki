@@ -32,7 +32,12 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))      # _meta/tests
 META = os.path.dirname(HERE)                            # _meta
-WIKI = os.path.dirname(META)                            # repo root == vault root
+sys.path.insert(0, META)  # test bootstrap: make `import wikikb` importable
+# WIKI comes from wikikb.paths — the ONE definition. Re-deriving it here as
+# `os.path.dirname(META)` silently broke when content moved under <repo>/vault/ (2026-08-05),
+# and it also ignored WIKIKB_VAULT_ROOT, so a sandboxed run probed the live tree.
+from wikikb import paths as _paths  # noqa: E402 — must follow the sys.path bootstrap
+WIKI = str(_paths.WIKI)
 PY = sys.executable
 ENV = {**os.environ, "PYTHONPATH": META + os.pathsep + os.environ.get("PYTHONPATH", "")}
 

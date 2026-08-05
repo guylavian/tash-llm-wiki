@@ -18,11 +18,19 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))     # _meta/tests
 META = os.path.dirname(HERE)                           # _meta
-WIKI = os.path.dirname(META)                           # wiki
 PKG = os.path.join(META, "wikikb")                     # the package dir (was _meta/bin)
-REF = os.path.join(WIKI, "reference")
 PY = sys.executable
 sys.path.insert(0, META)                               # test bootstrap: make `import wikikb` importable
+
+# WIKI/REF come from wikikb.paths — the ONE definition — rather than being re-derived here.
+# This harness used to compute `WIKI = os.path.dirname(META)`, which silently became wrong when
+# content moved under `<repo>/vault/` (2026-08-05): every reference-tier check then pointed at a
+# path that does not exist and reported "0 notes" as a content failure rather than a path bug.
+# Re-deriving paths in a second place is exactly what paths.py exists to prevent, and the test
+# harness is not exempt — it also means WIKIKB_VAULT_ROOT now scopes these checks like everything else.
+from wikikb import paths as _paths                     # noqa: E402 — must follow the sys.path bootstrap
+WIKI = str(_paths.WIKI)
+REF = str(_paths.REFERENCE)
 _ENV = {**os.environ, "PYTHONPATH": META + os.pathsep + os.environ.get("PYTHONPATH", "")}
 checks = []
 
@@ -39,8 +47,14 @@ def run(name, *args, env=None):
     if base == "eval":
         base = "evaluate"
     cmd = ([PY, "-m", "wikikb", base] if base in PKG_TOOLS else [PY, os.path.join(HERE, name)]) + list(args)
-    p = subprocess.run(cmd, capture_output=True, text=True, cwd=META, env=env or _ENV)
-    return p.returncode, p.stdout + p.stderr
+    p = subprocess.run(cmd, capture_output=True, text=True, cwd=META, env=env or _ENV,
+                       errors="replace")
+    # `or ""` because a stream can come back None when the child dies before the pipe is decoded
+    # (seen on Windows, where a tool that writes non-cp1252 output can take the decode down with it).
+    # Bare `p.stdout + p.stderr` then raised TypeError INSIDE the harness, aborting the whole run at
+    # that check and hiding every check after it. A tool that misbehaves must fail its own check, not
+    # the suite; errors="replace" likewise keeps an undecodable byte from masquerading as a crash.
+    return p.returncode, (p.stdout or "") + (p.stderr or "")
 
 
 def check(name, ok, detail=""):
@@ -681,7 +695,7 @@ check("llm routing: complete_routed degrades to single-model when <2 models conf
 
 # 43. openshift brain (ADD DOMAIN): declared in taxonomy, has a routing index, and its raw notes-first
 # tier is grep-retrievable. The whole-loop proof that the new domain stands up like the others.
-_tax = open(os.path.join(META, "taxonomy.md"), encoding="utf-8").read()
+_tax = open(str(_paths.TAXONOMY), encoding="utf-8").read()   # vault-resident since 2026-08-05
 _osh_idx = os.path.join(WIKI, "index.openshift.md")
 _osh_decl = "- domain: openshift" in _tax
 _osh_indexed = os.path.isfile(_osh_idx) and "openshift-overview" in open(_osh_idx, encoding="utf-8").read()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Delta manifest for the Keycloak/RHBK LLM Wiki — stdlib only, no network.
 
-The manifest (`wiki/_meta/.manifest.json`) records every *ingested* source: the
+The manifest (`vault/.manifest.json`) records every *ingested* source: the
 sources cited by wiki pages, a content hash (for sources that map to a single
 file), timestamps, and which wiki pages each source produced. INGEST consults it
 so it only does work for new or changed sources instead of re-reading the corpus.

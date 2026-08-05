@@ -33,8 +33,12 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))      # _meta/tests
 META = os.path.dirname(HERE)                            # _meta
-WIKI = os.path.dirname(META)                            # wiki
 sys.path.insert(0, META)                               # test bootstrap: make `import wikikb` importable
+# WIKI comes from wikikb.paths — the ONE definition. Re-deriving it here as
+# `os.path.dirname(META)` silently broke when content moved under <repo>/vault/ (2026-08-05),
+# and it also ignored WIKIKB_VAULT_ROOT, so a sandboxed run probed the live tree.
+from wikikb import paths as _paths  # noqa: E402 — must follow the sys.path bootstrap
+WIKI = str(_paths.WIKI)
 
 from wikikb.quality import faithfulness
 
@@ -79,7 +83,7 @@ def run_parity(verbose=False):
 
 
 def _run_parity_inner(re, kb, nodes, serve, evaluate, verbose):
-    cases_path = os.path.join(WIKI, "_meta", "eval", "cases.jsonl")
+    cases_path = os.path.join(str(_paths.EVAL), "cases.jsonl")
     pairs = _parity_queries(cases_path)
     if not pairs:
         print("parity: no eval cases found at %s" % cases_path, file=sys.stderr)
@@ -144,7 +148,7 @@ def _run_parity_inner(re, kb, nodes, serve, evaluate, verbose):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--cases", default=os.path.join(WIKI, "_meta", "eval", "faithfulness_cases.jsonl"))
+    ap.add_argument("--cases", default=os.path.join(str(_paths.EVAL), "faithfulness_cases.jsonl"))
     ap.add_argument("--verbose", action="store_true", help="per-case details")
     args = ap.parse_args()
 

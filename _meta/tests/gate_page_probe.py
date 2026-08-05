@@ -29,9 +29,13 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))      # _meta/tests
 META = os.path.dirname(HERE)                            # _meta
-WIKI = os.path.dirname(META)                            # wiki
 sys.dont_write_bytecode = True
 sys.path.insert(0, META)                               # test bootstrap: make `import wikikb` importable
+# WIKI comes from wikikb.paths — the ONE definition. Re-deriving it here as
+# `os.path.dirname(META)` silently broke when content moved under <repo>/vault/ (2026-08-05),
+# and it also ignored WIKIKB_VAULT_ROOT, so a sandboxed run probed the live tree.
+from wikikb import paths as _paths  # noqa: E402 — must follow the sys.path bootstrap
+WIKI = str(_paths.WIKI)
 from wikikb.quality import lint  # faithful: reuse the real frontmatter parser AND the gate rule
 
 
@@ -83,7 +87,7 @@ def probe_run_query_gate():
     from wikikb.graph import nodes
     from wikikb.graph import ask as ask_mod
 
-    fixture_path = os.path.join(WIKI, "_meta", "eval", "fixtures", "reviewed-no-provenance.md")
+    fixture_path = os.path.join(str(_paths.EVAL), "fixtures", "reviewed-no-provenance.md")
     with open(fixture_path, encoding="utf-8") as fh:
         h2_fm = lint.parse_frontmatter(fh.read())
     h4_fm = _fixture_fm(status="needs-review", extracted=5, slug="probe-fixture-h4")
@@ -111,10 +115,10 @@ def probe_run_query_gate():
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--cases", default=os.path.join(WIKI, "_meta", "eval", "gate_page_cases.jsonl"))
+    ap.add_argument("--cases", default=os.path.join(str(_paths.EVAL), "gate_page_cases.jsonl"))
     args = ap.parse_args()
 
-    path = args.cases if os.path.isabs(args.cases) else os.path.join(WIKI, args.cases)
+    path = args.cases if os.path.isabs(args.cases) else os.path.join(str(_paths.ROOT), args.cases)
     if not os.path.isfile(path):
         print("cases file not found: %s" % path)
         sys.exit(2)
@@ -138,7 +142,14 @@ def main():
 
     fails = []
     for c in cases:
+        # The case bank mixes two roots: real pages are vault-relative ("topics/x.md") while the
+        # synthetic gate fixtures are repo-relative ("_meta/eval/fixtures/x.md"). Before the
+        # 2026-08-05 vault move both happened to resolve against the same directory, so one join
+        # sufficed; now they don't. Try the vault first, then the repo root — resolving here rather
+        # than rewriting the bank, which is frozen by the validation-independence rule (CLAUDE.md).
         pg = os.path.join(WIKI, c["page"])
+        if not os.path.isfile(pg):
+            pg = os.path.join(str(_paths.ROOT), c["page"])
         if not os.path.isfile(pg):
             fails.append(c)
             print("  FAIL  %-48s — page not found" % c["page"])
