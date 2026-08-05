@@ -55,7 +55,7 @@ P0/P1/P2.** Do not take them on faith.
   `wikikb.serve`, `wikikb.tkg` → editable install ships an incomplete package.
 - S3. Lint: 53 warnings — ~10 citation-grounding suspects ("possible fabricated
   citation"), ~20 pages with provenance drift (inferred>=extracted), ~15 tags
-  outside `_meta/taxonomy.md`, one page missing `domain:`,
+  outside `vault/taxonomy.md`, one page missing `domain:`,
   `questions/sso-implementation-review-framework.md` still `needs-review`.
 - S4. Manifest drift: `.manifest.json` generated 2026-07-09; STATUS reports
   116 NEW cited-not-recorded sources, 6 GONE, 4 PENDING references never

@@ -142,7 +142,7 @@ session. The raw layer stays immutable; the wiki is regenerable downstream of it
     missing summary/sources/provenance, provenance drift, auto-seeded summaries,
     link hubs, stale pages; `--status` adds the delta-manifest audit.
   - `python3 -m wikikb manifest {seed,status,record}` — the delta manifest
-    (`_meta/.manifest.json`): which sources are ingested vs pending/changed.
+    (`vault/.manifest.json`): which sources are ingested vs pending/changed.
 - **Operations are packaged** as Agent Skills in `.skills/` (`wiki-ingest`,
   `wiki-query`, `wiki-lint`, `wiki-status`) and OpenCode commands in `.opencode/`
   (`/ingest`, `/query`, `/lint`, `/status`) — thin pointers to `CLAUDE.md`.

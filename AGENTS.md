@@ -9,8 +9,8 @@ questions instead of guessing or going to the internet.
   only for INGEST / ADD-DOMAIN / page-editing operations.
 - Entry point: `index.md` (global router) → `index.<domain>.md`. Pages
   cross-link with `[[slug]]` (bare slug under `topics/` or `entities/`).
-- Raw ground truth lives in-vault: `reference/<domain>/` (folded-in corpus
-  notes) + `references/` (curated guides, `ref:` tier) + `_sources/<domain>/`
+- Raw ground truth lives in-vault: `vault/reference/<domain>/` (folded-in corpus
+  notes) + `references/` (curated guides, `ref:` tier) + `vault/_sources/<domain>/`
   (notes-first domains). Cited by wiki pages; **never edit** — immutable.
 - Tooling (stdlib, air-gapped) is the `wikikb` package under `_meta/`:
   `python3 -m wikikb {ask,kb,route,expand,lint,manifest,index,card,build,tkg,…}`

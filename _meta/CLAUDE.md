@@ -74,7 +74,7 @@ stays the single source of truth; the graph is compiled from edges that *already
   bound — Red Hat's exact GA dates are paywalled; `approximate` = recorded but **excluded** from `valid_from`).
   **OMIT, NEVER FABRICATE:** no usable date ⇒ the edge stays structural. Every version-temporal edge carries
   `valid_from_precision` so `errata-confirmed` is never mistaken for an exact GA date. A Source node's version
-  metadata is read **exclusively** from the immutable `reference/<domain>/` note frontmatter (a build-time
+  metadata is read **exclusively** from the immutable `vault/reference/<domain>/` note frontmatter (a build-time
   assertion enforces the `reference/`-only path), so a synthesis page's **`updated:` can never become
   `valid_from`** — it is structurally unreachable, not merely discouraged.
 - **Graphiti/Kuzu backend: REMOVED 2026-07-05.** The optional embedded-Kuzu write-side accelerator

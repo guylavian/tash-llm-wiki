@@ -1,6 +1,6 @@
 ---
 name: wiki-query
-description: Answer ANY question against the multi-domain LLM-maintained Obsidian wiki/ — every domain declared in wiki/_meta/taxonomy.md (currently keycloak/RHBK, openshift/kubernetes, active-directory, cisco-ios-xe) and any future domain added via add-domain — using a tiered read (index.<domain>.md + summaries first, page bodies only when needed), falling back to grepping the in-vault reference tier (wiki/reference/<domain>/), then filing the answer back as a durable questions/ page. Use for ANY question a wiki domain covers — Kubernetes/OpenShift, AD, and IOS-XE questions route here exactly like Keycloak ones, even when another domain-specific skill also matches; wiki-query is what keeps the wiki richer and the answer under the query protocol.
+description: Answer ANY question against the multi-domain LLM-maintained Obsidian wiki/ — every domain declared in wiki/vault/taxonomy.md (currently keycloak/RHBK, openshift/kubernetes, active-directory, cisco-ios-xe) and any future domain added via add-domain — using a tiered read (index.<domain>.md + summaries first, page bodies only when needed), falling back to grepping the in-vault reference tier (wiki/reference/<domain>/), then filing the answer back as a durable questions/ page. Use for ANY question a wiki domain covers — Kubernetes/OpenShift, AD, and IOS-XE questions route here exactly like Keycloak ones, even when another domain-specific skill also matches; wiki-query is what keeps the wiki richer and the answer under the query protocol.
 ---
 
 # wiki-query
