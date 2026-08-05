@@ -38,3 +38,10 @@ _meta/.venv-*
 deep-research-*.log
 
 # Obsidian per-machine session state (app.json/core-plugins/graph are kept)
+
+# Local runtime config (secrets, host paths) — the committed template is .env.example
+.env
+.env.local
+
+# Rebuildable vault-adjacent state (dense index); see .env HOST_STATE_DIR
+.wiki-state/

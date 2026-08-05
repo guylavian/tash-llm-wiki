@@ -9,8 +9,8 @@
 #
 # Content is copied EXPLICITLY below, never `COPY .` — only the paths deep-research RESEARCH 3 proved
 # the serving path (do_health/do_route/do_search/do_ask/do_page/do_expand/do_mcp_post in
-# _meta/wikikb/serve/serve.py) ever opens: reference/<domain>/, topics/entities/questions/outputs/,
-# _meta/taxonomy.md, and the wikikb package itself. That is a STRONGER guarantee than a .dockerignore
+# _meta/wikikb/serve/serve.py) ever opens: vault/reference/<domain>/, topics/entities/questions/outputs/,
+# vault/taxonomy.md, and the wikikb package itself. That is a STRONGER guarantee than a .dockerignore
 # exclude (which only bounds what CAN be sent to the daemon, not what a `COPY .` actually keeps) —
 # _sources/ (644MB), _meta/eval, _meta/tests, _meta/tkg, references/, .git, .obsidian never enter this
 # image regardless of variant. (.dockerignore was ALSO extended with these — see its comment — so the
@@ -55,7 +55,7 @@ COPY topics             /wiki/topics
 COPY entities           /wiki/entities
 COPY questions          /wiki/questions
 COPY outputs            /wiki/outputs
-COPY _meta/taxonomy.md  /wiki/_meta/taxonomy.md
+COPY vault/taxonomy.md  /wiki/vault/taxonomy.md
 COPY _meta/wikikb       /wiki/_meta/wikikb
 
 # GID-0 group-write, not owner-specific — an arbitrary OpenShift-assigned UID is always a member of

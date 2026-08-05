@@ -1,0 +1,72 @@
+# llm-wiki — content on the host, code in the image.
+#
+#   cp .env.example .env      # then edit HOST_VAULT_DIR
+#   docker compose up -d
+#   open http://localhost:8642/docs
+#
+# THE MOUNT SHAPE MATTERS. The host vault is mounted at /data/vault, one level
+# under the /data mount point, NOT directly at the container root of the mount.
+# `paths.py` derives the harvest staging dir from the vault's PARENT, so mounting
+# the vault at the top of the volume would put an in-flight import somewhere that
+# does not persist. Mounting the parent keeps vault/ and corpora/ siblings on the
+# same host volume, exactly as they are in the repo.
+#
+#   HOST                              CONTAINER
+#   ${HOST_VAULT_DIR} .............. /data/vault      (content — the portable dir)
+#   ${HOST_VAULT_DIR}/../corpora ... /data/corpora    (harvest staging, in-flight)
+#   ${HOST_STATE_DIR} .............. /wiki/_meta/embeddings   (rebuildable index)
+#
+# A BIND MOUNT SHADOWS whatever the image had at that path — it does not merge.
+# The image ships a baked copy of vault/, but mounting over it hides that copy
+# entirely, so seed the host directory FIRST or you will serve an empty wiki:
+#
+#   mkdir -p /srv/llm-wiki/vault && cp -a ./vault/. /srv/llm-wiki/vault/
+#
+# Migrating to another machine is then a copy of that one directory.
+
+services:
+  wiki:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: llm-wiki:local
+    container_name: llm-wiki
+    restart: unless-stopped
+
+    env_file: .env
+
+    environment:
+      # Set explicitly rather than inherited, so the container's view cannot drift
+      # from the mount paths declared below.
+      WIKIKB_VAULT_ROOT: /data/vault
+      WIKIKB_CORPORA_DIR: /data/corpora
+      WIKIKB_PORT: ${WIKIKB_PORT:-8642}
+      WIKIKB_BIND: 0.0.0.0
+      WIKIKB_MCP_PATH: ${WIKIKB_MCP_PATH:-/mcp}
+      PYTHONIOENCODING: utf-8
+
+    ports:
+      - "${HOST_PORT:-8642}:${WIKIKB_PORT:-8642}"
+
+    volumes:
+      # Content. Read-write because `wiki_ask(file_back=true)`, PDF upload, and
+      # `wikikb build` (which regenerates the indexes) all write here.
+      # For a strictly read-only serving node, append `:ro` and leave uploads off.
+      - ${HOST_VAULT_DIR:-./vault}:/data/vault
+
+      # Harvest staging. Separate from the vault so a half-finished import is never
+      # mistaken for content, while still surviving a restart.
+      - ${HOST_STATE_DIR:-./.wiki-state}/corpora:/data/corpora
+
+      # Derived dense index — rebuildable via `wikikb embed`, deliberately NOT inside
+      # the vault so it never bloats a vault copy.
+      - ${HOST_STATE_DIR:-./.wiki-state}/embeddings:/wiki/_meta/embeddings
+
+    # /health is intentionally unauthenticated so this works even with a token set.
+    healthcheck:
+      test: ["CMD", "python3", "-c",
+             "import urllib.request,os,sys; sys.exit(0) if urllib.request.urlopen('http://127.0.0.1:'+os.environ.get('WIKIKB_PORT','8642')+'/health',timeout=5).status==200 else sys.exit(1)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3

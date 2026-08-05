@@ -16,7 +16,7 @@ all the data.
 ## What's here
 
 Nine corpus-backed domains; each raw tier is immutable doc-body notes under
-`reference/<domain>/`, with hand notes staged in `_sources/<domain>/`.
+`vault/reference/<domain>/`, with hand notes staged in `vault/_sources/<domain>/`.
 
 | Domain | Raw notes | Tiers covered |
 |---|---|---|
@@ -36,20 +36,47 @@ cross-linked with `[[slug]]`.
 ## Layout
 
 ```
-<repo-root>/             # the Obsidian vault root
+<repo-root>/
 ├── CLAUDE.md            # THE schema + ingest/query/lint workflows — read this first
 ├── SKILL.md · AGENTS.md # skill trigger manifest + thin agent pointer to CLAUDE.md
 ├── .claude/             # shared Claude Code config: commands/ + agents/ (session state ignored)
-├── index.md             # global router → per-domain indexes
-├── index.<domain>.md    # per-domain routing index (titles + summaries; generated)
-├── topics/              # multi-source syntheses ("how LDAP federation works")
-├── entities/            # one page per concrete thing (a flag, SPI, config key)
-├── questions/           # answered queries, filed back as durable pages
-├── references/          # curated reference guides (ref: tier) — never edit
-├── reference/<domain>/  # IMMUTABLE imported doc bodies — never edit
-├── _sources/<domain>/   # raw hand notes for notes-first material — never edit
-└── _meta/               # tooling (the `wikikb` package); excluded from scanners
+├── .env.example         # runtime config template → copy to .env (gitignored)
+├── Dockerfile · docker-compose.yml
+├── _meta/               # tooling (the `wikikb` package); excluded from scanners
+└── vault/               # ← THE OBSIDIAN VAULT. Open THIS in Obsidian.
+    ├── index.md             # global router → per-domain indexes
+    ├── index.<domain>.md    # per-domain routing index (titles + summaries; generated)
+    ├── taxonomy.md          # controlled vocab every page's `domain:` is validated against
+    ├── topics/              # multi-source syntheses ("how LDAP federation works")
+    ├── entities/            # one page per concrete thing (a flag, SPI, config key)
+    ├── questions/           # answered queries, filed back as durable pages
+    ├── outputs/             # derived artifacts (runbooks, cheat sheets)
+    ├── references/          # curated reference guides (ref: tier) — never edit
+    ├── reference/<domain>/  # IMMUTABLE imported doc bodies — never edit
+    └── _sources/<domain>/   # raw hand notes for notes-first material — never edit
 ```
+
+**`vault/` is the portable unit.** Everything non-regenerable lives under it — including
+`taxonomy.md` and `.manifest.json`, which used to sit in `_meta/` and were silently left
+behind whenever the content moved. Migrating between machines is a copy of that one
+directory; what stays behind under `_meta/` is either code or rebuildable
+(`embeddings/`, `tkg/`). Point the toolchain at any location with `WIKIKB_VAULT_ROOT=<path>`.
+
+## Running it in a container
+
+```bash
+cp .env.example .env          # then set HOST_VAULT_DIR to your content directory
+docker compose up -d
+open http://localhost:8642/docs           # self-contained API reference (no CDN)
+```
+
+Content lives on the host and the image holds only code, so updating pages never
+rebuilds the image. `.env` controls the vault mount, the published port, the MCP route
+(`WIKIKB_MCP_PATH`, default `/mcp`), auth, and whether the PDF upload surface is enabled.
+
+> A bind mount **shadows** the image's baked `vault/` rather than merging with it —
+> seed the host directory first (`cp -a ./vault/. $HOST_VAULT_DIR/`) or you will serve
+> an empty wiki with no error.
 
 ## Using it
 
@@ -78,7 +105,7 @@ over MCP stdio (`claude mcp add wikikb -- python3 -m wikikb mcp`). See
 
 ## Rules
 
-- **Writes go only under `topics/ entities/ questions/`.** The raw tiers
+- **Writes go only under `vault/topics/ vault/entities/ vault/questions/`.** The raw tiers
   (`reference/`, `_sources/`, `references/`) are immutable ground truth.
 - **Cite everything.** Every claim traces to a `kb:`/`guide:`/`ref:`/`note:`/`web:`
   source; no uncited synthesis. Per-claim provenance (`extracted`/`inferred`/
