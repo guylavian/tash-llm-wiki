@@ -23,6 +23,13 @@ Endpoints (all JSON; errors are {"error": "..."} with a non-2xx status):
     GET /ask?q=...&domain=D&k=5&tier=conceptual     -> same shape as `wikikb ask --json`
     GET /page/<slug>                                -> {"slug","path","frontmatter","body"}
     GET /expand?domain=D&q=...                      -> {"notes":[...]}
+    GET /openapi.json                               -> OpenAPI 3.1 document, built from the LIVE
+                                                        config (MCP mount point, auth posture,
+                                                        resolved vault) so it can't drift
+    GET /docs                                       -> self-contained HTML API reference; no CDN,
+                                                        no vendored JS, renders air-gapped (point
+                                                        stock Swagger UI at /openapi.json for
+                                                        try-it-out)
     PUT /upload/<domain>/<filename>.pdf             -> {"stored","next"}  (raw body, e.g. `curl -T x.pdf`;
                                                         the ONLY write surface, opt-in via --allow-upload,
                                                         default OFF; see do_PUT for the trust boundary)
@@ -63,6 +70,7 @@ from wikikb.retrieval import route as routemod
 from wikikb.retrieval import kb
 from wikikb.retrieval import expand as expandmod
 from wikikb.graph import ask as askmod
+from wikikb.serve import openapi        # OpenAPI 3.1 description + the offline /docs page
 
 PAGE_DIRS = paths.PAGE_DIRS
 # Same slug shape lint.py's LINK_RE / expand.py's PAGELINK_RE use: kebab-case only. This is what makes
@@ -458,6 +466,16 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _reply_raw(self, status, content_type, body):
+        """Serve pre-encoded bytes at an explicit Content-Type. _reply is JSON-only (it json.dumps
+        whatever it is handed), which is right for the API surface but cannot emit the HTML docs
+        page or a pre-serialized spec without double-encoding it into a JSON string."""
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def _reply_no_body(self, status):
         """202 Accepted for an MCP notification — the spec requires no body, so _reply's fixed
         application/json Content-Length:0 body would be wrong here."""
@@ -489,6 +507,16 @@ class Handler(BaseHTTPRequestHandler):
             elif path.startswith("/page/"):
                 status, obj = do_page(path[len("/page/"):], int(qs.get("offset", 0)),
                                       int(qs.get("max_chars", PAGE_MAX_CHARS)))
+            elif path == "/openapi.json":
+                # Built from the LIVE config (MCP mount, auth posture, resolved vault) so the
+                # description cannot drift from what is actually being served.
+                self._reply_raw(200, "application/json; charset=utf-8",
+                                openapi.spec_json(MCP_PATH, bool(os.environ.get("WIKIKB_API_TOKEN")),
+                                                  str(paths.WIKI)).encode("utf-8"))
+                return
+            elif path == "/docs":
+                self._reply_raw(200, "text/html; charset=utf-8", openapi.docs_html().encode("utf-8"))
+                return
             elif path == MCP_PATH:
                 # Declining the optional standalone SSE stream is spec-legal (transports#GET item 3);
                 # the reference TS SDK client treats 405 here as an expected non-error (RESEARCH 2).
@@ -504,7 +532,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path.rstrip("/") or "/"
-        if path != "/mcp":
+        if path != MCP_PATH:
             self._reply(*_no_such_endpoint())
             return
         err = _check_auth(self.headers)
@@ -549,7 +577,7 @@ class Handler(BaseHTTPRequestHandler):
         # No stateful sessions (serve.py issues no Mcp-Session-Id — RESEARCH 2's recommended, spec-
         # legal design), so explicit session termination is declined via 405, same as GET's SSE decline.
         path = urlsplit(self.path).path.rstrip("/") or "/"
-        if path == "/mcp":
+        if path == MCP_PATH:
             err = _check_auth(self.headers)
             self._reply(*(err or (405, {"error": "session termination not supported"})))
         else:
@@ -583,13 +611,16 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--port", type=int, default=8642)
-    ap.add_argument("--bind", default="127.0.0.1",
+    ap.add_argument("--port", type=int, default=DEFAULT_PORT,
+                    help="listen port (default %(default)s; env WIKIKB_PORT)")
+    ap.add_argument("--bind", default=DEFAULT_BIND,
                     help="loopback by default (127.0.0.1); binding a real interface is the operator's "
-                         "explicit choice")
+                         "explicit choice (env WIKIKB_BIND)")
     ap.add_argument("--allow-upload", action="store_true",
+                    default=os.environ.get("WIKIKB_ALLOW_UPLOAD", "").strip().lower() in ("1", "true", "yes", "on"),
                     help="enable PUT /upload/<domain>/<file>.pdf (default OFF; writes only into "
-                         "_sources/<domain>/_raw/pdfs/, never the immutable reference tier)")
+                         "vault/_sources/<domain>/_raw/pdfs/, never the immutable reference tier; "
+                         "env WIKIKB_ALLOW_UPLOAD=1)")
     args = ap.parse_args()
     # Pre-warm the two module-level read caches (route.py's domain profiles, expand.py's page graph)
     # ONCE here, single-threaded, before ThreadingHTTPServer starts handing requests to worker threads.
@@ -604,6 +635,12 @@ def main():
     auth_mode = "auth: Bearer token required" if os.environ.get("WIKIKB_API_TOKEN") else "auth: OFF (set WIKIKB_API_TOKEN to require it)"
     print("wikikb serve: http://%s:%d  (Ctrl-C to stop)%s  [%s]" % (
         args.bind, args.port, "  [uploads ENABLED]" if args.allow_upload else "", auth_mode), file=sys.stderr)
+    # The vault and MCP mount are both relocatable now, and getting either wrong produces a server
+    # that starts cleanly and then answers every query from the wrong (or an empty) corpus. Print
+    # them so a misconfigured mount is visible in the first lines of `docker logs`, not later as
+    # mysteriously empty results.
+    print("wikikb serve: vault=%s  mcp=POST %s  openapi=/openapi.json  docs=/docs" % (
+        paths.WIKI, MCP_PATH), file=sys.stderr)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
