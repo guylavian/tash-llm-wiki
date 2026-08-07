@@ -288,8 +288,16 @@ def ingest_steps(domain):
     resolve to _meta/_sources/... — a directory that does not exist, or worse, one that does.
     """
     src = str(paths.WIKI / "_sources" / domain / "_raw" / "pdfs")
+    # A 100-page vendor guide as ONE note is a retrieval problem: grep hits it constantly and the
+    # reader must then take an arbitrary window of it, which for a guide whose value is in spec
+    # and compatibility TABLES is how a number goes missing. So the upload chain splits on the
+    # document's own sections by default; `WIKIKB_PDF_SPLIT_SECTIONS=0` restores whole-PDF notes.
+    # (The CLI flag stays opt-in — this changes the SERVICE's behaviour, not the tool contract.)
+    p2c = ["pdf_to_corpus", "--src", src, "--domain", domain, "--append", "--apply"]
+    if os.environ.get("WIKIKB_PDF_SPLIT_SECTIONS", "1").strip().lower() not in ("0", "false", "no"):
+        p2c.append("--split-sections")
     return [
-        ("pdf_to_corpus", ["pdf_to_corpus", "--src", src, "--domain", domain, "--append", "--apply"]),
+        ("pdf_to_corpus", p2c),
         ("corpus_to_vault", ["corpus_to_vault", "--domain", domain, "--apply"]),
         ("build", ["build"]),
     ]
