@@ -1,0 +1,6 @@
+wikikb serve: http://0.0.0.0:8642  (Ctrl-C to stop)  [auth: OFF (set WIKIKB_API_TOKEN to require it)]
+wikikb serve: mode=online  [web scraper mounted]  [scrape cron INERT — needs --allow-upload]
+wikikb serve: vault=C:\Users\Ron\Downloads\test\tash-llm-wiki\vault-blank  mcp=POST /mcp  openapi=/openapi.json  docs=/docs
+127.0.0.1 - - [05/Aug/2026 21:04:40] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [05/Aug/2026 21:04:40] "GET /scrape/sources HTTP/1.1" 200 -
+127.0.0.1 - - [05/Aug/2026 21:04:40] "GET /scrape/cron HTTP/1.1" 200 -

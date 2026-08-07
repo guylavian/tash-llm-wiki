@@ -143,15 +143,35 @@ def run_airgapped():
         check("airgapped: GET /scrape/sources byte-identical to an unknown GET path",
               got == unknown_get and got[0] == 404, "scrape=%r unknown=%r" % (got, unknown_get))
 
+        got = raw_request(port, "GET", "/scrape/cron")
+        check("airgapped: GET /scrape/cron byte-identical to an unknown GET path",
+              got == unknown_get and got[0] == 404, "cron=%r unknown=%r" % (got, unknown_get))
+
         unknown_post = raw_request(port, "POST", "/no-such-path", body=b"{}")
-        got = raw_request(port, "POST", "/scrape", body=b"{}")
-        check("airgapped: POST /scrape byte-identical to an unknown POST path",
-              got == unknown_post and got[0] == 404, "scrape=%r unknown=%r" % (got, unknown_post))
+        for path in ("/scrape", "/scrape/sources", "/scrape/cron"):
+            got = raw_request(port, "POST", path, body=b"{}")
+            check("airgapped: POST %s byte-identical to an unknown POST path" % path,
+                  got == unknown_post and got[0] == 404, "scrape=%r unknown=%r" % (got, unknown_post))
+
+        unknown_del = raw_request(port, "DELETE", "/no-such-path")
+        got = raw_request(port, "DELETE", "/scrape/sources?url=https://x.test/")
+        check("airgapped: DELETE /scrape/sources byte-identical to an unknown DELETE path",
+              got == unknown_del and got[0] == 404, "scrape=%r unknown=%r" % (got, unknown_del))
+
+        # PATCH must be defined UNCONDITIONALLY for the same reason do_PUT is: a conditional
+        # handler leaks the stdlib's 501 "Unsupported method", which confirms the method exists on
+        # exactly the instances that hide it.
+        unknown_patch = raw_request(port, "PATCH", "/no-such-path", body=b"{}")
+        got = raw_request(port, "PATCH", "/scrape/sources", body=b'{"url":"https://x.test/"}')
+        check("airgapped: PATCH /scrape/sources byte-identical to an unknown PATCH path (no 501 leak)",
+              got == unknown_patch and got[0] == 404,
+              "scrape=%r unknown=%r" % (got, unknown_patch))
 
         status, body = raw_request(port, "GET", "/openapi.json")
         spec = json.loads(body) if status == 200 else {}
-        check("airgapped: /openapi.json omits the scrape paths, keeps jobs+ingest",
-              "/scrape" not in spec.get("paths", {})
+        check("airgapped: /openapi.json omits every scrape path, keeps jobs+ingest",
+              not any(p.startswith("/scrape") for p in spec.get("paths", {}))
+              and "ScrapeSource" not in spec.get("components", {}).get("schemas", {})
               and "/jobs/{id}" in spec.get("paths", {})
               and "/ingest/{domain}" in spec.get("paths", {}),
               "paths=%r" % sorted(spec.get("paths", {})))
@@ -176,20 +196,42 @@ def run_online():
               h.get("mode") == modes.ONLINE and h.get("capabilities", {}).get("scrape") is True,
               "body=%r" % body[:200])
 
-        status, body = raw_request(port, "POST", "/scrape", body=b"{}")
-        obj = json.loads(body) if status == 501 else {}
-        check("online: POST /scrape mounted, answers 501 (declared seam, not yet implemented)",
-              status == 501 and "scrape" in (obj.get("seam") or ""),
+        # The scrape READ surface exists in online mode with no further opt-in — seeing the
+        # watchlist changes nothing. It must NOT need --allow-upload (this server runs without it).
+        status, body = raw_request(port, "GET", "/scrape/sources")
+        obj = json.loads(body) if status == 200 else {}
+        check("online: GET /scrape/sources is mounted and readable without --allow-upload",
+              status == 200 and "sources" in obj and "extractor" in obj,
               "status=%s body=%r" % (status, body[:200]))
 
-        status, _ = raw_request(port, "GET", "/scrape/sources")
-        check("online: GET /scrape/sources mounted, answers 501", status == 501, "status=%s" % status)
+        status, body = raw_request(port, "GET", "/scrape/cron")
+        obj = json.loads(body) if status == 200 else {}
+        check("online: GET /scrape/cron reports the schedule + live and boot-default enabled",
+              status == 200 and {"enabled", "env_default", "schedule"} <= set(obj),
+              "status=%s body=%r" % (status, body[:200]))
+
+        # …but the WRITE paths stay hidden while uploads are off, with the SAME unfingerprintable
+        # 404 the disabled upload surface gives. A scrape writes to the vault; an operator who
+        # disabled uploads must not be scrape-writable through a side door.
+        unknown_post = raw_request(port, "POST", "/definitely-not-a-real-path", body=b"{}")
+        for path in ("/scrape", "/scrape/sources", "/scrape/cron"):
+            got = raw_request(port, "POST", path, body=b"{}")
+            check("online: POST %s is a hidden 404 while --allow-upload is off" % path,
+                  got == unknown_post and got[0] == 404, "got=%r unknown=%r" % (got, unknown_post))
+        unknown_patch = raw_request(port, "PATCH", "/definitely-not-a-real-path", body=b"{}")
+        got = raw_request(port, "PATCH", "/scrape/sources", body=b'{"url":"https://x.test/"}')
+        check("online: PATCH /scrape/sources is a hidden 404 while --allow-upload is off",
+              got == unknown_patch and got[0] == 404, "got=%r unknown=%r" % (got, unknown_patch))
 
         status, body = raw_request(port, "GET", "/openapi.json")
         spec = json.loads(body) if status == 200 else {}
-        check("online: /openapi.json documents /scrape and /scrape/sources",
-              "/scrape" in spec.get("paths", {}) and "/scrape/sources" in spec.get("paths", {}),
+        check("online: /openapi.json documents the whole scrape surface",
+              all(p in spec.get("paths", {}) for p in ("/scrape", "/scrape/sources", "/scrape/cron"))
+              and "ScrapeSource" in spec.get("components", {}).get("schemas", {}),
               "paths=%r" % sorted(spec.get("paths", {})))
+        check("online: /openapi.json documents the full watchlist CRUD on /scrape/sources",
+              sorted(spec.get("paths", {}).get("/scrape/sources", {})) == ["delete", "get", "patch", "post"],
+              "methods=%r" % sorted(spec.get("paths", {}).get("/scrape/sources", {})))
 
         # the modes are ADDITIVE: nothing airgapped serves may be missing here
         status, _ = raw_request(port, "GET", "/route?q=keycloak+ldap")
@@ -299,27 +341,47 @@ def run_runner():
 def run_egress_guard():
     """The scraper must refuse at the CALL, not only by not being routed — a mis-wired future path
     must not be able to reach the network from a sealed box (modes.py, property 2)."""
+    from wikikb.scrape import commoncrawl as ccmod
     from wikikb.scrape import scrape as scrapemod
     saved = os.environ.get(modes.ENV_VAR)
     try:
         os.environ.pop(modes.ENV_VAR, None)
+        # No --domain is passed, and that is the point: the mode guard must fire BEFORE argument
+        # validation, or an airgapped refusal would be reported as a usage error.
         try:
             scrapemod.fetch("https://example.invalid/x")
             check("airgapped: scrape.fetch() refuses at the call site", False, "no raise")
         except modes.ModeError:
             check("airgapped: scrape.fetch() refuses at the call site (ModeError, before any socket)", True)
-        except NotImplementedError:
+        except Exception as e:                              # noqa: BLE001
             check("airgapped: scrape.fetch() refuses at the call site", False,
-                  "raised NotImplementedError — the mode guard did not run FIRST")
+                  "raised %s — the mode guard did not run FIRST" % type(e).__name__)
+        # The guard that actually matters is the one at the socket: every network path in the
+        # package goes through commoncrawl._http, so a future mis-wired caller still cannot reach
+        # out from a sealed box even if it bypasses fetch() entirely.
+        for name, call in (("commoncrawl._http", lambda: ccmod._http("https://example.invalid/x")),
+                           ("commoncrawl.collections", lambda: ccmod.collections(force=True)),
+                           ("scrape.fetch_direct", lambda: scrapemod.fetch_direct("https://example.invalid/x"))):
+            try:
+                call()
+                check("airgapped: %s refuses before opening a socket" % name, False, "no raise")
+            except modes.ModeError:
+                check("airgapped: %s refuses before opening a socket (ModeError)" % name, True)
+            except Exception as e:                          # noqa: BLE001
+                check("airgapped: %s refuses before opening a socket" % name, False,
+                      "raised %s instead of ModeError" % type(e).__name__)
+
         os.environ[modes.ENV_VAR] = modes.ONLINE
+        # Online: the guard must NOT fire. `example.invalid` cannot resolve, so the call fails at
+        # the socket — which is exactly the proof that it got past the posture check. Asserting on
+        # a real fetch here would make the probe depend on the network.
         try:
-            scrapemod.fetch("https://example.invalid/x")
-            check("online: scrape.fetch() passes the mode guard (then NotImplementedError)", False,
-                  "no raise")
-        except NotImplementedError:
-            check("online: scrape.fetch() passes the mode guard, then NotImplementedError (the seam)", True)
+            ccmod._http("https://example.invalid/x", retries=1)
+            check("online: the mode guard passes (the call proceeds to the socket)", False, "no raise")
         except modes.ModeError as e:
-            check("online: scrape.fetch() passes the mode guard", False, str(e))
+            check("online: the mode guard passes (the call proceeds to the socket)", False, str(e))
+        except ccmod.CrawlError:
+            check("online: the mode guard passes, the call proceeds to the socket and fails there", True)
     finally:
         if saved is None:
             os.environ.pop(modes.ENV_VAR, None)

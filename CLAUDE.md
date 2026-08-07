@@ -39,7 +39,10 @@ data. `ls` shows you the tree — here is only what `ls` can't tell you:
 - **`vault/references/`** — curated reference guides (the `ref:` tier). Immutable.
 - **`vault/` is the vault root and the PORTABLE UNIT** (content moved under it 2026-08-05).
   Every non-regenerable thing lives here: the page tiers, the immutable raw tiers, the
-  generated indexes, **`taxonomy.md`** and **`.manifest.json`**. Those last two used to sit
+  generated indexes, **`taxonomy.md`**, **`.manifest.json`** and (online mode)
+  **`scrape-sources.json`**, the watchlist of websites this KB tracks — a vault copied
+  without it would silently stop refreshing sources it believes it is watching. The first
+  two of those used to sit
   in `_meta/` and were left behind whenever the content moved — a copied vault then linted
   and indexed as if no domain existed. **Migrating = copying `vault/`.** Open `vault/` (not
   the repo root) in Obsidian. Relocate it with `WIKIKB_VAULT_ROOT=<path>` — that env var is
@@ -625,6 +628,35 @@ The scripts live under `_meta/wikikb/` (stdlib-only, air-gapped): `lint.py`,
 commands are **thin pointers back here** — keep the behavior described here, not
 duplicated there, so they can't drift.
 
+### Startup bootstrap — the vault creates itself (env `WIKIKB_BOOTSTRAP`)
+
+Every entry point (`python3 -m wikikb <tool>`, and `serve`/`mcp` `main()` directly) first runs
+`_meta/wikikb/bootstrap.py`, which **creates the vault skeleton if it is missing or incomplete**:
+the vault root, the four `PAGE_DIRS` tiers, `reference/` + `references/` + `_sources/`, plus a
+seeded `taxonomy.md` and `.manifest.json`. It is idempotent and prints nothing when there is
+nothing to do.
+
+- **Why it exists:** nothing used to create `paths.WIKI`. Point the code at a fresh directory (new
+  clone, `WIKIKB_VAULT_ROOT` on a new host, an empty `/data/vault` bind mount) and the tools didn't
+  fail loudly — they scanned a path that wasn't there, found zero pages, and **served an empty wiki
+  that looked healthy**. That was the trap `docker-compose.yml` warned about in prose; this is the
+  mechanism.
+- **It never touches an existing file** — every action is create-if-absent, so a hand-authored
+  `taxonomy.md` is preserved whatever state it's in. It also **never invents content**: no pages,
+  **no domains** (declaring one is ADD DOMAIN step 2, a human decision), and no generated indexes
+  (`index.md` / `index.<domain>.md` stay `wikikb index`'s output).
+- **The seeded `taxonomy.md`** carries the section headings the parsers read, the domain-agnostic
+  `## Kinds` vocabulary, and the inert ADD-DOMAIN template — nothing else. A fresh vault therefore
+  goes: `bootstrap` → declare a domain → write pages → `build`.
+- **Anything created prints ONE line to stderr** naming the resolved vault, because auto-creation is
+  one typo away from silently serving a fresh empty vault out of `WIKIKB_VAULT_ROOT=/data/valut` —
+  visibility is the safety valve, same reason `serve` logs `vault=…`.
+- **Non-fatal by contract:** an unwritable/read-only vault warns and the tool runs on; only a
+  non-directory sitting at the vault path is refused. `WIKIKB_BOOTSTRAP=0` disables the automatic
+  hook entirely (`python3 -m wikikb bootstrap [--vault PATH] [--dry-run]` still works by hand).
+- Verified by `_meta/tests/selftest.py` (fresh/idempotent/repair, the no-overwrite rule, seed
+  hygiene — the seed must add no tag vocabulary beyond `## Kinds` — the `lint` self-heal, opt-out).
+
 ### Operation modes — `airgapped` vs `online` (env `WIKIKB_MODE`)
 
 The application runs in exactly one of two modes, and they are **additive**: `online` is a
@@ -636,7 +668,7 @@ other. The single definition lives in `_meta/wikikb/modes.py`; nothing else re-d
 | Vault read surface (`/route` `/search` `/ask` `/expand` `/page`) | ✅ | ✅ |
 | MCP (stdio **and** `POST /mcp`) | ✅ | ✅ |
 | PDF write surface (`PUT /upload`, `POST /ingest`) + the conversion chain | ✅ | ✅ |
-| Web scraper (`POST /scrape`, `GET /scrape/sources`) | — | ✅ (seam; 501 until written) |
+| Web scraper (`/scrape`, `/scrape/sources`, `/scrape/cron`) + scheduled harvest | — | ✅ |
 | Outbound network | **never** | only from `wikikb/scrape/` |
 
 - **A typo REFUSES TO START.** `WIKIKB_MODE=onlien` exits 2 naming the valid modes rather than
@@ -648,7 +680,8 @@ other. The single definition lives in `_meta/wikikb/modes.py`; nothing else re-d
   disabled upload surface already had. A spec that documents an endpoint the instance answers as
   "unknown path" would be a lying spec.
 - **The guard is at the socket, not the router.** `modes.require_online()` is called inside
-  `scrape.fetch()`, so a future mis-wired route still cannot reach the network from a sealed box.
+  `commoncrawl._http()` and `scrape.fetch_direct()` — the two functions that actually open a
+  connection — so a future mis-wired route still cannot reach the network from a sealed box.
 - `GET /health` reports `mode` + `capabilities` (what the MODE permits) separately from
   `uploads` / `auto_ingest` (what THIS process switched on), so "wrong mode" and "forgot
   `--allow-upload`" stay distinguishable.
@@ -687,6 +720,97 @@ page's `kb:` tokens to the new reference note and writes the generated `## Sourc
   durable record of what was ingested is the vault plus `.manifest.json`.
 - Verified by `_meta/tests/mode_probe.py` (both modes over a real socket, the egress guard, and
   the runner's coalescing / stop-at-first-failure rules), wired into `selftest.py`.
+
+#### Web → Markdown → links: the ONLINE-mode harvest (`wikikb/scrape/`)
+
+The web sibling of the PDF path, and deliberately the *same* chain with the first pair swapped:
+
+    scrape  →  web_to_corpus --append --apply  →  corpus_to_vault --apply  →  build
+
+**The watchlist** is `vault/scrape-sources.json` — vault-resident (like `taxonomy.md`, it
+describes the CONTENT: "this KB tracks these upstream pages"), **config-only**, and hand-editable
+in Obsidian. Each entry is a URL + the `domain:` it feeds (validated against `taxonomy.md` at WRITE
+time, so a bad entry fails where a human is watching rather than on every unattended cron tick) +
+`match: exact|prefix`, `enabled`, `direct`. Per-URL fetch STATE (capture date, body digest) is
+**not** in this file — it lives in the raw-tier sidecar next to what was fetched, so the scraper
+never rewrites a file a human may be editing.
+
+It has a full CRUD on **one path**, `/scrape/sources`, mirrored by four CLI flags. The CLI verbs
+are **mode-independent** — editing a JSON config file opens no socket, so an operator can prepare a
+watchlist on a sealed box; only the harvest itself is online-gated.
+
+| | HTTP | CLI |
+|---|---|---|
+| list | `GET /scrape/sources` | `scrape --list` |
+| add | `POST /scrape/sources` | `scrape --add <URL> --domain <d>` |
+| update | `PATCH /scrape/sources` | `scrape --update <URL> [--disable\|--enable\|…]` |
+| remove | `DELETE /scrape/sources?url=…` | `scrape --remove <URL>` |
+
+Three rules the update path enforces, each because the alternative is silently wrong:
+
+- **PATCH is PARTIAL.** `url` selects; only the fields sent are touched. Pausing a source is
+  `{"url":…,"enabled":false}` and nothing else moves. (The CLI mirrors this: an argparse default
+  is forwarded only when the flag was actually typed, or every `--update` would reset `match`.)
+- **The URL is IDENTITY and is not patchable.** It keys the watchlist, builds the Common Crawl
+  lookup, and — via `slug_for()` — names the harvested note and therefore the `kb:` token every
+  citing page uses. Patching it would strand the harvested file under the old slug while the
+  source claims a new URL. A rename is `DELETE` + `POST`, two explicit acts. `domain` **is**
+  patchable (an ordinary add-time mistake), but it only redirects FUTURE runs and the response
+  says so.
+- **A no-op patch reports `changed: []` and does not rewrite the file** — a watchlist that keeps
+  getting new mtimes for unchanged content makes "when did this last actually change?"
+  unanswerable.
+
+**Common Crawl first, always.** `collinfo.json` → the newest crawl; the CDX index says whether the
+URL is captured and where; a `Range:` GET pulls that one WARC record out of a ~1 GB archive. Not
+indexed ⇒ the run reports `not-indexed` and **fetches nothing**. A live origin fetch is the
+per-source opt-in `"direct": true` (address-guarded: any host resolving to a private/loopback/
+link-local address is refused, because `POST /scrape` lets a caller name any host). Harvesting the
+archive means no robots budget spent, no origin server hit on a cron, and a real capture date to
+put in the `web:` token.
+
+- **Two index-lookup backends, and that is the load-bearing decision.** `index.commoncrawl.org` is
+  free and heavily loaded; it answered `504` continuously across four crawls while this was being
+  built, while `data.commoncrawl.org` served range requests fine throughout. So `auto` (default)
+  tries the CDX API and falls back to **binary-searching `cluster.idx`** (a ~100 MB sorted
+  SURT→block map) with ~15 ranged 16 KB reads, then range-fetching the one ~250 KB CDX block.
+  `WIKIKB_CC_LOOKUP=cluster` skips the guaranteed-wasted request where the API is chronically down.
+- **`--append` is not optional here either** — without it `web_to_corpus` truncates the corpus
+  index and one scraped page destroys the ground-truth tier, exactly as for PDFs.
+- **Extraction is trafilatura when installed, a bounded stdlib HTMLParser reader otherwise**
+  (lazy import, so the air-gap "no module-scope third-party import" rule holds and copy-and-run
+  still works). `GET /scrape/sources` reports which is live; the sidecar records which produced
+  each note. An extraction under `WIKIKB_SCRAPE_MIN_CHARS` is reported `too-thin` and **not
+  written** — the JS-rendered-page case, where a 40-character note in the immutable tier would
+  then be cited as ground truth.
+- **Every harvested body carries an upstream/community banner** (url + capture date + the exact
+  `web:` token), applied by `web_to_corpus`, not left to the page author: the note is immutable
+  once written, and a reader who greps into the middle of it must still see it is not a vendor
+  support statement. Cite it as **`kb:web-<host>-<url-tail>`** (the note slug, which
+  `crosslink.py` indexes) *and* `web:<url> (label, fetched DATE)` — the first puts it in the
+  graph, the second states the provenance.
+- **Removing a source never deletes what it harvested.** The raw tier is immutable and pages cite
+  it; withdrawing the knowledge is **Operation: RETRACT**, an explicitly authored act.
+- **The cron runs in-process, not in a system crontab** (`wikikb/scrape/cron.py`): a tick submits
+  to the SAME serialized `jobs.RUNNER`, so it inherits the one-worker guarantee that keeps two
+  `build`s from interleaving. An external crontab calling `POST /scrape` is fine — it lands in the
+  same queue. `WIKIKB_SCRAPE_CRON` takes a 5-field expression, an `@macro`, or an interval (`6h`);
+  default `0 3 * * *`, **on** unless `WIKIKB_SCRAPE_CRON_ENABLED=0`. `POST /scrape/cron
+  {"enabled":false}` toggles it at RUNTIME and deliberately does **not** rewrite `.env` — the
+  status reports the live flag and the boot default side by side, so a divergence stays visible.
+  A malformed schedule **disables the timer and is reported**; it does not stop the server (unlike
+  a bad `WIKIKB_MODE` — a harvest that does not run is visible and harmless, a wrong posture is not).
+- **Every writing endpoint shares `--allow-upload`** with `/upload` and `/ingest` — `POST /scrape`,
+  `POST`/`PATCH`/`DELETE /scrape/sources`, `POST /scrape/cron`: a scrape writes to the vault,
+  adding or updating a source decides what a later scrape writes, and toggling the cron decides
+  whether it writes unattended. With uploads off they are the same unfingerprintable 404, never a
+  403; the read endpoints (`GET /scrape/sources`, `GET /scrape/cron`) stay open. `do_PATCH` is
+  defined **unconditionally**, like `do_PUT` and for the same reason: a conditional handler leaks
+  the stdlib's `501 Unsupported method`, confirming the method exists on exactly the instances that
+  hide it.
+- Verified by `_meta/tests/scrape_probe.py` (URL identity, the watchlist file, the CC plumbing
+  from fixtures, extraction, the cron parser, the job chain's shape — **no network, temp dirs
+  only**) plus `mode_probe.py` for the HTTP posture and the egress guard.
 
 ### Serving the wiki to agents (HTTP + MCP)
 

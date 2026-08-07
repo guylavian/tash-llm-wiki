@@ -45,3 +45,8 @@ deep-research-*.log
 
 # Rebuildable vault-adjacent state (dense index); see .env HOST_STATE_DIR
 .wiki-state/
+
+# Throwaway blank vault + corpora for exercising the scrape feature from empty
+# (.env HOST_VAULT_DIR / WIKIKB_VAULT_ROOT). Not content — delete freely.
+vault-blank/
+corpora-blank/

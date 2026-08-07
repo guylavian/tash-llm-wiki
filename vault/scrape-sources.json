@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "url": "https://support.checkpoint.com/",
+      "domain": "checkpoint",
+      "label": "Check Point Support Center (upstream, public surface only)",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "added": "2026-08-05"
+    }
+  ]
+}

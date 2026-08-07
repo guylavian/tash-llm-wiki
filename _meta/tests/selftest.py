@@ -326,6 +326,15 @@ _rc_md, _out_md = run("mode_probe.py")
 check("mode_probe passes (airgapped/online split, egress guard, job runner)",
       _rc_md == 0, _out_md[-300:])
 
+# 18b3. The ONLINE-mode web harvester. mode_probe covers the HTTP posture; this covers what
+# DECIDES the harvest — URL identity, the watchlist file, the Common Crawl plumbing (driven from
+# fixtures), HTML->Markdown, the cron parser, and the scrape job chain's shape. NO network: every
+# network-touching path is fixture-driven or asserted through the mode guard, and every file it
+# writes goes to a temp dir, never the live vault.
+_rc_sc, _out_sc = run("scrape_probe.py")
+check("scrape_probe passes (watchlist, CC plumbing, extraction, cron, job chain)",
+      _rc_sc == 0, _out_sc[-300:])
+
 # 18c. Phase-3 (fabricated-citation class): answer-side identifier grounding — a distinctive
 # identifier asserted in the ANSWER but absent from the cited context is flagged loudly (+
 # ungrounded_identifiers state field), never served silent. Analogue of gate_probe.py.
@@ -533,18 +542,19 @@ check("restructure: _meta/bin/ removed, wikikb/ package + 7 subpackages + tests/
 # a module that lives in a subpackage must be `from wikikb.<group> import X`. A bare `import tags` or an
 # un-grouped `from wikikb import tags` would ModuleNotFoundError under `python -m wikikb.<tool>` and,
 # inside a try/except, SILENTLY disable a validator (the exact regression the review caught).
-# `paths` and `modes` are the TOP-LEVEL modules — one definition each, no intra-package dependencies,
-# imported from everywhere (modes.py is imported by serve/ AND scrape/, so it cannot live in either) —
-# so `from wikikb import paths|modes` is allowed; the bare `import paths|modes` form is not.
+# `paths`, `modes` and `bootstrap` are the TOP-LEVEL modules — one definition each, no intra-package
+# dependencies beyond paths, imported from everywhere (modes.py is imported by serve/ AND scrape/, so it
+# cannot live in either; bootstrap.py is imported by __main__/serve/mcp for the same reason) — so
+# `from wikikb import paths|modes|bootstrap` is allowed; the bare `import paths|modes|bootstrap` form is not.
 # Built DYNAMICALLY from the tree (not a hand-maintained list) so a NEW module added to any subpackage
-# is automatically covered — no blind spot. The four names below are top-level package infra, excluded.
-_TOP_LEVEL = ("__init__.py", "__main__.py", "paths.py", "modes.py")
+# is automatically covered — no blind spot. The names below are top-level package infra, excluded.
+_TOP_LEVEL = ("__init__.py", "__main__.py", "paths.py", "modes.py", "bootstrap.py")
 _SUBPKG_MODS = tuple(sorted(
     _fn[:-3] for _r, _d, _fs in os.walk(PKG) if "__pycache__" not in _r
     for _fn in _fs
     if _fn.endswith(".py") and _fn not in _TOP_LEVEL))
 _alt = "|".join(_SUBPKG_MODS)
-_bare = re.compile(r"^\s*import (%s|paths|modes)\b" % _alt)           # a bare sibling import (always wrong)
+_bare = re.compile(r"^\s*import (%s|paths|modes|bootstrap)\b" % _alt)  # a bare sibling import (always wrong)
 _ungrouped = re.compile(r"^\s*from wikikb import (%s)\b" % _alt)      # must be `from wikikb.<group> import`
 _bad_sib = []
 for _root, _dirs, _files in os.walk(PKG):
@@ -1615,6 +1625,68 @@ check("MCP-over-HTTP: handshake (init/202-notif/tools-list), GET 405, Origin 403
       "into the legacy path",
       all(v is True for v in _mcp_http.values()) and len(_mcp_http) == 22,
       str(_mcp_http))
+
+# NN+4. VAULT BOOTSTRAP (wikikb/bootstrap.py) — a missing/incomplete vault is CREATED at startup
+# instead of silently serving zero pages (the docker-compose "seed the host directory FIRST or you
+# will serve an empty wiki" trap, turned from a comment into a mechanism). Everything runs on a
+# THROWAWAY path via WIKIKB_VAULT_ROOT; the live vault is never touched. What is pinned:
+#   * fresh path -> root + every paths.PAGE_DIRS tier + the raw tiers + taxonomy.md + .manifest.json;
+#   * idempotence (second run creates NOTHING) and repair (a deleted page dir comes back);
+#   * NEVER overwrites: a hand-authored taxonomy.md survives byte-identical — silently rewriting it
+#     would wipe the domain declarations every page's `domain:` is validated against;
+#   * SEED HYGIENE: the seeded taxonomy declares ZERO domains (a domain is a human ADD-DOMAIN
+#     decision) and contributes no tag vocab beyond ## Kinds — tags.load_taxonomy() harvests every
+#     backticked token under Areas/Kinds/Versions and does NOT skip HTML comments, so one helpful
+#     backticked example in the seed's prose would quietly become a legal tag forever;
+#   * the AUTOMATIC hook: `wikikb lint` on a nonexistent vault self-heals and exits 0, while
+#     WIKIKB_BOOTSTRAP=0 leaves the path untouched (the opt-out is real, not decorative).
+from wikikb import bootstrap as _bs
+from wikikb.build import tags as _tags     # the SAME taxonomy parser lint/index use — no re-implementation
+_bsr = {}
+with _tf.TemporaryDirectory() as _btmp:
+    _bv = os.path.join(_btmp, "nested", "vault")          # parent chain absent too (fresh bind mount)
+    _benv = dict(_ENV, WIKIKB_VAULT_ROOT=_bv)
+
+    def _bsrun(*args, env=None):
+        return subprocess.run([PY, "-m", "wikikb"] + list(args), capture_output=True, text=True,
+                              cwd=META, env=env or _benv, errors="replace")
+    _p1 = _bsrun("bootstrap")
+    _bsr["fresh_exit0"] = _p1.returncode == 0
+    _bsr["fresh_dirs"] = all(os.path.isdir(os.path.join(_bv, _d)) for _d in _bs.REQUIRED_DIRS)
+    _bsr["fresh_files"] = (os.path.isfile(os.path.join(_bv, "taxonomy.md"))
+                           and os.path.isfile(os.path.join(_bv, ".manifest.json")))
+    _bsr["idempotent"] = "nothing to do" in _bsrun("bootstrap").stdout
+    # repair: one tier removed comes back, and ONLY that tier is reported
+    _os_rm = os.path.join(_bv, _paths.PAGE_DIRS[-1])
+    os.rmdir(_os_rm)
+    _p3 = _bsrun("bootstrap")
+    _bsr["repairs_missing_tier"] = os.path.isdir(_os_rm) and _p3.stdout.count("created") == 1
+    # never overwrites a hand-authored taxonomy
+    _tax = os.path.join(_bv, "taxonomy.md")
+    open(_tax, "w", encoding="utf-8").write("# mine\n")
+    _bsrun("bootstrap")
+    _bsr["never_overwrites"] = open(_tax, encoding="utf-8").read() == "# mine\n"
+    # seed hygiene, read straight off the constant (no second copy of the seed text in this test)
+    _sv = os.path.join(_btmp, "seedcheck")
+    os.makedirs(_sv)
+    open(os.path.join(_sv, "taxonomy.md"), "w", encoding="utf-8").write(_bs.TAXONOMY_SEED)
+    _seed_vocab, _seed_syn = _tags.load_taxonomy(os.path.join(_sv, "taxonomy.md"))
+    _bsr["seed_declares_no_domain"] = _tags.load_domains(os.path.join(_sv, "taxonomy.md")) == set()
+    _bsr["seed_vocab_is_kinds_only"] = _seed_vocab == {
+        "concept", "config-option", "cli", "endpoint", "procedure", "troubleshooting",
+        "anti-pattern", "failure-mode"} and _seed_syn == {}
+    # the automatic hook on a tool that is NOT bootstrap
+    _av = os.path.join(_btmp, "auto", "vault")
+    _pl = _bsrun("lint", env=dict(_ENV, WIKIKB_VAULT_ROOT=_av))
+    _bsr["hook_selfheals_lint"] = (_pl.returncode == 0 and os.path.isdir(os.path.join(_av, "topics"))
+                                   and "bootstrap:" in _pl.stderr)
+    _off = os.path.join(_btmp, "off", "vault")
+    _bsrun("lint", env=dict(_ENV, WIKIKB_VAULT_ROOT=_off, WIKIKB_BOOTSTRAP="0"))
+    _bsr["optout_creates_nothing"] = not os.path.exists(_off)
+check("bootstrap: fresh vault created (dirs+taxonomy+manifest), idempotent, repairs a missing tier, "
+      "never overwrites taxonomy, seed declares no domain and adds no tag vocab beyond Kinds, "
+      "hook self-heals `lint` and WIKIKB_BOOTSTRAP=0 opts out",
+      all(_bsr.values()), str(_bsr))
 
 failed = [n for n, ok, _ in checks if not ok]
 print(f"\n{len(checks) - len(failed)}/{len(checks)} checks passed")

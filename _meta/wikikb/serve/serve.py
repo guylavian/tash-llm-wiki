@@ -15,7 +15,8 @@ OPERATION MODES (WIKIKB_MODE — see wikikb/modes.py for the full contract):
     airgapped (default)  everything below EXCEPT the /scrape surface, which answers exactly like an
                          unknown path — so an online-only endpoint is not fingerprintable on a
                          sealed box. No outbound connection is ever opened.
-    online               the same surface PLUS POST /scrape + GET /scrape/sources.
+    online               the same surface PLUS the web-harvest endpoints: /scrape, /scrape/sources,
+                         /scrape/cron, and the scheduled harvest that drives them.
 The modes are additive: `online` is a strict superset, so a client written against an airgapped
 instance keeps working verbatim against an online one. An unknown WIKIKB_MODE value REFUSES TO
 START (exit 2) rather than falling back to a default — a mode is a posture, and silently getting
@@ -53,9 +54,25 @@ Endpoints (all JSON; errors are {"error": "..."} with a non-2xx status):
                                                         once. Same opt-in as /upload.)
     GET /jobs                                       -> {"jobs":[...],"stats":{...}}
     GET /jobs/<id>                                  -> {"id","state","steps","results",...}
-    POST /scrape                                    -> ONLINE MODE ONLY (501 until wikikb/scrape/ is
-    GET  /scrape/sources                               implemented). In airgapped mode both are
-                                                        indistinguishable from an unknown path.
+    GET   /scrape/sources                           -> ONLINE MODE ONLY. The full CRUD for the watchlist of
+    POST  /scrape/sources                              websites this vault harvests. GET lists them (+ the
+    PATCH /scrape/sources                              cron status); POST adds {"url","domain",...}; PATCH
+    DELETE /scrape/sources?url=…                       updates one by url (partial — only the fields you
+                                                        send; the url itself is identity and is NOT
+                                                        patchable, rename = DELETE + POST); DELETE removes
+                                                        it (harvested notes are KEPT — the raw tier is
+                                                        immutable; withdrawing knowledge is RETRACT).
+    POST /scrape                                    -> ONLINE MODE ONLY. Harvest now: {} = every enabled
+                                                        watchlist source (one job per domain); {"url","domain"}
+                                                        = one URL, watchlist or not. Queued on the SAME
+                                                        serialized runner as /ingest -> {"queued":[{job_id}]}.
+    GET  /scrape/cron                               -> ONLINE MODE ONLY. Scheduled-harvest status:
+    POST /scrape/cron {"enabled":bool}                 schedule, next/last run, live vs boot-default
+                                                        enabled. POST toggles it at runtime (default ON,
+                                                        env WIKIKB_SCRAPE_CRON / _CRON_ENABLED).
+                                                        In airgapped mode ALL of the above are
+                                                        indistinguishable from an unknown path; the
+                                                        writing ones also require --allow-upload.
     POST /mcp                                       -> MCP Streamable HTTP transport (JSON-RPC 2.0,
                                                         one message per call; no SSE, no sessions — see
                                                         do_mcp_post). DUAL-ERA: serves both the legacy
@@ -83,6 +100,7 @@ import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
+from wikikb import bootstrap             # vault skeleton creation — called from main(), not at import
 from wikikb import modes
 from wikikb import paths
 WIKI = str(paths.WIKI)
@@ -96,6 +114,14 @@ from wikikb.retrieval import expand as expandmod
 from wikikb.graph import ask as askmod
 from wikikb.serve import openapi        # OpenAPI 3.1 description + the offline /docs page
 from wikikb.serve import jobs as jobsmod  # background runner for the ingest chain (no thread at import)
+# The scrape surface. Imported UNCONDITIONALLY, in BOTH modes, and that is safe by construction: the
+# package opens no socket at import and every fetch path calls modes.require_online() at the socket
+# itself (modes.py, property 2). Importing it only in online mode would make the module graph differ
+# between postures — which is exactly the kind of difference that makes an airgapped bug reproduce
+# only in production.
+from wikikb.scrape import scrape as scrapemod
+from wikikb.scrape import sources as srcmod
+from wikikb.scrape import cron as cronmod
 
 PAGE_DIRS = paths.PAGE_DIRS
 # Same slug shape lint.py's LINK_RE / expand.py's PAGELINK_RE use: kebab-case only. This is what makes
@@ -543,18 +569,186 @@ def do_jobs():
                  "stats": jobsmod.RUNNER.stats()}
 
 
-def do_scrape(path):
-    """POST /scrape · GET /scrape/sources — ONLINE MODE ONLY.
+# --- the scrape surface (ONLINE MODE ONLY) ------------------------------------------------------
+# Every handler below is reached only after do_GET/do_POST/do_DELETE has confirmed online mode;
+# in airgapped mode the same paths fall through to _no_such_endpoint() and are byte-identical to an
+# unknown path, so a sealed instance does not advertise what it refuses to do.
 
-    Reached only after the caller has been confirmed to be in online mode (airgapped falls through
-    to _no_such_endpoint() before ever getting here), so this is purely the not-yet-implemented
-    answer. 501 with a pointer at the module to write, rather than a 404 that would wrongly say the
-    online surface is absent when the mode says it is present.
+def _json_body(raw):
+    """Parse a request body as a JSON object, or raise ValueError. An EMPTY body is `{}` — `POST
+    /scrape` with no body means "harvest the whole watchlist", and requiring `{}` on the wire for
+    that would be a needless trap for `curl -X POST`."""
+    if not raw or not raw.strip():
+        return {}
+    obj = json.loads(raw.decode("utf-8"))
+    if not isinstance(obj, dict):
+        raise ValueError("expected a JSON object")
+    return obj
+
+
+def do_scrape_sources_get():
+    """GET /scrape/sources — the watchlist plus what a harvest would actually use.
+
+    A READ, so it is not behind --allow-upload: seeing the configured sources changes nothing, and
+    an operator debugging "why did nothing get harvested" needs it before they need anything else.
     """
-    return 501, {"error": "web scraping is not implemented yet",
-                 "mode": MODE,
-                 "seam": "wikikb/scrape/scrape.py — fetch()/sources()",
-                 "path": path}
+    info = scrapemod.sources()
+    info["cron"] = cronmod.SCHEDULER.status()
+    return 200, info
+
+
+def do_scrape_sources_add(body):
+    """POST /scrape/sources — add a website to the watchlist.
+
+    The domain is validated against vault/taxonomy.md here (in sources.add), not at harvest time:
+    an entry naming a domain that does not exist would sit on the list and fail every cron tick
+    from then on, with nobody watching. 201 with the stored entry, which is the CANONICAL form —
+    the caller can see that `HTTPS://Example.com/a#top` was stored as `https://example.com/a`.
+    """
+    try:
+        entry = srcmod.add(url=body.get("url"), domain=body.get("domain"),
+                           label=body.get("label"), match=(body.get("match") or "exact"),
+                           enabled=body.get("enabled", True), direct=bool(body.get("direct")))
+    except srcmod.SourceError as e:
+        return 400, {"error": str(e)}
+    return 201, {"added": entry, "file": str(paths.SCRAPE_SOURCES),
+                 "next": "POST /scrape  (harvest now) — or wait for the cron: GET /scrape/cron"}
+
+
+def do_scrape_sources_update(body):
+    """PATCH /scrape/sources — change an existing source without losing the rest of its entry.
+
+    `url` selects the entry; every other field is optional and only what you send is touched. The
+    URL itself is NOT patchable — it is the entry's identity (it names the harvested note and the
+    `kb:` token citing pages use), so a rename is DELETE + POST, two explicit acts. See
+    sources.update() for the full reasoning.
+
+    The response reports `changed` — the fields that actually moved — so "updated" is
+    distinguishable from "you sent the values it already had", which is also why a no-op patch does
+    not rewrite the file.
+    """
+    if not body.get("url"):
+        return 400, {"error": 'url is required — it selects which source to update'}
+    fields = {k: v for k, v in body.items() if k != "url"}
+    if not fields:
+        return 400, {"error": "nothing to update — send at least one of: domain, label, match, "
+                              "enabled, direct"}
+    try:
+        entry, changed = srcmod.update(body["url"], **fields)
+    except srcmod.SourceError as e:
+        return (404 if "not on the watchlist" in str(e) else 400), {"error": str(e)}
+    out = {"updated": entry, "changed": changed, "file": str(paths.SCRAPE_SOURCES)}
+    if not changed:
+        out["note"] = "no change — the entry already held these values (file not rewritten)"
+    if "domain" in changed:
+        out["note"] = ("domain changed; anything ALREADY harvested stays under the old domain's "
+                       "_raw/web/ and the reference notes it produced are unchanged — this only "
+                       "redirects future runs")
+    return 200, out
+
+
+def do_scrape_sources_remove(url):
+    """DELETE /scrape/sources?url=… — stop watching a website.
+
+    It does NOT delete what that source already harvested. The raw tier is immutable ground truth
+    and synthesis pages cite it, so un-watching a site must not silently invalidate every page that
+    cites what it produced; withdrawing the KNOWLEDGE is Operation: RETRACT, an explicitly authored
+    act. The response says so rather than leaving the caller to assume either behaviour.
+    """
+    try:
+        entry = srcmod.remove(url)
+    except srcmod.SourceError as e:
+        return (404 if "not on the watchlist" in str(e) else 400), {"error": str(e)}
+    return 200, {"removed": entry, "file": str(paths.SCRAPE_SOURCES),
+                 "note": "already-harvested notes are kept (the raw tier is immutable); to withdraw "
+                         "the knowledge, retract the pages that cite it — CLAUDE.md, Operation: RETRACT"}
+
+
+def do_scrape_run(body):
+    """POST /scrape — harvest now.
+
+    Two shapes, both queued on the SAME serialized runner the upload path uses (never run inline: a
+    harvest plus a full `build` is minutes, far past Handler.timeout, and two concurrent builds
+    would interleave writes to the generated artifacts):
+
+        {}                            every enabled watchlist source — one job PER DOMAIN, because
+                                      the fold-in chain after the fetch is per-domain.
+        {"url": …, "domain": …}       one URL, which NEED NOT be on the watchlist. `urls: [...]`
+                                      takes several. `direct: true` permits a live origin fetch
+                                      when Common Crawl has no capture (address-guarded in
+                                      scrape.py); `match: "prefix"` harvests everything indexed
+                                      under the URL, up to WIKIKB_SCRAPE_PREFIX_LIMIT.
+    """
+    urls = body.get("urls") or ([body["url"]] if body.get("url") else [])
+    match = (body.get("match") or "exact").strip()
+    if match not in srcmod.MATCH_MODES:
+        return 400, {"error": "match must be one of %s" % ", ".join(srcmod.MATCH_MODES)}
+    direct = bool(body.get("direct"))
+    known = tags.load_domains()
+
+    if urls:
+        domain = body.get("domain")
+        if not domain:
+            return 400, {"error": "domain is required when scraping a specific url"}
+        if domain not in known:
+            return 400, {"error": "unknown domain: %s (see GET /health)" % domain}
+        canon = []
+        for u in urls:
+            try:
+                canon.append(srcmod.normalize(u))
+            except srcmod.SourceError as e:
+                return 400, {"error": str(e)}
+        try:
+            job, coalesced = jobsmod.submit_scrape(domain, urls=canon, match=match, direct=direct,
+                                                   detail={"trigger": "POST /scrape",
+                                                           "urls": canon})
+        except RuntimeError as e:
+            return 429, {"error": str(e)}
+        return 202, {"queued": [{"domain": domain, "job_id": job.id, "coalesced": coalesced,
+                                 "status_url": "/jobs/%s" % job.id}],
+                     "urls": canon, "steps": [n for n, _ in job.steps]}
+
+    try:
+        doms = srcmod.domains(enabled_only=True)
+    except srcmod.SourceError as e:
+        return 400, {"error": str(e)}
+    if not doms:
+        # Not an error: an empty watchlist is a normal state. 200 with an explicit note beats a 202
+        # for a job that would do nothing, which reads as "started" in every dashboard.
+        return 200, {"queued": [], "note": "watchlist is empty — add one with POST /scrape/sources",
+                     "file": str(paths.SCRAPE_SOURCES)}
+    queued = []
+    for d in doms:
+        if d not in known:
+            queued.append({"domain": d, "error": "domain is on the watchlist but not in taxonomy.md"})
+            continue
+        try:
+            job, coalesced = jobsmod.submit_scrape(d, detail={"trigger": "POST /scrape"})
+            queued.append({"domain": d, "job_id": job.id, "coalesced": coalesced,
+                           "status_url": "/jobs/%s" % job.id})
+        except RuntimeError as e:
+            queued.append({"domain": d, "error": str(e)})
+    return 202, {"queued": queued}
+
+
+def do_scrape_cron_get():
+    return 200, cronmod.SCHEDULER.status()
+
+
+def do_scrape_cron_set(body):
+    """POST /scrape/cron {"enabled": bool} — flip the scheduled harvest at runtime.
+
+    Runtime-only by design: it does NOT rewrite .env. A process that edits its own configuration
+    makes "what will this container do when it restarts?" unanswerable from the config, so the env
+    var stays the boot default and this is the live override — the status reports both, side by
+    side, so a divergence is never invisible.
+    """
+    if "enabled" not in body:
+        return 400, {"error": 'body must be {"enabled": true|false}'}
+    want = body["enabled"]
+    if isinstance(want, str):
+        want = want.strip().lower() in ("1", "true", "yes", "on")
+    return 200, cronmod.SCHEDULER.set_enabled(bool(want))
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -618,7 +812,9 @@ class Handler(BaseHTTPRequestHandler):
                 # Online-only. In airgapped mode this falls through to the SAME
                 # _no_such_endpoint() an unknown path gets — the disabled-upload posture applied to
                 # the mode split, so a sealed instance does not advertise what it refuses to do.
-                status, obj = do_scrape(path) if MODE == modes.ONLINE else _no_such_endpoint()
+                status, obj = do_scrape_sources_get() if MODE == modes.ONLINE else _no_such_endpoint()
+            elif path == "/scrape/cron":
+                status, obj = do_scrape_cron_get() if MODE == modes.ONLINE else _no_such_endpoint()
             elif path == "/route":
                 status, obj = do_route(qs.get("q", ""))
             elif path == "/search":
@@ -706,13 +902,70 @@ class Handler(BaseHTTPRequestHandler):
                     status, obj = 500, {"error": str(e)}
                 self._reply(status, obj)
                 return
-            if path == "/scrape" and MODE == modes.ONLINE:
-                if self._drain_body(MCP_MAX_BYTES) is None:
+            if path in ("/scrape", "/scrape/sources", "/scrape/cron") and MODE == modes.ONLINE:
+                ok, body = self._scrape_write_body()
+                if not ok:
                     return
-                self._reply(*do_scrape(path))
+                try:
+                    if path == "/scrape":
+                        status, obj = do_scrape_run(body)
+                    elif path == "/scrape/sources":
+                        status, obj = do_scrape_sources_add(body)
+                    else:
+                        status, obj = do_scrape_cron_set(body)
+                except Exception as e:                  # noqa: BLE001 — never kill the thread
+                    status, obj = 500, {"error": str(e)}
+                self._reply(status, obj)
                 return
             self._reply(*_no_such_endpoint())
             return
+
+    def _scrape_write_body(self):
+        """Gate + parsed JSON body shared by every WRITING scrape request (POST and PATCH).
+
+        THE GATE: all of these are part of the ONE write surface and share --allow-upload with
+        /upload and /ingest. A scrape writes into the vault; adding or updating a source decides
+        what a later scrape writes; toggling the cron decides whether it writes unattended. An
+        instance whose operator deliberately disabled uploads must not be scrape-writable through a
+        side door — and the refusal is the same unfingerprintable 404, not a 403.
+
+        Returns (True, body) or (False, None) having ALREADY replied. Factored out so POST and PATCH
+        cannot drift apart on the gate, the Content-Length handling, or the parse error shape —
+        three things that must be identical on every write path or the surface is inconsistent.
+        """
+        if not getattr(self.server, "allow_upload", False):
+            self._reply(*_no_such_endpoint())
+            return False, None
+        raw = self._drain_body(MCP_MAX_BYTES)
+        if raw is None:
+            return False, None
+        try:
+            return True, _json_body(raw)
+        except ValueError as e:
+            self._reply(400, {"error": "invalid JSON body: %s" % e})
+            return False, None
+
+    def do_PATCH(self):
+        # Defined UNCONDITIONALLY, exactly like do_PUT and for the same reason: a conditional
+        # do_PATCH would leak the stdlib's 501 "Unsupported method" and thereby confirm the method
+        # exists on instances that hide it. Airgapped, uploads-off, and "no such path" all end at
+        # the SAME _no_such_endpoint().
+        path = urlsplit(self.path).path.rstrip("/") or "/"
+        err = _check_auth(self.headers)
+        if err:
+            self._reply(*err)
+            return
+        if path != "/scrape/sources" or MODE != modes.ONLINE:
+            self._reply(*_no_such_endpoint())
+            return
+        ok, body = self._scrape_write_body()
+        if not ok:
+            return
+        try:
+            status, obj = do_scrape_sources_update(body)
+        except Exception as e:                          # noqa: BLE001 — never kill the thread
+            status, obj = 500, {"error": str(e)}
+        self._reply(status, obj)
         err = _check_auth(self.headers)
         if err:
             self._reply(*err)
@@ -754,12 +1007,44 @@ class Handler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         # No stateful sessions (serve.py issues no Mcp-Session-Id — RESEARCH 2's recommended, spec-
         # legal design), so explicit session termination is declined via 405, same as GET's SSE decline.
-        path = urlsplit(self.path).path.rstrip("/") or "/"
+        parts = urlsplit(self.path)
+        path = parts.path.rstrip("/") or "/"
         if path == MCP_PATH:
             err = _check_auth(self.headers)
             self._reply(*(err or (405, {"error": "session termination not supported"})))
-        else:
-            self._reply(*_no_such_endpoint())
+            return
+        if path == "/scrape/sources" and MODE == modes.ONLINE:
+            err = _check_auth(self.headers)
+            if err:
+                self._reply(*err)
+                return
+            if not getattr(self.server, "allow_upload", False):
+                self._reply(*_no_such_endpoint())
+                return
+            # The URL comes from the query string OR a JSON body — `curl -X DELETE ".../scrape/
+            # sources?url=…"` is what an operator reaches for, while an API client sends a body.
+            # A declared body must still be DRAINED either way, or the next request on a keep-alive
+            # connection is parsed starting mid-body.
+            url = {k: v[0] for k, v in parse_qs(parts.query).items()}.get("url")
+            if self.headers.get("Content-Length") is not None:
+                raw = self._drain_body(MCP_MAX_BYTES)
+                if raw is None:
+                    return
+                try:
+                    url = _json_body(raw).get("url") or url
+                except ValueError as e:
+                    self._reply(400, {"error": "invalid JSON body: %s" % e})
+                    return
+            if not url:
+                self._reply(400, {"error": "url is required (?url=… or a JSON body {\"url\": …})"})
+                return
+            try:
+                status, obj = do_scrape_sources_remove(url)
+            except Exception as e:                      # noqa: BLE001 — never kill the thread
+                status, obj = 500, {"error": str(e)}
+            self._reply(status, obj)
+            return
+        self._reply(*_no_such_endpoint())
 
     def do_PUT(self):
         # Defined UNCONDITIONALLY (not only when --allow-upload) — a conditional do_PUT would leak a
@@ -807,6 +1092,14 @@ def main():
     if MODE_ERROR:
         print("wikikb serve: REFUSED — " + MODE_ERROR, file=sys.stderr)
         sys.exit(2)
+    # Create the vault skeleton if it isn't there yet (wikikb/bootstrap.py). Called here as well as
+    # in the `python3 -m wikikb` dispatcher because this main() is also reachable directly
+    # (`python3 -m wikikb.serve.serve`, the container CMD) — and it MUST precede the cache pre-warm
+    # below, which is what would otherwise freeze "zero pages" into a long-lived process. A fresh
+    # bind mount at /data/vault is the case this turns from "serves an empty wiki" into a working,
+    # writable vault; it prints one stderr line naming the path, so a typo'd mount is visible in the
+    # first lines of `docker logs` rather than showing up later as mysteriously empty results.
+    bootstrap.ensure_startup(label="wikikb serve")
     # Pre-warm the two module-level read caches (route.py's domain profiles, expand.py's page graph)
     # ONCE here, single-threaded, before ThreadingHTTPServer starts handing requests to worker threads.
     # After this point every request only READS them — no locking needed (ponytail: a shared mutable
@@ -826,8 +1119,25 @@ def main():
     # The mode decides whether an outbound-capable surface exists at all, so it belongs in the first
     # lines of `docker logs` next to the vault path — the two settings an operator most often gets
     # wrong and cannot otherwise see without making a request.
+    # The scheduled harvest starts HERE, not at import: it submits jobs that write to the vault, so
+    # it must not exist in a process that is only importing this module (mcp.py does), and it must
+    # not exist in a process whose operator did not enable the write surface. Both conditions are
+    # reported below rather than silently applied — "my cron never runs" is otherwise an
+    # unanswerable question.
+    cron_note = ""
+    if MODE == modes.ONLINE:
+        if not args.allow_upload:
+            cron_note = "  [scrape cron INERT — needs --allow-upload]"
+        elif cronmod.SCHEDULER.error:
+            cron_note = "  [scrape cron DISABLED — bad WIKIKB_SCRAPE_CRON: %s]" % cronmod.SCHEDULER.error
+        else:
+            cronmod.SCHEDULER.start()
+            st = cronmod.SCHEDULER.status()
+            cron_note = ("  [scrape cron %s: %s, next %s]"
+                         % ("ON" if st["enabled"] else "OFF (WIKIKB_SCRAPE_CRON_ENABLED=0)",
+                            st["schedule"], st["next_run_iso"] or "n/a"))
     print("wikikb serve: mode=%s%s" % (
-        MODE, "  [web scraper mounted — not implemented yet]" if MODE == modes.ONLINE else
+        MODE, "  [web scraper mounted]" + cron_note if MODE == modes.ONLINE else
               "  (no outbound network)"), file=sys.stderr)
     # The vault and MCP mount are both relocatable now, and getting either wrong produces a server
     # that starts cleanly and then answers every query from the wrong (or an empty) corpus. Print

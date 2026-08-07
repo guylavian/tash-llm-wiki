@@ -36,3 +36,13 @@ tokenizers==0.21.0         # COMPILED (Rust) — loads a vendored tokenizer.json
 # --- Already-optional dense layer (retro-documented; see _meta/models/README.md) ---
 numpy==2.1.3
 sentence-transformers==3.3.1
+
+# --- OPTIONAL scraper accelerator (ONLINE mode; wikikb/scrape/extract.py) ---
+# Best-in-class HTML boilerplate removal. Used WHEN PRESENT via a lazy import, ignored when
+# absent — the harvester falls back to a bounded stdlib HTMLParser reader, so the copy-and-run
+# air-gap model is preserved and the scraper is NOT the one feature that needs a build toolchain.
+# `GET /scrape/sources` reports which extractor is actually live.
+# Pulls lxml (COMPILED) + charset_normalizer + courlan + htmldate + justext; vendor accordingly.
+# NOTHING ELSE is needed for scraping: the Common Crawl lookup, the ranged WARC fetch and the
+# WARC/HTTP unwrap are all stdlib (urllib + gzip + json) on purpose.
+trafilatura==2.2.0

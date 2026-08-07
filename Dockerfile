@@ -28,8 +28,10 @@ WORKDIR /wiki/_meta
 # This image bakes a snapshot of it. To serve HOST content instead, bind-mount over it and point
 # the code at the mount (see docker-compose.yml, which does exactly this):
 #     -v /srv/llm-wiki/vault:/data/vault  -e WIKIKB_VAULT_ROOT=/data/vault
-# A bind mount SHADOWS the baked copy rather than merging with it, so seed the host directory
-# first (`cp -a ./vault/. /srv/llm-wiki/vault/`) or the container serves an empty wiki.
+# A bind mount SHADOWS the baked copy rather than merging with it. An empty mount is bootstrapped
+# into a valid, writable but CONTENTLESS vault at startup (dirs + a seeded taxonomy.md — see
+# CLAUDE.md, "Startup bootstrap"), so seed the host directory first (`cp -a ./vault/.
+# /srv/llm-wiki/vault/`) if you want the shipped content rather than an empty wiki.
 ENV PYTHONIOENCODING=utf-8
 
 # Point WIKI_LLM at a model endpoint at run time if you want synthesized (non-extractive) answers, e.g.

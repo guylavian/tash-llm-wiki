@@ -83,7 +83,8 @@ strict superset of `airgapped` and a client written against either works against
 | | `airgapped` (default) | `online` |
 |---|---|---|
 | Vault + MCP + PDF upload/ingest | ✅ | ✅ |
-| Web scraper (`/scrape`) | — | ✅ *(seam — answers 501 until implemented)* |
+| Web scraper (`/scrape`, `/scrape/sources`, `/scrape/cron`) | — | ✅ |
+| Scheduled harvest (cron) | — | ✅ *(on by default)* |
 | Outbound network | never | scraper only |
 
 In airgapped mode the `/scrape` paths answer exactly like an unknown path and are absent
@@ -91,9 +92,73 @@ from `/openapi.json`, so a sealed instance doesn't advertise a surface it refuse
 serve. An unknown `WIKIKB_MODE` **refuses to start** rather than guessing a default.
 `GET /health` reports the live mode and its capabilities.
 
-> A bind mount **shadows** the image's baked `vault/` rather than merging with it —
-> seed the host directory first (`cp -a ./vault/. $HOST_VAULT_DIR/`) or you will serve
-> an empty wiki with no error.
+### The web scraper (online mode)
+
+You keep a **watchlist** of websites (`vault/scrape-sources.json`, one entry per URL with
+its target `domain:`). A harvest looks each URL up in the **newest Common Crawl index**;
+when the page is captured there, the archived WARC record is range-fetched, extracted to
+Markdown, and folded into the vault by the *same* chain a PDF upload runs — so a scraped
+page ends up as an immutable, crosslinked reference note:
+
+```
+scrape → web_to_corpus → corpus_to_vault → build
+```
+
+If a URL is **not** in the index the run reports `not-indexed` and fetches nothing — hitting
+the origin server is a per-source opt-in (`"direct": true`), not the default. Every harvested
+body carries an explicit *upstream / community source* banner, because it is exactly the
+material that must never be mistaken for a vendor support statement.
+
+**Managing the watchlist** — full CRUD on `/scrape/sources`:
+
+```bash
+curl        localhost:8642/scrape/sources     # list (+ cron status, live extractor, backend)
+curl -X POST localhost:8642/scrape/sources \
+     -d '{"url":"https://www.keycloak.org/docs/latest/server_admin/","domain":"keycloak"}'
+curl -X PATCH localhost:8642/scrape/sources \
+     -d '{"url":"https://www.keycloak.org/docs/latest/server_admin/","enabled":false}'
+curl -X DELETE "localhost:8642/scrape/sources?url=https://www.keycloak.org/docs/latest/server_admin/"
+```
+
+`PATCH` is a **partial** update: `url` selects the entry and only the fields you send change,
+so pausing a source disturbs nothing else. The response carries `changed` — the fields that
+actually moved — and a no-op patch reports `changed: []` without rewriting the file, so the
+watchlist's mtime keeps meaning *when it last really changed*. The **`url` itself is not
+patchable**: it names the harvested note and therefore the `kb:` token every citing page uses,
+so a rename is `DELETE` + `POST`. `DELETE` never touches what a source already harvested —
+the raw tier is immutable, and withdrawing knowledge is `Operation: RETRACT`.
+
+**Running a harvest:**
+
+```bash
+curl -X POST localhost:8642/scrape            # harvest the whole watchlist now
+curl -X POST localhost:8642/scrape -d '{"url":"https://…","domain":"keycloak"}'   # one URL
+curl        localhost:8642/scrape/cron        # schedule, next/last run, live vs boot default
+curl -X POST localhost:8642/scrape/cron -d '{"enabled":false}'                    # pause it
+```
+
+The same four watchlist operations are on the CLI for a box where nothing is serving — and
+because they only edit a JSON file, they work in **airgapped** mode too (only the harvest is
+mode-gated):
+
+```bash
+python3 -m wikikb scrape --list
+python3 -m wikikb scrape --add https://… --domain keycloak --label "…" --match prefix
+python3 -m wikikb scrape --update https://… --disable
+python3 -m wikikb scrape --remove https://…
+```
+
+The writing endpoints share `--allow-upload` with `/upload` and `/ingest` — a scrape writes
+to the vault, so it is part of the same one write surface. The schedule is
+`WIKIKB_SCRAPE_CRON` (5-field cron, an `@macro`, or an interval like `6h`; default
+`0 3 * * *`), on unless `WIKIKB_SCRAPE_CRON_ENABLED=0`. See `.env.example` §5 for the full
+set, including the two index-lookup backends and why `auto` falls back to the second one.
+
+> A bind mount **shadows** the image's baked `vault/` rather than merging with it. An empty
+> mount is **bootstrapped** on startup into a valid, writable but *contentless* vault (dirs +
+> a seeded `taxonomy.md`; it never overwrites an existing file and logs what it created) — so
+> seed the host directory first (`cp -a ./vault/. $HOST_VAULT_DIR/`) if you want the shipped
+> content rather than an empty wiki. `WIKIKB_BOOTSTRAP=0` turns the auto-creation off.
 
 ## Using it
 

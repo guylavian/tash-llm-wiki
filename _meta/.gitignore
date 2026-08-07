@@ -22,6 +22,11 @@ llm/*
 .venv-embed/
 .venv-online/
 
+# ONLINE-mode scraper cache — a TTL'd copy of Common Crawl's public collinfo.json. Code-resident
+# and regenerable on purpose: a vault copied without it costs exactly one HTTP request, so it is
+# never data and never committed.
+.scrape-cache/
+
 # Python packaging artifacts (pip builds run here, next to pyproject.toml)
 /build/
 /dist/

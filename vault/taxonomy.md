@@ -82,6 +82,12 @@ tags: [federation, concept, v26.6]
 - `sp-farm` — farm topology, service applications, central administration, distributed cache
 - `sp-content` — web applications, site collections, content databases, storage
 - `sp-search` — search service application, crawling, index, query
+<!-- checkpoint areas (notes-first; raw tier fed by the ONLINE scraper from support.checkpoint.com) -->
+- `cp-gateway` — Security Gateway: inspection, blades, NAT, routing, acceleration (SecureXL/CoreXL)
+- `cp-management` — Security Management Server / Multi-Domain, SmartConsole, database, upgrades
+- `cp-policy` — access-control & threat-prevention policy, layers, rulebase, install-policy
+- `cp-vpn` — site-to-site and remote-access VPN, communities, IKE/IPsec, Mobile Access
+- `cp-clustering` — ClusterXL, VRRP, VSX, high availability, load sharing, sync network
 
 ## Kinds
 - `concept` — broad synthesis / how-something-works (usually topics/)
@@ -193,6 +199,17 @@ tier* — the failure `provenance_*` counts cannot see.
 - sources: [reference/sharepoint/, corpora/sharepoint/, _sources/sharepoint/]   # SharePoint Server docset PDF (sharepoint-spstoc) + SP PowerShell refs
 - review-moc: sharepoint-implementation-review
 - tiers-covered: [conceptual]
+
+### checkpoint
+- domain: checkpoint
+- areas: [cp-gateway, cp-management, cp-policy, cp-vpn, cp-clustering, security, troubleshooting, migration]
+- shape: notes-first
+- sources: [_sources/checkpoint/]   # seeded by the ONLINE scraper: support.checkpoint.com is on vault/scrape-sources.json (match: prefix) -> _sources/checkpoint/_raw/web/ -> reference/checkpoint/
+- review-moc: checkpoint-implementation-review
+- tiers-covered: [conceptual]   # NOTHING INGESTED YET. Keep it at `conceptual` until real
+                                # content lands: a support-kb/scenarios claim here would be the
+                                # Confidence gate's H1 arm silently NOT firing on break-fix
+                                # questions the vault cannot actually answer.
 
 <!-- Template — copy per new technology (placeholders are ignored by lint/index):
 ### <domain>

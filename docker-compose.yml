@@ -13,7 +13,14 @@
 #
 # OPERATION MODE: `WIKIKB_MODE` in .env picks what this service IS.
 #   airgapped (default) — vault + MCP + the PDF upload/ingest chain. No egress.
-#   online              — the same, plus the web-scraper surface.
+#   online              — the same, plus the web-scraper surface (/scrape,
+#                         /scrape/sources, /scrape/cron) and the scheduled harvest.
+#                         The scraper also needs WIKIKB_ALLOW_UPLOAD=1: it writes to
+#                         the vault, so it is part of the one write surface. Its
+#                         schedule is WIKIKB_SCRAPE_CRON (default `0 3 * * *`, ON) —
+#                         set it in .env; the container needs no crontab, the timer
+#                         runs in-process so it shares the single job worker that
+#                         serializes every vault-regenerating build.
 # Both modes serve the same endpoints; online only ADDS. Switching is `WIKIKB_MODE=online
 # docker compose up -d` — no separate image, no separate compose file.
 #
@@ -24,7 +31,10 @@
 #
 # A BIND MOUNT SHADOWS whatever the image had at that path — it does not merge.
 # The image ships a baked copy of vault/, but mounting over it hides that copy
-# entirely, so seed the host directory FIRST or you will serve an empty wiki:
+# entirely. Startup then BOOTSTRAPS the empty mount into a valid, writable but
+# CONTENTLESS vault (dirs + a seeded taxonomy.md — see CLAUDE.md, "Startup
+# bootstrap"), logging what it created; it does not conjure the shipped content.
+# So seed the host directory first if you want that content:
 #
 #   mkdir -p /srv/llm-wiki/vault && cp -a ./vault/. /srv/llm-wiki/vault/
 #

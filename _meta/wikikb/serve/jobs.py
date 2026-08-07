@@ -282,3 +282,52 @@ def submit_ingest(domain, detail=None):
     """Queue the ingest chain for `domain`. Returns (job, coalesced)."""
     return RUNNER.submit(Job("ingest", ingest_steps(domain), domain=domain, detail=detail,
                              coalesce_key=("ingest", domain)))
+
+
+# --- the scrape chain (ONLINE MODE) --------------------------------------------------------------
+
+def scrape_steps(domain, urls=None, match="exact", direct=False):
+    """The web-harvest chain: the SAME shape as `ingest_steps`, with the web pair swapped in for the
+    PDF pair. `scrape` fetches into `_sources/<domain>/_raw/web/`, `web_to_corpus` turns that into
+    corpus records, and the last two steps are literally the same tools the PDF path ends with.
+
+    urls=None harvests every ENABLED watchlist source for the domain; a list harvests exactly those
+    URLs, which is how "scrape this one site, it need not be on the list" is served.
+
+    --append CARRIES THE SAME WARNING IT DOES FOR PDFs: without it `web_to_corpus` truncates
+    `corpora/<domain>/index.jsonl` and the next `corpus_to_vault --apply` would regenerate the
+    reference tier from the truncation. One scraped page would destroy an 800-note ground truth.
+
+    A per-URL run passes `--direct` through when the caller asked for it; a watchlist run does not,
+    because there the flag is a PER-SOURCE property read from the file (`"direct": true`), not a
+    property of the run.
+    """
+    argv = ["scrape", "--domain", domain]
+    if urls:
+        for u in urls:
+            argv += ["--url", u]
+        argv += ["--match", match]
+        if direct:
+            argv.append("--direct")
+    else:
+        argv.append("--all")
+    src = str(paths.WIKI / "_sources" / domain / "_raw" / "web")
+    return [
+        ("scrape", argv),
+        ("web_to_corpus", ["web_to_corpus", "--domain", domain, "--src", src, "--append", "--apply"]),
+        ("corpus_to_vault", ["corpus_to_vault", "--domain", domain, "--apply"]),
+        ("build", ["build"]),
+    ]
+
+
+def submit_scrape(domain, urls=None, match="exact", direct=False, detail=None):
+    """Queue the scrape chain for `domain`. Returns (job, coalesced).
+
+    Only a WATCHLIST run (urls=None) coalesces, and for the same reason the ingest chain does: it
+    reads the whole list, so a second queued run would redo byte-identical work. An explicit
+    per-URL run never coalesces — folding "scrape example.com/a" into a pending "scrape everything"
+    job would look like it succeeded while quietly harvesting a different set of URLs.
+    """
+    return RUNNER.submit(Job("scrape", scrape_steps(domain, urls, match, direct), domain=domain,
+                             detail=detail,
+                             coalesce_key=("scrape", domain) if not urls else None))

@@ -387,22 +387,177 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.1.0"
     }
 
     if mode == modes.ONLINE:
+        # The watchlist entry shape, shared by the GET listing and the POST body. Emitted only in
+        # online mode, alongside the paths that reference it — an airgapped spec must not carry a
+        # schema for a surface it does not serve.
+        spec.setdefault("components", {}).setdefault("schemas", {})["ScrapeSource"] = {
+            "type": "object", "required": ["url", "domain"],
+            "properties": {
+                "url": {"type": "string", "description": "http(s) only; stored canonicalized "
+                                                         "(lowercased host, no fragment)"},
+                "domain": {"type": "string", "description": "must be declared in vault/taxonomy.md"},
+                "label": {"type": "string", "nullable": True,
+                          "description": "human label used in the web: provenance token"},
+                "match": {"type": "string", "enum": ["exact", "prefix"], "default": "exact"},
+                "enabled": {"type": "boolean", "default": True},
+                "direct": {"type": "boolean", "default": False,
+                           "description": "permit a live origin fetch when Common Crawl has no capture"},
+                "added": {"type": "string", "format": "date"}}}
+        _online_note = ("Mounted only when `WIKIKB_MODE=online`; in airgapped mode this path answers "
+                        "exactly like an unknown path and is absent from this document.")
+        _write_note = ("Part of the **write surface**, so it shares `--allow-upload` "
+                       "(`WIKIKB_ALLOW_UPLOAD=1`) with `/upload` and `/ingest` — with uploads off it "
+                       "answers the same unfingerprintable 404, not a 403.")
         spec["paths"]["/scrape"] = {
             "post": {
-                "tags": ["scrape"], "summary": "Harvest a web source (ONLINE MODE ONLY)",
-                "description": ("Mounted only when `WIKIKB_MODE=online`; in airgapped mode this path "
-                                "answers exactly like an unknown path and is absent from this "
-                                "document.\n\n**Not implemented yet** — `wikikb/scrape/scrape.py` is "
-                                "the declared seam and currently answers 501. When written, a scrape "
-                                "lands in `vault/_sources/{domain}/_raw/web/` and runs through the "
-                                "same job runner as the PDF chain."),
-                "responses": {**_errors((501, "Not implemented yet — see wikikb/scrape/scrape.py."))},
+                "tags": ["scrape"], "summary": "Harvest now (ONLINE MODE ONLY)",
+                "description": (
+                    f"{_online_note}\n\n{_write_note}\n\n"
+                    "Two shapes:\n\n"
+                    "* `{}` (or no body) — harvest **every enabled watchlist source**, as one job "
+                    "per domain.\n"
+                    "* `{\"url\": …, \"domain\": …}` — harvest **one URL, which need not be on the "
+                    "watchlist**. `urls: [...]` takes several.\n\n"
+                    "Each URL is looked up in the newest Common Crawl index; when it is captured "
+                    "there, the archived WARC record is range-fetched, extracted to Markdown and "
+                    "written to `vault/_sources/{domain}/_raw/web/`. When it is **not** indexed the "
+                    "run reports `not-indexed` and fetches nothing — unless `direct: true`, the "
+                    "opt-in live fetch (which refuses any host resolving to a non-public address).\n\n"
+                    "Queued on the SAME serialized runner as `/ingest`, never run inline: the chain "
+                    "is `scrape → web_to_corpus → corpus_to_vault → build`, i.e. minutes of work, "
+                    "and two concurrent `build`s would interleave writes to the generated artifacts. "
+                    "Poll each returned `job_id` at `/jobs/{id}`."),
+                "requestBody": {"required": False, "content": {"application/json": {"schema": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string", "description": "one URL to harvest"},
+                        "urls": {"type": "array", "items": {"type": "string"}},
+                        "domain": {"type": "string", "description": "required with url/urls"},
+                        "match": {"type": "string", "enum": ["exact", "prefix"], "default": "exact",
+                                  "description": "prefix harvests every indexed page under the URL, "
+                                                 "up to WIKIKB_SCRAPE_PREFIX_LIMIT"},
+                        "direct": {"type": "boolean", "default": False,
+                                   "description": "permit a live origin fetch when Common Crawl has "
+                                                  "no capture"}},
+                    "example": {"url": "https://www.keycloak.org/docs/latest/server_admin/",
+                                "domain": "keycloak"}}}}},
+                "responses": {
+                    "202": _json_response("Queued.", {"type": "object", "properties": {
+                        "queued": {"type": "array", "items": {"type": "object", "properties": {
+                            "domain": {"type": "string"}, "job_id": {"type": "string"},
+                            "coalesced": {"type": "boolean"}, "status_url": {"type": "string"}}}}}}),
+                    "200": _json_response("Nothing to do — the watchlist is empty.", {"type": "object"}),
+                    **_errors((400, "Unknown domain, bad URL, or invalid JSON body."),
+                              (404, "Uploads are disabled, or this instance is airgapped."),
+                              (429, "Job queue full."))},
             }
         }
         spec["paths"]["/scrape/sources"] = {
-            "get": {"tags": ["scrape"], "summary": "Configured scrape sources (ONLINE MODE ONLY)",
-                    "description": "**Not implemented yet** — answers 501.",
-                    "responses": {**_errors((501, "Not implemented yet."))}}
+            "get": {"tags": ["scrape"], "summary": "The scrape watchlist (ONLINE MODE ONLY)",
+                    "description": (f"{_online_note}\n\nThe configured websites (`vault/scrape-"
+                                    "sources.json`), which HTML extractor this instance would "
+                                    "actually use, which index-lookup backend is configured, and the "
+                                    "cron status. A **read** — not behind `--allow-upload`."),
+                    "responses": {"200": _json_response("The watchlist.", {
+                        "type": "object", "properties": {
+                            "file": {"type": "string"}, "exists": {"type": "boolean"},
+                            "extractor": {"type": "string", "enum": ["trafilatura", "stdlib"]},
+                            "lookup_backend": {"type": "string", "enum": ["auto", "api", "cluster"]},
+                            "index_pin": {"type": "string", "nullable": True},
+                            "sources": {"type": "array", "items": {"$ref": "#/components/schemas/ScrapeSource"}},
+                            "cron": {"type": "object"}}}),
+                        **_errors((404, "This instance is airgapped."))}},
+            "post": {"tags": ["scrape"], "summary": "Add a website to the watchlist (ONLINE MODE ONLY)",
+                     "description": (f"{_online_note}\n\n{_write_note}\n\nThe `domain` is validated "
+                                     "against `vault/taxonomy.md` HERE rather than at harvest time — "
+                                     "an entry naming a domain that does not exist would otherwise "
+                                     "sit on the list and fail every cron tick unattended. The "
+                                     "response echoes the **canonical** stored URL."),
+                     "requestBody": {"required": True, "content": {"application/json": {
+                         "schema": {"$ref": "#/components/schemas/ScrapeSource"},
+                         "example": {"url": "https://www.keycloak.org/docs/latest/server_admin/",
+                                     "domain": "keycloak",
+                                     "label": "Keycloak Server Administration Guide (upstream)"}}}},
+                     "responses": {"201": _json_response("Added.", {"type": "object"}),
+                                   **_errors((400, "Bad URL, unknown domain, duplicate, or list full."),
+                                             (404, "Uploads are disabled, or this instance is airgapped."))}},
+            "patch": {"tags": ["scrape"], "summary": "Update a watchlist source (ONLINE MODE ONLY)",
+                      "description": (
+                          f"{_online_note}\n\n{_write_note}\n\n"
+                          "**Partial update.** `url` selects the entry; only the fields you send are "
+                          "touched, so pausing a source is `{\"url\":…,\"enabled\":false}` and nothing "
+                          "else is disturbed.\n\n"
+                          "**The `url` itself is NOT patchable.** It is the entry's identity — it is "
+                          "what the watchlist is keyed by, what the Common Crawl lookup is built from, "
+                          "and what names the harvested note and therefore the `kb:` token every citing "
+                          "page uses. Patching it would strand the already-harvested file under the old "
+                          "slug. A rename is `DELETE` + `POST`, two explicit acts.\n\n"
+                          "`domain` **is** patchable (picking the wrong one at add time is an ordinary "
+                          "mistake), but it only redirects FUTURE runs — anything already harvested "
+                          "stays under the old domain, and the response says so.\n\n"
+                          "The response carries `changed`, the fields that actually moved: a no-op "
+                          "patch reports `changed: []` and does **not** rewrite the file, so the "
+                          "watchlist's mtime keeps meaning 'when it last really changed'."),
+                      "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                          "type": "object", "required": ["url"],
+                          "properties": {
+                              "url": {"type": "string", "description": "selects the entry; not itself patchable"},
+                              "domain": {"type": "string", "description": "must be declared in vault/taxonomy.md"},
+                              "label": {"type": "string", "nullable": True},
+                              "match": {"type": "string", "enum": ["exact", "prefix"]},
+                              "enabled": {"type": "boolean"},
+                              "direct": {"type": "boolean"}},
+                          "example": {"url": "https://support.checkpoint.com/", "enabled": False}}}}},
+                      "responses": {
+                          "200": _json_response("Updated (or already up to date).", {
+                              "type": "object", "properties": {
+                                  "updated": {"$ref": "#/components/schemas/ScrapeSource"},
+                                  "changed": {"type": "array", "items": {"type": "string"},
+                                              "description": "field names that actually moved; [] = no-op"},
+                                  "file": {"type": "string"}, "note": {"type": "string"}}}),
+                          **_errors((400, "No url, nothing to update, an unpatchable/unknown field, "
+                                          "a bad match value, or an undeclared domain."),
+                                    (404, "Not on the watchlist, uploads disabled, or airgapped."))}},
+            "delete": {"tags": ["scrape"], "summary": "Remove a website from the watchlist (ONLINE MODE ONLY)",
+                       "description": (f"{_online_note}\n\n{_write_note}\n\n**Already-harvested notes "
+                                       "are kept.** The raw tier is immutable ground truth and "
+                                       "synthesis pages cite it, so un-watching a site must not "
+                                       "silently invalidate every page citing what it produced; "
+                                       "withdrawing the knowledge is Operation: RETRACT."),
+                       "parameters": [_q("url", "The source URL to remove (or send it in a JSON body).")],
+                       "responses": {"200": _json_response("Removed.", {"type": "object"}),
+                                     **_errors((400, "Missing or invalid url."),
+                                               (404, "Not on the watchlist, uploads disabled, or airgapped."))}},
+        }
+        spec["paths"]["/scrape/cron"] = {
+            "get": {"tags": ["scrape"], "summary": "Scheduled-harvest status (ONLINE MODE ONLY)",
+                    "description": (f"{_online_note}\n\nThe schedule (`WIKIKB_SCRAPE_CRON` — 5-field "
+                                    "cron, an `@macro`, or an interval like `6h`), when it next "
+                                    "fires, when it last did, and **both** the live `enabled` flag "
+                                    "and the `env_default` it booted with — the runtime toggle "
+                                    "deliberately does not rewrite the env, so a divergence between "
+                                    "them must stay visible."),
+                    "responses": {"200": _json_response("Cron status.", {
+                        "type": "object", "properties": {
+                            "enabled": {"type": "boolean"}, "env_default": {"type": "boolean"},
+                            "schedule": {"type": "string"},
+                            "kind": {"type": "string", "enum": ["cron", "interval", "invalid"]},
+                            "error": {"type": "string", "nullable": True},
+                            "running": {"type": "boolean"},
+                            "next_run_iso": {"type": "string", "nullable": True},
+                            "last_run_iso": {"type": "string", "nullable": True},
+                            "runs": {"type": "integer"}}}),
+                        **_errors((404, "This instance is airgapped."))}},
+            "post": {"tags": ["scrape"], "summary": "Toggle the scheduled harvest (ONLINE MODE ONLY)",
+                     "description": (f"{_online_note}\n\n{_write_note}\n\nRuntime-only: it does not "
+                                     "rewrite `.env`. Default is **on**."),
+                     "requestBody": {"required": True, "content": {"application/json": {"schema": {
+                         "type": "object", "required": ["enabled"],
+                         "properties": {"enabled": {"type": "boolean"}},
+                         "example": {"enabled": False}}}}},
+                     "responses": {"200": _json_response("The new cron status.", {"type": "object"}),
+                                   **_errors((400, "Body must be {\"enabled\": true|false}."),
+                                             (404, "Uploads are disabled, or this instance is airgapped."))}},
         }
 
     spec["paths"][mcp_path] = {
@@ -453,10 +608,12 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.1.0"
     }
 
     if auth_required:
-        spec["components"] = {"securitySchemes": {"bearerAuth": {
+        # setdefault, not assignment: the online branch above may already have put the ScrapeSource
+        # schema in components, and overwriting it here would leave dangling $refs in the spec.
+        spec.setdefault("components", {})["securitySchemes"] = {"bearerAuth": {
             "type": "http", "scheme": "bearer",
             "description": "Set `WIKIKB_API_TOKEN` on the server; send `Authorization: Bearer <token>`. "
-                           "Only `/health` is exempt (unauthenticated probes)."}}}
+                           "Only `/health` is exempt (unauthenticated probes)."}}
         spec["security"] = [{"bearerAuth": []}]
     return spec
 
@@ -470,9 +627,10 @@ _DOCS_HTML = """<!doctype html>
 <title>wikikb API</title>
 <style>
 :root{--bg:#fff;--fg:#1a1a1a;--mut:#5a5f66;--line:#e3e6ea;--card:#fafbfc;--acc:#0b6bcb;
-      --get:#0b6bcb;--post:#1a7f4b;--put:#a15c00;--del:#b3261e;--code:#f3f5f7}
+      --get:#0b6bcb;--post:#1a7f4b;--put:#a15c00;--patch:#6b3fa0;--del:#b3261e;--code:#f3f5f7}
 @media(prefers-color-scheme:dark){:root{--bg:#14171a;--fg:#e8eaed;--mut:#9aa3ad;--line:#2a2f35;
-      --card:#1b1f24;--acc:#5ea9ff;--get:#5ea9ff;--post:#5fd39b;--put:#e0a458;--del:#ff8a80;--code:#1f242a}}
+      --card:#1b1f24;--acc:#5ea9ff;--get:#5ea9ff;--post:#5fd39b;--put:#e0a458;--patch:#c9a2ff;
+      --del:#ff8a80;--code:#1f242a}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 .wrap{max-width:960px;margin:0 auto;padding:32px 20px 80px}
@@ -484,7 +642,8 @@ h1{font-size:26px;margin:0 0 4px}h2{font-size:15px;text-transform:uppercase;lett
 .op>summary::-webkit-details-marker{display:none}
 .m{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;padding:5px 8px;border-radius:4px;
    color:#fff;flex:none;letter-spacing:.05em}
-.GET{background:var(--get)}.POST{background:var(--post)}.PUT{background:var(--put)}.DELETE{background:var(--del)}
+.GET{background:var(--get)}.POST{background:var(--post)}.PUT{background:var(--put)}
+.PATCH{background:var(--patch)}.DELETE{background:var(--del)}
 .p{font:13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600}
 .s{color:var(--mut);font-size:13px;margin-left:auto;text-align:right}
 .body{padding:0 14px 14px;border-top:1px solid var(--line)}
