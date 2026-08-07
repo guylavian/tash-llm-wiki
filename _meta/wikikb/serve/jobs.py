@@ -72,11 +72,28 @@ def _child_env():
     PYTHONIOENCODING: without it a step that prints the ⚠ banner or an em-dash dies with a
     UnicodeEncodeError on a Windows console codepage — the step would "fail" for a reason that has
     nothing to do with the ingest. The Dockerfile sets this globally for the same reason.
+
+    WIKIKB_VAULT_ROOT / WIKIKB_CORPORA_DIR are RE-EXPORTED ABSOLUTE, and this is load-bearing.
+    `paths.py` resolves both with Path(...).resolve(), i.e. against the CURRENT WORKING DIRECTORY.
+    Steps run with `cwd=_meta/` (below), while the serve process is typically started from the repo
+    root — so a RELATIVE value like `WIKIKB_VAULT_ROOT=./vault-blank` means the parent and the child
+    resolve two DIFFERENT vaults (`<repo>/vault-blank` vs `_meta/vault-blank`). Observed 2026-08-07:
+    a scrape job's first step created and then harvested into `_meta/vault-blank`, found the empty
+    watchlist there, reported "nothing to do", and the chain died at corpus_to_vault — while the
+    server's own /scrape/sources went on listing the source from the real vault. Nothing looked
+    wrong anywhere except the one bootstrap line naming the wrong directory.
+
+    Pinning the PARENT's already-resolved paths removes the cwd dependency entirely: the child is
+    told exactly which vault to use rather than being left to re-derive it. This is why `--src` was
+    already passed absolute (see ingest_steps/scrape_steps) — the same rule, applied to the env
+    instead of to one flag, so it covers every path a step resolves for itself.
     """
     meta = str(paths.META)
     env = dict(os.environ)
     env["PYTHONPATH"] = meta + os.pathsep + env.get("PYTHONPATH", "")
     env["PYTHONIOENCODING"] = "utf-8"
+    env["WIKIKB_VAULT_ROOT"] = str(paths.WIKI)
+    env["WIKIKB_CORPORA_DIR"] = str(paths.CORPORA)
     return env
 
 
@@ -286,7 +303,16 @@ def submit_ingest(domain, detail=None):
 
 # --- the scrape chain (ONLINE MODE) --------------------------------------------------------------
 
-def scrape_steps(domain, urls=None, match="exact", direct=False):
+# How many not-yet-harvested crawls ONE queued run may walk. The full Common Crawl history is 126
+# crawls and growing; walking all of them for a prefix source is hours, which would blow STEP_TIMEOUT
+# and get the step killed — and a killed step fails the chain, so nothing would be folded into the
+# vault even though the harvest itself had made progress. Bounding the run instead means every run
+# finishes, folds in what it got, and the LEDGER makes the next one continue where it stopped. The
+# CLI is deliberately unbounded by default: an operator watching a terminal can afford to wait.
+MAX_INDEXES_PER_RUN = int(os.environ.get("WIKIKB_SCRAPE_MAX_INDEXES_PER_RUN") or 12)
+
+
+def scrape_steps(domain, urls=None, match="exact", direct=False, max_indexes=None):
     """The web-harvest chain: the SAME shape as `ingest_steps`, with the web pair swapped in for the
     PDF pair. `scrape` fetches into `_sources/<domain>/_raw/web/`, `web_to_corpus` turns that into
     corpus records, and the last two steps are literally the same tools the PDF path ends with.
@@ -310,7 +336,8 @@ def scrape_steps(domain, urls=None, match="exact", direct=False):
         if direct:
             argv.append("--direct")
     else:
-        argv.append("--all")
+        # A watchlist run walks the crawl history, bounded per run (see MAX_INDEXES_PER_RUN).
+        argv += ["--all", "--max-indexes", str(max_indexes or MAX_INDEXES_PER_RUN)]
     src = str(paths.WIKI / "_sources" / domain / "_raw" / "web")
     return [
         ("scrape", argv),
@@ -320,7 +347,7 @@ def scrape_steps(domain, urls=None, match="exact", direct=False):
     ]
 
 
-def submit_scrape(domain, urls=None, match="exact", direct=False, detail=None):
+def submit_scrape(domain, urls=None, match="exact", direct=False, detail=None, max_indexes=None):
     """Queue the scrape chain for `domain`. Returns (job, coalesced).
 
     Only a WATCHLIST run (urls=None) coalesces, and for the same reason the ingest chain does: it
@@ -328,6 +355,6 @@ def submit_scrape(domain, urls=None, match="exact", direct=False, detail=None):
     per-URL run never coalesces — folding "scrape example.com/a" into a pending "scrape everything"
     job would look like it succeeded while quietly harvesting a different set of URLs.
     """
-    return RUNNER.submit(Job("scrape", scrape_steps(domain, urls, match, direct), domain=domain,
-                             detail=detail,
+    return RUNNER.submit(Job("scrape", scrape_steps(domain, urls, match, direct, max_indexes),
+                             domain=domain, detail=detail,
                              coalesce_key=("scrape", domain) if not urls else None))

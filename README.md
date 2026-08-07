@@ -95,16 +95,29 @@ serve. An unknown `WIKIKB_MODE` **refuses to start** rather than guessing a defa
 ### The web scraper (online mode)
 
 You keep a **watchlist** of websites (`vault/scrape-sources.json`, one entry per URL with
-its target `domain:`). A harvest looks each URL up in the **newest Common Crawl index**;
-when the page is captured there, the archived WARC record is range-fetched, extracted to
-Markdown, and folded into the vault by the *same* chain a PDF upload runs — so a scraped
-page ends up as an immutable, crosslinked reference note:
+its target `domain:`). Each source is harvested against **every Common Crawl index it has not
+been processed against yet**, newest first; each captured page's archived WARC record is
+range-fetched, extracted to Markdown, and folded into the vault by the *same* chain a PDF
+upload runs — so a scraped page ends up as an immutable, crosslinked reference note:
 
 ```
 scrape → web_to_corpus → corpus_to_vault → build
 ```
 
-If a URL is **not** in the index the run reports `not-indexed` and fetches nothing — hitting
+**Why the whole history and not just the newest crawl:** Common Crawl *samples* the web
+rather than exhaustively recrawling it, so which pages of a site appear churns heavily
+between crawls. Measured on `support.checkpoint.com` — 3 of 4 pages appear in **only** the
+newest crawl, and four crawls yielded **81 documents where the newest alone yielded 21**.
+Harvesting one index gets you a thin, arbitrary slice.
+
+A **ledger** at `vault/.scrape-state.json` records every (source, crawl) pair already
+processed — including crawls that held *nothing*, because a published crawl is immutable and
+will never hold anything later. So the first runs walk the history (126 crawls, back to 2008)
+and every later run touches only what has been published since, roughly one crawl a month.
+It lives in the vault so it **travels with a vault copy**: the far end resumes instead of
+re-downloading a decade of crawls. An older capture never overwrites a newer note.
+
+If a URL is **not** in a crawl the run reports `not-indexed` and fetches nothing — hitting
 the origin server is a per-source opt-in (`"direct": true`), not the default. Every harvested
 body carries an explicit *upstream / community source* banner, because it is exactly the
 material that must never be mistaken for a vendor support statement.

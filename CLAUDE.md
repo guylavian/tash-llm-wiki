@@ -241,7 +241,10 @@ walkthrough: `_meta/ADD-DOMAIN.md`.
    `- sources:`, `- review-moc:`. **This is the load-bearing step**: `lint.py`
    validates every page's `domain:` against these `- domain:` lines, and `index.py`
    builds `index.<domain>.md` only for declared domains. The slug must be kebab-case
-   (the parser skips `<placeholder>` tokens, so the template stays inert).
+   (the parser skips `<placeholder>` tokens, so the template stays inert). Do it by hand in
+   Obsidian, or through the CRUD that writes the same block with the same validation:
+   `python3 -m wikikb domains --add <d> --areas a,b` / `POST /domains` (see "Declaring domains
+   over the API" below) — which also does steps 3 and 4.
 3. **Add any new `areas:` to `## Areas`** in the same file. Areas are a **flat
    union** shared across domains, and a domain's `areas:` must be a subset of it —
    so a genuinely new technology usually contributes several new area tokens (e.g.
@@ -721,6 +724,58 @@ page's `kb:` tokens to the new reference note and writes the generated `## Sourc
 - Verified by `_meta/tests/mode_probe.py` (both modes over a real socket, the egress guard, and
   the runner's coalescing / stop-at-first-failure rules), wired into `selftest.py`.
 
+#### Declaring domains over the API (`/domains`, `wikikb domains`)
+
+The domain declarations in **`vault/taxonomy.md`** get the same full CRUD on one path that the
+scrape watchlist has, mirrored by CLI flags. It is **mode-independent** (editing the vault's own
+configuration opens no socket, so a sealed box can do it too); the WRITES share `--allow-upload`
+with `/upload`, `/ingest` and `/scrape`, because declaring a domain decides what a later upload is
+allowed to write. Reads stay open.
+
+| | HTTP | CLI |
+|---|---|---|
+| list | `GET /domains` | `domains --list` |
+| read one | `GET /domains/<d>` | `domains --show <d>` |
+| add | `POST /domains` | `domains --add <d> --areas a,b [--new-area 'slug=desc']` |
+| update | `PATCH /domains/<d>` | `domains --update <d> [--tiers …] [--shape …]` |
+| remove | `DELETE /domains/<d>[?force=true]` | `domains --remove <d> [--force]` |
+
+`POST` is **ADD DOMAIN steps 2–4 in one call**: the `### <name>` block, any `new_areas` appended to
+the flat `## Areas` union first, and the `_sources/<name>/` raw tier. It writes **no pages and no
+index** — seeding the synthesis is an authored act under the citation contract, and the indexes are
+`wikikb index`'s output; the response's `next` says what is left.
+
+Five rules, each because the alternative is silently wrong:
+
+- **domains.py is the WRITE side of a file four modules already read** — `tags.load_domains`
+  (lint), `route._domain_areas` (routing), `coverage.load_tiers_covered` (the gate's H1 arm),
+  `index.domain_meta` (the generated index) — and they disagree on where a domain's name comes
+  from: coverage keys off the `### heading`, the other three off `- domain:`. A block whose two
+  names differ is a domain lint accepts and the gate cannot find a coverage tier for. The writer
+  keeps them identical by construction and `domains_probe.py` asserts the round trip through all
+  four, so a shape change that any reader stops parsing fails CI instead of producing an invisible
+  domain.
+- **The NAME is identity and is NOT patchable** — it is every page's `domain:`, the immutable
+  `reference/<domain>/` directory and the `index.<domain>.md` stem. A rename is DELETE + POST plus a
+  deliberate pass over the pages, same rule the watchlist applies to a source URL.
+- **An unknown `areas:` token is refused, not invented.** Areas are a flat union and each carries a
+  description the router tokenizes into the domain's keyword profile; an undescribed area routes
+  nothing and is indistinguishable from a typo of a real one. Genuinely new ones go in `new_areas`
+  **with a description**, and are appended to `## Areas` *before* the block that references them.
+- **Removal deletes the declaration, never the knowledge.** It drops the block and the generated
+  `index.<domain>.md`; every page and every line of the immutable tiers is KEPT — withdrawing what a
+  domain knows is **Operation: RETRACT**. It answers **409** while pages still declare the domain
+  (undeclaring it silently makes every one of them fail lint as "unknown domain"); `?force=true` is
+  the operator taking that on. Add-then-remove leaves the file byte-identical.
+- **A no-op patch reports `changed: []` and does not rewrite the file**, trailing `# …` comments on
+  untouched fields survive (several record *why* a domain covers only `conceptual`), and the file's
+  CRLF/LF style is preserved. Widening `tiers-covered` is the one edit to make deliberately: it
+  *disables* the gate's out-of-coverage banner for that tier.
+
+Verified by `_meta/tests/domains_probe.py` (the four-reader round trip, the file's byte-level
+behaviour, every refusal, removal safety, and the HTTP posture over a real socket — all inside a
+temp `WIKIKB_VAULT_ROOT`, never the live vault), wired into `selftest.py`.
+
 #### Web → Markdown → links: the ONLINE-mode harvest (`wikikb/scrape/`)
 
 The web sibling of the PDF path, and deliberately the *same* chain with the first pair swapped:
@@ -761,9 +816,31 @@ Three rules the update path enforces, each because the alternative is silently w
   getting new mtimes for unchanged content makes "when did this last actually change?"
   unanswerable.
 
-**Common Crawl first, always.** `collinfo.json` → the newest crawl; the CDX index says whether the
-URL is captured and where; a `Range:` GET pulls that one WARC record out of a ~1 GB archive. Not
-indexed ⇒ the run reports `not-indexed` and **fetches nothing**. A live origin fetch is the
+**The harvest walks the crawl HISTORY, and a vault-resident ledger makes that affordable.** Common
+Crawl *samples* the web rather than exhaustively recrawling it, so a site's captured pages churn
+hard between crawls — measured on `support.checkpoint.com`, 3 of 4 pages appear in ONLY the newest
+crawl, and four crawls produced 81 documents where the newest alone produced 21. Harvesting one
+index therefore captures a thin, arbitrary slice. So each watchlist source is processed against
+every crawl it has not been processed against yet, newest first, and the results accumulate.
+
+`vault/.scrape-state.json` (hidden, like `.manifest.json`) records every **(source, crawl)** pair —
+including crawls that held **nothing**. That negative is safe to persist because **a published crawl
+is immutable**: `CC-MAIN-2026-30` will hold the same captures forever, so "processed" is permanently
+true rather than a cache that can go stale. Without it, every run would re-scan all 126 crawls to
+rediscover the same nothing. It is vault-resident so it travels with a vault copy — the far end
+resumes instead of re-downloading a decade of crawls. Rows are keyed by (url, **match mode**), so
+widening a source `exact`→`prefix` correctly invalidates its history; `--forget` is the escape hatch
+after an extractor fix. Newest-first ordering plus a **never-overwrite-a-newer-capture** rule in
+`_write_note` is what stops the walk from regressing a note to 2008 content carrying a 2008
+`fetched` date. State is saved after EVERY crawl, so an interrupted run resumes; a queued run is
+bounded by `WIKIKB_SCRAPE_MAX_INDEXES_PER_RUN` (12) so it finishes inside the job step timeout
+instead of being killed with nothing folded in. **All writes go through `state.update()`**, which
+re-reads before writing — a load-once-save-later caller rolled the collinfo cache back to `None` on
+the first real multi-index run, because the ledger has two independently-written halves.
+
+**Common Crawl first, always.** `collinfo.json` → the crawl list; the CDX index says whether the
+URL is captured in a given crawl and where; a `Range:` GET pulls that one WARC record out of a ~1 GB
+archive. Not indexed ⇒ the run reports `not-indexed` and **fetches nothing**. A live origin fetch is the
 per-source opt-in `"direct": true` (address-guarded: any host resolving to a private/loopback/
 link-local address is refused, because `POST /scrape` lets a caller name any host). Harvesting the
 archive means no robots budget spent, no origin server hit on a cron, and a real capture date to

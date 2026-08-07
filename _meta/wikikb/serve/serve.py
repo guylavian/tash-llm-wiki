@@ -33,15 +33,18 @@ Endpoints (all JSON; errors are {"error": "..."} with a non-2xx status):
     GET /route?q=...                               -> {"domains":[...],"confident":bool}
     GET /search?domain=D&q=...&k=5                  -> [{"id","title","score","snippet"}, ...]
     GET /ask?q=...&domain=D&k=5&tier=conceptual     -> same shape as `wikikb ask --json`
-    GET /page/<slug>                                -> {"slug","path","frontmatter","body"}
-    GET /expand?domain=D&q=...                      -> {"notes":[...]}
+    GET /page/<slug>                                -> {"slug","path","frontmatter","body",
+                                                        "body_total_chars"[,"truncated","next_offset"]}
+    GET /expand?domain=D&q=...                      -> {"notes":[...],"previews":[{"id","snippet"}]}
     GET /openapi.json                               -> OpenAPI 3.1 document, built from the LIVE
                                                         config (MCP mount point, auth posture,
                                                         resolved vault) so it can't drift
     GET /docs                                       -> self-contained HTML API reference; no CDN,
-                                                        no vendored JS, renders air-gapped (point
-                                                        stock Swagger UI at /openapi.json for
-                                                        try-it-out)
+                                                        no vendored JS, renders air-gapped. Documents
+                                                        each endpoint's INPUT and OUTPUT structure and
+                                                        carries a per-operation "Try it" panel that
+                                                        calls this instance same-origin (Postman /
+                                                        Swagger UI still work off /openapi.json)
     PUT /upload/<domain>/<filename>.pdf             -> {"stored","job_id","status_url"}  (raw body, e.g.
                                                         `curl -T x.pdf`; opt-in via --allow-upload, default
                                                         OFF; see do_PUT for the trust boundary). Storing the
@@ -54,6 +57,21 @@ Endpoints (all JSON; errors are {"error": "..."} with a non-2xx status):
                                                         once. Same opt-in as /upload.)
     GET /jobs                                       -> {"jobs":[...],"stats":{...}}
     GET /jobs/<id>                                  -> {"id","state","steps","results",...}
+    GET    /domains                                 -> The full CRUD for the DOMAIN DECLARATIONS in
+    POST   /domains                                    vault/taxonomy.md (what /health lists, what every
+    GET    /domains/<name>                             page's `domain:` is validated against, what the
+    PATCH  /domains/<name>                             router routes to and the Confidence gate reads
+    DELETE /domains/<name>[?force=true]                tiers-covered from). GET lists / reads one (+ what
+                                                        depends on it); POST declares one — ADD-DOMAIN
+                                                        steps 2-4: the block, any new `areas:`, and the
+                                                        _sources/<name>/ raw tier; PATCH is partial (the
+                                                        NAME is identity and is NOT patchable — it is
+                                                        every page's `domain:` and the reference/<name>/
+                                                        directory); DELETE undeclares it and answers 409
+                                                        while pages still use it. Removal NEVER deletes a
+                                                        page or the immutable tiers — that is RETRACT.
+                                                        BOTH modes (vault config opens no socket); the
+                                                        writes share --allow-upload.
     GET   /scrape/sources                           -> ONLINE MODE ONLY. The full CRUD for the watchlist of
     POST  /scrape/sources                              websites this vault harvests. GET lists them (+ the
     PATCH /scrape/sources                              cron status); POST adds {"url","domain",...}; PATCH
@@ -107,6 +125,7 @@ WIKI = str(paths.WIKI)
 sys.dont_write_bytecode = True
 
 from wikikb.build import tags                  # tags.load_domains() — the SAME loader lint.py validates against
+from wikikb.build import domains as domainsmod  # CRUD over the domain declarations in vault/taxonomy.md
 from wikikb.quality import lint as lintmod      # lint.page_files() — page count, no re-parsing
 from wikikb.retrieval import route as routemod
 from wikikb.retrieval import kb
@@ -137,6 +156,11 @@ FM_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 UPLOAD_RE = re.compile(r"^/upload/([a-z0-9][a-z0-9-]*)/([A-Za-z0-9][A-Za-z0-9._-]*\.pdf)$")
 # POST /ingest/<domain> — the batch trigger for the same chain an upload queues automatically.
 INGEST_RE = re.compile(r"^/ingest/([a-z0-9][a-z0-9-]*)$")
+# /domains/<name> — GET/PATCH/DELETE one declaration. Same traversal-safe-by-construction shape as
+# SLUG_RE and UPLOAD_RE: the group excludes "/" and ".", so a path that isn't a bare kebab name never
+# reaches a handler. The name's SEMANTIC rules (2+ chars, declared or not) live in domains.py, which
+# is where the readers that impose them are documented.
+DOMAIN_PATH_RE = re.compile(r"^/domains/([a-z0-9][a-z0-9-]*)$")
 # GET /jobs/<id> — job ids are uuid4 hex prefixes (jobs.Job.id), so the shape check is exact.
 JOB_ID_RE = re.compile(r"^[0-9a-f]{12}$")
 
@@ -569,6 +593,126 @@ def do_jobs():
                  "stats": jobsmod.RUNNER.stats()}
 
 
+# --- the domain declarations (BOTH MODES) -------------------------------------------------------
+# CRUD over `vault/taxonomy.md`'s `## Domains` blocks — the file `/health`'s `domains` list, every
+# page's `domain:`, the router's vocabulary and the Confidence gate's coverage arm all come from.
+# NOT mode-gated: editing the vault's own configuration opens no socket, so refusing it on a sealed
+# box would be a posture check applied to something that has no posture (the same reasoning that
+# keeps the scrape watchlist's CLI verbs mode-independent). The WRITES share `--allow-upload` with
+# /upload, /ingest and /scrape: declaring a domain decides what a later upload is allowed to write
+# into the vault, so it belongs to the one write surface, and with uploads off it answers the same
+# unfingerprintable 404, never a 403.
+
+def do_domains_list():
+    """GET /domains — every declared domain, plus what a POST is allowed to reference.
+
+    The `areas` vocabulary ships with the listing on purpose: a domain's `areas:` must be a subset
+    of the flat union, so a client composing a POST needs it, and a second round trip to discover
+    the legal values would be a needless one.
+    """
+    items = domainsmod.list_domains()
+    return 200, {"domains": items, "count": len(items),
+                 "areas": domainsmod.known_areas(),
+                 "shapes": list(domainsmod.SHAPES), "tiers": list(domainsmod.TIERS),
+                 "file": str(paths.TAXONOMY)}
+
+
+def do_domain_get(name):
+    """GET /domains/<name> — one declaration + what currently depends on it.
+
+    `usage` is served on the plain read, not only on a refused DELETE: the blast radius of
+    undeclaring a domain (pages that would start failing lint, immutable notes that would be
+    stranded) is exactly what someone asks for before they decide, not after.
+    """
+    entry = domainsmod.get(name)
+    if entry is None:
+        return 404, {"error": "no such domain: %s (see GET /domains)" % name}
+    entry["usage"] = domainsmod.usage(name)
+    entry["file"] = str(paths.TAXONOMY)
+    return 200, entry
+
+
+def do_domains_add(body):
+    """POST /domains — declare a new technology domain.
+
+    This is ADD-DOMAIN steps 2–4 (declare it, extend the area vocabulary, create the raw tier) as
+    one call. It deliberately stops there: seeding the synthesis (step 5) is an authored act, and
+    the generated indexes are `wikikb index`'s output — so the response says what to do next instead
+    of inventing pages nobody wrote.
+    """
+    name = body.get("domain") or body.get("name")
+    if not body.get("areas"):
+        return 400, {"error": "areas is required — a domain with no areas routes nothing "
+                              "(GET /domains lists the vocabulary; send unknown ones in new_areas)"}
+    try:
+        entry = domainsmod.add(name, areas=body.get("areas"),
+                               shape=(body.get("shape") or "notes-first"),
+                               sources=body.get("sources"),
+                               review_moc=body.get("review-moc") or body.get("review_moc"),
+                               tiers_covered=(body.get("tiers-covered") or body.get("tiers_covered")),
+                               new_areas=body.get("new_areas"))
+    except domainsmod.DomainError as e:
+        return (409 if "already declared" in str(e) else 400), {"error": str(e)}
+    return 201, {"added": entry, "file": entry["file"],
+                 "next": "write the overview topic, its first entity and %s, then run "
+                         "`python3 -m wikikb build` (or POST /ingest/%s after dropping sources)"
+                         % (entry["review-moc"], entry["domain"])}
+
+
+def do_domains_update(name, body):
+    """PATCH /domains/<name> — change a declaration without retyping the rest of it.
+
+    Partial: the path selects, only the fields in the body are touched, and `changed` reports what
+    actually moved so a no-op is distinguishable from an update (and does not rewrite the file).
+    The NAME is not patchable — it is the value of every page's `domain:`, the `reference/<domain>/`
+    directory and the `index.<domain>.md` stem; see domains.update() for the full reasoning.
+    """
+    if not body:
+        return 400, {"error": "nothing to update — send at least one of: %s, new_areas"
+                              % ", ".join(domainsmod.PATCHABLE)}
+    if "path" in body:
+        # domains.update(name, path=…, **fields) takes the TAXONOMY FILE as `path`, so splatting a
+        # request body straight in would let a caller redirect the write to any file the process can
+        # open. The body names FIELDS; `path` is not one, and it is refused by name rather than
+        # silently dropped.
+        return 400, {"error": "not updatable: path (allowed: %s, new_areas)"
+                              % ", ".join(domainsmod.PATCHABLE)}
+    try:
+        entry, changed = domainsmod.update(name, **body)
+    except domainsmod.DomainError as e:
+        return (404 if str(e).startswith("no such domain") else 400), {"error": str(e)}
+    out = {"updated": entry, "changed": changed, "file": entry["file"]}
+    if not changed:
+        out["note"] = "no change — the declaration already held these values (file not rewritten)"
+    elif "areas" in changed or "new_areas" in changed:
+        out["note"] = ("the router's keyword profiles are built from areas — run "
+                       "`python3 -m wikikb build` (or restart serve) for this to take effect")
+    return 200, out
+
+
+def do_domains_remove(name, force=False):
+    """DELETE /domains/<name> — undeclare a domain.
+
+    Removes the DECLARATION and the generated `index.<domain>.md`; it never deletes a page or a
+    line of the immutable reference/_sources tiers — withdrawing knowledge is Operation: RETRACT.
+    It answers 409 while pages still declare the domain, because silently undeclaring it makes
+    every one of those pages fail lint as "unknown domain" with nothing pointing back here.
+    `?force=true` is the operator taking that on.
+    """
+    try:
+        entry = domainsmod.remove(name, force=force)
+    except domainsmod.DomainError as e:
+        msg = str(e)
+        if msg.startswith("no such domain"):
+            return 404, {"error": msg}
+        return (409 if "still in use" in msg else 400), {"error": msg}
+    return 200, {"removed": entry, "file": entry["file"], "kept": entry["kept"],
+                 "removed_generated": entry["removed_generated"],
+                 "note": "the immutable reference/ and _sources/ tiers and every page are KEPT — to "
+                         "withdraw what this domain knows, retract the pages (CLAUDE.md, Operation: "
+                         "RETRACT). Run `python3 -m wikikb build` to regenerate the router index."}
+
+
 # --- the scrape surface (ONLINE MODE ONLY) ------------------------------------------------------
 # Every handler below is reached only after do_GET/do_POST/do_DELETE has confirmed online mode;
 # in airgapped mode the same paths fall through to _no_such_endpoint() and are byte-identical to an
@@ -684,6 +828,10 @@ def do_scrape_run(body):
     if match not in srcmod.MATCH_MODES:
         return 400, {"error": "match must be one of %s" % ", ".join(srcmod.MATCH_MODES)}
     direct = bool(body.get("direct"))
+    try:
+        max_indexes = int(body["max_indexes"]) if body.get("max_indexes") is not None else None
+    except (TypeError, ValueError):
+        return 400, {"error": "max_indexes must be an integer"}
     known = tags.load_domains()
 
     if urls:
@@ -723,7 +871,8 @@ def do_scrape_run(body):
             queued.append({"domain": d, "error": "domain is on the watchlist but not in taxonomy.md"})
             continue
         try:
-            job, coalesced = jobsmod.submit_scrape(d, detail={"trigger": "POST /scrape"})
+            job, coalesced = jobsmod.submit_scrape(d, detail={"trigger": "POST /scrape"},
+                                                   max_indexes=max_indexes)
             queued.append({"domain": d, "job_id": job.id, "coalesced": coalesced,
                            "status_url": "/jobs/%s" % job.id})
         except RuntimeError as e:
@@ -808,6 +957,10 @@ class Handler(BaseHTTPRequestHandler):
                 status, obj = do_jobs()
             elif path.startswith("/jobs/"):
                 status, obj = do_job(path[len("/jobs/"):])
+            elif path == "/domains":
+                status, obj = do_domains_list()
+            elif DOMAIN_PATH_RE.match(path):
+                status, obj = do_domain_get(DOMAIN_PATH_RE.match(path).group(1))
             elif path == "/scrape/sources":
                 # Online-only. In airgapped mode this falls through to the SAME
                 # _no_such_endpoint() an unknown path gets — the disabled-upload posture applied to
@@ -902,8 +1055,20 @@ class Handler(BaseHTTPRequestHandler):
                     status, obj = 500, {"error": str(e)}
                 self._reply(status, obj)
                 return
+            if path == "/domains":
+                # Both modes: a declaration is vault configuration, not a network act. The gate is
+                # the write surface's, same as every other writing path.
+                ok, body = self._write_body()
+                if not ok:
+                    return
+                try:
+                    status, obj = do_domains_add(body)
+                except Exception as e:                  # noqa: BLE001 — never kill the thread
+                    status, obj = 500, {"error": str(e)}
+                self._reply(status, obj)
+                return
             if path in ("/scrape", "/scrape/sources", "/scrape/cron") and MODE == modes.ONLINE:
-                ok, body = self._scrape_write_body()
+                ok, body = self._write_body()
                 if not ok:
                     return
                 try:
@@ -920,52 +1085,6 @@ class Handler(BaseHTTPRequestHandler):
             self._reply(*_no_such_endpoint())
             return
 
-    def _scrape_write_body(self):
-        """Gate + parsed JSON body shared by every WRITING scrape request (POST and PATCH).
-
-        THE GATE: all of these are part of the ONE write surface and share --allow-upload with
-        /upload and /ingest. A scrape writes into the vault; adding or updating a source decides
-        what a later scrape writes; toggling the cron decides whether it writes unattended. An
-        instance whose operator deliberately disabled uploads must not be scrape-writable through a
-        side door — and the refusal is the same unfingerprintable 404, not a 403.
-
-        Returns (True, body) or (False, None) having ALREADY replied. Factored out so POST and PATCH
-        cannot drift apart on the gate, the Content-Length handling, or the parse error shape —
-        three things that must be identical on every write path or the surface is inconsistent.
-        """
-        if not getattr(self.server, "allow_upload", False):
-            self._reply(*_no_such_endpoint())
-            return False, None
-        raw = self._drain_body(MCP_MAX_BYTES)
-        if raw is None:
-            return False, None
-        try:
-            return True, _json_body(raw)
-        except ValueError as e:
-            self._reply(400, {"error": "invalid JSON body: %s" % e})
-            return False, None
-
-    def do_PATCH(self):
-        # Defined UNCONDITIONALLY, exactly like do_PUT and for the same reason: a conditional
-        # do_PATCH would leak the stdlib's 501 "Unsupported method" and thereby confirm the method
-        # exists on instances that hide it. Airgapped, uploads-off, and "no such path" all end at
-        # the SAME _no_such_endpoint().
-        path = urlsplit(self.path).path.rstrip("/") or "/"
-        err = _check_auth(self.headers)
-        if err:
-            self._reply(*err)
-            return
-        if path != "/scrape/sources" or MODE != modes.ONLINE:
-            self._reply(*_no_such_endpoint())
-            return
-        ok, body = self._scrape_write_body()
-        if not ok:
-            return
-        try:
-            status, obj = do_scrape_sources_update(body)
-        except Exception as e:                          # noqa: BLE001 — never kill the thread
-            status, obj = 500, {"error": str(e)}
-        self._reply(status, obj)
         err = _check_auth(self.headers)
         if err:
             self._reply(*err)
@@ -1004,6 +1123,58 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self._reply(status, obj)
 
+    def _write_body(self):
+        """Gate + parsed JSON body shared by EVERY writing request with a JSON body (POST + PATCH,
+        scrape and domains alike).
+
+        THE GATE: all of these are part of the ONE write surface and share --allow-upload with
+        /upload and /ingest. A scrape writes into the vault; adding or updating a source decides
+        what a later scrape writes; toggling the cron decides whether it writes unattended;
+        declaring a domain decides which of those an upload is allowed to target at all. An
+        instance whose operator deliberately disabled uploads must not be writable through a side
+        door — and the refusal is the same unfingerprintable 404, not a 403.
+
+        Returns (True, body) or (False, None) having ALREADY replied. Factored out so POST and PATCH
+        cannot drift apart on the gate, the Content-Length handling, or the parse error shape —
+        three things that must be identical on every write path or the surface is inconsistent.
+        """
+        if not getattr(self.server, "allow_upload", False):
+            self._reply(*_no_such_endpoint())
+            return False, None
+        raw = self._drain_body(MCP_MAX_BYTES)
+        if raw is None:
+            return False, None
+        try:
+            return True, _json_body(raw)
+        except ValueError as e:
+            self._reply(400, {"error": "invalid JSON body: %s" % e})
+            return False, None
+
+    def do_PATCH(self):
+        # Defined UNCONDITIONALLY, exactly like do_PUT and for the same reason: a conditional
+        # do_PATCH would leak the stdlib's 501 "Unsupported method" and thereby confirm the method
+        # exists on instances that hide it. Airgapped, uploads-off, and "no such path" all end at
+        # the SAME _no_such_endpoint().
+        path = urlsplit(self.path).path.rstrip("/") or "/"
+        err = _check_auth(self.headers)
+        if err:
+            self._reply(*err)
+            return
+        dm = DOMAIN_PATH_RE.match(path)
+        if not dm and (path != "/scrape/sources" or MODE != modes.ONLINE):
+            self._reply(*_no_such_endpoint())
+            return
+        ok, body = self._write_body()
+        if not ok:
+            return
+        try:
+            status, obj = (do_domains_update(dm.group(1), body) if dm
+                           else do_scrape_sources_update(body))
+        except Exception as e:                          # noqa: BLE001 — never kill the thread
+            status, obj = 500, {"error": str(e)}
+        self._reply(status, obj)
+        return
+
     def do_DELETE(self):
         # No stateful sessions (serve.py issues no Mcp-Session-Id — RESEARCH 2's recommended, spec-
         # legal design), so explicit session termination is declined via 405, same as GET's SSE decline.
@@ -1012,6 +1183,35 @@ class Handler(BaseHTTPRequestHandler):
         if path == MCP_PATH:
             err = _check_auth(self.headers)
             self._reply(*(err or (405, {"error": "session termination not supported"})))
+            return
+        dm = DOMAIN_PATH_RE.match(path)
+        if dm:
+            err = _check_auth(self.headers)
+            if err:
+                self._reply(*err)
+                return
+            if not getattr(self.server, "allow_upload", False):
+                self._reply(*_no_such_endpoint())
+                return
+            # `force` from the query string or a JSON body, same dual shape /scrape/sources uses —
+            # and a declared body is DRAINED either way, or the next request on a keep-alive
+            # connection is parsed starting mid-body.
+            qs = {k: v[0] for k, v in parse_qs(parts.query).items()}
+            force = qs.get("force") in ("1", "true")
+            if self.headers.get("Content-Length") is not None:
+                raw = self._drain_body(MCP_MAX_BYTES)
+                if raw is None:
+                    return
+                try:
+                    force = bool(_json_body(raw).get("force", force))
+                except ValueError as e:
+                    self._reply(400, {"error": "invalid JSON body: %s" % e})
+                    return
+            try:
+                status, obj = do_domains_remove(dm.group(1), force=bool(force))
+            except Exception as e:                      # noqa: BLE001 — never kill the thread
+                status, obj = 500, {"error": str(e)}
+            self._reply(status, obj)
             return
         if path == "/scrape/sources" and MODE == modes.ONLINE:
             err = _check_auth(self.headers)

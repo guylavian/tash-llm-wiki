@@ -73,10 +73,13 @@ MANIFEST = WIKI / ".manifest.json"
 # human may be editing.
 SCRAPE_SOURCES = (Path(_env.environ["WIKIKB_SCRAPE_SOURCES"]).resolve()
                   if _env.environ.get("WIKIKB_SCRAPE_SOURCES") else WIKI / "scrape-sources.json")
-# Regenerable cache for the Common Crawl collection list (collinfo.json). Code-resident, not
-# vault-resident: it is a copy of a public file that is refetched on TTL expiry, so leaving it
-# behind on a vault copy costs one HTTP request, not data.
-SCRAPE_CACHE = META / ".scrape-cache"
+# The scrape LEDGER: which Common Crawl index has already been harvested for which source, plus a
+# cached copy of the crawl list. VAULT-RESIDENT (like .manifest.json, and hidden for the same
+# reason) because it is the harvest's memory: a published crawl is IMMUTABLE, so "index X is done
+# for source Y" is permanently true and is worth carrying between machines. Copy the vault and the
+# far end resumes where this one stopped instead of re-downloading a decade of crawls.
+SCRAPE_STATE = (Path(_env.environ["WIKIKB_SCRAPE_STATE"]).resolve()
+                if _env.environ.get("WIKIKB_SCRAPE_STATE") else WIKI / ".scrape-state.json")
 # --- code-resident / REGENERABLE (safe to leave behind) --------------------
 EVAL = META / "eval"                       # eval + gate cases + committed goldens
 MODELS = META / "models"                   # vendored embedding model(s) / tokenizers

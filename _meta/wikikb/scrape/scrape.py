@@ -57,6 +57,7 @@ from wikikb import paths
 from wikikb.scrape import commoncrawl as cc
 from wikikb.scrape import extract as extractor
 from wikikb.scrape import sources as srcmod
+from wikikb.scrape import state as statemod
 
 sys.dont_write_bytecode = True
 
@@ -153,12 +154,31 @@ def _write_note(domain, url, title, markdown, meta, label=None, dry_run=False):
     if prior and prior.get("body_sha256") == digest and os.path.isfile(md_path):
         return {"url": url, "domain": domain, "status": "unchanged", "file": stem + ".md",
                 "chars": len(markdown), "captured": prior.get("captured")}
+    # NEVER LET AN OLDER CAPTURE OVERWRITE A NEWER ONE. Harvesting across many crawls means the same
+    # URL is captured repeatedly, and every capture maps to the SAME note (the slug is derived from
+    # the URL). Without this, walking the crawl history would leave each note holding whichever
+    # crawl happened to be processed last — for a newest-first walk, that is the OLDEST capture, and
+    # the note would silently regress to 2008 content carrying a 2008 `fetched` date that pages then
+    # cite as current. Same-timestamp is allowed through so a re-extraction (better extractor, fixed
+    # bug) can still update the body.
+    new_ts = str(meta.get("timestamp") or "")
+    old_ts = str((prior or {}).get("captured_ts") or "")
+    if not old_ts and prior:                       # notes written before captured_ts existed
+        old_ts = str(prior.get("captured") or "").replace("-", "")
+    if prior and old_ts and new_ts and new_ts[:len(old_ts)] < old_ts:
+        return {"url": url, "domain": domain, "status": "older-capture", "file": stem + ".md",
+                "chars": len(markdown), "captured": prior.get("captured"),
+                "hint": "kept the newer capture already on disk (%s)" % prior.get("captured")}
     sidecar = {
         "url": url,
         "domain": domain,
         "title": title or url,
         "label": label or title or url,
         "captured": _capture_date(meta.get("timestamp")),
+        # The full 14-digit crawl timestamp, kept alongside the human date because the
+        # never-overwrite-newer comparison above needs more precision than a day: two crawls can
+        # capture the same URL on the same date.
+        "captured_ts": str(meta.get("timestamp") or ""),
         "cc_index": meta.get("cc_index"),
         "warc_file": meta.get("warc_file"),
         "warc_digest": meta.get("digest"),
@@ -258,20 +278,97 @@ def fetch(url, domain=None, match="exact", direct=False, index_id=None, label=No
     return rows
 
 
-def scrape_all(domain=None, dry_run=False, index_id=None, path=None):
+def _tally_rows(rows):
+    out = {}
+    for r in rows:
+        out[r["status"]] = out.get(r["status"], 0) + 1
+    return out
+
+
+def scrape_source(source, dry_run=False, index_id=None, max_indexes=None, progress=None,
+                  state_path=None):
+    """Harvest ONE watchlist source across every crawl it has not been harvested against yet.
+
+    THE POINT OF WALKING ALL CRAWLS: Common Crawl samples the web rather than exhaustively
+    recrawling it, so which pages of a site appear varies enormously per crawl — measured on
+    `support.checkpoint.com`, 3 of 4 harvested pages appear in ONLY the newest crawl. Harvesting
+    just the newest index therefore captures a thin, arbitrary slice. Walking the history and
+    accumulating is how a site's coverage actually gets built.
+
+    THE LEDGER MAKES IT AFFORDABLE. A published crawl is immutable, so a crawl already processed for
+    this source is done forever — including one that held NOTHING, which is recorded too so it is
+    never re-checked. The first run is long (126 crawls today); every later run touches only the
+    crawls published since, which is typically one a month.
+
+    State is saved after EVERY crawl, so an interrupted run resumes instead of restarting.
+    `index_id` pins a single crawl and bypasses the walk entirely (the reproducibility path).
+    """
+    url, domain = source["url"], source.get("domain")
+    match = source.get("match", "exact")
+    rows = []
+
+    if index_id:                                   # pinned: one crawl, no ledger involvement
+        return fetch(url, domain, match=match, direct=bool(source.get("direct")),
+                     index_id=index_id, label=source.get("label"), dry_run=dry_run)
+
+    try:
+        done = statemod.done_indexes(statemod.load(state_path), url, match)
+    except ValueError as e:
+        return [{"url": url, "domain": domain, "status": "invalid", "error": str(e)}]
+    # all_indexes() may itself write the collinfo cache, so the ledger is never held across it —
+    # every write below goes through state.update(), which re-reads first.
+    todo = [i for i in cc.all_indexes() if i not in done]
+    if max_indexes and max_indexes > 0:
+        todo = todo[:max_indexes]
+    if not todo:
+        return [{"url": url, "domain": domain, "status": "up-to-date",
+                 "hint": "all %d published crawls already harvested for this source" % len(done)}]
+
+    for n, cid in enumerate(todo, 1):
+        if progress:
+            progress("  [%d/%d] %s  %s" % (n, len(todo), cid, url))
+        try:
+            got = fetch(url, domain, match=match, direct=bool(source.get("direct")),
+                        index_id=cid, label=source.get("label"), dry_run=dry_run)
+        except (ValueError, srcmod.SourceError) as e:
+            rows.append({"url": url, "domain": domain, "status": "invalid", "error": str(e)})
+            break                                  # a bad source is bad for every crawl
+        except cc.CrawlError as e:
+            rows.append({"url": url, "domain": domain, "status": "lookup-failed",
+                         "cc_index": cid, "error": str(e)})
+            continue                               # one unreachable crawl must not end the walk
+        rows.extend(got)
+        t = _tally_rows(got)
+        # A crawl is recorded ONLY when it was actually answered. A lookup failure is transient
+        # (the CDX API 503s for long stretches), and recording it as done would permanently skip a
+        # crawl this source was never really checked against.
+        if not dry_run and not t.get("lookup-failed"):
+            stats = {"new": t.get("new", 0), "updated": t.get("updated", 0),
+                     "unchanged": t.get("unchanged", 0), "too_thin": t.get("too-thin", 0),
+                     "older": t.get("older-capture", 0), "empty": bool(t.get("not-indexed"))}
+            # After EVERY crawl — the run must be resumable. update() re-reads first, so this
+            # cannot clobber the collinfo cache all_indexes() may have written above.
+            statemod.update(lambda d, c=cid, s=stats: statemod.record(d, url, match, c, s),
+                            state_path)
+    return rows
+
+
+def scrape_all(domain=None, dry_run=False, index_id=None, path=None, max_indexes=None,
+               progress=None, state_path=None):
     """Harvest every ENABLED watchlist source (optionally just one domain's).
 
     One source's failure never stops the run — each row carries its own status, and the caller (CLI,
     job step, cron tick) reports the tally.
     """
     modes.require_online("web scraping")
-    index_id = index_id or cc.latest_index()
     rows = []
     for s in srcmod.list_sources(domain=domain, enabled_only=True, path=path):
+        if progress:
+            progress("source: %s  [%s]" % (s.get("url"), s.get("domain")))
         try:
-            rows.extend(fetch(s["url"], s.get("domain"), match=s.get("match", "exact"),
-                              direct=bool(s.get("direct")), index_id=index_id,
-                              label=s.get("label"), dry_run=dry_run))
+            rows.extend(scrape_source(s, dry_run=dry_run, index_id=index_id,
+                                      max_indexes=max_indexes, progress=progress,
+                                      state_path=state_path))
         except (ValueError, srcmod.SourceError) as e:
             rows.append({"url": s.get("url"), "domain": s.get("domain"), "status": "invalid",
                          "error": str(e)})
@@ -287,13 +384,29 @@ def sources():
     Read-only and mode-INDEPENDENT on purpose: an operator debugging an airgapped box still needs to
     see what the watchlist says. Only the fetch itself is online-gated.
     """
+    srcs = srcmod.list_sources()
+    try:
+        doc = statemod.load()
+        ledger_error = None
+    except ValueError as e:
+        doc, ledger_error = statemod._blank(), str(e)
+    # Each source carries its own harvest PROGRESS: how many published crawls it has been processed
+    # against, how many documents that produced, and where it got to. Without this the API can say
+    # what is configured but not what has actually been done — which is the question an operator
+    # watching a long first run is actually asking.
+    for s in srcs:
+        s["state"] = statemod.summary(doc, s.get("url"))
+    cached = statemod.collinfo_get(doc, max_age=float("inf")) or []
     return {
         "file": str(paths.SCRAPE_SOURCES),
         "exists": os.path.isfile(str(paths.SCRAPE_SOURCES)),
-        "sources": srcmod.list_sources(),
+        "sources": srcs,
         "extractor": extractor.available(),
         "lookup_backend": cc.LOOKUP_BACKEND,
         "index_pin": cc.INDEX_PIN or None,
+        "state_file": str(paths.SCRAPE_STATE),
+        "crawls_published": len(cached) or None,
+        "ledger_error": ledger_error,
     }
 
 
@@ -353,7 +466,17 @@ def main():
     ap.add_argument("--direct", action="store_true", default=None,
                     help="allow a LIVE fetch from the origin when Common Crawl has no capture "
                          "(off by default — the archive-first rule)")
-    ap.add_argument("--index", help="pin a crawl id, e.g. CC-MAIN-2026-30 (default: the newest)")
+    ap.add_argument("--index",
+                    help="pin ONE crawl id, e.g. CC-MAIN-2026-30, and skip the ledger entirely "
+                         "(the reproducible path). Default: walk every crawl not yet harvested "
+                         "for the source, newest first.")
+    ap.add_argument("--max-indexes", type=int, default=None,
+                    help="process at most N not-yet-harvested crawls this run. The full history is "
+                         "126 crawls; use this to bound a first run and let later runs continue "
+                         "(the ledger makes it resumable).")
+    ap.add_argument("--forget", metavar="URL",
+                    help="drop URL's harvest ledger so its crawls are reprocessed (use after an "
+                         "extractor fix); with --index, forget just that one crawl")
     ap.add_argument("--limit", type=int, help="max documents for a --match prefix source")
     ap.add_argument("--dry-run", action="store_true", help="look everything up, write nothing")
     ap.add_argument("--json", action="store_true", help="machine-readable result rows")
@@ -368,12 +491,33 @@ def main():
             print("extractor: %s   lookup: %s   index: %s"
                   % (info["extractor"], info["lookup_backend"], info["index_pin"] or "latest"))
             for s in info["sources"]:
+                st = s.get("state") or {}
                 print("  [%s] %-16s %s%s" % ("x" if s.get("enabled", True) else " ",
                                              s.get("domain"), s.get("url"),
                                              "  (%s)" % s["match"] if s.get("match") != "exact" else ""))
+                print("      crawls harvested: %s/%s   documents: %s   last: %s"
+                      % (st.get("indexes_done", 0), info.get("crawls_published") or "?",
+                         st.get("documents", 0), st.get("last_index") or "—"))
             if not info["sources"]:
                 print("  (empty — add one: --add <URL> --domain <d>, POST /scrape/sources, "
                       "or edit the file)")
+        return
+
+    if args.forget:
+        # Also mode-independent: it only edits the ledger. The escape hatch from the ledger's own
+        # correctness rule ("a processed crawl is done forever") — needed after an extractor fix or
+        # a widened match, where previously processed crawls really are worth revisiting.
+        try:
+            doc = statemod.load()
+        except ValueError as e:
+            raise SystemExit("scrape ▸ %s" % e)
+        url = srcmod.normalize(args.forget)
+        if statemod.forget(doc, url, args.index):
+            statemod.save(doc)
+            print("forgot %s for %s — it will be reprocessed on the next run"
+                  % (args.index or "every crawl", url))
+        else:
+            print("nothing to forget for %s%s" % (url, " @ " + args.index if args.index else ""))
         return
 
     # --- watchlist CRUD -------------------------------------------------------------------------
@@ -431,14 +575,22 @@ def main():
         raise SystemExit("scrape ▸ usage: --all, --url <URL> --domain <d>, --list, "
                          "or --add/--update/--remove <URL>")
 
+    # Progress goes to stdout as it happens, not at the end: a first run walks 126 crawls and is
+    # captured in a job log, so an operator (or a stalled-job diagnosis) needs to see WHICH crawl it
+    # is on rather than a silent process for twenty minutes.
+    progress = None if args.json else (lambda line: print(line, flush=True))
     try:
         if args.all:
-            rows = scrape_all(domain=args.domain, dry_run=args.dry_run, index_id=args.index)
+            rows = scrape_all(domain=args.domain, dry_run=args.dry_run, index_id=args.index,
+                              max_indexes=args.max_indexes, progress=progress)
         else:
             if not args.domain:
                 raise SystemExit("scrape ▸ --url requires --domain")
             rows = []
             for u in args.url:
+                # An ad-hoc --url is NOT on the watchlist, so it has no ledger row and walking the
+                # full history for a one-off lookup would be a surprise. It stays single-crawl:
+                # pinned by --index, else the newest.
                 rows.extend(fetch(u, args.domain, match=args.match, direct=args.direct,
                                   index_id=args.index, dry_run=args.dry_run, limit=args.limit))
     except (srcmod.SourceError, ValueError) as e:
@@ -450,8 +602,9 @@ def main():
         print(json.dumps(rows, indent=2, ensure_ascii=False))
         tally = _tally(rows)
     else:
-        print("scrape ▸ index=%s  domain=%s" % (args.index or cc.latest_index(),
-                                                args.domain or "(all)"))
+        print("scrape ▸ crawls=%s  domain=%s" % (
+            args.index or ("all not-yet-harvested" if args.all else "newest"),
+            args.domain or "(all)"))
         tally = _print_rows(rows)
         if not args.dry_run and (tally.get("new") or tally.get("updated")):
             print("NEXT: python3 -m wikikb web_to_corpus --domain %s --append --apply  "

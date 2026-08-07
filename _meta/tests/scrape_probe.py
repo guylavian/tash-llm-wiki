@@ -20,6 +20,9 @@ none of which needs the internet:
      build, and that `--append` is present on the step that would otherwise truncate the corpus
      index. This is asserted structurally, not by running it: a real run would rewrite the vault.
   G. web_to_corpus's record shape and the citation token it predicts.
+  H. The harvest ledger: per (source, crawl) rows, the immutability argument that lets a
+     negative be recorded, match-mode invalidation, --forget, the read-modify-write rule,
+     and the never-overwrite-a-newer-capture guard.
 
 Every case that touches a file writes into a TEMP directory via WIKIKB_SCRAPE_SOURCES, never into
 the live vault.
@@ -40,10 +43,13 @@ META = os.path.dirname(HERE)                            # _meta
 sys.path.insert(0, META)  # test bootstrap: make `import wikikb` importable
 
 from wikikb import modes                                  # noqa: E402
+from wikikb import paths                                  # noqa: E402
 from wikikb.scrape import commoncrawl as cc               # noqa: E402
 from wikikb.scrape import cron as cronmod                 # noqa: E402
 from wikikb.scrape import extract as extractor            # noqa: E402
+from wikikb.scrape import scrape as scrapemod             # noqa: E402
 from wikikb.scrape import sources as srcmod               # noqa: E402
+from wikikb.scrape import state as statemod               # noqa: E402
 from wikikb.scrape import web_to_corpus as w2c            # noqa: E402
 from wikikb.serve import jobs as jobsmod                  # noqa: E402
 
@@ -385,6 +391,18 @@ def case_job_chain():
           "--url" in one["scrape"] and "https://a.test/x" in one["scrape"]
           and "--direct" in one["scrape"] and "--all" not in one["scrape"], one["scrape"])
 
+    # A step resolves the vault ITSELF, and runs with cwd=_meta/ while the server usually starts
+    # from the repo root — so a relative WIKIKB_VAULT_ROOT would have parent and child pointing at
+    # two different vaults. Observed 2026-08-07: the scrape step created and harvested into
+    # `_meta/vault-blank`, reported "nothing to do", and the chain died at corpus_to_vault while
+    # /scrape/sources kept listing the source from the real vault.
+    child = jobsmod._child_env()
+    check("the child env pins ABSOLUTE vault/corpora paths (cwd=_meta/ must not re-resolve them)",
+          os.path.isabs(child["WIKIKB_VAULT_ROOT"]) and os.path.isabs(child["WIKIKB_CORPORA_DIR"])
+          and child["WIKIKB_VAULT_ROOT"] == str(paths.WIKI)
+          and child["WIKIKB_CORPORA_DIR"] == str(paths.CORPORA),
+          {k: child.get(k) for k in ("WIKIKB_VAULT_ROOT", "WIKIKB_CORPORA_DIR")})
+
     q = jobsmod.Runner(start_worker=False)          # queues without ever draining — no vault writes
     j1, c1 = q.submit(jobsmod.Job("scrape", jobsmod.scrape_steps("keycloak"), domain="keycloak",
                                   coalesce_key=("scrape", "keycloak")))
@@ -440,6 +458,99 @@ def case_web_to_corpus():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+# --- H. the harvest ledger -------------------------------------------------------------------------
+
+def case_ledger():
+    print("\nH. the harvest ledger (vault-resident, per source × crawl)")
+    tmp = tempfile.mkdtemp(prefix="wikikb-ledger-probe-")
+    p = os.path.join(tmp, ".scrape-state.json")
+    U = "https://example.com/docs/"
+    try:
+        check("a missing ledger reads as empty, not an error",
+              statemod.load(p)["sources"] == {} and statemod.done_indexes(statemod.load(p), U, "exact") == set())
+
+        statemod.update(lambda d: statemod.record(d, U, "exact", "CC-MAIN-2026-30", {"new": 7}), p)
+        statemod.update(lambda d: statemod.record(d, U, "exact", "CC-MAIN-2026-25", {"empty": True}), p)
+        done = statemod.done_indexes(statemod.load(p), U, "exact")
+        # A crawl that held NOTHING is recorded too. A published crawl is immutable, so "nothing
+        # here" is permanently true — without the row, every future run would re-scan every empty
+        # crawl in the history to rediscover the same nothing.
+        check("a crawl that yielded NOTHING is still recorded as done (crawls are immutable)",
+              done == {"CC-MAIN-2026-30", "CC-MAIN-2026-25"}, done)
+        s = statemod.summary(statemod.load(p), U)
+        check("summary rolls up crawls done / documents / where it got to",
+              s["indexes_done"] == 2 and s["documents"] == 7 and s["last_index"] == "CC-MAIN-2026-30", s)
+
+        # Widening exact -> prefix changes what a crawl would yield, so nothing counts as done.
+        check("changing the match mode invalidates the source's history",
+              statemod.done_indexes(statemod.load(p), U, "prefix") == set())
+
+        statemod.update(lambda d: statemod.forget(d, U, "CC-MAIN-2026-30"), p)
+        check("--forget drops one crawl so it is reprocessed",
+              statemod.done_indexes(statemod.load(p), U, "exact") == {"CC-MAIN-2026-25"})
+        statemod.update(lambda d: statemod.forget(d, U), p)
+        check("--forget with no crawl drops the source's whole history",
+              statemod.done_indexes(statemod.load(p), U, "exact") == set())
+
+        # THE REGRESSION: the ledger holds two independently-written things (collinfo + the crawl
+        # rows) written by different call paths. Holding a doc across another writer's save and then
+        # blind-saving it rolled the collinfo cache back to None on the first real multi-index run.
+        statemod.update(lambda d: statemod.collinfo_put(d, [{"id": "CC-MAIN-2026-30"}]), p)
+        stale = statemod.load(p)                      # a caller's copy, taken BEFORE the next write
+        statemod.update(lambda d: statemod.record(d, U, "exact", "CC-MAIN-2026-21", {"new": 1}), p)
+        statemod.update(lambda d: statemod.collinfo_put(d, [{"id": "A"}, {"id": "B"}]), p)
+        fresh = statemod.load(p)
+        check("update() re-reads, so one writer cannot roll back another's committed state",
+              len(statemod.collinfo_get(fresh, max_age=float("inf")) or []) == 2
+              and "CC-MAIN-2026-21" in statemod.done_indexes(fresh, U, "exact"),
+              "collinfo=%r rows=%r" % (fresh.get("collinfo"), fresh["sources"]))
+        check("the stale in-memory copy really was stale (the bug this guards)",
+              statemod.collinfo_get(stale, max_age=float("inf")) is not None
+              and "CC-MAIN-2026-21" not in statemod.done_indexes(stale, U, "exact"))
+
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write("{ not json")
+        try:
+            statemod.load(p)
+            check("a CORRUPT ledger raises instead of reading as empty", False,
+                  "silently empty ⇒ it would re-harvest the entire crawl history")
+        except ValueError:
+            check("a CORRUPT ledger raises instead of reading as empty (re-harvest would be hours)", True)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    # The never-overwrite-a-newer-capture rule. Walking crawls newest-first means the same URL is
+    # met repeatedly; without this the note would end up holding the OLDEST capture while carrying
+    # its old `fetched` date, which citing pages would then present as current.
+    vault = tempfile.mkdtemp(prefix="wikikb-capture-probe-")
+    saved = os.environ.get("WIKIKB_VAULT_ROOT")
+    try:
+        os.environ["WIKIKB_VAULT_ROOT"] = vault
+        import importlib
+        importlib.reload(paths)
+        importlib.reload(scrapemod)
+        meta_new = {"timestamp": "20260721000000", "cc_index": "CC-MAIN-2026-30"}
+        meta_old = {"timestamp": "20200101000000", "cc_index": "CC-MAIN-2020-05"}
+        r1 = scrapemod._write_note("d", "https://example.com/p", "T", "NEW BODY " * 30, meta_new)
+        r2 = scrapemod._write_note("d", "https://example.com/p", "T", "OLD BODY " * 30, meta_old)
+        r3 = scrapemod._write_note("d", "https://example.com/p", "T", "NEWER BODY " * 30,
+                                   {"timestamp": "20260722000000"})
+        body = open(os.path.join(scrapemod.raw_dir("d"), r1["file"]), encoding="utf-8").read()
+        check("an OLDER capture never overwrites a newer note",
+              r1["status"] == "new" and r2["status"] == "older-capture" and "OLD BODY" not in body,
+              (r1["status"], r2["status"]))
+        check("a NEWER capture does replace it", r3["status"] == "updated", r3["status"])
+    finally:
+        if saved is None:
+            os.environ.pop("WIKIKB_VAULT_ROOT", None)
+        else:
+            os.environ["WIKIKB_VAULT_ROOT"] = saved
+        import importlib
+        importlib.reload(paths)
+        importlib.reload(scrapemod)
+        shutil.rmtree(vault, ignore_errors=True)
+
+
 def main():
     print("=" * 78)
     print("SCRAPE PROBE — watchlist, Common Crawl plumbing, extraction, cron, job chain")
@@ -454,6 +565,7 @@ def main():
     case_cron()
     case_job_chain()
     case_web_to_corpus()
+    case_ledger()
     print("-" * 78)
     print("%d/%d passed" % (sum(checks), len(checks)))
     return 0 if all(checks) else 1

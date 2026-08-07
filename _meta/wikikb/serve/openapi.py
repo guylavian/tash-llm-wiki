@@ -125,6 +125,8 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.2.0"
             {"name": "answers", "description": "Gated, cited synthesis."},
             {"name": "ingest", "description": "Write surface — opt-in, off by default."},
             {"name": "jobs", "description": "Background conversion jobs queued by the write surface."},
+            {"name": "taxonomy", "description": "The domain declarations in vault/taxonomy.md — what "
+                                                "every page's `domain:` is validated against."},
             {"name": "scrape", "description": "Web harvest — ONLINE MODE ONLY."},
             {"name": "meta", "description": "Health and machine-readable description."},
         ],
@@ -606,6 +608,265 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.2.0"
         }
     }
 
+    # --- the domain declarations (BOTH modes) ---------------------------------------------------
+    # Emitted unconditionally, unlike the scrape block below: editing the vault's own taxonomy opens
+    # no socket, so an airgapped instance serves this surface too and a spec that hid it would lie
+    # in the other direction.
+    spec.setdefault("components", {}).setdefault("schemas", {})["Domain"] = {
+        "type": "object", "required": ["domain", "areas", "shape", "sources", "tiers-covered"],
+        "description": "One `### <name>` block under `## Domains` in vault/taxonomy.md.",
+        "properties": {
+            "domain": {"type": "string", "pattern": "^[a-z][a-z0-9-]+$",
+                       "description": "kebab-case, 2+ chars. This is the value every page's "
+                                      "`domain:` frontmatter must equal, the name of the immutable "
+                                      "`reference/<domain>/` tier, and the `index.<domain>.md` "
+                                      "stem — i.e. the domain's IDENTITY. Not patchable."},
+            "areas": {"type": "array", "items": {"type": "string"},
+                      "description": "Subset of the flat `## Areas` union (GET /domains returns it). "
+                                     "These ARE the router's vocabulary: the area slug plus the "
+                                     "words of its description become this domain's keyword profile."},
+            "shape": {"type": "string", "enum": ["notes-first", "corpus-backed"],
+                      "description": "notes-first = you hand-author the raw tier under "
+                                     "`_sources/<domain>/`; corpus-backed = a harvested doc corpus "
+                                     "is folded in as immutable `reference/<domain>/` notes."},
+            "sources": {"type": "array", "items": {"type": "string"},
+                        "description": "Raw-tier paths this domain reads. Defaulted from `shape`."},
+            "review-moc": {"type": "string",
+                           "description": "Slug of the domain's evaluation-lens Map of Content "
+                                          "(symptom → likely-cause). Defaults to "
+                                          "`<domain>-implementation-review`."},
+            "tiers-covered": {"type": "array",
+                              "items": {"type": "string",
+                                        "enum": ["conceptual", "support-kb", "scenarios"]},
+                              "description": "The coarse knowledge tiers ACTUALLY ingested. This "
+                                             "drives the Confidence gate's H1 arm: a question whose "
+                                             "tier is not covered gets an out-of-coverage banner "
+                                             "instead of a confident answer. Declaring a tier you "
+                                             "have not ingested silently disables that protection."},
+            "comments": {"type": "object", "additionalProperties": {"type": "string"},
+                         "description": "Trailing `# …` notes preserved from the file, keyed by "
+                                        "field — usually the reason a coverage tier is what it is."},
+            "header_mismatch": {"type": "string",
+                                "description": "Present only on a hand-edited block whose `### "
+                                               "heading` disagrees with its `- domain:` line — a "
+                                               "domain lint can see but the gate cannot."}}}
+    _DOMAIN_EXAMPLE = {"domain": "checkpoint",
+                       "areas": ["cp-gateway", "cp-management", "cp-policy", "security"],
+                       "shape": "notes-first", "sources": ["_sources/checkpoint/"],
+                       "review-moc": "checkpoint-implementation-review",
+                       "tiers-covered": ["conceptual"]}
+    _domain_write_note = (
+        "Part of the **write surface**, so it shares `--allow-upload` (`WIKIKB_ALLOW_UPLOAD=1`) with "
+        "`/upload` and `/ingest`: declaring a domain decides what a later upload is allowed to write "
+        "into the vault. With uploads off it answers the same unfingerprintable 404, not a 403.\n\n"
+        "Served in **both** operation modes — a taxonomy edit opens no socket.")
+
+    spec["paths"]["/domains"] = {
+        "get": {
+            "tags": ["taxonomy"], "operationId": "listDomains",
+            "summary": "List the declared domains",
+            "description": (
+                "Every `### <name>` block in `vault/taxonomy.md`, plus the flat `## Areas` "
+                "vocabulary and the legal `shape`/`tiers-covered` values — everything needed to "
+                "compose a POST, so discovering the legal values costs no second round trip.\n\n"
+                "A **read**: open even when the write surface is disabled. Takes no input."),
+            "responses": {"200": _json_response("The declarations.", {
+                "type": "object",
+                "properties": {
+                    "domains": {"type": "array", "items": {"$ref": "#/components/schemas/Domain"}},
+                    "count": {"type": "integer"},
+                    "areas": {"type": "object", "additionalProperties": {"type": "string"},
+                              "description": "the flat union: area slug -> its description"},
+                    "shapes": {"type": "array", "items": {"type": "string"}},
+                    "tiers": {"type": "array", "items": {"type": "string"}},
+                    "file": {"type": "string", "description": "resolved path of taxonomy.md"}}},
+                example={"domains": [_DOMAIN_EXAMPLE], "count": 1,
+                         "areas": {"cp-gateway": "Security Gateway: inspection, blades, NAT"},
+                         "shapes": ["notes-first", "corpus-backed"],
+                         "tiers": ["conceptual", "support-kb", "scenarios"],
+                         "file": "/data/vault/taxonomy.md"})},
+        },
+        "post": {
+            "tags": ["taxonomy"], "operationId": "addDomain",
+            "summary": "Declare a new domain",
+            "description": (
+                f"{_domain_write_note}\n\n"
+                "This is **ADD-DOMAIN steps 2–4** in one call: it writes the `### <name>` block, "
+                "appends any `new_areas` to the flat `## Areas` union first, and creates the raw "
+                "tier `vault/_sources/<name>/` (with a README) that uploads and scrapes land in.\n\n"
+                "It deliberately stops there. It writes **no pages** — seeding the synthesis (the "
+                "overview topic, its first entity, the review MOC) is an authored act under the "
+                "citation contract — and **no index**, which is `wikikb index`'s output. The "
+                "response's `next` says exactly what is left.\n\n"
+                "`areas` must be a subset of the existing vocabulary; an unknown one is **refused, "
+                "not invented**, because an area with no description contributes nothing to the "
+                "router and is indistinguishable from a typo of a real one. Send genuinely new "
+                "areas as `new_areas` **with a description**.\n\n"
+                "Defaults: `shape` = `notes-first`, `sources` from the shape, `review-moc` = "
+                "`<name>-implementation-review`, `tiers-covered` = `[conceptual]`."),
+            "requestBody": _json_body({
+                "type": "object", "required": ["domain", "areas"],
+                "properties": {
+                    "domain": {"type": "string", "pattern": "^[a-z][a-z0-9-]+$"},
+                    "areas": {"type": "array", "items": {"type": "string"}},
+                    "shape": {"type": "string", "enum": ["notes-first", "corpus-backed"],
+                              "default": "notes-first"},
+                    "sources": {"type": "array", "items": {"type": "string"}},
+                    "review-moc": {"type": "string"},
+                    "tiers-covered": {"type": "array", "items": {"type": "string"},
+                                      "default": ["conceptual"]},
+                    "new_areas": {"type": "object", "additionalProperties": {"type": "string"},
+                                  "description": "area slug -> description; appended to `## Areas` "
+                                                 "BEFORE the domain block that references them"}}},
+                example={"domain": "nginx", "areas": ["web-serving", "security", "troubleshooting"],
+                         "shape": "notes-first", "tiers-covered": ["conceptual"],
+                         "new_areas": {"web-serving": "reverse proxy, virtual hosts, TLS "
+                                                      "termination, upstreams, rate limiting"}}),
+            "responses": {
+                "201": _json_response("Declared.", {
+                    "type": "object",
+                    "properties": {"added": {"$ref": "#/components/schemas/Domain"},
+                                   "file": {"type": "string"},
+                                   "next": {"type": "string",
+                                            "description": "the ADD-DOMAIN steps this call did NOT do"}}},
+                    example={"added": dict(_DOMAIN_EXAMPLE, created=["_sources/checkpoint",
+                                                                     "_sources/checkpoint/README.md"]),
+                             "file": "/data/vault/taxonomy.md",
+                             "next": "write the overview topic, its first entity and "
+                                     "checkpoint-implementation-review, then run "
+                                     "`python3 -m wikikb build`"}),
+                **_errors((400, "Missing/invalid areas, an unknown area or tier, a bad shape, or a "
+                                "name that is not kebab-case 2+ chars."),
+                          (404, "The write surface is disabled (indistinguishable from an unknown path)."),
+                          (409, "That domain is already declared — PATCH it instead.")),
+            },
+        },
+    }
+
+    spec["paths"]["/domains/{domain}"] = {
+        "get": {
+            "tags": ["taxonomy"], "operationId": "getDomain",
+            "summary": "One declaration + what depends on it",
+            "description": (
+                "The block as stored, plus a `usage` block: how many synthesis pages declare this "
+                "domain, how many immutable reference/source notes it owns, and how many scrape "
+                "sources target it.\n\n"
+                "`usage` is on the plain GET, not only on a refused DELETE, because the blast radius "
+                "of undeclaring a domain is what you want *before* deciding, not after."),
+            "parameters": [_path_param("domain", "The declared domain name.", example="keycloak")],
+            "responses": {
+                "200": _json_response("The declaration.", {
+                    "allOf": [{"$ref": "#/components/schemas/Domain"},
+                              {"type": "object", "properties": {
+                                  "usage": {"type": "object", "properties": {
+                                      "pages": {"type": "integer"},
+                                      "page_slugs": {"type": "array", "items": {"type": "string"},
+                                                     "description": "first 20, sorted"},
+                                      "reference_notes": {"type": "integer"},
+                                      "source_notes": {"type": "integer"},
+                                      "scrape_sources": {"type": "integer"},
+                                      "index": {"type": "string"}}},
+                                  "file": {"type": "string"}}}]},
+                    example=dict(_DOMAIN_EXAMPLE,
+                                 usage={"pages": 3, "page_slugs": ["checkpoint-clusterxl-sync"],
+                                        "reference_notes": 12, "source_notes": 1,
+                                        "scrape_sources": 1,
+                                        "index": "/data/vault/index.checkpoint.md"},
+                                 file="/data/vault/taxonomy.md")),
+                **_errors((404, "No such domain.")),
+            },
+        },
+        "patch": {
+            "tags": ["taxonomy"], "operationId": "updateDomain",
+            "summary": "Update a declaration (partial)",
+            "description": (
+                f"{_domain_write_note}\n\n"
+                "**Partial.** The path selects; only the fields you send are touched, so widening "
+                "coverage is `{\"tiers-covered\":[\"conceptual\",\"support-kb\"]}` and nothing else "
+                "moves. Trailing `# …` comments on untouched fields are preserved — several of them "
+                "record *why* a domain covers only `conceptual`, and dropping that on an unrelated "
+                "patch would delete the justification for a gate decision.\n\n"
+                "**The name is NOT patchable.** It is every page's `domain:` frontmatter, the "
+                "`reference/<domain>/` directory and the `index.<domain>.md` stem; patching it here "
+                "would leave all of them addressed under the old name while the taxonomy claims the "
+                "new one. A rename is DELETE + POST plus a deliberate pass over the pages.\n\n"
+                "The response carries `changed` — the fields that actually moved. A no-op reports "
+                "`changed: []` and does **not** rewrite the file, so the taxonomy's mtime keeps "
+                "meaning 'when it last really changed'.\n\n"
+                "Widening `tiers-covered` is the one change to make deliberately: it *disables* the "
+                "Confidence gate's out-of-coverage banner for that tier, so declare a tier only once "
+                "it is genuinely ingested."),
+            "parameters": [_path_param("domain", "The domain to patch (selector; not itself patchable).",
+                                       example="checkpoint")],
+            "requestBody": _json_body({
+                "type": "object",
+                "properties": {
+                    "areas": {"type": "array", "items": {"type": "string"}},
+                    "shape": {"type": "string", "enum": ["notes-first", "corpus-backed"]},
+                    "sources": {"type": "array", "items": {"type": "string"}},
+                    "review-moc": {"type": "string"},
+                    "tiers-covered": {"type": "array", "items": {"type": "string"}},
+                    "new_areas": {"type": "object", "additionalProperties": {"type": "string"}}}},
+                example={"tiers-covered": ["conceptual", "support-kb"]}),
+            "responses": {
+                "200": _json_response("Updated (or already up to date).", {
+                    "type": "object",
+                    "properties": {"updated": {"$ref": "#/components/schemas/Domain"},
+                                   "changed": {"type": "array", "items": {"type": "string"},
+                                               "description": "field names that actually moved; [] = no-op"},
+                                   "file": {"type": "string"}, "note": {"type": "string"}}},
+                    example={"updated": dict(_DOMAIN_EXAMPLE,
+                                             **{"tiers-covered": ["conceptual", "support-kb"]}),
+                             "changed": ["tiers-covered"], "file": "/data/vault/taxonomy.md"}),
+                **_errors((400, "Nothing to update, an attempt to rename, an unknown field, or an "
+                                "invalid area/tier/shape value."),
+                          (404, "No such domain — or the write surface is disabled.")),
+            },
+        },
+        "delete": {
+            "tags": ["taxonomy"], "operationId": "removeDomain",
+            "summary": "Undeclare a domain",
+            "description": (
+                f"{_domain_write_note}\n\n"
+                "**It deletes no knowledge.** The declaration goes, and so does the generated "
+                "`index.<domain>.md` (a derived artifact that would otherwise describe a domain "
+                "nothing can validate). Every synthesis page and every line of the immutable "
+                "`reference/`/`_sources/` tiers is KEPT — withdrawing what a domain knows is "
+                "Operation: RETRACT, an explicitly authored act, and doing it as a side effect of a "
+                "config edit would destroy ground truth over a typo.\n\n"
+                "It answers **409** while pages still declare the domain (or a scrape source still "
+                "targets it), because undeclaring it silently makes every one of those pages fail "
+                "lint as 'unknown domain' with nothing pointing back here. `?force=true` (or "
+                "`{\"force\":true}`) is the operator taking that on."),
+            "parameters": [
+                _path_param("domain", "The domain to undeclare.", example="checkpoint"),
+                _q("force", "Undeclare even while pages still use it.",
+                   False, {"type": "boolean", "default": False}),
+            ],
+            "responses": {
+                "200": _json_response("Undeclared.", {
+                    "type": "object",
+                    "properties": {"removed": {"$ref": "#/components/schemas/Domain"},
+                                   "kept": {"type": "array", "items": {"type": "string"},
+                                            "description": "immutable tiers left untouched"},
+                                   "removed_generated": {"type": "array", "items": {"type": "string"},
+                                                         "description": "derived artifacts deleted"},
+                                   "file": {"type": "string"}, "note": {"type": "string"}}},
+                    example={"removed": _DOMAIN_EXAMPLE,
+                             "kept": ["/data/vault/reference/checkpoint",
+                                      "/data/vault/_sources/checkpoint"],
+                             "removed_generated": ["index.checkpoint.md"],
+                             "file": "/data/vault/taxonomy.md",
+                             "note": "the immutable reference/ and _sources/ tiers and every page are "
+                                     "KEPT — to withdraw what this domain knows, retract the pages"}),
+                **_errors((400, "Malformed request."),
+                          (404, "No such domain — or the write surface is disabled."),
+                          (409, "Still in use: pages declare it (or scrape sources target it). "
+                                "Repoint or retract them, or pass ?force=true.")),
+            },
+        },
+    }
+
     if mode == modes.ONLINE:
         # The watchlist entry shape, shared by the GET listing and the POST body. Emitted only in
         # online mode, alongside the paths that reference it — an airgapped spec must not carry a
@@ -622,7 +883,16 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.2.0"
                 "enabled": {"type": "boolean", "default": True},
                 "direct": {"type": "boolean", "default": False,
                            "description": "permit a live origin fetch when Common Crawl has no capture"},
-                "added": {"type": "string", "format": "date"}}}
+                "added": {"type": "string", "format": "date"},
+                "state": {"type": "object", "readOnly": True,
+                          "description": "harvest PROGRESS for this source (read-only; from the "
+                                         "ledger, not the watchlist file)",
+                          "properties": {
+                              "indexes_done": {"type": "integer",
+                                               "description": "crawls already harvested against"},
+                              "documents": {"type": "integer"},
+                              "last_index": {"type": ["string", "null"]},
+                              "last_harvested": {"type": ["string", "null"], "format": "date"}}}}}
         _SOURCE_EXAMPLE = {"url": "https://www.keycloak.org/docs/latest/server_admin/",
                            "domain": "keycloak",
                            "label": "Keycloak Server Administration Guide (upstream)",
@@ -667,11 +937,24 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.2.0"
                     "per domain.\n"
                     "* `{\"url\": …, \"domain\": …}` — harvest **one URL, which need not be on the "
                     "watchlist**. `urls: [...]` takes several.\n\n"
-                    "Each URL is looked up in the newest Common Crawl index; when it is captured "
-                    "there, the archived WARC record is range-fetched, extracted to Markdown and "
-                    "written to `vault/_sources/{domain}/_raw/web/`. When it is **not** indexed the "
-                    "run reports `not-indexed` and fetches nothing — unless `direct: true`, the "
-                    "opt-in live fetch (which refuses any host resolving to a non-public address).\n\n"
+                    "**A watchlist run walks the crawl HISTORY, not just the newest index.** Common "
+                    "Crawl samples the web rather than exhaustively recrawling it, so which pages of "
+                    "a site appear varies enormously per crawl — measured on `support.checkpoint.com`, "
+                    "3 of 4 pages appear in only the newest crawl, and four crawls yielded 81 "
+                    "documents where one yielded 21. Each source is therefore harvested against every "
+                    "crawl it has not been processed against yet, newest first, and the results "
+                    "accumulate.\n\n"
+                    "A **ledger** in `vault/.scrape-state.json` records every (source, crawl) pair — "
+                    "including crawls that held nothing, since a published crawl is immutable and "
+                    "will never hold anything later. So the first runs walk the history and every "
+                    "later run touches only the crawls published since (about one a month). Each run "
+                    "is bounded by `max_indexes` (default `WIKIKB_SCRAPE_MAX_INDEXES_PER_RUN`, 12) so "
+                    "it finishes inside the job step timeout; the ledger makes the next run resume.\n\n"
+                    "Each URL found in a crawl has its archived WARC record range-fetched, extracted "
+                    "to Markdown and written to `vault/_sources/{domain}/_raw/web/`. An older capture "
+                    "never overwrites a newer note. When a URL is **not** in a crawl the run reports "
+                    "`not-indexed` and fetches nothing — unless `direct: true`, the opt-in live fetch "
+                    "(which refuses any host resolving to a non-public address).\n\n"
                     "Queued on the SAME serialized runner as `/ingest`, never run inline: the chain "
                     "is `scrape → web_to_corpus → corpus_to_vault → build`, i.e. minutes of work, "
                     "and two concurrent `build`s would interleave writes to the generated artifacts. "
@@ -688,7 +971,13 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.2.0"
                                                  "up to WIKIKB_SCRAPE_PREFIX_LIMIT"},
                         "direct": {"type": "boolean", "default": False,
                                    "description": "permit a live origin fetch when Common Crawl has "
-                                                  "no capture"}},
+                                                  "no capture"},
+                        "max_indexes": {"type": "integer",
+                                        "description": "cap how many not-yet-harvested crawls this "
+                                                       "run walks (watchlist runs only; default "
+                                                       "WIKIKB_SCRAPE_MAX_INDEXES_PER_RUN=12). The "
+                                                       "ledger makes the next run continue where "
+                                                       "this one stopped."}},
                 }, example={"url": "https://www.keycloak.org/docs/latest/server_admin/",
                             "domain": "keycloak"},
                     required=False,
@@ -742,11 +1031,23 @@ def build_spec(mcp_path="/mcp", auth_required=False, vault=None, version="1.2.0"
                             "lookup_backend": {"type": "string", "enum": ["auto", "api", "cluster"]},
                             "index_pin": {"type": ["string", "null"],
                                           "description": "pinned Common Crawl index, if any"},
+                            "state_file": {"type": "string",
+                                           "description": "the vault-resident harvest ledger "
+                                                          "(vault/.scrape-state.json)"},
+                            "crawls_published": {"type": ["integer", "null"],
+                                                 "description": "Common Crawl crawls known to this "
+                                                                "vault — the denominator for each "
+                                                                "source's harvest progress"},
+                            "ledger_error": {"type": ["string", "null"],
+                                             "description": "set when the ledger is unreadable; the "
+                                                            "watchlist is still listed"},
                             "sources": {"type": "array",
                                         "items": {"$ref": "#/components/schemas/ScrapeSource"}},
                             "cron": _CRON_STATUS}},
                         example={"file": "/data/vault/scrape-sources.json", "exists": True,
                                  "extractor": "stdlib", "lookup_backend": "auto", "index_pin": None,
+                                 "state_file": "/data/vault/.scrape-state.json",
+                                 "crawls_published": 126, "ledger_error": None,
                                  "sources": [_SOURCE_EXAMPLE], "cron": _CRON_EXAMPLE}),
                         **_errors((404, "This instance is airgapped."))}},
             "post": {"tags": ["scrape"], "operationId": "addScrapeSource",

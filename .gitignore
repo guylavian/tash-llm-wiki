@@ -50,3 +50,5 @@ deep-research-*.log
 # (.env HOST_VAULT_DIR / WIKIKB_VAULT_ROOT). Not content — delete freely.
 vault-blank/
 corpora-blank/
+
+*/*.err

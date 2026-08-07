@@ -21,6 +21,7 @@ TOOLS = {
     "backfill": "build",
     "build": "build",      # the whole regen chain: tags -> crosslink -> index -> tkg -> lint
     "crosslink": "build",
+    "domains": "build",    # CRUD over the domain declarations in vault/taxonomy.md (mirrors /domains)
     "graphlinks": "build",  # writes Graphify's computed communities back as graph_community: frontmatter
     "index": "build",
     "card": "build",         # QUERY protocol card generator (F4, 100k-budget plan)

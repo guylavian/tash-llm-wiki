@@ -145,18 +145,21 @@ def _size(url):
 # --- step 1: the crawl list ---------------------------------------------------------------------
 
 def collections(force=False):
-    """The crawl list from collinfo.json, newest first. Disk-cached with a TTL.
+    """The crawl list from collinfo.json, newest first. Cached IN THE VAULT with a TTL.
 
-    Cached under `_meta/.scrape-cache/` (code-resident, regenerable) rather than in the vault: it is
-    a copy of a public file, so a vault copied without it costs exactly one HTTP request.
+    The cache lives in `vault/.scrape-state.json` alongside the harvest ledger, so everything this
+    vault knows about Common Crawl travels with a vault copy — including, on a box that cannot reach
+    the network yet, the list of crawls it was working through.
     """
-    cache = os.path.join(str(paths.SCRAPE_CACHE), "collinfo.json")
-    if not force and os.path.isfile(cache) and (time.time() - os.path.getmtime(cache)) < COLLINFO_TTL:
-        try:
-            with open(cache, encoding="utf-8") as fh:
-                return json.load(fh)
-        except (OSError, ValueError):
-            pass                     # a corrupt cache is refetched, never fatal
+    from wikikb.scrape import state as statemod
+    try:
+        doc = statemod.load()
+    except ValueError:
+        doc = None                   # a corrupt ledger is reported by the harvest path, not here
+    if not force and doc is not None:
+        cached = statemod.collinfo_get(doc)
+        if cached:
+            return cached
     body, _, _ = _http(COLLINFO_URL)
     try:
         data = json.loads(body.decode("utf-8", "replace"))
@@ -164,13 +167,27 @@ def collections(force=False):
         raise CrawlError("collinfo.json is not valid JSON: %s" % e)
     if not isinstance(data, list) or not data:
         raise CrawlError("collinfo.json returned no collections")
-    try:
-        os.makedirs(str(paths.SCRAPE_CACHE), exist_ok=True)
-        with open(cache, "w", encoding="utf-8") as fh:
-            json.dump(data, fh)
-    except OSError:
-        pass                         # an unwritable cache dir degrades to "refetch every time"
+    if doc is not None:
+        try:
+            # update(), not save(): a caller may be holding its own older copy of the ledger, and a
+            # blind write of ours would roll back whatever it has committed since.
+            statemod.update(lambda d: statemod.collinfo_put(d, data))
+        except (OSError, ValueError):
+            pass                     # an unwritable vault degrades to "refetch every time"
     return data
+
+
+def all_indexes(force=False, newest_first=True):
+    """Every crawl id, newest first by default.
+
+    NEWEST FIRST is the harvest order, and it is not cosmetic: a first run over the full history is
+    long, so if it is cut short by a timeout or a restart, what it already has is the most current
+    material rather than 2008's. It is also what makes the "never overwrite a newer capture" rule in
+    scrape.py cheap — the good copy is written first and older crawls can only be skipped.
+    """
+    cols = sorted(collections(force=force), key=lambda c: (c.get("from") or "", c.get("id") or ""),
+                  reverse=newest_first)
+    return [c["id"] for c in cols if c.get("id")]
 
 
 def latest_index(force=False):

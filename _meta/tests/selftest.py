@@ -335,6 +335,15 @@ _rc_sc, _out_sc = run("scrape_probe.py")
 check("scrape_probe passes (watchlist, CC plumbing, extraction, cron, job chain)",
       _rc_sc == 0, _out_sc[-300:])
 
+# 18b4. The domain-declaration CRUD (wikikb/build/domains.py + /domains). Its load-bearing case is
+# the ROUND TRIP: a domain written by domains.py must still be seen by all four modules that parse
+# taxonomy.md independently (tags/route/coverage/index) — a block any one of them stops matching is
+# a domain that lints but cannot route, or routes but has no coverage tier and so silently never
+# fires the gate's H1 arm. Runs entirely inside a temp WIKIKB_VAULT_ROOT; the live vault is untouched.
+_rc_dm, _out_dm = run("domains_probe.py")
+check("domains_probe passes (taxonomy CRUD, four-reader round trip, removal safety, HTTP posture)",
+      _rc_dm == 0, _out_dm[-300:])
+
 # 18c. Phase-3 (fabricated-citation class): answer-side identifier grounding — a distinctive
 # identifier asserted in the ANSWER but absent from the cited context is flagged loudly (+
 # ungrounded_identifiers state field), never served silent. Analogue of gate_probe.py.
