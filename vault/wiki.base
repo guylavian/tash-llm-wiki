@@ -1,0 +1,73 @@
+# wiki.base — live routing index.
+#
+# Replaces the hand-maintained page lists in index.md AND the generated
+# index.<domain>.md files. A Base reads page frontmatter directly, so these views
+# are always current: a new page carrying a `domain:` appears automatically — no
+# regeneration step, and the "add it to the index or it's an orphan" rule is gone.
+#
+# Open this file in Obsidian to see the view tabs, or embed a view in any note
+# with  ![[wiki.base]]  (default view) or  ![[wiki.base#keycloak]]  (named view).
+
+filters:
+  and:
+    - or:
+        - 'file.inFolder("topics")'
+        - 'file.inFolder("entities")'
+        - 'file.inFolder("questions")'
+
+views:
+  - type: table
+    name: all
+    groupBy:
+      property: note.domain
+    order:
+      - file.name
+      - note.type
+      - note.summary
+      - note.status
+
+  - type: table
+    name: keycloak
+    filters:
+      - 'note.domain == "keycloak"'
+    groupBy:
+      property: note.type
+    order:
+      - file.name
+      - note.summary
+      - note.status
+      - note.updated
+
+  - type: table
+    name: active-directory
+    filters:
+      - 'note.domain == "active-directory"'
+    groupBy:
+      property: note.type
+    order:
+      - file.name
+      - note.summary
+      - note.status
+      - note.updated
+
+  - type: table
+    name: cisco-ios-xe
+    filters:
+      - 'note.domain == "cisco-ios-xe"'
+    groupBy:
+      property: note.type
+    order:
+      - file.name
+      - note.summary
+      - note.status
+      - note.updated
+
+  - type: table
+    name: communities
+    groupBy:
+      property: note.graph_community
+    order:
+      - file.name
+      - note.domain
+      - note.type
+      - note.summary

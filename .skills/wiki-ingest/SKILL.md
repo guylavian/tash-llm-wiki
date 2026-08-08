@@ -1,6 +1,6 @@
 ---
 name: wiki-ingest
-description: Fold a raw source (a kb:<id>/guide/ref for a corpus-backed domain, a hand-authored note:_sources/<domain>/*.md for a notes-first domain, or a query result) into the LLM-maintained wiki/ — creating or updating cross-linked, domain-stamped topic/entity pages without duplicating the immutable corpus. Use when asked to ingest, capture, or "write up" a source into the wiki.
+description: Fold a raw source (a kb:<id>/guide/ref for a corpus-backed domain, a hand-authored note:vault/_sources/<domain>/*.md for a notes-first domain, or a query result) into the LLM-maintained wiki/ — creating or updating cross-linked, domain-stamped topic/entity pages without duplicating the immutable corpus. Use when asked to ingest, capture, or "write up" a source into the wiki.
 ---
 
 # wiki-ingest

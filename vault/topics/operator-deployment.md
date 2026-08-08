@@ -1,0 +1,117 @@
+---
+title: Deploying RHBK with the Operator (Keycloak CR end to end)
+type: topic
+domain: keycloak
+slug: operator-deployment
+summary: "The end-to-end path for running RHBK on OpenShift: install the Operator via OLM, provision DB/hostname/TLS prerequisites, then declare a `Keycloak` custom resource that the Operator reconciles into a StatefulSet, Service, and (optionally) Ingress"
+sources:
+  - guide:operator_guide
+  - kb:operator_guide/installation-
+  - kb:operator_guide/basic-deployment-
+  - kb:operator_guide/advanced-configuration-
+  - ref:rhbk-operator.md
+source_notes:
+  - "[[rhbk-26-6-installation]]"
+  - "[[rhbk-26-6-basic-deployment]]"
+  - "[[rhbk-26-6-advanced-configuration]]"
+provenance_extracted: 10
+provenance_inferred: 1
+provenance_ambiguous: 2
+tags: [operator, concept]
+status: draft
+updated: 2026-07-02
+graph_community: "RHBK Operator (Keycloak CR)"
+---
+
+# Deploying RHBK with the Operator (Keycloak CR end to end)
+
+**The end-to-end path for running RHBK on OpenShift: install the Operator via OLM,
+provision DB/hostname/TLS prerequisites, then declare a `Keycloak` custom resource
+that the Operator reconciles into a StatefulSet, Service, and (optionally) Ingress.**
+
+## The pipeline
+
+1. **Install the Operator** through OLM from the OperatorHub catalog (named
+   `rhbk-operator` in the default catalog). Pick the channel matching your target
+   RHBK version. See [[operator-olm-install]] for the air-gapped/disconnected and
+   manual-approval details.
+2. **Provision prerequisites** the Operator does *not* manage:
+   - **Database** — a supported DB reachable from the namespace. The Operator does
+     not provision or manage it; you supply host/port/credentials. (An ephemeral
+     PostgreSQL `StatefulSet` is documented for dev only.)
+   - **Hostname** — a production hostname; for dev the docs use
+     `test.keycloak.org`. On OpenShift with ingress enabled and
+     `spec.ingress.className: openshift-default`, you may leave
+     `spec.hostname.hostname` unset and the Operator assigns a default route host.
+   - **TLS** — a `kubernetes.io/tls` Secret created with
+     `oc create secret tls example-tls-secret --cert ... --key ...`, referenced
+     from `spec.http.tlsSecret`.
+3. **Store DB credentials** in their own Secret
+   (`oc create secret generic keycloak-db-secret --from-literal=username=...
+   --from-literal=password=...`) and reference it via `db.usernameSecret` /
+   `db.passwordSecret`.
+4. **Apply the `Keycloak` CR** (`apiVersion: k8s.keycloak.org/v2alpha1` in
+   26.0–26.4; **26.6 examples use `v2beta1`** (ambiguous — verify the CRD version
+   shipped by your Operator channel before copying an example verbatim),
+   `kind: Keycloak`). See [[keycloak-cr]] for the field map.
+5. **Verify** with the CR status conditions `Ready`, `HasErrors`, `RollingUpdate`:
+   `oc get keycloaks/example-kc -o go-template='{{range .status.conditions}}...'`.
+6. **Access** — the Operator generates an initial admin into the
+   `<cr-name>-initial-admin` basic-auth Secret. See [[kc-bootstrap-admin]] and
+   [[operator-initial-admin]].
+
+## Reverse proxy / headers
+
+The Operator configures which proxy headers the server accepts via `spec.proxy.headers`
+(`forwarded` | `xforwarded` | `forwarded|xforwarded`). If `proxy.headers` is unset,
+the Operator falls back to the legacy implicit `proxy=passthrough` (logs deprecation
+warnings; this fallback will be removed in a future release). Set/overwrite these
+headers at the Ingress, and prefer reencrypt or edge TLS termination — passthrough
+TLS cannot rewrite request headers. See [[operator-ingress]].
+
+## Advanced tuning (all on the same CR)
+
+- First-class fields mirror server config keys (e.g. `https-port` → `httpsPort`).
+- Escape hatch for omitted options: [[additional-options]] (`additionalOptions`).
+- Trust extra CAs: [[keycloak-truststores]] (`truststores`).
+- Mount/patch the Pod: [[operator-pod-template]] (`unsupported.podTemplate`, Tech Preview).
+- Placement: [[operator-scheduling]] (`scheduling` — affinity/tolerations/spread).
+- Avoid restarts/downtime: [[operator-rolling-updates]] (`update.strategy`).
+- Pre-built images: [[custom-keycloak-image]] (`image` / `startOptimized`).
+- Realm bootstrap: [[keycloak-realm-import]] (`KeycloakRealmImport`).
+
+## Contradictions / caveats
+
+- **Admin-console chapter is 26.0-era**; the manual-OLM-approval guidance
+  (`installPlanApproval: Manual`) is documented from **26.6** (ambiguous — the
+  identical guidance is already present in the `rhbk-26-2-installation` and
+  `rhbk-26-4-installation` notes and absent from 26.0, so **26.2** is the more
+  accurate first version) — see [[operator-olm-install]]. Older streams default
+  OLM to automatic upgrades.
+- `unsupported.podTemplate` is Tech Preview and not fully tested; it can also
+  confuse the `Auto` rolling-update probe (see [[operator-rolling-updates]]).
+- Anyone able to create/edit `Keycloak` or `KeycloakRealmImport` CRs (or set
+  `spec.image` / `podTemplate`) effectively has namespace-admin-level trust, since
+  those can mount/read Secrets — treat CR authorship as privileged (inferred — the
+  guide states only that setting a custom image "requires a high degree of trust"
+  since it can access any Secret used for env vars; the broader namespace-admin
+  framing generalizes that single warning to `podTemplate`/`KeycloakRealmImport`).
+
+## See also
+- [[rhbk-operator]]
+- [[keycloak-cr]]
+- [[operator-olm-install]]
+- [[keycloak-realm-import]]
+- [[operator-rolling-updates]]
+- [[custom-keycloak-image]]
+- [[ha-cross-site]]
+- [[kc-bootstrap-admin]]
+
+## Sources
+<!-- crosslink:begin (generated by crosslink.py — do not edit) -->
+- [[_ref-keycloak-operator_guide|keycloak reference — operator_guide]]
+- [[rhbk-26-6-installation|Chapter 1. Red Hat build of Keycloak Operator installation]]
+- [[rhbk-26-6-basic-deployment|Chapter 2. Basic Red Hat build of Keycloak deployment]]
+- [[rhbk-26-6-advanced-configuration|Chapter 4. Advanced configuration]]
+- [[references/rhbk-operator|RHBK Operator on OpenShift — Keycloak CR Reference — RHBK 26.6 (Offline Reference)]]
+<!-- crosslink:end -->

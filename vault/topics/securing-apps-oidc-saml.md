@@ -1,0 +1,128 @@
+---
+title: Securing Apps — OIDC vs SAML, Clients & Protocol Flows
+type: topic
+domain: keycloak
+slug: securing-apps-oidc-saml
+summary: "RHBK is an OAuth2 / OpenID Connect / SAML 2.0 compliant server; you secure an application by registering it as a *client* in a realm and having it speak one of those protocols, ideally via the framework's native support rather than a Keycloak adapter"
+sources:
+  - guide:securing_applications_and_services_guide
+  - kb:oidc-layers-
+  - kb:overview-
+source_notes:
+  - "[[rhbk-26-6-oidc-layers]]"
+  - "[[rhbk-26-6-overview-2]]"
+provenance_extracted: 11
+provenance_inferred: 3
+provenance_ambiguous: 0
+tags: [clients, concept]
+status: draft
+updated: 2026-07-25
+graph_community: "Tokens & Sessions"
+---
+
+# Securing Apps — OIDC vs SAML, Clients & Protocol Flows
+
+**RHBK is an OAuth2 / OpenID Connect / SAML 2.0 compliant server; you secure an
+application by registering it as a *client* in a realm and having it speak one of
+those protocols, ideally via the framework's native support rather than a
+Keycloak adapter.**
+
+## Two protocols, one server
+
+RHBK can secure any application or service whose stack supports OAuth2/OIDC or
+SAML 2.0. Picking a protocol:
+
+- **OpenID Connect** — an authentication layer on top of OAuth2. Token-based
+  (JWT access/refresh/ID tokens), JSON over REST, lightweight, the default
+  choice for web apps, SPAs, mobile/native apps and service-to-service. This is
+  the recommended protocol for new applications.
+- **SAML 2.0** — XML-based, browser-redirect/POST assertions. RHBK calls SAML
+  Service Providers **clients** too. Choose it mainly to integrate with existing
+  enterprise SAML SPs (e.g. via [[mod-auth-mellon]] or the SAML Galleon feature
+  pack for WildFly/EAP). Token exchange does **not** support SAML clients/IDPs
+  (inferred — not stated verbatim in this page's cited sources; consistent with
+  token exchange being an OAuth2/OIDC-only grant type).
+
+The guide's strong recommendation: leverage the OIDC/SAML support already in your
+language, framework, or reverse proxy. Use a **Keycloak client adapter** only as
+a last resort when the ecosystem lacks the protocol (inferred — this is this
+page's paraphrase of the guide's overall stance, not a single verbatim
+sentence).
+
+## Clients and registration
+
+A **client** is the entity an application uses to authenticate users and obtain
+tokens. "Creating a client" (Admin Console) and "registering a client"
+([[client-registration-service]] / [[client-registration-cli]]) are the same
+action. Client types split by whether they can keep a secret:
+
+- **Confidential clients** — server-side apps that can safely hold credentials;
+  required for the introspection, CIBA backchannel, and JWT-authorization-grant
+  endpoints. See [[client-authentication-methods]].
+- **Public clients** — SPAs and native/mobile apps that cannot store a secret;
+  must rely on redirect-based flows hardened with PKCE (and optionally
+  [[dpop]]). The JavaScript adapter `keycloak-js` always requires a public client
+  (inferred — not stated verbatim in cited sources; follows from `keycloak-js`
+  running entirely in the browser, unable to hold a secret).
+
+A **service account** is a client that obtains tokens on its own behalf
+(client-credentials grant), for background/machine-to-machine work.
+
+## The OIDC endpoints
+
+All advertised at the realm's discovery document
+`/realms/{realm}/.well-known/openid-configuration`. Key ones: authorization
+(`/protocol/openid-connect/auth`), token (`/token`), userinfo, logout, certs
+(JWKS), introspection (confidential-only), revoke, device auth, and CIBA
+backchannel. See [[oidc-endpoints]] and [[oidc-token-validation]].
+
+## Grant types / flows
+
+See [[oidc-grant-types]]. In short: **Authorization Code** (+ PKCE) is the
+recommended flow for web and native apps; **Client Credentials** for
+service-to-service; **Device Authorization Grant** for input-constrained
+devices; **CIBA** for decoupled/backchannel auth. **Implicit** and **Resource
+Owner Password Credentials (Direct Grant)** are discouraged by OAuth 2.0 BCP and
+removed in OAuth 2.1.
+
+## Compliance profiles
+
+RHBK can enforce client conformance through Client Policies linked to built-in
+profiles: `fapi-1-baseline`, `fapi-1-advanced`, `fapi-2-security-profile`,
+`fapi-2-message-signing`, plus `oauth-2-1-for-confidential-client` /
+`oauth-2-1-for-public-client`. See [[fapi-oauth21-profiles]]. Sender-constrained
+tokens via [[dpop]] further harden public clients.
+
+## Contradictions / caveats
+
+- **Token exchange** changed materially across versions: 26.0 ships it as a
+  single **Preview** feature; by 26.6 **Standard token exchange V2** is fully
+  supported and on by default, while the four-use-case **legacy V1** is a
+  deprecated preview. See [[token-exchange]].
+- OAuth 2.1 profiles are based on a **draft** spec — the built-in profiles may
+  change between RHBK versions.
+- Keycloak **adapters do not implement FAPI/OAuth-2.1/DPoP client-side
+  validation**; RHBK only enforces the authorization-server side.
+
+## See also
+- [[sso-implementation-review]] — standards-layer review of these client settings
+- [[token-revocation]] — revocation endpoint exposed to secured apps
+- [[oidc-endpoints]]
+- [[oidc-grant-types]]
+- [[client-authentication-methods]]
+- [[client-registration-service]]
+- [[client-registration-cli]]
+- [[oidc-token-validation]]
+- [[token-exchange]]
+- [[dpop]]
+- [[fapi-oauth21-profiles]]
+- [[tokens-and-sessions]]
+- [[token-introspection]]
+- [[token-storage-browser]]
+
+## Sources
+<!-- crosslink:begin (generated by crosslink.py — do not edit) -->
+- [[_ref-keycloak-securing_applications_and_services_guide|keycloak reference — securing_applications_and_services_guide]]
+- [[rhbk-26-6-oidc-layers|Chapter 2. Securing applications and services with OpenID Connect]]
+- [[rhbk-26-6-overview-2|Chapter 1. Authorization services overview]]
+<!-- crosslink:end -->

@@ -1,0 +1,42 @@
+---
+title: "create"
+type: reference
+domain: windows-server
+slug: administration-create
+tier: reference
+source: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/create
+family: administration
+documentKind: "reference"
+abstract: "Reference article for the create command, which creates a partition or shadow partition on a disk, a volume on one or more disks, or a virtual hard disk (VHD)."
+---
+
+# create
+
+# create
+
+Creates a partition or shadow on a disk, a volume on one or more disks, or a virtual hard disk (VHD). If you're using this command to create a volume on the shadow disk, you must already have at least one volume in the shadow copy set.
+
+## Syntax
+
+```
+create partition
+create volume
+```
+
+### Parameters
+
+| Parameter | Description |
+| --------- | ----------- |
+| [create partition primary command](create-partition-primary.md) | Creates a primary partition on the basic disk with focus. |
+| [create partition efi command](create-partition-efi.md) | Creates an Extensible Firmware Interface (EFI) system partition on a GUID Partition Table (gpt) disk on Itanium-based computers. |
+| [create partition extended command](create-partition-extended.md) | Creates an extended partition on the disk with focus. |
+| [create partition logical command](create-partition-logical.md) | Creates a logical partition in an existing extended partition. |
+| [create partition msr command](create-partition-msr.md) | Creates a Microsoft Reserved (MSR) partition on a GUID partition table (gpt) disk. |
+| [create volume simple command](create-volume-simple.md) | Creates a simple volume on the specified dynamic disk. |
+| [create volume mirror command](create-volume-mirror.md) | Creates a volume mirror by using the two specified dynamic disks. |
+| [create volume raid command](create-volume-raid.md) | Creates a RAID-5 volume using three or more specified dynamic disks. |
+| [create volume stripe command](create-volume-stripe.md) | Creates a striped volume using two or more specified dynamic disks. |
+
+## Related links
+
+- [Command-Line Syntax Key](command-line-syntax-key.md)

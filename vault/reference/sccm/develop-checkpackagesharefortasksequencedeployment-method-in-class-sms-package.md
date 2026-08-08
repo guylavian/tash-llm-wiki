@@ -1,0 +1,69 @@
+---
+title: "CheckPackageShareForTaskSequenceDeployment Method"
+type: reference
+domain: sccm
+slug: develop-checkpackagesharefortasksequencedeployment-method-in-class-sms-package
+tier: reference
+source: https://learn.microsoft.com/en-us/intune/configmgr/develop/reference/core/servers/configure/checkpackagesharefortasksequencedeployment-method-in-class-sms_package
+family: develop
+documentKind: "reference"
+abstract: "Learn how to use the Configuration Manager with the CheckPackageShareForTaskSequenceDeployment Windows Management Instrumentation (WMI) class method to verify that the package share type meets the requirements of a task sequence deployment."
+---
+
+# CheckPackageShareForTaskSequenceDeployment Method
+
+# CheckPackageShareForTaskSequenceDeployment Method in Class SMS_Package
+The `CheckPackageShareForTaskSequenceDeployment` Windows Management Instrumentation (WMI) class method in Configuration Manager that checks whether the package share type meets the requirements of a task sequence deployment.
+
+ The following syntax is simplified from Managed Object Format (MOF) code and defines the method.
+
+## Syntax
+
+```
+uint32 CheckPackageShareForTaskSequenceDeployment
+{
+    [IN]    String PackageID
+    [OUT]   Boolean IsValid
+    [OUT]   String InvalidTaskSequenceDeploymentIDs[]
+    [OUT]   String InvalidTaskSequenceDeploymentNames[]
+};
+```
+
+## Parameters
+ `PackageID`
+ Data type: `String`
+
+ Qualifiers: [id("0"), in]
+
+ Package identifier.
+
+ `IsValid`
+ Data type: `Boolean`
+
+ Qualifiers: [id("1"), out]
+
+ `true` if the package is valid for task sequence use. `false` if the package is invalid for task sequence use. If the package is referred to by a run-from-net deployment, the package must be available as a share on a distribution point.
+
+ `InvalidTaskSequenceDeploymentIDs`
+ Data type: `String` Array
+
+ Qualifiers: [id("2"), out]
+
+ Identifiers of task sequence deployments that are invalid because this package isn't valid for task sequence use.
+
+ `InvalidTaskSequenceDeploymentNames`
+ Data type: `String Array`
+
+ Qualifiers: [id("3"), out]
+
+ Names of task sequence deployments that are invalid because this package isn't valid for task sequence use.
+
+## Remarks
+
+## Requirements
+
+## Runtime Requirements
+ For more information, see [Configuration Manager Server Runtime Requirements](../../../../../develop/core/reqs/server-runtime-requirements.md).
+
+## Development Requirements
+ For more information, see [Configuration Manager Server Development Requirements](../../../../../develop/core/reqs/server-development-requirements.md).

@@ -1,0 +1,606 @@
+---
+title: "Restoring 3scale API Management by using OADP"
+type: reference
+domain: openshift
+slug: backup-and-restore-4-22-restoring-3scale-api-management-by-using-oadp
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/backup_and_restore/restoring-3scale-api-management-by-using-oadp
+version: 4.22
+family: backup_and_restore
+documentKind: "Documentation"
+---
+
+# Restoring 3scale API Management by using OADP
+
+[id="restoring-3scale-api-management-by-using-oadp"]
+= Restoring 3scale API Management by using OADP
+
+[role="_abstract"]
+Restore Red{nbsp}Hat 3scale API Management components by restoring the backed up 3scale operator resources, MySQL database, and Redis database. This helps you to recover your 3scale deployment and resume API management services.
+
+After the data has been restored, you can scale up the 3scale operator and deployment.
+
+//included in restoring-3scale-api-management-by-using-oadp assembly
+
+[id="restoring-the-3scale-api-management-operator-secrets-and-apimanager_{context}"]
+= Restoring the 3scale API Management operator, secrets, and APIManager
+
+[role="_abstract"]
+Restore the Red{nbsp}Hat 3scale API Management operator resources, including the `Secret` and APIManager custom resources (CRs). This helps you to recover your 3scale operator configuration on the same or a different cluster.
+
+.Prerequisites
+
+* You backed up the 3scale operator.
+* You backed up the MySQL and Redis databases.
+* You are restoring the database on the same cluster, where it was backed up.
++
+If you are restoring the operator to a different cluster that you backed up from, install and configure {oadp-short} with `nodeAgent` enabled on the destination cluster. Ensure that the {oadp-short} configuration is same as it was on the source cluster.
+
+.Procedure
+
+. Delete the 3scale operator custom resource definitions (CRDs) along with the `threescale` namespace by running the following command:
++
+[source,terminal]
+----
+$ oc delete project threescale
+----
++
+[source,terminal]
+----
+"threescale" project deleted successfully
+----
+
+. Create a YAML file with the following configuration to restore the 3scale operator:
++
+
+[source,yaml]
+----
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: operator-installation-restore
+  namespace: openshift-adp
+spec:
+  backupName: operator-install-backup
+  excludedResources:
+  - nodes
+  - events
+  - events.events.k8s.io
+  - backups.velero.io
+  - restores.velero.io
+  - resticrepositories.velero.io
+  - csinodes.storage.k8s.io
+  - volumeattachments.storage.k8s.io
+  - backuprepositories.velero.io
+  itemOperationTimeout: 4h0m0s
+----
++
+where:
+
+`operator-install-backup`:: Specifies the name of the backup to restore the 3scale operator.
+
+. Restore the 3scale operator by running the following command:
++
+[source,terminal]
+----
+$ oc create -f restore.yaml
+----
++
+
+[source,terminal]
+----
+restore.velerio.io/operator-installation-restore created
+----
+
+. Manually create the `s3-credentials` `Secret` object by running the following command:
++
+[source,terminal]
+----
+$ oc apply -f - <<EOF
+---
+apiVersion: v1
+kind: Secret
+metadata:
+      name: s3-credentials
+      namespace: threescale
+stringData:
+  AWS_ACCESS_KEY_ID: <ID_123456>
+  AWS_SECRET_ACCESS_KEY: <ID_98765544>
+  AWS_BUCKET: <mybucket.example.com>
+  AWS_REGION: <us-east-1>
+type: Opaque
+EOF
+----
++
+where:
+
+`<AWS_ACCESS_KEY_ID>`:: Specifies your AWS credentials ID.
+`<AWS_SECRET_ACCESS_KEY>`:: Specifies your AWS credentials KEY.
+`<mybucket.example.com>`:: Specifies your target bucket name.
+`<us-east-1>`:: Specifies the AWS region of your bucket.
+
+. Scale down the 3scale operator by running the following command:
++
+[source,terminal]
+----
+$ oc scale deployment threescale-operator-controller-manager-v2 --replicas=0 -n threescale
+----
++
+[source,terminal]
+----
+deployment.apps/threescale-operator-controller-manager-v2 scaled
+----
+
+. Create a YAML file with the following configuration to restore the `Secret`:
++
+[source,yaml]
+----
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: operator-resources-secrets
+  namespace: openshift-adp
+spec:
+  backupName: operator-resources-secrets
+  excludedResources:
+  - nodes
+  - events
+  - events.events.k8s.io
+  - backups.velero.io
+  - restores.velero.io
+  - resticrepositories.velero.io
+  - csinodes.storage.k8s.io
+  - volumeattachments.storage.k8s.io
+  - backuprepositories.velero.io
+  itemOperationTimeout: 4h0m0s
+----
++
+where:
+
+`operator-resources-secrets`:: Specifies the name of the backup to restore the `Secret`.
+
+. Restore the `Secret` by running the following command:
++
+[source,terminal]
+----
+$ oc create -f restore-secrets.yaml
+----
++
+[source,terminal]
+----
+restore.velerio.io/operator-resources-secrets created
+----
+
+. Create a YAML file with the following configuration to restore APIManager:
++
+.Example `restore-apimanager.yaml` file
+[source,yaml]
+----
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: operator-resources-apim
+  namespace: openshift-adp
+spec:
+  backupName: operator-resources-apim
+  excludedResources:
+  - nodes
+  - events
+  - events.events.k8s.io
+  - backups.velero.io
+  - restores.velero.io
+  - resticrepositories.velero.io
+  - csinodes.storage.k8s.io
+  - volumeattachments.storage.k8s.io
+  - backuprepositories.velero.io
+  itemOperationTimeout: 4h0m0s
+----
++
+where:
+
+`operator-resources-apim`:: Specifies the name of the backup to restore the APIManager.
+`excludedResources`:: Specifies the resources that you do not want to restore.
+
+. Restore the APIManager by running the following command:
++
+[source,terminal]
+----
+$ oc create -f restore-apimanager.yaml
+----
++
+[source,terminal]
+----
+restore.velerio.io/operator-resources-apim created
+----
+
+. Scale up the 3scale operator by running the following command:
++
+[source,terminal]
+----
+$ oc scale deployment threescale-operator-controller-manager-v2 --replicas=1 -n threescale
+----
++
+[source,terminal]
+----
+deployment.apps/threescale-operator-controller-manager-v2 scaled
+----
+
+//included in restoring-3scale-api-management-by-using-oadp assembly
+
+[id="restoring-the-mysql-database_{context}"]
+= Restoring a MySQL database
+
+[role="_abstract"]
+Restore a MySQL database by scaling down Red{nbsp}Hat 3scale API Management components and creating a Velero `Restore` custom resource (CR). This helps you to recover your 3scale MySQL data, persistent volumes, and associated resources.
+
+[WARNING]
+====
+Do not delete the default PV and PVC associated with the database. If you do, your backups are deleted.
+====
+
+.Prerequisites
+
+* You restored the `Secret` and APIManager custom resources (CRs).
+
+.Procedure
+
+. Scale down the Red{nbsp}Hat 3scale API Management operator by running the following command:
++
+[source,terminal]
+----
+$ oc scale deployment threescale-operator-controller-manager-v2 --replicas=0 -n threescale
+----
++
+.Example output
+[source,terminal]
+----
+deployment.apps/threescale-operator-controller-manager-v2 scaled
+----
+
+. Create the following script to scale down the 3scale operator:
++
+[source,terminal]
+----
+$ vi ./scaledowndeployment.sh
+----
++
+.Example script:
+[source,terminal]
+----
+for deployment in apicast-production apicast-staging backend-cron backend-listener backend-redis backend-worker system-app system-memcache system-mysql system-redis system-searchd system-sidekiq zync zync-database zync-que; do
+    oc scale deployment/$deployment --replicas=0 -n threescale
+done
+----
+
+. Scale down all the deployment 3scale components by running the following script:
++
+[source,terminal]
+----
+$ ./scaledowndeployment.sh
+----
++
+.Example output
+[source,terminal]
+----
+deployment.apps.openshift.io/apicast-production scaled
+deployment.apps.openshift.io/apicast-staging scaled
+deployment.apps.openshift.io/backend-cron scaled
+deployment.apps.openshift.io/backend-listener scaled
+deployment.apps.openshift.io/backend-redis scaled
+deployment.apps.openshift.io/backend-worker scaled
+deployment.apps.openshift.io/system-app scaled
+deployment.apps.openshift.io/system-memcache scaled
+deployment.apps.openshift.io/system-mysql scaled
+deployment.apps.openshift.io/system-redis scaled
+deployment.apps.openshift.io/system-searchd scaled
+deployment.apps.openshift.io/system-sidekiq scaled
+deployment.apps.openshift.io/zync scaled
+deployment.apps.openshift.io/zync-database scaled
+deployment.apps.openshift.io/zync-que scaled
+----
+
+. Delete the `system-mysql` `Deployment` object by running the following command:
++
+[source,terminal]
+----
+$ oc delete deployment system-mysql -n threescale
+----
++
+.Example output
+[source,terminal]
+----
+Warning: apps.openshift.io/v1 deployment is deprecated in v4.14+, unavailable in v4.10000+
+deployment.apps.openshift.io "system-mysql" deleted
+----
+
+. Create the following YAML file to restore the MySQL database:
++
+.Example `restore-mysql.yaml` file
+[source,yaml]
+----
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: restore-mysql
+  namespace: openshift-adp
+spec:
+  backupName: mysql-backup
+  excludedResources:
+    - nodes
+    - events
+    - events.events.k8s.io
+    - backups.velero.io
+    - restores.velero.io
+    - csinodes.storage.k8s.io
+    - volumeattachments.storage.k8s.io
+    - backuprepositories.velero.io
+    - resticrepositories.velero.io
+  hooks:
+    resources:
+      - name: restoreDB
+        postHooks:
+          - exec:
+              command:
+                - /bin/sh
+                - '-c'
+                - >
+                  sleep 30
+
+                  mysql -h 127.0.0.1 -D system -u root
+                  --password=$MYSQL_ROOT_PASSWORD <
+                  /var/lib/mysqldump/data/dump.sql
+              container: system-mysql
+              execTimeout: 80s
+              onError: Fail
+              waitTimeout: 5m
+  itemOperationTimeout: 1h0m0s
+  restorePVs: true
+----
++
+where:
+
+`mysql-backup`:: Specifies the name of the MySQL backup to restore.
+`/var/lib/mysqldump/data/dump.sql`:: Specifies the path where the data is restored from.
+
+. Restore the MySQL database by running the following command:
++
+[source,terminal]
+----
+$ oc create -f restore-mysql.yaml
+----
++
+[source,terminal]
+----
+restore.velerio.io/restore-mysql created
+----
+
+.Verification
+
+. Verify that the `PodVolumeRestore` restore is completed by running the following command:
++
+[source,terminal]
+----
+$ oc get podvolumerestores.velero.io -n openshift-adp
+----
++
+.Example output
+[source,terminal]
+----
+NAME                    NAMESPACE    POD                     UPLOADER TYPE   VOLUME                  STATUS      TOTALBYTES   BYTESDONE   AGE
+restore-mysql-rbzvm     threescale   system-mysql-2-kjkhl    kopia           mysql-storage           Completed   771879108    771879108   40m
+restore-mysql-z7x7l     threescale   system-mysql-2-kjkhl    kopia           example-claim           Completed   380415       380415      40m
+----
+
+. Verify that the additional PVC has been restored by running the following command:
++
+[source,terminal]
+----
+$ oc get pvc -n threescale
+----
++
+.Example output
+[source,terminal]
+----
+NAME                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+backend-redis-storage   Bound    pvc-3dca410d-3b9f-49d4-aebf-75f47152e09d   1Gi        RWO            gp3-csi        <unset>                 68m
+example-claim           Bound    pvc-cbaa49b0-06cd-4b1a-9e90-0ef755c67a54   1Gi        RWO            gp3-csi        <unset>                 57m
+mysql-storage           Bound    pvc-4549649f-b9ad-44f7-8f67-dd6b9dbb3896   1Gi        RWO            gp3-csi        <unset>                 68m
+system-redis-storage    Bound    pvc-04dadafd-8a3e-4d00-8381-6041800a24fc   1Gi        RWO            gp3-csi        <unset>                 68m
+system-searchd          Bound    pvc-afbf606c-d4a8-4041-8ec6-54c5baf1a3b9   1Gi        RWO            gp3-csi        <unset>                 68m
+----
+
+//included in restoring-3scale-api-management-by-using-oadp assembly
+
+[id="restoring-the-backend-redis-database_{context}"]
+= Restoring the back-end Redis database
+
+[role="_abstract"]
+Restore the back-end Redis database by creating a `Restore` custom resource (CR) that excludes non-essential cluster resources. This helps you to recover the Redis data store as part of the Red{nbsp}Hat 3scale API Management restoration process.
+
+.Prerequisites
+
+* You restored the Red{nbsp}Hat 3scale API Management operator resources, `Secret`, and APIManager custom resources.
+* You restored the MySQL database.
+
+.Procedure
+
+. Delete the `backend-redis` deployment by running the following command:
++
+[source,terminal]
+----
+$ oc delete deployment backend-redis -n threescale
+----
++
+[source,terminal]
+----
+Warning: apps.openshift.io/v1 deployment is deprecated in v4.14+, unavailable in v4.10000+
+
+deployment.apps.openshift.io "backend-redis" deleted
+----
+
+. Create a YAML file with the following configuration to restore the Redis database:
++
+.Example `restore-backend.yaml` file
+[source,yaml]
+----
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: restore-backend
+  namespace: openshift-adp
+spec:
+  backupName: redis-backup
+  excludedResources:
+    - nodes
+    - events
+    - events.events.k8s.io
+    - backups.velero.io
+    - restores.velero.io
+    - resticrepositories.velero.io
+    - csinodes.storage.k8s.io
+    - volumeattachments.storage.k8s.io
+    - backuprepositories.velero.io
+  itemOperationTimeout: 1h0m0s
+  restorePVs: true
+----
++
+where:
+
+`redis-backup`:: Specifies the name of the Redis backup to restore.
+
+. Restore the Redis database by running the following command:
++
+[source,terminal]
+----
+$ oc create -f restore-backend.yaml
+----
++
+[source,terminal]
+----
+restore.velerio.io/restore-backend created
+----
+
+.Verification
+
+* Verify that the `PodVolumeRestore` restore is completed by running the following command:
++
+[source,terminal]
+----
+$ oc get podvolumerestores.velero.io -n openshift-adp
+----
+
++
+[source,terminal]
+----
+NAME                    NAMESPACE    POD                     UPLOADER TYPE   VOLUME                  STATUS      TOTALBYTES   BYTESDONE   AGE
+restore-backend-jmrwx   threescale   backend-redis-1-bsfmv   kopia           backend-redis-storage   Completed   76123        76123       21m
+----
+
+//included in restoring-3scale-api-management-by-using-oadp assembly assembly
+
+[id="scaling-up-the-3scale-api-management-operator-and-deployment_{context}"]
+= Scaling up the 3scale API Management operator and deployment
+
+[role="_abstract"]
+Scale up the Red{nbsp}Hat 3scale API Management operator and any deployment that was manually scaled down during the restore process. This helps you to bring your 3scale installation back to a fully functional state matching the backed-up configuration.
+
+.Prerequisites
+
+* You restored the 3scale operator resources, and both the `Secret` and APIManager custom resources (CRs).
+* You restored the MySQL and back-end Redis databases.
+* Ensure that there are no scaled up deployments or no extra pods running.
+There might be some `system-mysql` or `backend-redis` pods running detached from deployments after restoration, which can be removed after the restoration is successful.
+
+.Procedure
+
+. Scale up the 3scale operator by running the following command:
++
+[source,terminal]
+----
+$ oc scale deployment threescale-operator-controller-manager-v2 --replicas=1 -n threescale
+----
++
+.Example output
+[source,terminal]
+----
+deployment.apps/threescale-operator-controller-manager-v2 scaled
+----
+
+. Ensure that the 3scale pod is running to verify if the 3scale operator was deployed by running the following command:
++
+[source,terminal]
+----
+$ oc get pods -n threescale
+----
++
+.Example output
+[source,terminal]
+----
+NAME									                    READY        STATUS	  RESTARTS	 AGE
+threescale-operator-controller-manager-v2-79546bd8c-b4qbh	1/1	         Running  0          2m5s
+----
+
+. Create the following script to scale up the deployments:
++
+[source,terminal]
+----
+$ vi ./scaledeployment.sh
+----
++
+.Example script file:
+[source,terminal]
+----
+for deployment in apicast-production apicast-staging backend-cron backend-listener backend-redis backend-worker system-app system-memcache system-mysql system-redis system-searchd system-sidekiq zync zync-database zync-que; do
+    oc scale deployment/$deployment --replicas=1 -n threescale
+done
+----
+
+. Scale up the deployments by running the following script:
++
+[source,terminal]
+----
+$ ./scaledeployment.sh
+----
++
+.Example output
+[source,terminal]
+----
+deployment.apps.openshift.io/apicast-production scaled
+deployment.apps.openshift.io/apicast-staging scaled
+deployment.apps.openshift.io/backend-cron scaled
+deployment.apps.openshift.io/backend-listener scaled
+deployment.apps.openshift.io/backend-redis scaled
+deployment.apps.openshift.io/backend-worker scaled
+deployment.apps.openshift.io/system-app scaled
+deployment.apps.openshift.io/system-memcache scaled
+deployment.apps.openshift.io/system-mysql scaled
+deployment.apps.openshift.io/system-redis scaled
+deployment.apps.openshift.io/system-searchd scaled
+deployment.apps.openshift.io/system-sidekiq scaled
+deployment.apps.openshift.io/zync scaled
+deployment.apps.openshift.io/zync-database scaled
+deployment.apps.openshift.io/zync-que scaled
+----
+
+. Get the `3scale-admin` route to log in to the 3scale UI by running the following command:
++
+[source,terminal]
+----
+$ oc get routes -n threescale
+----
++
+.Example output
+[source,terminal]
+----
+NAME                         HOST/PORT                                                                   PATH   SERVICES             PORT      TERMINATION     WILDCARD
+backend                      backend-3scale.apps.custom-cluster-name.openshift.com                         backend-listener     http      edge/Allow      None
+zync-3scale-api-b4l4d        api-3scale-apicast-production.apps.custom-cluster-name.openshift.com          apicast-production   gateway   edge/Redirect   None
+zync-3scale-api-b6sns        api-3scale-apicast-staging.apps.custom-cluster-name.openshift.com             apicast-staging      gateway   edge/Redirect   None
+zync-3scale-master-7sc4j     master.apps.custom-cluster-name.openshift.com                                 system-master        http      edge/Redirect   None
+zync-3scale-provider-7r2nm   3scale-admin.apps.custom-cluster-name.openshift.com                           system-provider      http      edge/Redirect   None
+zync-3scale-provider-mjxlb   3scale.apps.custom-cluster-name.openshift.com                                 system-developer     http      edge/Redirect   None
+----
++
+In this example, `3scale-admin.apps.custom-cluster-name.openshift.com` is the 3scale-admin URL.
+
+. Use the URL from this output to log in to the 3scale operator as an administrator. You can verify that the data, when you took backup, is available.

@@ -1,0 +1,25 @@
+---
+title: "Configure a Remote Access Cluster"
+type: reference
+domain: windows-server
+slug: remote-configure-a-remote-access-cluster
+tier: reference
+source: https://learn.microsoft.com/en-us/windows-server/remote/remote-access/ras/cluster/configure/Configure-a-Remote-Access-Cluster
+family: remote
+documentKind: "how-to"
+abstract: "Learn about the configuration steps required to deploy a single Windows Server 2016 or Windows Server 2012 Remote Access server in a load-balanced cluster."
+---
+
+# Configure a Remote Access Cluster
+
+# Configure a Remote Access Cluster
+
+ Windows Server 2016 and Windows Server 2012 combine Always On VPN and Routing and Remote Access Service (RRAS) VPN into a single Remote Access role. This overview provides an introduction to the configuration steps required to deploy a single  Windows Server 2016 or  Windows Server 2012  Remote Access server in a load-balanced cluster.
+
+-  Step 1: [Deploy an Always on VPN server with Advanced options](../../../vpn/always-on-vpn/deploy/always-on-vpn-adv-options.md).
+
+-   [Step 2: Prepare cluster servers](Step-2-Prepare-Cluster-Servers.md).
+
+-   [Step 3: Configure a load-balanced cluster](Step-3-Configure-a-Load-Balanced-Cluster.md).
+
+-   [Step 4: Verify the cluster](Step-4-Verify-the-Cluster.md).

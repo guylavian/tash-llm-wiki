@@ -1,0 +1,66 @@
+---
+origin: eval-cohort
+title: Why is DNS essential for Active Directory Domain Services?
+type: question
+domain: active-directory
+slug: why-dns-essential-ad-ds
+summary: AD DS uses DNS as its mandatory locator service — clients find domain controllers, and DCs find each other, through DNS SRV records under `_msdcs`. Without working DNS, AD is unreachable.
+sources:
+  - kb:ad-ds-dns-and-ad-ds
+  - kb:ad-ds-dc-locator
+  - kb:ad-ds-active-directory-integrated-dns-zones
+provenance_extracted: 8
+provenance_inferred: 2
+provenance_ambiguous: 0
+question_tier: conceptual
+status: draft
+updated: 2026-07-12
+graph_community: "Active Directory — Implementation Review (Evaluation-Lens MOC)"
+---
+
+# Why is DNS essential for Active Directory Domain Services?
+
+DNS is essential because AD DS uses it as its **locator service** — it is the only mechanism by which clients find domain controllers and DCs discover each other for replication. Without DNS, neither authentication nor directory replication can function.
+
+## How DNS enables AD DS
+
+**DC location.** When a domain-joined client needs to authenticate, the Netlogon service's DC Locator algorithm calls `DsGetDcName` to resolve SRV records from DNS (`_ldap._tcp.<DnsDomainName>`, plus capability variants under `_msdcs.<forest-root>` like `_gc._tcp.` and `_kerberos._tcp.`). The client then sends a UDP LDAP ping to the returned DCs; the first to respond is used. See [[dc-locator]] (ad-ds-dc-locator.md:79-99).
+
+**DC-to-DC communication.** Domain controllers also locate each other through DNS to establish replication connections. The Knowledge Consistency Checker (KCC) builds the replication topology, but the actual connections start with DNS resolution. See [[dns-for-ad-ds]] (topics/dns-for-ad-ds.md:1-7).
+
+**AD-integrated DNS zones.** The recommended deployment stores DNS zone data inside the directory itself, replicated by AD replication — eliminating secondary zones and zone transfers, and providing multi-master updates with ACL-backed secure dynamic updates. This couples DNS health to replication health: a replication backlog delays DNS record convergence. See [[ad-integrated-dns-zones]] (entities/ad-integrated-dns-zones.md:1-33).
+
+## What breaks when DNS fails
+
+The wiki's [[active-directory-implementation-review]] lists DNS as one of three recurring AD root-cause dependencies (alongside time and FSMO). The key failure signatures:
+
+- **DNS failure presents as "AD is down"** — the directory itself is healthy, but nobody can find a DC (inferred from multiple sources: ad-ds-dns-and-ad-ds.md:17-19, topics/dns-for-ad-ds.md:6-7).
+- **Event ID 2088** ("DNS lookup failure ... replication succeeded") signals DNS misconfiguration even though replication found a fallback path — a warning that should be fixed before it becomes a hard outage (ad-ds-dns-and-ad-ds.md:17-19, \_ref-active-directory-troubleshooting-error-codes.md).
+
+**(inferred)** The coupling works in reverse through AD-integrated zones: because zone records ride on AD replication, a broken replication topology creates stale DNS data — the admin sees a DNS problem when the root cause is replication (topics/dns-for-ad-ds.md:9-12).
+
+## Caveats
+
+- **Disjoint namespace.** If clients' primary DNS suffix differs from the AD domain name, DCs still register SRV records in the AD domain's zone, but host (A) records are in the disjoint suffix zone — both zones must be reachable (ad-ds-dns-and-ad-ds.md:23-24, entities/ad-integrated-dns-zones.md:10-11).
+- **NetBIOS fallback is being removed.** Windows Server 2025 defaults `BlockNetBIOSDiscovery` to `TRUE`, disabling NetBIOS-based DC location. DNS-based discovery is now the only path (ad-ds-dc-locator.md:128-135).
+
+## References
+
+### Ground truth (kb: / ref:)
+- **kb:ad-ds-dns-and-ad-ds** — DNS and AD DS (Microsoft Learn): states AD DS "uses DNS name resolution services to make it possible for clients to locate domain controllers and for the domain controllers that host the directory service to communicate with each other." (ad-ds-dns-and-ad-ds.md:17-19)
+- **kb:ad-ds-dc-locator** — Locating Active Directory Domain Controllers: details the full DC Locator algorithm — DNS SRV queries, UDP LDAP pings, site-affinity redirect, caching. (ad-ds-dc-locator.md:79-99)
+- **kb:ad-ds-active-directory-integrated-dns-zones** — Active Directory-Integrated DNS Zones: describes how zone data stored in AD DS eliminates zone transfers and enables secure dynamic updates. (ad-ds-active-directory-integrated-dns-zones.md:1-10)
+
+### Wiki pages
+- [[dns-for-ad-ds]] — the primary AD-DNS conceptual page (topics/dns-for-ad-ds.md)
+- [[dc-locator]] — the DC Locator algorithm (entities/dc-locator.md)
+- [[ad-integrated-dns-zones]] — AD-integrated DNS zones (entities/ad-integrated-dns-zones.md)
+- [[active-directory-overview]] — the AD DS spine page (topics/active-directory-overview.md)
+- [[active-directory-implementation-review]] — the AD review MOC (topics/active-directory-implementation-review.md)
+
+## Sources
+<!-- crosslink:begin (generated by crosslink.py — do not edit) -->
+- [[ad-ds-dns-and-ad-ds|DNS and AD DS]]
+- [[ad-ds-dc-locator|Locating Active Directory Domain Controllers in Windows and Windows Server]]
+- [[ad-ds-active-directory-integrated-dns-zones|Active Directory-Integrated DNS Zones]]
+<!-- crosslink:end -->

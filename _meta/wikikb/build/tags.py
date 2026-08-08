@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tag taxonomy tool for the Keycloak/RHBK LLM Wiki — stdlib only, no network.
 
-The controlled vocabulary lives in `wiki/_meta/taxonomy.md` (the single source of
+The controlled vocabulary lives in `vault/taxonomy.md` (the single source of
 truth; this script parses it). Tags are navigation/faceting aids — never a
 substitute for `sources:` or `provenance:`.
 

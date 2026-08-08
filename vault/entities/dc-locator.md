@@ -1,0 +1,75 @@
+---
+title: DC Locator
+type: entity
+domain: active-directory
+slug: dc-locator
+summary: The algorithm Windows clients use to find a suitable domain controller — DNS SRV queries under _msdcs, UDP LDAP pings for availability, site-affinity redirect, and Netlogon cache.
+sources:
+  - web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/dc-locator (Microsoft Learn — Locating Active Directory Domain Controllers in Windows and Windows Server, fetched 2026-06-18)
+  - web:https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/dc-locator-performance-counters (Microsoft Learn — Active Directory DC Locator performance counters in Windows Server, fetched 2026-06-18)
+  - kb:ad-ds-dc-locator
+  - kb:ad-ds-dc-locator-performance-counters
+provenance_extracted: 14
+provenance_inferred: 4
+provenance_ambiguous: 0
+symptoms:
+  - "no logon servers available"
+  - "DsGetDcName"
+  - "DNS Query Failures/sec"
+  - "event id 2088"
+tags: [ad-dns, directory-services, concept]
+status: draft
+updated: 2026-07-02
+graph_community: "Active Directory — Implementation Review (Evaluation-Lens MOC)"
+---
+
+# DC Locator
+
+**The DC Locator is the algorithm — implemented by the Netlogon service via `DsGetDcName` — that maps a client's domain membership and site to a reachable, suitable domain controller.**
+
+## Body
+
+DC location runs in two modes:
+
+- **DNS-based discovery** (recommended, default since Windows 2000): Netlogon calls `DnsQuery` to resolve SRV records in the form `_ldap._tcp.<DnsDomainName>` and capability-specific variants (`_gc._tcp.`, `_kerberos._tcp.`, etc.) under the `_msdcs.<forest-root>` subtree. A UDP LDAP ping is sent to each candidate DC to confirm availability; the first to respond wins. `DsGetDcName` is the primary API.
+- **NetBIOS-based discovery** (legacy): uses WINS or mailslot broadcasts. WINS and mailslots were deprecated in Windows Server 2022 and 2025 respectively. Beginning with Windows Server 2025, `BlockNetBIOSDiscovery` Group Policy defaults to `TRUE`, disabling NetBIOS-style DC location by default.
+
+### Site-affinity redirect
+
+After initial contact, the DC examines the client's IP subnet and compares it to its own site. If the DC is not in the client's optimal site, it returns the client's site name so the client can retry with a site-scoped DNS query (`_ldap._tcp.<SiteName>._sites.<DnsDomainName>`). The client caches non-optimal entries for only 15 minutes before rediscovering (inferred — behavior follows directly from the source's site-redirect description).
+
+### Netlogon cache
+
+Discovered DC information is cached by the Netlogon service so subsequent requests reuse the same DC and see a consistent directory view. The cache avoids repeated DNS lookups for short-lived operations (inferred — stated as purpose of caching in the source).
+
+### NetBIOS-to-DNS name mapping
+
+When an application passes a short (NetBIOS-style) domain name, DC Locator tries to map it to a DNS name before falling back to NetBIOS discovery. Mapping sources are checked in order: local cache, domains in the current forest, trust TLNs. Beginning with Windows Server 2025, forest administrators can also store custom mappings in a `serviceConnectionPoint` object at `CN=DCLocatorDomainNameMappings,CN=Windows NT,CN=Services,CN=Configuration,...`; Netlogon refreshes these every 12 hours.
+
+### Observability (Windows Server 2025+)
+
+Three `perfmon.exe` counter sets are available: **DC Locator (Client)**, **DC Locator (DC)**, and **DC Locator (Netlogon)**. Key counters: `Requests: Failures/sec`, `Requests: Average Success Latency (secs)`, `DNS Query Failures/sec`, `Cache: Hits/sec` / `Cache: Misses/sec`. These were introduced in Windows Server 2025.
+
+## Contradictions / caveats
+
+- In a **[[disjoint-namespace]]** environment, the client's primary DNS suffix differs from the AD domain name. DCs still register SRV records in the AD domain's DNS zone, but host (A) records are in the disjoint suffix zone — so DC Locator works but DNS resolution of the host record requires both zones to be reachable (inferred from cross-reading dc-locator and disjoint-namespace sources).
+- When the writing DC is not a Global Catalog, SPN and UPN uniqueness checks are best-effort: if the GC is unreachable the check falls back to the local DIT, meaning duplicate SPNs can be created in a mixed DC topology (see [[spn-and-upn-uniqueness]]).
+- NetBIOS discovery is a common trap in environments that migrated away from WINS: if `BlockNetBIOSDiscovery` is disabled and no WINS server is present, DC location silently falls back to broadcast-only, which fails across subnets (inferred).
+
+## Reference notes
+- [[ad-ds-dc-locator]]
+- [[ad-ds-dc-locator-performance-counters]]
+
+## See also
+- [[dns-for-ad-ds]]
+- [[ad-integrated-dns-zones]]
+- [[disjoint-namespace]]
+- [[spn-and-upn-uniqueness]]
+- [[global-catalog]]
+- [[site-links-and-replication-schedule]]
+
+## Sources
+<!-- crosslink:begin (generated by crosslink.py — do not edit) -->
+- [[ad-ds-dc-locator|Locating Active Directory Domain Controllers in Windows and Windows Server]]
+- [[ad-ds-dc-locator-performance-counters|Active Directory DC Locator performance counters in Windows Server]]
+<!-- crosslink:end -->

@@ -1,0 +1,43 @@
+---
+title: "fsutil hardlink"
+type: reference
+domain: windows-server
+slug: administration-fsutil-hardlink
+tier: reference
+source: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/fsutil-hardlink
+family: administration
+documentKind: "reference"
+abstract: "Reference article for the fsutil hardlink command, which creates a hard link between an existing file and a new file."
+---
+
+# fsutil hardlink
+
+# fsutil hardlink
+
+
+
+Creates a hard link between an existing file and a new file. A hard link is a directory entry for a file. Every file can be considered to have at least one hard link.
+
+On NTFS volumes, each file can have multiple hard links, so a single file can appear in many directories (or even in the same directory with different names). Because all of the links reference the same file, programs can open any of the links and modify the file. A file is deleted from the file system only after all links to it have been deleted. After you create a hard link, programs can use it like any other file name.
+
+## Syntax
+
+```
+fsutil hardlink create <newfilename> <existingfilename>
+fsutil hardlink list <filename>
+```
+
+### Parameters
+
+| Parameter | Description |
+| --------- | ----------- |
+| create | Establishes an NTFS hard link between an existing file and a new file. (An NTFS hard link is similar to a POSIX hard link.) |
+| \<newfilename> | Specifies the file that you want to create a hard link to. |
+| \<existingfilename> | Specifies the file that you want to create a hard link from. |
+| list | Lists the hard links to *filename*. |
+
+## Related links
+
+- [Command-Line Syntax Key](command-line-syntax-key.md)
+
+- [fsutil](fsutil.md)

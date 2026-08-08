@@ -1,0 +1,148 @@
+---
+title: "Migrating from OpenShift SDN network plugin to OVN-Kubernetes network plugin"
+type: reference
+domain: openshift
+slug: networking-4-22-migrate-from-openshift-sdn-osd
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/networking/migrate-from-openshift-sdn-osd
+version: 4.22
+family: networking
+documentKind: "Documentation"
+---
+
+# Migrating from OpenShift SDN network plugin to OVN-Kubernetes network plugin
+
+[id="migrate-from-openshift-sdn-osd"]
+= Migrating from OpenShift SDN network plugin to OVN-Kubernetes network plugin
+
+[role="_abstract"]
+As an OpenShift Container Platform cluster administrator, you can start the migration from the OpenShift Software-Defined Networking (SDN) network plugin to the OVN-Kubernetes network plugin and verify the migration status by using the {cluster-manager} CLI (`ocm`).
+
+Consider the following before starting migration:
+
+* The cluster version must be 4.16.43 and above.
+* You cannot interrupt the migration process.
+* Migrating back to the SDN network plugin is not possible.
+* The migration process reboots cluster nodes.
+* There will be no impact to workloads that are resilient to node disruptions.
+* Migration time can vary between several minutes and hours, depending on the cluster size and workload configurations.
+
+// Module included in the following assemblies:
+//networking/ovn_kubernetes_network_provider/migrate-from-openshift-sdn.adoc
+
+[id="migrate-sdn-ovn-ocm-cli_{context}"]
+= Starting migration by using the {cluster-manager} CLI
+
+[role="_abstract"]
+You can start the migration from the OpenShift Software-Defined Networking (SDN) network plugin to the OVN-Kubernetes network plugin by using the {rosa-cli-first}.
+
+[WARNING]
+====
+You can only start migration on clusters that are version 4.16.43 and above.
+====
+
+.Prerequisites
+
+*  You installed the {cluster-manager} CLI (`ocm`).
+
+[IMPORTANT]
+====
+[subs="attributes+"]
+The {cluster-manager} CLI (`ocm`) is a Developer Preview feature only.
+For more information about the support scope of Red Hat Developer Preview features, see Developer Preview Support Scope.
+====
+
+.Procedure
+
+. Create a JSON file with the following content:
+
++
+[source,json]
+----
+{
+  "type": "sdnToOvn"
+}
+----
++
+
+** Optional: Within the JSON file, you can configure internal subnets using any or all of the options `join`, `masquerade`, and `transit`, along with a single CIDR per option, as shown in the following example:
++
+[source,json]
+----
+{
+  "type": "sdnToOvn",
+  "sdn_to_ovn": {
+    "transit_ipv4": "192.168.255.0/24",
+    "join_ipv4": "192.168.255.0/24",
+    "masquerade_ipv4": "192.168.255.0/24"
+  }
+}
+----
++
+[NOTE]
+====
+OVN-Kubernetes reserves the following IP address ranges:
+
+`100.64.0.0/16`. OVN-Kubernetes uses this IP address range for the `internalJoinSubnet` parameter by default.
+
+`100.88.0.0/16`. OVN-Kubernetes uses this IP address range for the `internalTransSwitchSubnet` parameter by default.
+
+If OpenShift SDN or any external networks that might communicate with this cluster use these IP addresses, you must patch them to use a different IP address range before starting the limited live migration. For more information, see _Patching OVN-Kubernetes address ranges_ in the _Additional resources_ section.
+====
++
+
+. To start the migration, run the following post request in a terminal window.
++
+[source,terminal]
+----
+$ ocm post /api/clusters_mgmt/v1/clusters/{cluster_id}/migrations
+  --body=myjsonfile.json
+----
++
+*Example output*
++
+[source,json]
+----
+{
+  "kind": "ClusterMigration",
+  "href": "/api/clusters_mgmt/v1/clusters/2gnts65ra30sclb114p8qdc26g5c8o3e/migrations/2gois8j244rs0qrfu9ti2o790jssgh9i",
+  "id": "7sois8j244rs0qrhu9ti2o790jssgh9i",
+  "cluster_id": "2gnts65ra30sclb114p8qdc26g5c8o3e",
+  "type": "sdnToOvn",
+  "state": {
+    "value": "scheduled",
+    "description": ""
+  },
+  "sdn_to_ovn": {
+    "transit_ipv4": "100.65.0.0/16",
+    "join_ipv4": "100.66.0.0/16"
+  },
+  "creation_timestamp": "2025-02-05T14:56:34.878467542Z",
+  "updated_timestamp": "2025-02-05T14:56:34.878467542Z"
+}
+----
++
+--
+where:
+
+`{cluster_id}`:: Specifies the ID of the cluster you want to migrate to the OVN-Kubernetes network plugin.
+`myjsonfile.json`:: Specifies the name of the JSON file you created in the previous step.
+--
+
+// :_mod-docs-content-type: PROCEDURE
+// [id="verify-sdn-ovn-ocm_{context}"]
+// = Verify migration status using the OCM CLI
+
+.Verification
+
+* To check the status of the migration, run the following command. Replace `<cluster_id>` with the ID of the cluster to which you applied the migration:
++
+[source,terminal]
+----
+$ ocm get cluster <cluster_id>/migrations
+----
+
+[role="_additional-resources"]
+[id="additional-resources_{context}"]
+== Additional resources
+* Patching OVN-Kubernetes address ranges

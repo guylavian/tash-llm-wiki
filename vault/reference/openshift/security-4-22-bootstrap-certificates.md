@@ -1,0 +1,40 @@
+---
+title: "Bootstrap certificates"
+type: reference
+domain: openshift
+slug: security-4-22-bootstrap-certificates
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/security/bootstrap-certificates
+version: 4.22
+family: security
+documentKind: "Documentation"
+---
+
+# Bootstrap certificates
+
+[id="cert-types-bootstrap-certificates"]
+= Bootstrap certificates
+
+== Purpose
+
+The kubelet, in OpenShift Container Platform 4 and later, uses the bootstrap certificate located in `/etc/kubernetes/kubeconfig` to initially bootstrap. This is followed by the bootstrap initialization process and authorization of the kubelet to create a CSR.
+
+In that process, the kubelet generates a CSR while communicating over the bootstrap channel. The controller manager signs the CSR, resulting in a certificate that the kubelet manages.
+
+== Management
+
+These certificates are managed by the system and not the user.
+
+== Expiration
+This bootstrap certificate is valid for 10 years.
+
+The kubelet-managed certificate is valid for one year and rotates automatically at around the 80 percent mark of that one year.
+
+[NOTE]
+====
+OpenShift Lifecycle Manager (OLM) does not update the bootstrap certificate.
+====
+
+== Customization
+
+You cannot customize the bootstrap certificates.

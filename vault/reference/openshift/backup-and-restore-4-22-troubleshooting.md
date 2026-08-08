@@ -1,0 +1,54 @@
+---
+title: "Troubleshooting"
+type: reference
+domain: openshift
+slug: backup-and-restore-4-22-troubleshooting
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/backup_and_restore/troubleshooting
+version: 4.22
+family: backup_and_restore
+documentKind: "Documentation"
+---
+
+# Troubleshooting
+
+[id="troubleshooting"]
+= Troubleshooting
+
+[role="_abstract"]
+Troubleshoot {oadp-first} issues by using diagnostic tools such as the Velero CLI, webhooks, `must-gather` custom resource, and other methods. This helps you identify and resolve problems with backup and restore operations.
+
+You can troubleshoot OADP issues by using the following methods:
+
+* Debug Velero custom resources (CRs) by using the OpenShift CLI tool or the Velero CLI tool. The Velero CLI tool provides more detailed logs and information.
+
+* Debug Velero or Restic pod crashes, which are caused due to a lack of memory or CPU.
+
+* Debug issues with Velero and admission webhooks.
+
+* Check OADP installation issues, OADP Operator issues, backup and restore CR issues, and Restic issues.
+
+* Use the available OADP timeouts to reduce errors, retries, or failures.
+
+* Run the `DataProtectionTest` (DPT) custom resource to verify your backup storage bucket configuration and check the CSI snapshot readiness for persistent volume claims.
+
+* Collect logs and CR information by using the `must-gather` tool.
+
+* Monitor and analyze the workload performance with the help of OADP monitoring.
+
+[role="_additional-resources"]
+[id="additional-resources_{context}"]
+== Additional resources
+
+* Debugging with the OpenShift CLI tool
+* Debugging with the Velero CLI tool
+* Pods crash or restart due to lack of memory or CPU
+* Restoring workarounds for Velero backups that use admission webhooks
+* OADP installation issues
+* OADP Operator issues
+* Backup and restore CR issues
+* Restic issues
+* OADP timeouts
+* DataProtectionTest custom resource
+* Using the must-gather tool
+* OADP monitoring

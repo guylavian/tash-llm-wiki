@@ -35,6 +35,7 @@ import json
 import sys
 
 sys.dont_write_bytecode = True
+from wikikb import bootstrap              # vault skeleton creation — called from main(), not at import
 from wikikb.graph import ask as askmod
 from wikikb.serve.serve import do_page, do_route, do_search
 
@@ -488,6 +489,11 @@ def main():
     # what environment this child process inherits.
     sys.stdin.reconfigure(encoding="utf-8")
     sys.stdout.reconfigure(encoding="utf-8")
+    # Vault skeleton first (wikikb/bootstrap.py) — also done by the `python3 -m wikikb` dispatcher,
+    # repeated here because an MCP host spawns this main() directly (`python3 -m wikikb.mcp.mcp`,
+    # `claude mcp add wikikb -- …`). It writes to STDERR only: stdout is the JSON-RPC wire, and a
+    # single stray line on it would break the host's parser.
+    bootstrap.ensure_startup(label="wikikb mcp")
     print("wikikb mcp: serving over stdio (EOF to exit)", file=sys.stderr)
     for line in sys.stdin:
         line = line.strip()

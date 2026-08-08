@@ -18,8 +18,8 @@ by default; degrades to the same nodes linearly when langgraph is absent):
 If the returned answer is thin or extractive, deepen it per "Operation: QUERY"
 in `CLAUDE.md` (repo root = vault root): read `index.<domain>.md` + candidate
 pages' `title:`/`summary:`, open page bodies only when needed, then grep the
-in-vault raw tier (`reference/<domain>/` for corpus-backed domains,
-`_sources/<domain>/` for notes-first ones).
+in-vault raw tier (`vault/reference/<domain>/` for corpus-backed domains,
+`vault/_sources/<domain>/` for notes-first ones).
 
 Then **end the answer with the two-group References section (RH ground-truth +
 Wiki/`web:`) mandated by "Operation: QUERY" in `CLAUDE.md`**, and file the answer

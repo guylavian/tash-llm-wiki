@@ -33,8 +33,12 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))      # _meta/tests
 META = os.path.dirname(HERE)                            # _meta
-WIKI = os.path.dirname(META)                            # wiki
 sys.path.insert(0, META)                               # test bootstrap: make `import wikikb` importable
+# WIKI comes from wikikb.paths — the ONE definition. Re-deriving it here as
+# `os.path.dirname(META)` silently broke when content moved under <repo>/vault/ (2026-08-05),
+# and it also ignored WIKIKB_VAULT_ROOT, so a sandboxed run probed the live tree.
+from wikikb import paths as _paths  # noqa: E402 — must follow the sys.path bootstrap
+WIKI = str(_paths.WIKI)
 
 # The H1 rule + tiers-covered parsing live in the package (wikikb.coverage) so the LangGraph gate
 # node, lint.gate_banner, and THIS probe assert the SAME code (the faithfulness invariant). The probe
@@ -45,11 +49,11 @@ from wikikb.quality.coverage import gate_verdict, load_tiers_covered  # noqa: F4
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--cases", default=os.path.join(WIKI, "_meta", "eval", "gate_cases.jsonl"))
+    ap.add_argument("--cases", default=os.path.join(str(_paths.EVAL), "gate_cases.jsonl"))
     args = ap.parse_args()
 
     tiers = load_tiers_covered()
-    path = args.cases if os.path.isabs(args.cases) else os.path.join(WIKI, args.cases)
+    path = args.cases if os.path.isabs(args.cases) else os.path.join(str(_paths.ROOT), args.cases)
     if not os.path.isfile(path):
         print("cases file not found: %s" % path)
         sys.exit(2)

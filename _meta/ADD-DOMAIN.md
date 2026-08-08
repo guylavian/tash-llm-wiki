@@ -20,12 +20,12 @@ The vault has **three layers** (see `../CLAUDE.md`):
 
 | Layer | Location | Mutability | Your job |
 |---|---|---|---|
-| **Raw sources** | `reference/<domain>/` (folded corpus) · `_sources/<domain>/` (hand notes) · `../references/` | **IMMUTABLE** — never edit | create once, then freeze |
+| **Raw sources** | `vault/reference/<domain>/` (folded corpus) · `vault/_sources/<domain>/` (hand notes) · `../references/` | **IMMUTABLE** — never edit | create once, then freeze |
 | **Synthesis** | `topics/` · `entities/` · `questions/` | LLM-maintained | this is where you write |
-| **Schema** | `CLAUDE.md` + `_meta/taxonomy.md` | human + LLM | declare the domain here |
+| **Schema** | `CLAUDE.md` + `vault/taxonomy.md` | human + LLM | declare the domain here |
 
 **Hard rule — writes go *only* under `wiki/{topics,entities,questions}/` and
-`wiki/_meta/`.** Never edit `reference/<domain>/`, `_sources/<domain>/`, or
+`wiki/_meta/`.** Never edit `vault/reference/<domain>/`, `vault/_sources/<domain>/`, or
 `../references/` — they are immutable and integrity-locked (`_meta/reference.lock.json`,
 sha256 per note). All tooling is **stdlib-only and offline**; the *one* optional
 third-party dependency is the local embedding layer (`embed.py`), which degrades
@@ -67,7 +67,7 @@ Markdown tree).
 
 ## Step 1 — Register the domain in `taxonomy.md` (the load-bearing step)
 
-Edit `_meta/taxonomy.md`. Copy the `<!-- Template -->` block under `## Domains` and
+Edit `vault/taxonomy.md`. Copy the `<!-- Template -->` block under `## Domains` and
 fill it in. This is the single most important step: **three tools parse these exact
 lines.**
 
@@ -76,7 +76,7 @@ lines.**
 - domain: <domain>                  # kebab-case, globally unique
 - areas: [area-a, area-b, security, troubleshooting]
 - shape: notes-first                # or corpus-backed
-- sources: [_sources/<domain>/]     # + corpora/<domain>/ if corpus-backed
+- sources: [vault/_sources/<domain>/]     # + corpora/<domain>/ if corpus-backed
 - review-moc: <domain>-implementation-review
 - tiers-covered: [conceptual]       # coarse knowledge-tiers ingested: conceptual | support-kb | scenarios
 ```
@@ -133,14 +133,14 @@ two stdlib commands **offline**:
 
 ```bash
 # docs tree -> corpus (index.jsonl + body files); derives the live source URLs
-python3 -m wikikb docs_to_corpus --src _sources/<domain>/_raw/<subtree> \
+python3 -m wikikb docs_to_corpus --src vault/_sources/<domain>/_raw/<subtree> \
     --domain <domain> --apply
 
 # corpus -> immutable in-vault reference notes (+ writes the integrity lock)
 python3 -m wikikb corpus_to_vault --domain <domain> --apply
 ```
 
-`corpus_to_vault.py` writes one note per source under `reference/<domain>/` (body
+`corpus_to_vault.py` writes one note per source under `vault/reference/<domain>/` (body
 present) or one pointer row in `_gated-kb-index.md` (gated body), and records a
 sha256 per note in `_meta/reference.lock.json` so any later hand-edit is detectable
 (`--verify`). After folding in, **flip `shape:` to `corpus-backed`** in
@@ -152,7 +152,7 @@ sha256 per note in `_meta/reference.lock.json` so any later hand-edit is detecta
 > page-level citation, `--chunk-pages` for big books, pre-extracted `.txt` accepted
 > for sealed boxes) → then `corpus_to_vault` as above. But a *judgment-heavy* PDF
 > (a CIS/STIG benchmark you'd paraphrase anyway) is still better distilled into
-> `_sources/<domain>/` notes. Either way, keep product families separate — the
+> `vault/_sources/<domain>/` notes. Either way, keep product families separate — the
 > Cisco WLC AireOS PDF was *not* folded into `cisco-ios-xe` because it's a
 > different product family; it belongs in its own domain.
 
@@ -169,7 +169,7 @@ domain: <domain>                 # REQUIRED — must match taxonomy.md
 slug: kebab-case-matching-filename
 summary: 1–2 sentence gist — read before the body   # REQUIRED (the tiered-query surface)
 sources:                         # REQUIRED provenance
-  - note:_sources/<domain>/<file>.md      # notes-first
+  - note:vault/_sources/<domain>/<file>.md      # notes-first
   - web:https://… (label, fetched 2026-06-18)
 provenance:                      # REQUIRED — assign by READING each claim vs its source
   extracted: 7                   #   (never count bullets mechanically)
@@ -215,7 +215,7 @@ python3 -m wikikb index                # writes index.<domain>.md + updates the 
 ```
 
 - **`crosslink.py`** resolves each page's `kb:` source tokens to the matching
-  `reference/<domain>/` note and appends a generated `## Sources` block of
+  `vault/reference/<domain>/` note and appends a generated `## Sources` block of
   `[[doc-id|Title]]` wikilinks — **these are the edges that connect your synthesis
   to the corpus in Obsidian's graph** (and the edges `expand.py` later walks for
   multi-hop retrieval). It's idempotent and never touches your `sources:` block.
@@ -254,7 +254,7 @@ A **healthy new brain** looks like the cisco-ios-xe run:
 As you fold in real sources, record them so INGEST stays incremental:
 
 ```bash
-python3 -m wikikb manifest record note:_sources/<domain>/<file>.md --pages <slug,...>
+python3 -m wikikb manifest record note:vault/_sources/<domain>/<file>.md --pages <slug,...>
 # corpus-backed:
 python3 -m wikikb manifest record kb:7032207 --pages <slug-a,slug-b>
 ```
@@ -341,7 +341,7 @@ python3 _meta/tests/selftest.py         # only intentional [[wanted]] + MOC drif
 
 > **The notes-first retrieval reality (verified by self-test).** `wikikb ask
 > --domain openshift` returns **no candidates** — the deterministic `ask`/`kb.search`
-> graph searches `reference/<domain>/` (the corpus tier) ONLY, which a notes-first
+> graph searches `vault/reference/<domain>/` (the corpus tier) ONLY, which a notes-first
 > domain doesn't have. The working query path is the host-runtime one: **route →
 > read `index.openshift.md` → grep `_sources/openshift/` + the synthesis pages**, OR
 > build the optional dense/embedding index. This is the documented notes-first limit
@@ -393,7 +393,7 @@ From here the brain grows through the normal ops in `../CLAUDE.md`:
   `crosslink.py --apply` → `index.py` → `lint.py` → `manifest.py record`.
 - **QUERY** — `route.py "<q>"` (route to domain) → read `index.<domain>.md` +
   candidate summaries → `expand.py --domain <d> "<q>"` (1-hop graph neighborhood) →
-  open bodies / grep `reference/<domain>/` (or `_sources/`) only when needed →
+  open bodies / grep `vault/reference/<domain>/` (or `_sources/`) only when needed →
   synthesize with the two-group References section → file the answer to
   `questions/<slug>.md` so the wiki compounds.
 
@@ -434,9 +434,9 @@ but know them:
 ## Per-tech quick checklist
 
 - [ ] Shape chosen (notes-first vs corpus-backed)
-- [ ] `### <domain>` block added under `## Domains` in `_meta/taxonomy.md`
+- [ ] `### <domain>` block added under `## Domains` in `vault/taxonomy.md`
 - [ ] New `areas:` added to `## Areas` (with one-line glosses)
-- [ ] Raw tier created (`_sources/<domain>/` + README, or `reference/<domain>/`)
+- [ ] Raw tier created (`vault/_sources/<domain>/` + README, or `vault/reference/<domain>/`)
 - [ ] Overview topic + first entity + `<domain>-implementation-review` MOC written
 - [ ] `crosslink.py --apply` run (corpus-backed) → `index.py` → `index.<domain>.md` + router updated
 - [ ] `lint.py --strict` clean (only intentional wanted-pages / MOC drift)

@@ -1,0 +1,92 @@
+---
+title: "Reserving PVC space for file system overhead"
+type: reference
+domain: openshift
+slug: virt-4-22-virt-reserving-pvc-space-fs-overhead
+tier: reference
+source: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/virt/virt-reserving-pvc-space-fs-overhead
+version: 4.22
+family: virt
+documentKind: "Documentation"
+---
+
+# Reserving PVC space for file system overhead
+
+[id="virt-reserving-pvc-space-fs-overhead"]
+= Reserving PVC space for file system overhead
+
+[role="_abstract"]
+When you create a `DataVolume` custom resource (CR) for a virtual machine (VM) by setting the `spec.storage.volumeMode`  attribute to `Filesystem`, {VirtProductName} automatically accounts for file system overhead.
+
+If you specify the storage type by using the `spec.pvc` attribute in the `DataVolume` CR, {VirtProductName} does not add any file system overhead and the requested size is passed directly to Kubernetes.
+
+The default file system overhead value is 6%. For example, if you request a 10 GiB disk and the `spec.storage.volumeMode` attribute is set to `FileSystem`, Kubernetes provisions a PVC of approximately 10.6 GiB so that the VM has the full 10 GiB of space available.
+
+.Example file system overhead for data volumes
+[cols="1,1,1", options="header"]
+|===
+|Requested virtual disk size |Calculated overhead (6%) |Total PVC space provisioned
+|10 GiB |0.6 GiB|10.6 GiB
+|100 GiB |6 GiB |106 GiB
+|===
+[NOTE]
+====
+You can change the default file system overhead value by editing the `HyperConverged` CR.
+====
+
+// Module included in the following assemblies:
+//
+// * virt/storage/virt-reserving-pvc-space-fs-overhead.adoc
+
+[id="virt-overriding-default-fs-overhead-value_{context}"]
+= Overriding the default file system overhead value
+
+[role="_abstract"]
+Change the amount of persistent volume claim (PVC) space that the {VirtProductName} reserves for file system overhead by editing the `spec.filesystemOverhead` attribute of the `HCO` object.
+
+.Prerequisites
+
+* Install the {oc-first}.
+
+.Procedure
+
+. Open the `HCO` object for editing by running the following command:
++
+[source,terminal,subs="attributes+"]
+----
+$ oc edit {HCOCliKind} kubevirt-hyperconverged -n {CNVNamespace}
+----
+
+. Edit the `spec.filesystemOverhead` fields, populating them with your chosen values:
++
+[source,yaml]
+----
+# ...
+spec:
+  filesystemOverhead:
+    global: "<new_global_value>"
+    storageClass:
+      <storage_class_name>: "<new_value_for_this_storage_class>"
+----
+** `spec.filesystemOverhead.global` specifies the default file system overhead percentage used for any storage classes that do not already have a set value. For example, `global: "0.07"` reserves 7% of the PVC for file system overhead.
+** `spec.filesystemOverhead.storageClass` specifies the file system overhead percentage for the specified storage class. For example, `mystorageclass: "0.04"` changes the default overhead value for PVCs in the `mystorageclass` storage class to 4%.
+
+. Save and exit the editor to update the `HCO` object.
+
+.Verification
+
+* View the `CDIConfig` status and verify your changes by running one of the following commands:
++
+To generally verify changes to `CDIConfig`:
++
+[source,terminal]
+----
+$ oc get cdiconfig -o yaml
+----
++
+To view your specific changes to `CDIConfig`:
++
+[source,terminal]
+----
+$ oc get cdiconfig -o jsonpath='{.items..status.filesystemOverhead}'
+----

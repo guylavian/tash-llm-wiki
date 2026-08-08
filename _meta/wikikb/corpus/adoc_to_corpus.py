@@ -150,7 +150,7 @@ def main():
         print("(dry run — pass --apply to write corpora/%s/)" % args.domain)
         return
 
-    cdir = os.path.join(ROOT, "corpora", args.domain)
+    cdir = os.path.join(str(paths.CORPORA), args.domain)
     bdir = os.path.join(cdir, "bodies")
     os.makedirs(bdir, exist_ok=True)
     idx = os.path.join(cdir, "index.jsonl")

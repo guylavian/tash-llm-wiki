@@ -22,6 +22,16 @@ llm/*
 .venv-embed/
 .venv-online/
 
+# NOTE: the scraper keeps no state under _meta/. Its ledger (which crawl has been harvested for
+# which source) and its collinfo cache live in the VAULT at `vault/.scrape-state.json`, because
+# they are the harvest's memory and must travel with a vault copy.
+
+# Server runtime logs from a detached bare-metal run (`python3 -m wikikb serve` with its
+# stdout/stderr redirected here). Progress output, not provenance — the durable record of what
+# was ingested is the vault plus .manifest.json.
+serve.out
+serve.err
+
 # Python packaging artifacts (pip builds run here, next to pyproject.toml)
 /build/
 /dist/

@@ -1,0 +1,29 @@
+---
+title: "ADFS on Windows Server 2019 - Require to provide credentials each time at sign in"
+type: source
+tier: community-qa
+source: https://learn.microsoft.com/en-us/answers/questions/249481/adfs-on-windows-server-2019-require-to-provide-cre
+question_id: 249481
+fetched: 2026-07-25
+answer_count: 1
+has_accepted_answer: false
+upvotes: 0
+qa_tags: ["microsoft-security-security-active-directory-federation-services"]
+---
+# ADFS on Windows Server 2019 - Require to provide credentials each time at sign in
+
+> **Community Q&A (upstream).** Microsoft Q&A thread, not a Microsoft support statement.
+> Accepted answers are frequently version-stale or wrong. Cite as
+> `web:https://learn.microsoft.com/en-us/answers/questions/249481/adfs-on-windows-server-2019-require-to-provide-cre (fetched 2026-07-25)` and verify against vendor documentation before relying on it.
+
+## Question
+
+In ADFS on Windows Server 2012 R2, there is a GUI option to enable "Users are required to provide credentials each time at sign in", it looks like this:    
+
+    
+
+Is there a similar setting for ADFS on Windows Server 2019?
+
+## Answers
+
+_No answers on this thread._

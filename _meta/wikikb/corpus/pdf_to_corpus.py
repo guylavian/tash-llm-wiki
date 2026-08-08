@@ -20,7 +20,10 @@ Extraction ladder (text PDFs only — scanned/image PDFs are reported and skippe
 silently emitted empty):
   1. a pre-extracted `<name>.txt` beside/instead of `<name>.pdf` in --src (pure-stdlib
      path for a sealed box: run `pdftotext` on a tooled machine, ship the .txt tree);
-  2. `pdftotext -layout -enc UTF-8` (poppler) when the binary is on PATH.
+  2. `pdftotext -layout -enc UTF-8` (poppler), found on PATH, at `WIKIKB_PDFTOTEXT`, or in the
+     usual install dirs (a service's PATH is narrower than the operator's shell — see
+     `pdftotext_path`). A run that extracts nothing exits non-zero rather than writing a
+     green, empty corpus.
 There is deliberately NO pure-Python PDF parser: a half-working extractor that emits
 mojibake into the immutable ground-truth tier is worse than a loud skip.
 # ponytail: whole-PDF (or fixed-page-chunk) records; splitting on the PDF outline
@@ -93,16 +96,75 @@ def first_line_title(pages):
 
 # ---------- extraction ----------
 
+# `shutil.which` alone is NOT enough to decide poppler is absent. A server process inherits
+# the PATH of whatever launched it, which is routinely narrower than the operator's shell —
+# most sharply on Windows, where Git-for-Windows ships `pdftotext` inside its MSYS tree
+# (`C:\Program Files\Git\mingw64\bin`) that a native Python's PATH never contains. The binary
+# is then present on the box and invisible to this process, and every PDF is reported as
+# "no extractable text" — indistinguishable, in the log, from a genuinely scanned PDF.
+# So: probe the usual install locations too, and let an operator pin it outright.
+_PDFTOTEXT_DIRS = (
+    r"C:\Program Files\Git\mingw64\bin",          # Git for Windows (MSYS) — ships poppler
+    r"C:\Program Files (x86)\Git\mingw64\bin",
+    r"C:\Program Files\poppler\bin",              # standalone poppler-windows release
+    r"C:\ProgramData\chocolatey\bin",             # choco install poppler
+    "/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin",   # brew (arm64/x86) + POSIX
+)
+_PDFTOTEXT_UNSET = object()
+_pdftotext_cached = _PDFTOTEXT_UNSET
+
+
+def pdftotext_path():
+    """Absolute path to poppler's `pdftotext`, or None if it is genuinely not installed.
+    Cached — the answer cannot change inside one run, and build() asks once per document.
+    `WIKIKB_PDFTOTEXT` pins an explicit binary and wins over every probe."""
+    global _pdftotext_cached
+    if _pdftotext_cached is not _PDFTOTEXT_UNSET:
+        return _pdftotext_cached
+    found = None
+    pinned = os.environ.get("WIKIKB_PDFTOTEXT")
+    if pinned:                                    # an explicit pin is honoured or reported,
+        found = shutil.which(pinned)              # never silently downgraded to a PATH lookup
+        if not found:
+            print("WARNING: WIKIKB_PDFTOTEXT=%r is not an executable — ignoring it" % pinned,
+                  file=sys.stderr)
+    if not found:
+        found = shutil.which("pdftotext")
+    if not found:
+        for d in _PDFTOTEXT_DIRS:
+            cand = shutil.which("pdftotext", path=d)
+            if cand:
+                found = cand
+                break
+    _pdftotext_cached = found
+    return found
+
+
 def extract_pdftotext(path):
-    """PDF -> page-separated text via poppler's pdftotext, or None if unavailable/failed."""
-    if not shutil.which("pdftotext"):
-        return None
+    """PDF -> (page-separated text, None), or (None, reason). The reason distinguishes
+    'poppler is not installed' from 'poppler ran and refused this file' — collapsing the two
+    is what makes a PATH problem look like a scanned PDF."""
+    exe = pdftotext_path()
+    if not exe:
+        return None, "pdftotext-not-installed"
     try:
-        p = subprocess.run(["pdftotext", "-layout", "-enc", "UTF-8", path, "-"],
-                           capture_output=True, text=True, timeout=300)
+        # `encoding=` is NOT optional here: bare text=True decodes with the LOCALE codepage,
+        # so on any non-UTF-8 console (cp1255/cp1251/cp936/…) the UTF-8 bytes we just asked
+        # for blow up mid-stream and the document is misreported as having no text. We pin the
+        # decoder to the -enc we requested; errors="replace" matches the .txt path above.
+        p = subprocess.run([exe, "-layout", "-enc", "UTF-8", path, "-"],
+                           capture_output=True, timeout=300,
+                           encoding="utf-8", errors="replace")
     except subprocess.TimeoutExpired:
-        return None
-    return p.stdout if p.returncode == 0 else None
+        return None, "pdftotext-timeout-300s"
+    except OSError as e:                          # unreadable/quarantined binary
+        return None, "pdftotext-unrunnable: %s" % e
+    if p.returncode != 0:
+        err = re.sub(r"\s+", " ", (p.stderr or "")).strip()[:160] or "no stderr"
+        return None, "pdftotext-failed(rc=%d): %s" % (p.returncode, err)
+    if not p.stdout:                              # rc=0 but nothing captured — never return a
+        return None, "pdftotext-empty-stdout"     # bare None, which reads as a missing reason
+    return p.stdout, None
 
 
 def doc_pages(src, stem, have_txt):
@@ -113,9 +175,9 @@ def doc_pages(src, stem, have_txt):
             text = fh.read()
         method = "txt"
     else:
-        text = extract_pdftotext(os.path.join(src, stem + ".pdf"))
+        text, reason = extract_pdftotext(os.path.join(src, stem + ".pdf"))
         if text is None:
-            return None, "pdftotext-unavailable-or-failed"
+            return None, reason
         method = "pdftotext"
     pages = [p for p in text.split("\f")]
     while pages and not pages[-1].strip():
@@ -144,7 +206,84 @@ def chunks(pages, n):
         yield i + 1, pages[i:i + n]
 
 
-def build(src, domain, url_base, family, version, guide, kind, chunk_pages):
+# ---------- section splitting (the "per-chapter notes" upgrade path) ----------
+#
+# Splits a big document on its RUNNING HEADER — the line a publisher repeats at the top of
+# every page of a chapter — because that is the one structural signal present in a flat text
+# extraction. It is a HEURISTIC over layout, not a parsed outline (poppler's `pdftotext` emits
+# no bookmark tree), so the contract is deliberately conservative:
+#   * a section boundary only ever splits a document into MORE notes of the SAME text — no
+#     page is dropped, reordered or rewritten, and absolute page markers are preserved, so a
+#     mis-placed boundary costs retrieval precision, never ground-truth fidelity;
+#   * a document whose headers yield one section falls back to exactly today's whole-PDF note.
+# Titles are compared by TOKEN PREFIX because a two-up scan puts two column headers on one
+# line ("Cisco 850 Series Cisco 850 Series"), which exact-matching would split into confetti.
+
+_MIN_PREFIX_TOKENS = 3          # shared leading tokens required to stay in the same section
+_MAX_TITLE_TOKENS = 8
+
+
+def page_header(pg):
+    """The page's running header: its first substantial line, normalized."""
+    for ln in pg.splitlines():
+        t = re.sub(r"\s+", " ", ln).strip()
+        t = re.sub(r"^Notes\s+", "", t)                  # a Notes page carries the next header
+        t = re.sub(r"\bcontinued\b", " ", t, flags=re.I)  # "... continued" is the same section
+        t = re.sub(r"\s+", " ", t).strip()
+        if len(t) >= 4:
+            return t
+    return ""
+
+
+def _common_prefix(a_tokens, b_tokens):
+    out = []
+    for x, y in zip(a_tokens, b_tokens):
+        if x.lower() != y.lower():
+            break
+        out.append(x)
+    return out
+
+
+def _undouble(tokens):
+    """'Cisco 7600 Series Cisco 7600 Series' -> 'Cisco 7600 Series' (two-up header echo)."""
+    n = len(tokens)
+    if n >= 2 and n % 2 == 0:
+        half = n // 2
+        if [t.lower() for t in tokens[:half]] == [t.lower() for t in tokens[half:]]:
+            return tokens[:half]
+    return tokens
+
+
+def sections(pages, min_pages=2):
+    """[(start_page_1based, pages_slice, title)] grouped by running header.
+
+    Runs shorter than `min_pages` are folded into the PREVIOUS section: covers, dividers and
+    stray one-page interludes are not their own chapter, and emitting them as standalone notes
+    is the failure mode that makes a split corpus noisier than the single note it replaced."""
+    heads = [page_header(pg) for pg in pages]
+    runs = []                                    # [start_idx, end_idx, title_tokens]
+    for i, h in enumerate(heads):
+        if runs:
+            cp = _common_prefix(runs[-1][2], h.split())
+            if len(cp) >= _MIN_PREFIX_TOKENS:
+                runs[-1][1], runs[-1][2] = i, cp
+                continue
+        runs.append([i, i, h.split()])
+    merged = []
+    for r in runs:
+        if merged and (r[1] - r[0] + 1) < min_pages:
+            merged[-1][1] = r[1]                 # absorb the short run, keep the earlier title
+        else:
+            merged.append(r)
+    out = []
+    for a, b, toks in merged:
+        title = " ".join(_undouble(toks)[:_MAX_TITLE_TOKENS]).strip()
+        out.append((a + 1, pages[a:b + 1], title or None))
+    return out
+
+
+def build(src, domain, url_base, family, version, guide, kind, chunk_pages,
+          split_sections=False, min_section_pages=2):
     stems = {}                                    # stem -> has_txt
     for fn in sorted(os.listdir(src)):
         stem, ext = os.path.splitext(fn)
@@ -171,12 +310,31 @@ def build(src, domain, url_base, family, version, guide, kind, chunk_pages):
             with open(os.path.join(src, stem + ".pdf"), "rb") as fh:
                 raw = fh.read()
         doc_title = pdf_title(raw) or first_line_title(pages) or stem
-        n_chunks = 1 if chunk_pages <= 0 else -(-len(pages) // chunk_pages)
-        for start, sl in chunks(pages, chunk_pages):
+        if split_sections:
+            parts = sections(pages, min_section_pages)
+        else:
+            n_chunks = 1 if chunk_pages <= 0 else -(-len(pages) // chunk_pages)
+            parts = [(s, sl, None) for s, sl in chunks(pages, chunk_pages)]
+        if split_sections:
+            n_chunks = len(parts)
+        seen_tails = set()
+        for start, sl, label in parts:
             end = start + len(sl) - 1
-            tail = stem_slug if n_chunks == 1 else "%s-p%04d-%04d" % (stem_slug, start, end)
+            if label:
+                # Subject tails read as citations ("kb:19293-cisco-routers-cisco-2800-series").
+                # A repeated running header (a chapter resumed later in the book) would collide,
+                # and a silent overwrite would drop pages — so disambiguate with the page range.
+                tail = "%s-%s" % (stem_slug, slugify(label))
+                if tail in seen_tails:
+                    tail = "%s-p%04d-%04d" % (tail, start, end)
+                seen_tails.add(tail)
+                title = "%s — %s" % (doc_title, label)
+            elif n_chunks == 1:
+                tail, title = stem_slug, doc_title
+            else:
+                tail = "%s-p%04d-%04d" % (stem_slug, start, end)
+                title = "%s — pages %d-%d" % (doc_title, start, end)
             url = url_base.rstrip("/") + "/" + tail
-            title = doc_title if n_chunks == 1 else "%s — pages %d-%d" % (doc_title, start, end)
             body = render_body(sl, start)
             body_file = "bodies/" + slugify(url.split("//", 1)[-1]) + ".md"
             rec = {
@@ -214,34 +372,53 @@ def main():
     ap.add_argument("--kind", default="doc", help="documentKind frontmatter (default: doc)")
     ap.add_argument("--chunk-pages", type=int, default=0,
                     help="split each PDF into records of N pages (0 = one record per PDF)")
+    ap.add_argument("--split-sections", action="store_true",
+                    help="one record per DOCUMENT SECTION (grouped by running header) instead "
+                         "of one per PDF — see sections(); mutually exclusive with --chunk-pages")
+    ap.add_argument("--min-section-pages", type=int, default=2,
+                    help="runs shorter than this fold into the previous section (default: 2)")
     ap.add_argument("--append", action="store_true",
                     help="merge into an existing corpora/<domain>/index.jsonl (dedup by url; "
                          "new harvest wins)")
     ap.add_argument("--apply", action="store_true")
     args = ap.parse_args()
 
+    if args.split_sections and args.chunk_pages > 0:
+        raise SystemExit("--split-sections and --chunk-pages are mutually exclusive: pick either the document's own sections or fixed-size windows")
     if not os.path.isdir(args.src):
         raise SystemExit("--src not found: %s" % args.src)
     url_base = args.url_base or ("pdf://" + args.domain)
     recs, bodies, skipped, methods = build(
         args.src, args.domain, url_base, args.family or args.domain,
-        args.version, args.guide, args.kind, args.chunk_pages)
+        args.version, args.guide, args.kind, args.chunk_pages,
+        args.split_sections, args.min_section_pages)
 
-    outdir = os.path.join(ROOT, "corpora", args.domain)
+    outdir = os.path.join(str(paths.CORPORA), args.domain)
     rel = os.path.relpath(outdir, ROOT)
     n_docs = len(methods)
     print("domain=%s  src=%s" % (args.domain, args.src))
     print("pdf docs extracted=%d (%s)  records=%d" % (
         n_docs, ", ".join(sorted(set(methods.values()))) or "none", len(recs)))
     if skipped:  # never a silent cap: name what was dropped and why
-        print("SKIPPED %d (no extractable text — scanned/image PDF, or install poppler / "
-              "ship .txt): %s" % (len(skipped), ", ".join("%s [%s]" % s for s in skipped)))
+        print("SKIPPED %d: %s" % (len(skipped), ", ".join("%s [%s]" % s for s in skipped)))
+        if any("not-installed" in r for _, r in skipped):
+            print("  -> poppler's pdftotext was not found. Install it, pin it with "
+                  "WIKIKB_PDFTOTEXT=/path/to/pdftotext, or ship a pre-extracted <name>.txt "
+                  "beside the .pdf (the sealed-box path).")
     print("target: %s/index.jsonl + %s/bodies/*.md" % (rel, rel))
     if recs:
         print("sample url: %s  (cite it as kb:%s)" % (recs[0]["url"],
                                                       recs[0]["url"].rsplit("/", 1)[-1]))
     if not recs and not skipped:
         raise SystemExit("no .pdf/.txt documents found in --src")
+    # Converting NOTHING while holding documents is a failure, not a clean no-op. Exiting 0 here
+    # let the upload job report `state: done` with every step green while zero notes reached the
+    # vault — the caller had uploaded a PDF and been told it worked. The job runner stops the
+    # chain on a non-zero exit, so this is also what keeps corpus_to_vault from running against
+    # an index this run contributed nothing to.
+    if not recs:
+        raise SystemExit("extracted 0 of %d document(s) — nothing to write (see SKIPPED above)"
+                         % len(skipped))
 
     if not args.apply:
         print("\n--- DRY RUN (no files written). Re-run with --apply, then: "

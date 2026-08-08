@@ -1,0 +1,98 @@
+---
+title: terminationGracePeriodSeconds:0 — what happens to SIGTERM?
+type: question
+domain: openshift
+slug: terminationgraceperiodseconds-zero-sigterm
+summary: With grace period 0 the Pod object is deleted from the API immediately, preStop hooks are skipped, and the container gets only a token "small grace period" on the node before SIGKILL — effectively no time to react to SIGTERM. Upstream k8s docs call setting pod.Spec.TerminationGracePeriodSeconds:0 "unsafe and strongly discouraged" (StatefulSet context).
+sources:
+  - kb:concepts-pod-lifecycle
+  - kb:tasks-force-delete-stateful-set-pod
+provenance_extracted: 8
+provenance_inferred: 2
+provenance_ambiguous: 0
+question_tier: conceptual
+tags: [workloads, troubleshooting]
+status: draft
+updated: 2026-07-05
+graph_community: "OpenShift / Kubernetes — Implementation Review (Evaluation-Lens MOC)"
+---
+
+# terminationGracePeriodSeconds:0 — what happens to SIGTERM?
+
+**Grace period 0 removes the Pod from the API immediately, skips `preStop` hooks, and leaves the process only a token node-side window before SIGKILL — and upstream documentation explicitly calls the practice unsafe and strongly discouraged (StatefulSet context).**
+
+## Question
+
+> If I set `terminationGracePeriodSeconds: 0` on a Pod, what actually happens to
+> SIGTERM handling during termination?
+
+## Answer
+
+**Normal (non-zero) termination first, for contrast:** the kubelet asks the container
+runtime to stop containers by sending TERM (SIGTERM) — or the image's `STOPSIGNAL` —
+to the main process, with the grace period as the timeout; only when the grace period
+expires is KILL sent to remaining processes and the Pod deleted from the API server
+(`reference/openshift/concepts-pod-lifecycle.md:864-871`). The default
+`terminationGracePeriodSeconds` is 30 seconds
+(`reference/openshift/concepts-pod-lifecycle.md:926`).
+
+**With `terminationGracePeriodSeconds: 0`:**
+
+1. **`preStop` hooks are skipped** — the kubelet runs a `preStop` hook only when the
+   grace period "is not set to 0" (`reference/openshift/concepts-pod-lifecycle.md:922-926`).
+2. **The Pod object is deleted from the API server immediately** — "Setting the grace
+   period to `0` forcibly and immediately deletes the Pod from the API server," and the
+   kubelet begins immediate cleanup (`reference/openshift/concepts-pod-lifecycle.md:991-993`).
+   Via kubectl this additionally requires the explicit `--force` flag alongside
+   `--grace-period=0` (`reference/openshift/concepts-pod-lifecycle.md:995-996`).
+3. **The API server does not wait for kubelet confirmation** — the name is freed
+   immediately for a replacement; on the node the Pod is "still... given a small grace
+   period before being force killed"
+   (`reference/openshift/concepts-pod-lifecycle.md:998-1002`).
+4. **Net SIGTERM behavior** (inferred, combining :864-871 with :998-1002): the runtime
+   may still emit the stop signal, but the process has effectively zero time to act on
+   it before SIGKILL — for application purposes, treat grace 0 as "SIGKILL with no
+   cleanup window," not as "fast SIGTERM" (inferred).
+
+## The official caveat (asked-for guidance, present in corpus)
+
+- "For the above to lead to graceful termination, the Pod **must not** specify a
+  `pod.Spec.TerminationGracePeriodSeconds` of 0. The practice of setting a
+  `pod.Spec.TerminationGracePeriodSeconds` of 0 seconds is **unsafe and strongly
+  discouraged** for StatefulSet Pods"
+  (`reference/openshift/tasks-force-delete-stateful-set-pod.md:51-53`).
+- "In normal operation of a StatefulSet, there is **never** a need to force delete a
+  StatefulSet Pod" (`reference/openshift/tasks-force-delete-stateful-set-pod.md:29`);
+  force deletion "has the potential to violate the at most one semantics"
+  (`reference/openshift/tasks-force-delete-stateful-set-pod.md:36-37,86-87`).
+- General warning: "Forced deletions can be potentially disruptive for some workloads
+  and their Pods" (`reference/openshift/concepts-pod-lifecycle.md:985-987`).
+- Practical consequence (inferred): if shutdown is too slow, fix the `preStop`/signal
+  handling or raise the grace period (:932-933 documents raising it for slow hooks) —
+  don't zero it (inferred).
+
+## Contradictions / caveats
+
+- The "unsafe and strongly discouraged" wording appears in the StatefulSet force-delete
+  task doc; the pod-lifecycle concepts page carries the softer "potentially disruptive"
+  caution for forced deletion generally. No tier disagreement — both are the same
+  upstream k8s doc set snapshotted in `reference/openshift/`.
+
+## See also
+
+- [[openshift-implementation-review]]
+
+## References
+
+**Ground-truth corpus (`kb:`)**
+- kb:concepts-pod-lifecycle — Pod Lifecycle (termination flow, forced termination; lines 864-871, 922-926, 985-1002)
+- kb:tasks-force-delete-stateful-set-pod — Force Delete StatefulSet Pods (lines 29, 36-37, 51-53, 86-96)
+
+**Wiki + upstream**
+- Upstream source URLs are carried in the reference notes' frontmatter (kubernetes.io pod-lifecycle and force-delete-stateful-set-pod pages).
+
+## Sources
+<!-- crosslink:begin (generated by crosslink.py — do not edit) -->
+- [[concepts-pod-lifecycle|Pod Lifecycle]]
+- [[tasks-force-delete-stateful-set-pod|Force Delete StatefulSet Pods]]
+<!-- crosslink:end -->

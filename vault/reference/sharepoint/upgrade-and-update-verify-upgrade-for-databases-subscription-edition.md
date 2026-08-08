@@ -1,0 +1,100 @@
+---
+title: "Verify database upgrades in SharePoint Server Subscription Edition - SharePoint Server"
+type: reference
+domain: sharepoint
+slug: upgrade-and-update-verify-upgrade-for-databases-subscription-edition
+tier: reference
+source: https://learn.microsoft.com/en-us/sharepoint/upgrade-and-update/verify-upgrade-for-databases-subscription-edition
+family: upgrade-and-update
+documentKind: "upgrade-and-migration-article"
+abstract: "Learn how to verify when a database-attach upgrade to SharePoint Server Subscription Edition has finished, and identify any problems that may have occurred."
+---
+
+# Verify database upgrades in SharePoint Server Subscription Edition - SharePoint Server
+
+Note
+
+Verify database upgrades in SharePoint Server Subscription Edition
+
+# Verify database upgrades in SharePoint Server Subscription Edition
+
+**APPLIES TO:** 2013 2016 2019 Subscription Edition SharePoint in Microsoft 365
+
+After you upgrade databases to SharePoint Server Subscription Edition, you must verify that the content was successfully upgraded to the new version. You can verify the status of the database-attach upgrade (is it still in progress, or has it been completed successfully or with errors or failures?) to see whether issues remain for you to address. When you follow these steps as part of a trial upgrade, you can use them to identify customizations that have to be reworked before you attempt to upgrade your production environment. When you upgrade your production environment, it is even more important that you know whether the upgrade has completed and what issues remain to be addressed.
+
+Verify upgrade status for databases
+
+## Verify upgrade status for databases
+
+You can use the following methods to verify upgrade:
+
+Use the Upgrade Status page in Central Administration
+
+This page lists all farm, service, or content database upgrades and their statuses. This includes a count of errors or warnings.
+
+Review the log files to look for errors or warnings
+
+If upgrade was not successfully completed, you can view the log files to find the issues, address them, and then restart the upgrade process.
+
+Review the log files for database attach upgrade
+
+### Review the log files for database attach upgrade
+
+To verify that upgrade has succeeded, you can review the following log and error files:
+
+The upgrade log file and the upgrade error log file.
+
+Review the upgrade log file and the upgrade error log file (generated when you run the upgrade). The upgrade log file and the upgrade error log file are located at %COMMONPROGRAMFILES%\Microsoft Shared\Web server extensions\16\LOGS. The logs are named in the following format: Upgrade- *YYYYMMDD-HHMMSS-SSS-<GUID>*.log, where  *YYYYMMDD* is the date and  *HHMMSS-SSS* is the time (hours in 24-hour clock format, minutes, seconds, and milliseconds). The upgrade error log file combines all errors and warnings in a shorter file and is named Upgrade-  *YYYYMMDD-HHMMSS-SSS-<GUID>*-error.log.
+
+The format of the log files complies with the Unified Logging System (ULS) conventions. To review the log files to find and troubleshoot issues, start at the top of the files. Errors or warnings may be repeated if they occur for several site collections in the environment, or if they block the upgrade process completely. For example, if you cannot connect to the configuration database, the upgrade process will try (and fail) several times and these tries will be listed in the log file.
+
+If you find blocking issues in the log file, you can resolve the issues and then restart upgrade to continue with the process.
+
+Check the upgrade status for databases
+
+### Check the upgrade status for databases
+
+The Upgrade Status page lists the upgrade sessions and gives details about the status of each session — whether it succeeded or failed, and how many errors or warnings occurred for each server. The Upgrade Status page also includes information about the log and error files for the upgrade process and suggests remedies for issues that might have occurred.
+
+**To view upgrade status in SharePoint Central Administration:**
+
+- Verify that you have the following administrative credentials:
+
+- To use SharePoint Central Administration, you must be a member of the Farm Administrators group.
+
+- On the Central Administration home page, in the **Upgrade and Migration** section, click **Check upgrade status**.
+
+Validate the upgraded environment
+
+## Validate the upgraded environment
+
+After you determine whether upgrade was completed successfully, validate your environment. Review the following items:
+
+Service applications
+
+Are they configured correctly?
+
+Are the service application proxies configured the way that you want?
+
+Do you have to create new connections between farms?
+
+Site collections
+
+- Are all features associated with the sites working?
+
+Search
+
+Check that the search configuration settings are alike those in the SharePoint Server Subscription Edition farm.
+
+Run search queries, and verify that the queries work as expected and provide appropriate results. Twenty-four hours later, view the query reports and look for issues.
+
+Search for people and profiles.
+
+Check any Search customizations to make sure that they work as expected.
+
+Additional resources
+
+## Additional resources
+
+- Last updated on 
+		2023-01-26

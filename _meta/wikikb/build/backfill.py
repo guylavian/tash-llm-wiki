@@ -21,7 +21,7 @@ Tags are intentionally NOT backfilled — they belong to Pass 2 (taxonomy).
 question-tier stamps `question_tier:` on questions/*.md pages that don't yet carry
 one (right after `type:`), via a deterministic regex heuristic over title/body/
 frontmatter — see classify_tier(). When the assigned tier falls outside the page's
-domain's `tiers-covered:` (_meta/taxonomy.md, read the same way lint.py does — via
+domain's `tiers-covered:` (vault/taxonomy.md, read the same way lint.py does — via
 wikikb.quality.coverage.load_tiers_covered(), never re-parsed here) and the body
 carries no H1 out-of-coverage banner yet (wikikb.quality.lint.has_out_of_coverage_banner),
 also inserts the reader-facing banner line right after the first `# ` heading, in the

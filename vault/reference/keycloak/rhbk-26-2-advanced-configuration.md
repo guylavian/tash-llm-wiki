@@ -1,0 +1,362 @@
+---
+title: "Chapter 4. Advanced configuration - Red Hat build of Keycloak 26.2 Operator Guide"
+type: reference
+domain: keycloak
+slug: rhbk-26-2-advanced-configuration
+tier: reference
+source: https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2/html/operator_guide/advanced-configuration-
+guide: operator_guide
+version: 26.2
+family: rhbk
+documentKind: "Documentation"
+abstract: "Tune advanced aspects of the Keycloak CR. 4.1. Advanced configuration This chapter describes how to use Custom Resources (CRs) for advanced configuration of your Red Hat build of Keycloak deployment. 4.1.1. Server configuration details Many server options are exposed as first-class citizen fields in the Keycloak CR. The structure of the CR is based on the configuration structure of Red Hat build o…"
+---
+
+# Chapter 4. Advanced configuration - Red Hat build of Keycloak 26.2 Operator Guide
+
+Chapter 4. Advanced configuration
+Tune advanced aspects of the Keycloak CR.
+4.1. Advanced configuration
+This chapter describes how to use Custom Resources (CRs) for advanced configuration of your Red Hat build of Keycloak deployment.
+4.1.1. Server configuration details
+Many server options are exposed as first-class citizen fields in the Keycloak CR. The structure of the CR is based on the configuration structure of Red Hat build of Keycloak. For example, to configure the https-port
+of the server, follow a similar pattern in the CR and use the httpsPort
+field. The following example is a complex server configuration; however, it illustrates the relationship between server options and the Keycloak CR:
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+db:
+vendor: postgres
+usernameSecret:
+name: usernameSecret
+key: usernameSecretKey
+passwordSecret:
+name: passwordSecret
+key: passwordSecretKey
+host: host
+database: database
+port: 123
+schema: schema
+poolInitialSize: 1
+poolMinSize: 2
+poolMaxSize: 3
+http:
+httpEnabled: true
+httpPort: 8180
+httpsPort: 8543
+tlsSecret: my-tls-secret
+hostname:
+hostname: https://my-hostname.tld
+admin: https://my-hostname.tld/admin
+strict: false
+backchannelDynamic: true
+features:
+enabled:
+- docker
+- authorization
+disabled:
+- admin
+- step-up-authentication
+transaction:
+xaEnabled: false
+For a list of options, see the Keycloak CRD. For details on configuring options, see All configuration.
+4.1.1.1. Additional options
+Some expert server options are unavailable as dedicated fields in the Keycloak CR. The following are examples of omitted fields:
+- Fields that require deep understanding of the underlying Red Hat build of Keycloak implementation
+- Fields that are not relevant to an OpenShift environment
+- Fields for provider configuration because they are dynamic based on the used provider implementation
+The additionalOptions
+field of the Keycloak CR enables Red Hat build of Keycloak to accept any available configuration in the form of key-value pairs. You can use this field to include any option that is omitted in the Keycloak CR. For details on configuring options, see All configuration.
+The values can be expressed as plain text strings or Secret object references as shown in this example:
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+...
+additionalOptions:
+- name: spi-connections-http-client-default-connection-pool-size
+secret: # Secret reference
+name: http-client-secret # Name of the Secret
+key: poolSize # Name of the Key in the Secret
+- name: spi-email-template-mycustomprovider-enabled
+value: 'true' # Plain text value. Use quotes for numbers and boolean values.
+The name format of options defined in this way is identical to the key format of options specified in the configuration file. For details on various configuration formats, see Configuring Red Hat build of Keycloak.
+4.1.2. Secret References
+Secret References are used by some dedicated options in the Keycloak CR, such as tlsSecret
+, or as a value in additionalOptions
+.
+Similarly ConfigMap References are used by options such as the configMapFile
+.
+When specifying a Secret or ConfigMap Reference, make sure that a Secret or ConfigMap containing the referenced keys is present in the same namespace as the CR referencing it.
+The operator will poll approximately every minute for changes to referenced Secrets or ConfigMaps. When a meaningful change is detected, the Operator performs a rolling restart of the Red Hat build of Keycloak Deployment to pick up the changes.
+4.1.3. Unsupported features
+The unsupported
+field of the CR contains highly experimental configuration options that are not completely tested and are Tech Preview.
+4.1.3.1. Pod Template
+The Pod Template is a raw API representation that is used for the Deployment Template. This field is a temporary workaround in case no supported field exists at the top level of the CR for your use case.
+The Operator merges the fields of the provided template with the values generated by the Operator for the specific Deployment. With this feature, you have access to a high level of customizations. However, no guarantee exists that the Deployment will work as expected.
+The following example illustrates injecting labels, annotations, volumes, and volume mounts:
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+...
+unsupported:
+podTemplate:
+metadata:
+labels:
+my-label: "keycloak"
+spec:
+containers:
+- volumeMounts:
+- name: test-volume
+mountPath: /mnt/test
+volumes:
+- name: test-volume
+secret:
+secretName: keycloak-additional-secret
+4.1.3.1.1. Probe Timeouts
+The unsupported podTemplate may be used to override the default probes.
+In particular the default startup probe timeout of 10 minutes may be too short in scenarios where there is a long-running migration.
+If your instances encounter this startup failure or if you wish to proactively prevent such a startup failure from occurring, then the startup probe timeout should be increased.
+With otherwise default settings, something like the following increases the timeout to 20 minutes:
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+...
+unsupported:
+podTemplate:
+spec:
+containers:
+startupProbe:
+httpGet:
+path: "/health/started"
+port: 9000
+scheme: "HTTPS"
+failureThreshold: 1200
+periodSeconds: 1
+Note that the usage of a relative HTTP path, or an alternative management port, requires changes to the probe configuration.
+4.1.4. Disabling required options
+Red Hat build of Keycloak and the Red Hat build of Keycloak Operator provide the best production-ready experience with security in mind. However, during the development phase, you can disable key security features.
+Specifically, you can disable the hostname and TLS as shown in the following example:
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+...
+http:
+httpEnabled: true
+hostname:
+strict: false
+4.1.5. Resource requirements
+The Keycloak CR allows specifying the resources
+options for managing compute resources for the Red Hat build of Keycloak container. It provides the ability to request and limit resources independently for the main Keycloak deployment via the Keycloak CR, and for the realm import Job via the Realm Import CR.
+When no values are specified, the default requests
+memory is set to 1700MiB
+, and the limits
+memory is set to 2GiB
+. These values were chosen based on a deeper analysis of Red Hat build of Keycloak memory management.
+If no values are specified in the Realm Import CR, it falls back to the values specified in the Keycloak CR, or to the defaults as defined above.
+You can specify your custom values based on your requirements as follows:
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+...
+resources:
+requests:
+cpu: 1200m
+memory: 896Mi
+limits:
+cpu: 6
+memory: 3Gi
+Moreover, the Red Hat build of Keycloak container manages the heap size more effectively by providing relative values for the heap size. It is achieved by providing certain JVM options.
+For more details, see Running Red Hat build of Keycloak in a container.
+4.1.6. Scheduling
+You may control several aspects of the server Pod scheduling via the Keycloak CR. The scheduling stanza exposes optional standard Kubernetes affinity, tolerations, topology spread constraints, and the priority class name to fine tune the scheduling and placement of your server Pods.
+An example utilizing all scheduling fields:
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+scheduling:
+priorityClassName: custom-high
+affinity:
+podAffinity:
+preferredDuringSchedulingIgnoredDuringExecution:
+- podAffinityTerm:
+labelSelector:
+matchLabels:
+app: keycloak
+app.kubernetes.io/managed-by: keycloak-operator
+app.kubernetes.io/component: server
+topologyKey: topology.kubernetes.io/zone
+weight: 10
+tolerations:
+- key: "some-taint"
+operator: "Exists"
+effect: "NoSchedule"
+topologySpreadConstraints:
+- maxSkew: 1
+topologyKey: kubernetes.io/hostname
+whenUnsatisfiable: DoNotSchedule
+...
+...
+Please see the kubernetes docs for more on scheduling concepts.
+If you do not specify a custom affinity, your Pods will have an affinity for the same zone and an anti-affinity for the same node to improve availability. Scheduling to the same zone if possible helps prevent stretch clusters where cross zone cache cluster traffic may have too high of a latency.
+4.1.7. Management Interface
+To change the port of the management interface, use the first-class citizen field httpManagement.port
+in the Keycloak CR. To change the properties of the management interface, you can do it by providing additionalOptions
+field.
+You can specify the port
+and the additionalOptions
+as follows:
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+httpManagement:
+port: 9001
+additionalOptions:
+- name: http-management-relative-path
+value: /management
+If you are using a custom image, the Operator is unaware of any configuration options that might’ve been specified there. For instance, it may cause that the management interface uses the https
+schema, but the Operator accesses it via http
+when the TLS settings is specified in the custom image. To ensure proper TLS configuration, use the tlsSecret
+and truststores
+fields in the Keycloak CR so that the Operator can reflect that.
+For more details, see Configuring the Management Interface.
+4.1.8. Truststores
+If you need to provide trusted certificates, the Keycloak CR provides a top level feature for configuring the server’s truststore as discussed in Configuring trusted certificates.
+Use the truststores stanza of the Keycloak spec to specify Secrets containing PEM encoded files, or PKCS12 files with extension .p12
+, .pfx
+, or .pkcs12
+, for example:
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+...
+truststores:
+my-truststore:
+secret:
+name: my-secret
+Where the contents of my-secret could be a PEM file, for example:
+apiVersion: v1
+kind: Secret
+metadata:
+name: my-secret
+stringData:
+cert.pem: |
+-----BEGIN CERTIFICATE-----
+...
+When running on a Kubernetes or OpenShift environment well-known locations of trusted certificates are included automatically. This includes /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+and the /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+when present.
+4.1.9. Admin Bootstrapping
+When you create a new instance the Keycloak CR spec.bootstrapAdmin stanza may be used to configure the bootstrap user and/or service account. If you do not specify anything for the spec.bootstrapAdmin, the operator will create a Secret named "metadata.name"-initial-admin with a username temp-admin and a generated password. If you specify a Secret name for the bootstrap admin user, then the Secret will need to contain username
+and password
+key value pairs. If you specify a Secret name for bootstrap admin service account, then the Secret will need to contain client-id
+and client-secret
+key value pairs.
+If a master realm has already been created for your cluster, then the spec.boostrapAdmin is effectively ignored. If you need to create a recovery admin account, then you’ll need to run the CLI command against a Pod directly.
+For more information on how to bootstrap a temporary admin user or service account and recover lost admin access, refer to the Bootstrapping and recovering an admin account guide.
+4.1.10. Tracing (OpenTelemetry)
+Tracing allows for detailed monitoring of each request’s lifecycle, which helps quickly identify and diagnose issues, leading to more efficient debugging and maintenance.
+You can change tracing configuration via Keycloak CR fields as follows:
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+tracing:
+enabled: true # default 'false'
+endpoint: http://my-tracing:4317 # default 'http://localhost:4317'
+samplerType: parentbased_traceidratio # default 'traceidratio'
+samplerRatio: 0.01 # default '1'
+resourceAttributes:
+some.attribute: something
+additionalOptions:
+- name: tracing-jdbc-enabled
+value: false # default 'true'
+These fields should reflect 1:1 association with tracing-*
+options that contain more information.
+The tracing-jdbc-enabled
+is not promoted as a first-class citizen as it might not be well managed in the future, so it needs to be set via the additionalOptions
+field.
+For more details about tracing, see Root cause analysis with tracing.
+4.1.11. Network Policies
+NetworkPolicies allow you to specify rules for traffic flow within your cluster, and also between Pods and the outside world. Your cluster must use a network plugin that supports NetworkPolicy enforcement to restrict the network traffic.
+The operator automatically creates a NetworkPolicy to deny access to the clustering port of your Red Hat build of Keycloak Pods. The HTTP(S) endpoint is open to traffic from any namespace and the outside world.
+To disable the NetworkPolicy, set spec.networkPolicy.enabled
+in your Keycloak CR, as shown in the example below.
+Keycloak CR with Network Policies enabled
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+networkPolicy:
+enabled: false
+By default, traffic to the HTTP endpoints and the management endpoint is allowed from all sources. The Keycloak CR can be extended to include a list of rules for each of the endpoints exposed by Red Hat build of Keycloak. These rules specify from where (the source) the traffic is allowed, and it is possible to communicate with the Red Hat build of Keycloak Pods.
+Extended Network Policy configuration
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+networkPolicy:
+enabled: true
+http: <list of rules>
+https: <list of rules>
+management: <list of rules>
+- 1
+- It defines the rules for HTTP endpoint (port 8080 by default). Due to security reasons, the HTTP endpoint is disabled by default.
+- 2
+- It defines the access rules for HTTPS endpoint (port 8443 by default.
+- 3
+- It defines the access rules for management endpoint (port 9000 by default). The management endpoint is used by the Kubernetes Probes and to expose the Red Hat build of Keycloak metrics.
+The rule syntax is the same as the one used by the Kubernetes Network Policy. It makes it easy to migrate your existing rules into your Keycloak CP. For more information, check the rule syntax.
+4.1.11.1. Example with OpenShift
+For a concrete example, let’s imagine we have a Red Hat build of Keycloak deployment running in a OpenShift cluster. Users have to access Red Hat build of Keycloak to login, so Red Hat build of Keycloak must be accessible from the Internet.
+To make this example more interesting, let’s assume the Red Hat build of Keycloak is monitored too. The monitoring is enabled as described in this OpenShift documentation page: enabling Monitoring for user defined projects.
+Based on those requirements, the Keycloak CR would be like this (most parts are omitted, like DB connection and security):
+Keycloak CR
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+name: example-kc
+spec:
+ingress:
+enabled: true
+networkPolicy:
+enabled: true
+https:
+- namespaceSelector:
+matchLabels:
+kubernetes.io/metadata.name: openshift-ingress
+management:
+- namespaceSelector:
+matchLabels:
+kubernetes.io/metadata.name: openshift-user-workload-monitoring
+- 1
+- Enables Ingress for outside access.
+- 2
+- The default OpenShift Ingress class pods are running in
+openshift-ingress
+namespace. We allow traffic from these pods to access the Red Hat build of Keycloak HTTPS endpoint. The traffic from outside the OpenShift cluster goes through these pods. - 3
+- Prometheus pods are running in
+openshift-user-workload-monitoring
+. They need to access Red Hat build of Keycloak to scrape the available metrics.
+Check the Kubernetes Network Policies documentation for more information about NetworkPolicies.

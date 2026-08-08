@@ -1,0 +1,44 @@
+---
+title: "bitsadmin setaclflag"
+type: reference
+domain: windows-server
+slug: administration-bitsadmin-setaclflag
+tier: reference
+source: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/bitsadmin-setaclflag
+family: administration
+documentKind: "reference"
+abstract: "Reference article for the bitsadmin setaclflag command, which sets the access control list (ACL) propagations flags."
+---
+
+# bitsadmin setaclflag
+
+# bitsadmin setaclflag
+
+Sets the access control list (ACL) propagations flags for the job. The flags indicate that you want to maintain the owner and ACL information with the file being downloaded. For example, to maintain the owner and group with the file, set the **flags** parameter to `og`.
+
+## Syntax
+
+```
+bitsadmin /setaclflag <job> <flags>
+```
+
+### Parameters
+
+| Parameter | Description |
+| --------- | ----------- |
+| job | The job's display name or GUID. |
+| flags | Specify one or more of the values, including:<ul><li>**o** - Copy owner information with file.</li><li>**g** - Copy group information with file.</li><li>**d** - Copy discretionary access control list (DACL) information with file.</li><li>**s** - Copy system access control list (SACL) information with file.</li></ul> |
+
+## Examples
+
+To set the access control list propagation flags for the job named *myDownloadJob*, so it maintains the owner and group information with the downloaded files.
+
+```
+bitsadmin /setaclflags myDownloadJob og
+```
+
+## Related links
+
+- [Command-Line Syntax Key](command-line-syntax-key.md)
+
+- [bitsadmin command](bitsadmin.md)

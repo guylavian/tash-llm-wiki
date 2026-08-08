@@ -1,0 +1,395 @@
+---
+title: "Chapter 11. Managing access to realm resources - Red Hat build of Keycloak 26.2 Server Administration Guide"
+type: reference
+domain: keycloak
+slug: rhbk-26-2-admin-permissions
+tier: reference
+source: https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2/html/server_administration_guide/admin_permissions
+guide: server_administration_guide
+version: 26.2
+family: rhbk
+documentKind: "Documentation"
+abstract: "Each realm created on the Red Hat build of Keycloak has a dedicated Admin Console from which that realm can be managed. The master realm is a special realm that allows admins to manage more than one realm on the system. This chapter goes over all the scenarios for this. 11.1. Master realm access control The master realm in Red Hat build of Keycloak is a special realm and treated differently than o…"
+---
+
+# Chapter 11. Managing access to realm resources - Red Hat build of Keycloak 26.2 Server Administration Guide
+
+Chapter 11. Managing access to realm resources
+Each realm created on the Red Hat build of Keycloak has a dedicated Admin Console from which that realm can be managed. The master
+realm is a special realm that allows admins to manage more than one realm on the system. This chapter goes over all the scenarios for this.
+11.1. Master realm access control
+The master
+realm in Red Hat build of Keycloak is a special realm and treated differently than other realms. Users in the Red Hat build of Keycloak master
+realm can be granted permission to manage zero or more realms that are deployed on the Red Hat build of Keycloak server. When a realm is created, Red Hat build of Keycloak automatically creates various roles that grant permissions to access that new realm. Access to The Admin Console and Admin REST endpoints can be controlled by mapping these roles to users in the master
+realm. It’s possible to create multiple superusers, as well as users that can only manage specific realms.
+11.1.1. Global roles
+There are two realm-level roles in the master
+realm. These are:
+- admin
+- create-realm
+Users with the admin
+role are superusers and have full access to manage any realm on the server. Users with the create-realm
+role are allowed to create new realms. They will be granted full access to any new realm they create.
+11.1.2. Realm specific roles
+Admin users within the master
+realm can be granted management privileges to one or more other realms in the system. Each realm in Red Hat build of Keycloak is represented by a client in the master
+realm. The name of the client is <realm name>-realm
+. These clients each have client-level roles defined which define varying level of access to manage an individual realm.
+The roles available are:
+- create-client
+- impersonation
+- manage-authorization
+- manage-clients
+- manage-events
+- manage-identity-providers
+- manage-realm
+- manage-users
+- query-clients
+- query-groups
+- query-realms
+- query-users
+- view-authorization
+- view-clients
+- view-events
+- view-identity-providers
+- view-realm
+- view-users
+Assign the roles you want to your users and they will only be able to use that specific part of the administration console.
+Admins with the manage-users
+role will only be able to assign admin roles to users that they themselves have. So, if an admin has the manage-users
+role but doesn’t have the manage-realm
+role, they will not be able to assign this role.
+11.2. Dedicated realm admin consoles
+Each realm has a dedicated Admin Console that can be accessed by going to the url /admin/{realm-name}/console
+. Users within that realm can be granted realm management permissions by assigning specific user role mappings.
+Each realm has a built-in client called realm-management
+. You can view this client by going to the Clients
+left menu item of your realm. This client defines client-level roles that specify permissions that can be granted to manage the realm.
+- create-client
+- impersonation
+- manage-authorization
+- manage-clients
+- manage-events
+- manage-identity-providers
+- manage-realm
+- manage-users
+- query-clients
+- query-groups
+- query-realms
+- query-users
+- realm-admin
+- view-authorization
+- view-clients
+- view-events
+- view-identity-providers
+- view-realm
+- view-users
+Assign the roles you want to your users and they will only be able to use that specific part of the administration console.
+11.3. Delegating realm administration using permissions
+You can delegate realm management to other administrators, the realm administrators, using the fine-grained admin permissions feature. Different from the Role-Based Access Control (RBAC) Mechanism provided through the Global and Realm specific roles, this feature provides a more fine-grained control over how realm resources can be accessed and managed based on a well-defined set of operations that can be performed on them.
+By relying on a Policy-Based Access Control, server administrators can define permissions to realm resources such as users, groups, and clients, using different policy types, or access control methods, so that a realm administrator is limited to access a subset of realm resources and their operations.
+The feature provides an alternative to the aforementioned RBAC mechanism, but it does not replace it. You are still able to grant administrative roles like view-users
+or manage-clients
+to delegate access to realm administrators but doing so will skip the mechanisms provided by this feature.
+Enforcing access to realm resources only applies when managing resources through the administration console or the Admin API.
+11.3.1. Understanding the Realm Resource Types
+In a realm, you can manage different types of resources such as users, groups, clients, client scopes, roles, and so on. As a realm administrator, you are constantly managing these resources when managing identities and how they authenticate and are authorized to access a realm and applications.
+This feature provides the necessary mechanisms to enforce access controls when managing realm resources, limited to:
+- Users
+- Groups
+- Clients
+- Roles
+You can manage permissions for all resources of a given resource type, such as all users in a realm, or for a specific realm resource, such as a specific user or set of users in the realm.
+11.3.2. Understanding the scopes of access
+Each realm resource supports a well-defined set of management operations, or scopes, that can be performed on them, such as view
+, manage
+, and resource-specific operations such as view-members
+, if you take groups as an example.
+When managing permissions, you are selecting a set of one or more scopes from a resource type to allow realm administrators to perform specific operations on a resource type. For instance, granting a view
+scope will give access to realm administrators to list, search, and view a realm resource. On the other hand, the manage
+scope will allow administrators to perform updates and deletes on them.
+The scopes are completely independent of each other. If you give access to manage
+a realm resource, that does not mean the view
+scope is granted automatically. No transitive dependency exists between scopes. Although this might impact the overall user experience when managing permissions because you need to select individual scopes, the benefit is that you can more easily identify the permissions that enforce access to a specific scope.
+Certain scopes from a resource type have a relationship (not a transitive dependency) to scopes in another resource type. This relationship is mainly true when you manage a resource type that represents a group of realm resources, such as realm groups and their members.
+11.3.2.1. Users Resource Type
+The Users realm resource type represents the users in a realm. You can manage permissions for users based on the following set of scopes:
+| Scope | Description | Also granted by |
+|---|---|---|
+| view | Defines if a realm administrator can view users. This scope should be set whenever you want |
+|
+| manage | Defines if a realm administrator can manage users. |
+|
+| manage-group-membership | Defines if a realm administrator can assign or unassign users to/from groups. | None |
+| map-roles | Defines if a realm administrator can assign or unassign roles to/from users. | None |
+| impersonate | Defines if a realm administrator can impersonate other users. |
+|
+The user resource type has a strong relationship with some of the permissions you can set to groups. Most of the time, users are members of groups and granting access to view-members
+or manage-members
+of a group should also allow a realm administrator to view
+and manage
+members of that group.
+This feature does not support enforcing access to federated resource, however, this limitation is being considered for future improvement.
+11.3.2.2. Groups Resource Type
+The Groups realm resource type represents the groups in a realm. You can manage permissions for groups based on the following set of management operations:
+| Operation | Description |
+|---|---|
+| view | Defines if a realm administrator can view groups. This scope should be set whenever you want to make groups available from queries. |
+| manage | Defines if a realm administrator can manage groups. |
+| view-members | Defines if a realm administrator can view group members. This operation applies to any child group in the group hierarchy. This can be prevented by explicitly denying permission for specific subgroups. |
+| manage-members | Defines if a realm administrator can manage group members. This operation applies to any child group in the group hierarchy. This can be prevented by explicitly denying permission for specific subgroups. |
+| impersonate-members | Defines if a realm administrator can impersonate group members. This operation applies to any child group in the group hierarchy. This can be prevented by explicitly denying permission for specific subgroups. |
+| manage-membership | Defines if a realm administrator can add or remove members from groups. |
+11.3.2.3. Clients Resource Type
+The Clients realm resource type represents the clients in a realm. You can manage permissions for clients based on the following set of management operations:
+| Operation | Description |
+|---|---|
+| view | Defines if a realm administrator can view clients. This scope should be set whenever you want to make clients available from queries. |
+| manage | Defines if a realm administrator can manage clients. |
+| map-roles | Defines if a realm administrator can assign any role defined by a client to a user. |
+| map-roles-composite | Defines if a realm administrator can assign any role defined by a client as a composite to another role. |
+| map-roles-client-scope | Define if a realm administrator can assign any role defined by a client to a client scope. |
+The map-roles operation does not grant the ability to manage users or assign roles arbitrarily. The administrator must also have user role mapping permissions on the user.
+11.3.2.4. Roles Resource Type
+The Roles realm resource type represents the roles in a realm. You can manage permissions for roles based on the following set of management operations:
+| Operation | Description |
+|---|---|
+| map-role | Defines if a realm administrator can assign a role (or multiple roles) to a user. |
+| map-role-composite | Defines if a realm administrator can assign a role (or multiple roles) as a composite to another role. |
+| map-role-client-scope | Defines if a realm administrator can apply a role (or multiple roles) to a client scope. |
+The map-roles operation does not grant the ability to manage users or assign roles arbitrarily. The administrator must also have user role mapping permissions on the user.
+If there is a client resource type permission for the map-roles, map-roles-composite, or map-roles-client-scope scopes, it will take precedence over any role resource type permission if the role is a client role.
+11.3.3. Enabling admin permissions to a realm
+To enable fine-grained admin permissions in a realm, follow these steps:
+- Log in to the Admin Console.
+- Click Realm settings.
+- Enable Admin Permissions and click Save.
+Once enabled, a Permissions section appears in the left-side menu of the administration console.
+From this section, you can manage the permissions for realm resources.
+11.3.4. Managing Permissions
+The Permissions tab provides an overview of all active permissions within a realm. From here, administrators can create, update, delete, or search for permissions. You can also pre-evaluate the permissions you have created to check if they are enforcing access to realm resources as expected. For more details, see Evaluating Permissions.
+To create a permission, click on the Create permission
+button and select the resource type you want to protect.
+Once you select the resource type, you can now define how access should be enforced for a set of one or more resources of the selected type:
+When managing a permission you can define the following settings:
+- Name: A unique name for the permission. The name should also not conflict with any policy name
+- Description: An optional description to better describe what the permission is about
+- Authorization scopes: A set of one or more scopes representing the operations you want to protect for the selected resource type. An administrator must have explicit permission assigned for each operation to perform the corresponding action. For example, assigning only manage without view will prevent the user from being visible.
+- Enforce access to: Defines if the permission should enforce access to all resources of the selected type or to specific resources in a realm.
+- Policies: Defines a set of one or more policies that should be evaluated to grant or deny access to the selected resource(s).
+After creating the permission, it will automatically take effect when enforcing access to (all) resources and scopes you selected. Keep that fact in mind when creating and updating permissions in production.
+11.3.4.1. Defining permissions for viewing realm resources
+This feature relies on a partial evaluation mechanism to partially evaluate the permissions that a realm administrator has when listing and viewing realm resources. This mechanism will pre-fetch all the permissions set for view-related scopes where the realm administrator is referenced either directly or indirectly.
+Permissions that grant access to view
+a realm resource of a certain type must use one of the following policies to make them available from queries:
+-
+User
+-
+Group
+-
+Role
+By using any of the policies above, Red Hat build of Keycloak can pre-calculate the set of resources that a realm administration can view by looking for a direct (if using a user policy) or indirect (if using a role or group policy) reference to the realm administrator. Therefore, the partial evaluation mechanism involves decorating queries with access controls that will run at the database level. This capability is mainly important to properly allow paginating resources as well as avoid an additional overhead on the server-side when evaluating permissions for each realm resource returned by queries.
+Partial evaluation and filtering occurs only if the feature is enabled to a realm, and if the user is not granted with view-related administrative roles like view-users
+or view-clients
+. For instance, it will not happen for regular server administrators granted with the admin
+role.
+When querying resources, the partial evaluation mechanism works as follows:
+- Resolve all the permissions for a certain resource type that reference the realm administrator
+- Pre-evaluate each permission to check if the realm administrator does or does not have access to the resources associated with the permission
+- Decorate database queries based on the resources granted or denied
+As a result, the result set of a query will hold only the realm resources where realm administrators have access to any of the view-related scopes.
+11.3.4.2. Searching Permissions
+The Admin Console provides several ways to search for permissions, supporting the following capabilities:
+- Search for permissions that contain a specific string in their Name
+- Search for permissions of a specific resource type, such as Users
+-
+Search for permissions of a specific resource type that apply to a particular resource (such as Users resource type for user
+myadmin
+). - Search for permissions of a specific resource type with a given scope (such as Users resource type permissions with the manage scope).
+-
+Search for permissions of a specific resource type that apply to a particular resource and have a specific scope (such as Users resource type permissions with the manage scope for user
+myadmin
+).
+Fine grained permissions search
+These capabilities allow server administrators to perform queries on their universe of permissions and identify which ones are enforcing access to a set of one or more realm resources and their scopes. Combined with the evaluation tool on the Evaluation tab, they provide a key management tool for managing permissions in a realm. See Evaluating Permissions for more details.
+11.3.5. Managing Policies
+The Policies tab allows administrators to define conditions using different access control methods to determine whether a permission should be granted to an administrator attempting to perform operations on a realm resource. When managing permissions, you must associate at least a single policy to grant or deny access to a realm resource.
+Policies are basically conditions that will evaluate to either a GRANT
+or a DENY
+. Their outcome will decide whether a permission should be granted or denied.
+A permission is only granted if all its associated policies evaluate to a GRANT
+. Otherwise, the permission is denied and a realm administrator will not be able to access the protected resource.
+Red Hat build of Keycloak provides a set of built-in policies that you can choose from:
+Once you have a well-defined and stable permission model for your realm, less need exists to create policies. You can instead reuse existing policies to create more permissions.
+For more details about each policy type, see Managing policies.
+11.3.6. Evaluating Permissions
+The Evaluation tab provides a testing environment where administrators can verify that permissions are enforcing access as expected. The administrator can see what permissions are involved when enforcing access to a particular resource and what the outcome is.
+You need to provide a set of fields in order to run an evaluation:
+-
+User
+, the realm administrator or the subject trying to access a resource -
+Resource Type
+, the resource type you want to evaluate -
+Resource Selector
+, depending on the selectedResource Type
+you will be prompted to select a specific realm resource like a user, group, or client. -
+Authorization scope
+, the scope or the operation you want to evaluate. If not provided, the evaluation will happen for all the scopes of the selected resource type.
+Fine grained permissions evaluation tab
+By clicking the Evaluate
+button, the server will evaluate all the permissions associated with the selected resource and scopes just like if the selected User
+were trying to access the resource when using the administration console or the Admin API.
+For instance, in the example above you can see that the user myadmin
+can manage user user-1
+because a Allow managing all realm users
+permission voted to a PERMIT
+, therefore granting access to the manage
+scope. However, all the other scopes were denied.
+Combined with the searching capabilities from the Permissions tab, you can perform troubleshooting to identify any permission that is not behaving as expected.
+When evaluating permissions, the following rules apply:
+- The outcome from resource-specific permissions have precedence over broader permissions that give access to all resources of a certain type
+- If no permissions exist for a specific resource, access will be granted based on the permission that grants access to all resources of a certain type
+- The outcome from different permissions that enforce access to a specific resource will only grant access if they all permit access to the resource
+11.3.6.1. Resolving conflicting permissions
+Permissions can have multiple policies associated with them. As the authorization model evolves, it is common for some policies within a permission or even different permissions related to a specific resource to conflict.
+The evaluation outcome will be "denied" whenever any permission is evaluated to "DENY." If there are multiple permissions related to the same resource, all of them must grant access in order for the outcome to be "granted."
+Fine-grained admin permissions allow you to set up permissions for individual resources or for the resource type itself (such as all users, all groups, and so on.). If a permission or permissions related to a specific resource exist, the "all-resource" permission is NOT taken into account during evaluation. If no specific permission exists, the fallback is to the "all-resource" permission. This approach helps address scenarios like allowing members of the realm-admins
+group to manage members of realm groups, but preventing them from managing members of the realm-admins
+group themselves.
+11.3.7. Accessing a Realm administration console as a Realm Administrator
+Realm administrators can access a dedicated realm-specific administration console that allows them to manage resources within their assigned realm. This console is separate from the main Red Hat build of Keycloak Admin Console, which is typically used by server administrators.
+For more details on dedicated realm administration consoles and available roles, refer to: Dedicated admin consoles.
+To access the administration console, a realm administrator must have at least one of the following roles assigned, depending on the resources they need to administer:
+- query-users – Required to query realm users.
+- query-groups – Required to query realm groups.
+- query-clients – Required to query realm clients.
+By granting any of these roles to a realm user, they will be able to access the administration console, but only for the areas that correspond to roles granted. For instance, if you assign the query-users
+role, the realm administrator will only have access to the Users
+section in the administration console. If an administrator is responsible for multiple resource types (such as both users and groups), they must have all the corresponding "query-*" roles assigned.
+These roles enable basic access to query resources but do not grant permission to view or modify them. To grant or deny access to realm resources you need to set up the permissions for any of the operations available from each resource type. For more details, see Managing Permissions.
+11.3.7.1. Roles and Permission relationship
+Fine grained permissions are used to grant additional permissions. You cannot override the default behavior of the built-in admin roles. If a realm administrator is assigned one or more admin roles, it prevents the permissions from being evaluated. This means that if a respective admin role is assigned to a realm administrator, permission evaluation will be bypassed, and access will be granted.
+| Admin Role | Description |
+|---|---|
+| query-users | A realm administrator can see the Users section in administration console and can search for users in the realm. It does not grant the ability to view users. |
+| query-groups | A realm administrator can see the Groups section in administration console and can search for groups in the realm. It does not grant the ability to view groups. |
+| query-clients | A realm administrator can see the Clients section in administration console and can search for clients in the realm. It does not grant the ability to view clients. |
+| view-users | A realm administrator can view all users and groups in the realm. |
+| manage-users | A realm administrator can view, map-roles, manage-group-membership and manage all users in the realm, as well as view, manage-membership and manage groups in the realm. |
+| impersonation | A realm administrator can impersonate all users in the realm. |
+| view-clients | A realm administrator can view all clients in the realm. |
+| manage-clients | A realm administrator can view and manage all clients and client scopes in the realm. |
+11.3.8. Understanding some common use cases
+Consider a situation where an administrator wants to allow a group of administrators to manage all users in the realm except those that belong to the administrators group. This example includes a test
+realm and a test-admins
+group.
+11.3.8.1. Allowing to manage users by group of administrators
+Create user permission permission, allowing to view and manage all users in the realm for members of the test-admins
+group:
+- Navigate to the Permissions tab in the administration console.
+- Click Create permission and choose Users resource type.
+-
+Fill in the name, such as
+Disallow managing test-admins
+. - Choose view and manage authorization scopes, keep checked All Users.
+- Create a condition, which needs to be met to get an access by clicking Create new policy.
+-
+Fill in the name
+Allow test-admins
+, select Group as Policy type. -
+Click Add groups button and select
+test-admins
+group, click Save. - Click Save on Create permission page.
+11.3.8.2. Allowing to manage users by group of admins but not group members
+Let’s exlude the members of the group itself, so that test-admins
+cannot manage other admins.
+- Create new permission by clicking Create permission.
+- This time choose Groups resource type.
+-
+Fill in the name, such as
+Disallow managing test-admins
+. - Choose manage-members authorization scope.
+-
+Select Specific Groups and choose
+test-admins
+group. - Create new policy of type Group.
+-
+Fill the name
+Disallow test-admins
+and selecttest-admins
+group. - Switch to Negative Logic for the policy, Save the policy
+- Save the permission
+11.3.8.3. Allowing to impersonate users for members of a group with a specific role assigned
+- Create a "User Permission" for specific users (or all users) you want to allow impersonation.
+-
+Create a "Group Policy" allowing access to members of
+test-admins
+. -
+Create a "Role Policy" allowing access to users assigned the
+impersonation-admin
+role. - Assign both policies to the permission.
+11.3.8.4. Blacklisting specific users from being impersonated
+- Create a User Permission for the specific users you want to prevent from being impersonated.
+- Create any policy that evaluates to deny (such as a user policy with no users selected).
+- Assign the policy to the permission to effectively block impersonation for the selected users.
+11.3.8.5. Allowing to view users but not managing them for admins with a defined role assigned
+- Create a "User Permission" with the view scope for all users.
+- Create a "Role Policy" allowing access to users with specific role assigned.
+-
+Do not assign the
+manage
+scope to prevent modification of user details.
+11.3.8.6. Allowing to manage users and role assignment for members of a group
+- Create a "User Permission" with the manage, map-roles scopes for all users.
+-
+Create a "Group Policy" allowing access to members of
+test-admins
+.
+11.3.8.7. Allowing to view and manage members of a group but not members of its subgroups
+-
+Create a "Group Permission" with the view-members and manage-members scopes for specific group
+mygroup
+. -
+Assign a "Group Policy" targeting
+test-admins
+to it. -
+Create another "Group Permission" with the view-members and manage-members scopes for specific group, select all subgroups of the
+mygroup
+. -
+Create negative "Group Policy" for
+test-admins
+and assign it to the "subgroups" permission.
+11.3.8.8. Allowing to impersonate members of a specific group
+-
+Create a "Group Permission" with the impersonate-members for specific group
+mygroup
+. -
+Assign a "Group Policy" targeting
+mygroup-helpdesk
+to it.
+11.3.9. Performance considerations
+When enabling the feature to a realm, there is an additional overhead when realm administrators are managing any of the supported resource types. This is mainly true when performing these operations:
+- Listing and searching
+- Updating or deleting
+The feature introduces additional checks whenever you are listing or managing realm resources in order to enforce access based on the permissions you have defined. This is mainly true when querying realm resources due to the additional overhead to partially evaluate the permissions for a realm administrator to filter and paginate the results.
+Fewer permissions referencing a realm administrator user and most of the resources they can access is better. For instance, if you want to delegate access to a realm administrator to manage users, it is better to have those users as members of a group. By doing that, you are improving not only the performance when evaluating permissions but also creating a permission model that is easier to manage.
+The main impact of access enforcement is when querying realm resources. If a realm administrator is, for instance, referenced in thousands of permissions through a user, role, or group policy, the partial evaluation mechanism that happens when querying realm resources will query all those permissions from the database. A more concise and optimized model will help to fetch fewer permissions but the enough to grant or deny access to realm resources.
+For instance, granting access to a realm administrator to view and manage users in a realm is better done with a group permission than create individual permissions for each individual user in a realm. As well as make sure the policies associated with a permission referencing a realm administrator either by a direct reference (user policy), or indirect (role or group policy) reference, do not span multiple (thousands of) permissions, regardless of the resource type.
+As an example, suppose you have three users in a realm, and you want to allow bob
+, a realm administrator, to view
+and manage
+them. A non-optimal permission model would create three different permissions, for each user, where a user policy grants access to bob
+. Instead, you can have a single group permission, or even a single user permission, that groups those three users while still granting access to bob
+using the same user policy.
+The same is true if you want to give access to more realm administrators to those three users. Instead of creating individual policies, you can consider using a group or role policy instead. The permission model is use-case-specific, but these recommendations are important to provide not only better manageability but also improve the overall performance of the server when managing realm resources.
+In terms of server configuration, depending on the size of your realm and the number of permissions and policies you have, you might consider changing the cache configuration to increase the size of the following caches:
+-
+realms
+-
+users
+-
+authorization
+Consider looking at the server metrics for these caches to find the best value when sizing your deployment.
+When filtering resources, the partial evaluation mechanism will eventually rely on IN
+clauses in SQL statements to filter the results. Depending on your database, you might have limitations on the number of parameters for the IN
+clause. That is the case for old versions of the Oracle database, which has a hard limit to 1000 parameters. To avoid such problems, keep in mind the considerations above about the number of permissions that grants or deny access to a single realm administrator.

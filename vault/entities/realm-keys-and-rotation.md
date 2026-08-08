@@ -1,0 +1,98 @@
+---
+title: Realm keys and rotation
+type: entity
+domain: keycloak
+slug: realm-keys-and-rotation
+summary: "Each realm uses asymmetric key pairs (one active, optionally several passive) supplied by key providers to sign and sometimes encrypt the tokens, cookies, and SAML documents that protocols require; keys are rotated by adding a higher-priority provider and later removing the old one."
+sources:
+  - guide:server_administration_guide
+  - kb:configuring-realms
+  - kb:admin_cli
+source_notes:
+  - "[[rhbk-26-4-configuring-realms]]"
+  - "[[rhbk-26-4-admin-cli]]"
+provenance_extracted: 12
+provenance_inferred: 1
+provenance_ambiguous: 0
+tags: [realm]
+status: draft
+updated: 2026-07-02
+graph_community: "Keycloak as IaC — the Terraform Provider (keycloak/keycloak)"
+---
+
+# Realm keys and rotation
+
+**Each realm uses asymmetric key pairs (one active, optionally several passive) supplied by key providers to sign and sometimes encrypt the tokens, cookies, and SAML documents that protocols require; keys are rotated by adding a higher-priority provider and later removing the old one.**
+
+## Active vs. passive keys
+A realm has **one active key pair at a time** plus optionally several **passive**
+keys. The active pair creates new signatures; passive pairs only **verify** older
+signatures. A pair can be `Active` yet not be *the selected* active pair — the
+realm's signing key is the active pair from the **highest-priority key provider**
+that can supply one. On realm creation a key pair and self-signed certificate are
+auto-generated. View keys under **Realm settings → Keys** (filter Active / Passive /
+Disabled).
+
+## Key providers
+Add via **Keys → Providers → Add provider**:
+- **rsa-generated** — generates a key pair + self-signed cert. Set `Priority`
+  (highest number wins as active) and AES Key size. Changing priority does **not**
+  regenerate keys; changing key size does.
+- **rsa** — import an externally obtained PEM private key (+ optional X509 cert; a
+  self-signed cert is generated if none is uploaded).
+- **java-keystore** — load a key pair from a JKS/PKCS12/BCFKS keystore on the host.
+  Specify Algorithm (must match key type — `RS256`→RSA, `ES256`→EC, `AES`→AES secret),
+  keystore path, passwords (can reference an external vault), Key Alias, and Key Use
+  (`sig` or `enc`). Note: `JKS` (all modes) and `PKCS12` under FIPS/BCFIPS **cannot
+  store secret-key entries**.
+
+## Rotating keys (recommended procedure)
+1. Create new keys with **higher priority** than the active keys (or same priority and
+   make the old ones passive).
+2. New tokens/cookies are signed with the new keys; SSO cookies and refreshed OIDC
+   tokens migrate to the new keys over time.
+3. After a transition window, delete the old keys.
+
+Recommended cadence: create new keys **every 3–6 months**, delete old keys **1–2 months
+later**. A user inactive across the whole window must re-authenticate. Offline tokens
+must be refreshed before old keys are removed.
+
+**Making a key passive / disabling:** edit the provider and toggle `Active` Off (passive)
+or `Enabled` Off (disabled).
+
+## Compromised keys
+Signing keys never leave the server. If a signing key is compromised: generate a new
+key pair, then immediately **remove** the compromised pair (or delete its provider), and
+push a **not-before / revocation** policy from the Admin Console
+(`security-admin-console` client → set Admin URL → Advanced → Revocation → *Set to now*
+→ *Push*). REST and confidential clients must have an **Admin URL** set so the not-before
+policy can be pushed; this forces clients to download new public keys and invalidates
+tokens signed by the compromised key. See [[security-hardening-checklist]].
+
+## Via kcadm.sh
+- List: `kcadm.sh get keys -r demorealm`
+- Generate (component of providerType `org.keycloak.keys.KeyProvider`, `parentId` = realm id):
+  `kcadm.sh create components -r demorealm -s name=rsa-generated -s providerId=rsa-generated -s providerType=org.keycloak.keys.KeyProvider -s parentId=<realmId> -s 'config.priority=["101"]' -s 'config.active=["true"]' -s 'config.enabled=["true"]' -s 'config.keySize=["2048"]'`
+- Make passive: `kcadm.sh update components/<PROVIDER_ID> -r demorealm -s 'config.active=["false"]'`
+- Delete: `kcadm.sh delete components/<PROVIDER_ID> -r demorealm` (disable first).
+See [[kcadm-cli]].
+
+## Contradictions / caveats
+- Bodies sourced are RHBK **26.0**; the Keys chapter is present and consistent in
+  26.2/26.4 primary results. Specific JWS algorithms beyond RSA/EC/AES (e.g. EdDSA)
+  are version-dependent — confirm against the exact RHBK version (26.0/26.2/26.4/26.6).
+- `clear-keys-cache` only flushes the key cache; it does not rotate keys (inferred — not covered by the cited chapters).
+
+## See also
+- [[realm-administration]]
+- [[oidc-token-validation]]
+- [[tokens-and-sessions]]
+- [[security-hardening-checklist]]
+- [[kcadm-cli]]
+
+## Sources
+<!-- crosslink:begin (generated by crosslink.py — do not edit) -->
+- [[_ref-keycloak-server_administration_guide|keycloak reference — server_administration_guide]]
+- [[rhbk-26-4-configuring-realms|Chapter 3. Configuring realms]]
+- [[rhbk-26-4-admin-cli|Chapter 18. Admin CLI]]
+<!-- crosslink:end -->

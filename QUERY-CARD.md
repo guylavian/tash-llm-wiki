@@ -42,8 +42,8 @@ Goal: answer a question, and leave the wiki richer than you found it.
    to a reference note) — that gap is the dense/embedding layer's job.
 3. If the pages and their graph neighborhood are still thin, fall back to the **raw
    reference tier — which also lives in the vault** (RETRIEVAL fallback, cheap-first):
-   grep `reference/<domain>/` (the full doc bodies, one Markdown note per source) for a
-   corpus-backed domain, or `_sources/<domain>/` for a notes-first domain. **There
+   grep `vault/reference/<domain>/` (the full doc bodies, one Markdown note per source) for a
+   corpus-backed domain, or `vault/_sources/<domain>/` for a notes-first domain. **There
    is no separate corpus query tool** — Obsidian/the vault holds all the data, so
    ripgrep/grep over Markdown + reading the matched notes *is* the search (the gated
    pointers are in `reference/<domain>/_gated-kb-index.md` — cite the URL). **Optional
@@ -108,7 +108,7 @@ returning a QUERY answer, run this **deterministic checklist** — compute every
 
 **Inputs** (per page used; provenance from the flat `provenance_*` keys):
 `q_tier` = the question's tier-class (`conceptual` | `support-kb` | `scenarios`) ·
-`covered` = the routed domain's `tiers-covered:` (`_meta/taxonomy.md`) ·
+`covered` = the routed domain's `tiers-covered:` (`vault/taxonomy.md`) ·
 `extracted` = `provenance_extracted` (0 if absent) · `inferred` = `provenance_inferred` ·
 `status`.
 
@@ -184,9 +184,9 @@ If the search genuinely yields no clear answer after real effort, say so explici
 presenting a guess as settled fact.
 
 **Scope: this protocol is domain-agnostic.** It binds for EVERY domain declared in
-`_meta/taxonomy.md` (keycloak, openshift/kubernetes, active-directory, cisco-ios-xe, and
+`vault/taxonomy.md` (keycloak, openshift/kubernetes, active-directory, cisco-ios-xe, and
 any domain added later via ADD DOMAIN). A query is never exempt because its domain has a
-sibling skill, its corpus lives in a different `reference/<domain>/` tree, or the answer
+sibling skill, its corpus lives in a different `vault/reference/<domain>/` tree, or the answer
 "seems general knowledge." If a question touches a wiki domain, the protocol is active.
 
 #### Final self-check (blocking — run before presenting ANY answer as complete)

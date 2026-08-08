@@ -1,6 +1,6 @@
 ---
 name: wiki-status
-description: Audit the multi-domain wiki/ (all domains in wiki/_meta/taxonomy.md) — the delta manifest (ingested-vs-pending sources, new/changed/gone, pending references), plus link hubs, orphans, and stale pages. Use to see what is left to ingest and the overall health of the wiki.
+description: Audit the multi-domain wiki/ (all domains in wiki/vault/taxonomy.md) — the delta manifest (ingested-vs-pending sources, new/changed/gone, pending references), plus link hubs, orphans, and stale pages. Use to see what is left to ingest and the overall health of the wiki.
 ---
 
 # wiki-status
@@ -17,5 +17,5 @@ python3 -m wikikb manifest seed     # rebuild the manifest from current pages
 ```
 `ref:` sources are content-hashed (real change detection); `kb:`/`guide:`/`note:`/`web:`
 are presence-tracked. Reads `references/` read-only; writes only
-`wiki/_meta/.manifest.json`. Never touches the immutable `wiki/reference/`,
+`wiki/vault/.manifest.json`. Never touches the immutable `wiki/reference/`,
 `wiki/_sources/`, or `references/`.

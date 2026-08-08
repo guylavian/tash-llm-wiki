@@ -1,0 +1,18 @@
+---
+title: "Dynamic Volume Provisioning"
+type: reference
+domain: openshift
+slug: reference-dynamic-volume-provisioning
+tier: reference
+source: https://kubernetes.io/docs/reference/glossary/dynamic-volume-provisioning
+family: reference
+documentKind: "doc"
+---
+
+# Dynamic Volume Provisioning
+
+Allows users to request automatic creation of storage  {{< glossary_tooltip text="Volumes" term_id="volume" >}}.
+
+<!--more--> 
+
+Dynamic provisioning eliminates the need for cluster administrators to pre-provision storage. Instead, it automatically provisions storage by user request. Dynamic volume provisioning is based on an API object, {{< glossary_tooltip text="StorageClass" term_id="storage-class" >}}, referring to a {{< glossary_tooltip text="Volume Plugin" term_id="volume-plugin" >}} that provisions a {{< glossary_tooltip text="Volume" term_id="volume" >}} and the set of parameters to pass to the Volume Plugin.

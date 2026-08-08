@@ -1,0 +1,750 @@
+---
+title: "Chapter 8. Authorization Services - Red Hat Single Sign-On 7.4 Authorization Services Guide"
+type: reference
+domain: keycloak
+slug: rhsso-7-4-service-overview
+tier: reference
+source: https://docs.redhat.com/en/documentation/red_hat_single_sign-on/7.4/html/authorization_services_guide/service_overview
+guide: authorization_services_guide
+version: 7.4
+family: rhsso
+documentKind: "Documentation"
+abstract: "Red Hat Single Sign-On Authorization Services are built on top of well-known standards such as the OAuth2 and User-Managed Access specifications. OAuth2 clients (such as front end applications) can obtain access tokens from the server using the token endpoint and use these same tokens to access resources protected by a resource server (such as back end services). In the same way, Red Hat Single Si…"
+---
+
+# Chapter 8. Authorization Services - Red Hat Single Sign-On 7.4 Authorization Services Guide
+
+Chapter 8. Authorization Services
+Red Hat Single Sign-On Authorization Services are built on top of well-known standards such as the OAuth2 and User-Managed Access specifications.
+OAuth2 clients (such as front end applications) can obtain access tokens from the server using the token endpoint and use these same tokens to access resources protected by a resource server (such as back end services). In the same way, Red Hat Single Sign-On Authorization Services provide extensions to OAuth2 to allow access tokens to be issued based on the processing of all policies associated with the resource(s) or scope(s) being requested. This means that resource servers can enforce access to their protected resources based on the permissions granted by the server and held by an access token. In Red Hat Single Sign-On Authorization Services the access token with permissions is called a Requesting Party Token or RPT for short.
+In addition to the issuance of RPTs, Red Hat Single Sign-On Authorization Services also provides a set of RESTful endpoints that allow resources servers to manage their protected resources, scopes, permissions and policies, helping developers to extend or integrate these capabilities into their applications in order to support fine-grained authorization.
+8.1. Discovering Authorization Services Endpoints and Metadata
+Red Hat Single Sign-On provides a discovery document from which clients can obtain all necessary information to interact with Red Hat Single Sign-On Authorization Services, including endpoint locations and capabilities.
+The discovery document can be obtained from:
+curl -X GET \
+http://${host}:${port}/auth/realms/${realm}/.well-known/uma2-configuration
+Where ${host}:${port}
+is the hostname (or IP address) and port where Red Hat Single Sign-On is running and ${realm}
+is the name of a realm in Red Hat Single Sign-On.
+As a result, you should get a response as follows:
+{
+// some claims are expected here
+// these are the main claims in the discovery document about Authorization Services endpoints location
+"token_endpoint": "http://${host}:${port}/auth/realms/${realm}/protocol/openid-connect/token",
+"token_introspection_endpoint": "http://${host}:${port}/auth/realms/${realm}/protocol/openid-connect/token/introspect",
+"resource_registration_endpoint": "http://${host}:${port}/auth/realms/${realm}/authz/protection/resource_set",
+"permission_endpoint": "http://${host}:${port}/auth/realms/${realm}/authz/protection/permission",
+"policy_endpoint": "http://${host}:${port}/auth/realms/${realm}/authz/protection/uma-policy"
+}
+Each of these endpoints expose a specific set of capabilities:
+token_endpoint
+A OAuth2-compliant Token Endpoint that supports the
+urn:ietf:params:oauth:grant-type:uma-ticket
+grant type. Through this endpoint clients can send authorization requests and obtain an RPT with all permissions granted by Red Hat Single Sign-On.token_introspection_endpoint
+A OAuth2-compliant Token Introspection Endpoint which clients can use to query the server to determine the active state of an RPT and to determine any other information associated with the token, such as the permissions granted by Red Hat Single Sign-On.
+resource_registration_endpoint
+A UMA-compliant Resource Registration Endpoint which resource servers can use to manage their protected resources and scopes. This endpoint provides operations create, read, update and delete resources and scopes in Red Hat Single Sign-On.
+permission_endpoint
+A UMA-compliant Permission Endpoint which resource servers can use to manage permission tickets. This endpoint provides operations create, read, update, and delete permission tickets in Red Hat Single Sign-On.
+8.2. Obtaining Permissions
+To obtain permissions from Red Hat Single Sign-On you send an authorization request to the token endpoint. As a result, Red Hat Single Sign-On will evaluate all policies associated with the resource(s) and scope(s) being requested and issue an RPT with all permissions granted by the server.
+Clients are allowed to send authorization requests to the token endpoint using the following parameters:
+grant_type
+This parameter is required. Must be
+urn:ietf:params:oauth:grant-type:uma-ticket
+.ticket
+This parameter is optional. The most recent permission ticket received by the client as part of the UMA authorization process.
+claim_token
+This parameter is optional. A string representing additional claims that should be considered by the server when evaluating permissions for the resource(s) and scope(s) being requested. This parameter allows clients to push claims to Red Hat Single Sign-On. For more details about all supported token formats see
+claim_token_format
+parameter.claim_token_format
+This parameter is optional. A string indicating the format of the token specified in the
+claim_token
+parameter. Red Hat Single Sign-On supports two token formats:urn:ietf:params:oauth:token-type:jwt
+andhttps://openid.net/specs/openid-connect-core-1_0.html#IDToken
+. Theurn:ietf:params:oauth:token-type:jwt
+format indicates that theclaim_token
+parameter references an access token. Thehttps://openid.net/specs/openid-connect-core-1_0.html#IDToken
+indicates that theclaim_token
+parameter references an OpenID Connect ID Token.rpt
+This parameter is optional. A previously issued RPT which permissions should also be evaluated and added in a new one. This parameter allows clients in possession of an RPT to perform incremental authorization where permissions are added on demand.
+permission
+This parameter is optional. A string representing a set of one or more resources and scopes the client is seeking access. This parameter can be defined multiple times in order to request permission for multiple resource and scopes. This parameter is an extension to
+urn:ietf:params:oauth:grant-type:uma-ticket
+grant type in order to allow clients to send authorization requests without a permission ticket. The format of the string must be:RESOURCE_ID#SCOPE_ID
+. For instance:Resource A#Scope A
+,Resource A#Scope A, Scope B, Scope C
+,Resource A
+,#Scope A
+.audience
+This parameter is optional. The client identifier of the resource server to which the client is seeking access. This parameter is mandatory in case the
+permission
+parameter is defined. It serves as a hint to Red Hat Single Sign-On to indicate the context in which permissions should be evaluated.response_include_resource_name
+This parameter is optional. A boolean value indicating to the server whether resource names should be included in the RPT’s permissions. If false, only the resource identifier is included.
+response_permissions_limit
+This parameter is optional. An integer N that defines a limit for the amount of permissions an RPT can have. When used together with
+rpt
+parameter, only the last N requested permissions will be kept in the RPT.submit_request
+This parameter is optional. A boolean value indicating whether the server should create permission requests to the resources and scopes referenced by a permission ticket. This parameter only have effect if used together with the
+ticket
+parameter as part of a UMA authorization process.response_mode
+This parameter is optional. A string value indicating how the server should respond to authorization requests. This parameter is specially useful when you are mainly interested in either the overall decision or the permissions granted by the server, instead of a standard OAuth2 response. Possible values are:
+decision
+Indicates that responses from the server should only represent the overall decision by returning a JSON with the following format:
+{ 'result': true }
+If the authorization request does not map to any permission, a
+403
+HTTP status code is returned instead.permissions
+Indicates that responses from the server should contain any permission granted by the server by returning a JSON with the following format:
+[ { 'rsid': 'My Resource' 'scopes': ['view', 'update'] }, ... ]
+If the authorization request does not map to any permission, a
+403
+HTTP status code is returned instead.
+Example of a authorization request when a client is seeking access to two resources protected by a resource server.
+curl -X POST \
+http://${host}:${port}/auth/realms/${realm}/protocol/openid-connect/token \
+-H "Authorization: Bearer ${access_token}" \
+--data "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket" \
+--data "audience={resource_server_client_id}" \
+--data "permission=Resource A#Scope A" \
+--data "permission=Resource B#Scope B"
+Example of a authorization request when a client is seeking access to any resource and scope protected by a resource server.
+curl -X POST \
+http://${host}:${port}/auth/realms/${realm}/protocol/openid-connect/token \
+-H "Authorization: Bearer ${access_token}" \
+--data "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket" \
+--data "audience={resource_server_client_id}"
+Example of an authorization request when a client is seeking access to a UMA protected resource after receiving a permission ticket from the resource server as part of the authorization process:
+curl -X POST \
+http://${host}:${port}/auth/realms/${realm}/protocol/openid-connect/token \
+-H "Authorization: Bearer ${access_token}" \
+--data "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket" \
+--data "ticket=${permission_ticket}
+If Red Hat Single Sign-On assessment process results in issuance of permissions, it issues the RPT with which it has associated the permissions:
+Red Hat Single Sign-On responds to the client with the RPT
+HTTP/1.1 200 OK
+Content-Type: application/json
+...
+{
+"access_token": "${rpt}",
+}
+The response from the server is just like any other response from the token endpoint when using some other grant type. The RPT can be obtained from the access_token
+response parameter. If the client is not authorized, Red Hat Single Sign-On responds with a 403
+HTTP status code:
+Red Hat Single Sign-On denies the authorization request
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+...
+{
+"error": "access_denied",
+"error_description": "request_denied"
+}
+8.2.1. Client Authentication Methods
+Clients need to authenticate to the token endpoint in order to obtain an RPT. When using the urn:ietf:params:oauth:grant-type:uma-ticket
+grant type, clients can use any of these authentication methods:
+Bearer Token
+Clients should send an access token as a Bearer credential in an HTTP Authorization header to the token endpoint.
+Example: an authorization request using an access token to authenticate to the token endpoint
+curl -X POST \ http://${host}:${port}/auth/realms/${realm}/protocol/openid-connect/token \ -H "Authorization: Bearer ${access_token}" \ --data "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket"
+This method is especially useful when the client is acting on behalf of a user. In this case, the bearer token is an access token previously issued by Red Hat Single Sign-On to some client acting on behalf of a user (or on behalf of itself). Permissions will be evaluated considering the access context represented by the access token. For instance, if the access token was issued to Client A acting on behalf of User A, permissions will be granted depending on the resources and scopes to which User A has access.
+Client Credentials
+Client can use any of the client authentication methods supported by Red Hat Single Sign-On. For instance, client_id/client_secret or JWT.
+Example: an authorization request using client id and client secret to authenticate to the token endpoint
+curl -X POST \ http://${host}:${port}/auth/realms/${realm}/protocol/openid-connect/token \ -H "Authorization: Basic cGhvdGg6L7Jl13RmfWgtkk==pOnNlY3JldA==" \ --data "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket"
+8.2.2. Pushing Claims
+When obtaining permissions from the server you can push arbitrary claims in order to have these claims available to your policies when evaluating permissions.
+If you are obtaining permissions from the server without using a permission ticket (UMA flow), you can send an authorization request to the token endpoint as follows:
+curl -X POST \
+http://${host}:${port}/auth/realms/${realm}/protocol/openid-connect/token \
+--data "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket" \
+--data "claim_token=ewogICAib3JnYW5pemF0aW9uIjogWyJhY21lIl0KfQ==" \
+--data "claim_token_format=urn:ietf:params:oauth:token-type:jwt" \
+--data "client_id={resource_server_client_id}" \
+--data "client_secret={resource_server_client_secret}" \
+--data "audience={resource_server_client_id}"
+The claim_token
+parameter expects a BASE64 encoded JSON with a format similar to the example below:
+{
+"organization" : ["acme"]
+}
+The format expects one or more claims where the value for each claim must be an array of strings.
+8.2.2.1. Pushing Claims Using UMA
+For more details about how to push claims when using UMA and permission tickets, please take a look at Permission API
+8.3. User-Managed Access
+Red Hat Single Sign-On Authorization Services is based on User-Managed Access or UMA for short. UMA is a specification that enhances OAuth2 capabilities in the following ways:
+Privacy
+Nowadays, user privacy is becoming a huge concern, as more and more data and devices are available and connected to the cloud. With UMA and Red Hat Single Sign-On, resource servers can enhance their capabilities in order to improve how their resources are protected in respect to user privacy where permissions are granted based on policies defined by the user.
+Party-to-Party Authorization
+Resource owners (e.g.: regular end-users) can manage access to their resources and authorize other parties (e.g: regular end-users) to access these resources. This is different than OAuth2 where consent is given to a client application acting on behalf of a user, with UMA resource owners are allowed to consent access to other users, in a completely asynchronous manner.
+Resource Sharing
+Resource owners are allowed to manage permissions to their resources and decide who can access a particular resource and how. Red Hat Single Sign-On can then act as a sharing management service from which resource owners can manage their resources.
+Red Hat Single Sign-On is a UMA 2.0 compliant authorization server that provides most UMA capabilities.
+As an example, consider a user Alice (resource owner) using an Internet Banking Service (resource server) to manage his Bank Account (resource). One day, Alice decides to open her bank account to Bob (requesting party), a accounting professional. However, Bob should only have access to view (scope) Alice’s account.
+As a resource server, the Internet Banking Service must be able to protect Alice’s Bank Account. For that, it relies on Red Hat Single Sign-On Resource Registration Endpoint to create a resource in the server representing Alice’s Bank Account.
+At this moment, if Bob tries to access Alice’s Bank Account, access will be denied. The Internet Banking Service defines a few default policies for banking accounts. One of them is that only the owner, in this case Alice, is allowed to access her bank account.
+However, Internet Banking Service in respect to Alice’s privacy also allows her to change specific policies for the banking account. One of these policies that she can change is to define which people are allowed to view her bank account. For that, Internet Banking Service relies on Red Hat Single Sign-On to provide to Alice a space where she can select individuals and the operations (or data) they are allowed to access. At any time, Alice can revoke access or grant additional permissions to Bob.
+8.3.1. Authorization Process
+In UMA, the authorization process starts when a client tries to access a UMA protected resource server.
+A UMA protected resource server expects a bearer token in the request where the token is an RPT. When a client requests a resource at the resource server without a permission ticket:
+Client requests a protected resource without sending an RPT
+curl -X GET \
+http://${host}:${port}/my-resource-server/resource/1bfdfe78-a4e1-4c2d-b142-fc92b75b986f
+The resource server sends a response back to the client with a permission ticket
+and a as_uri
+parameter with the location of a Red Hat Single Sign-On server to where the ticket should be sent in order to obtain an RPT.
+Resource server responds with a permission ticket
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: UMA realm="${realm}",
+as_uri="https://${host}:${port}/auth/realms/${realm}",
+ticket="016f84e8-f9b9-11e0-bd6f-0021cc6004de"
+The permission ticket is a special type of token issued by Red Hat Single Sign-On Permission API. They represent the permissions being requested (e.g.: resources and scopes) as well any other information associated with the request. Only resource servers are allowed to create those tokens.
+Now that the client has a permission ticket and also the location of a Red Hat Single Sign-On server, the client can use the discovery document to obtain the location of the token endpoint and send an authorization request.
+Client sends an authorization request to the token endpoint to obtain an RPT
+curl -X POST \
+http://${host}:${port}/auth/realms/${realm}/protocol/openid-connect/token \
+-H "Authorization: Bearer ${access_token}" \
+--data "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket" \
+--data "ticket=${permission_ticket}
+If Red Hat Single Sign-On assessment process results in issuance of permissions, it issues the RPT with which it has associated the permissions:
+Red Hat Single Sign-On responds to the client with the RPT
+HTTP/1.1 200 OK
+Content-Type: application/json
+...
+{
+"access_token": "${rpt}",
+}
+The response from the server is just like any other response from the token endpoint when using some other grant type. The RPT can be obtained from the access_token
+response parameter. In case the client is not authorized to have permissions Red Hat Single Sign-On responds with a 403
+HTTP status code:
+Red Hat Single Sign-On denies the authorization request
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+...
+{
+"error": "access_denied",
+"error_description": "request_denied"
+}
+8.3.2. Submitting Permission Requests
+As part of the authorization process, clients need first to obtain a permission ticket from a UMA protected resource server in order to exchange it with an RPT at the Red Hat Single Sign-On Token Endpoint.
+By default, Red Hat Single Sign-On responds with a 403
+HTTP status code and a request_denied
+error in case the client can not be issued with an RPT.
+Red Hat Single Sign-On denies the authorization request
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+...
+{
+"error": "access_denied",
+"error_description": "request_denied"
+}
+Such response implies that Red Hat Single Sign-On could not issue an RPT with the permissions represented by a permission ticket.
+In some situations, client applications may want to start an asynchronous authorization flow and let the owner of the resources being requested decide whether or not access should be granted. For that, clients can use the submit_request
+request parameter along with an authorization request to the token endpoint:
+curl -X POST \
+http://${host}:${port}/auth/realms/${realm}/protocol/openid-connect/token \
+-H "Authorization: Bearer ${access_token}" \
+--data "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket" \
+--data "ticket=${permission_ticket} \
+--data "submit_request=true"
+When using the submit_request
+parameter, Red Hat Single Sign-On will persist a permission request for each resource to which access was denied. Once created, resource owners can check their account and manage their permissions requests.
+You can think about this functionality as a Request Access
+button in your application, where users can ask other users for access to their resources.
+8.3.3. Managing Access to Users Resources
+Users can manage access to their resources using the Red Hat Single Sign-On User Account Service. To enable this functionality, you must first enable User-Managed Access for your realm. To do so, open the realm settings page in Red Hat Single Sign-On Administration Console and enable the User-Managed Access switch.
+On the left side menu, the My Resources
+option leads to a page where users are able to:
+Manage Permission Requests that Need my approval
+This section contains a list of all permission requests awaiting approval. These requests are connected to the parties (users) requesting access to a particular resource. Users are allowed to approve or deny these requests.
+Manage My resources
+This section contains a list of all resources owned by the user. Users can click on a resource for more details and share the resource with others.
+Manage Resources shared with me
+This section contains a list of all resources shared with the user.
+Manage Your requests waiting approval
+This section contains a list of permission requests sent by the user that are waiting for the approval of another user or resource owner.
+When the user choose to detail own of his resources by clicking on any resource in the "My resources" listing, he is redirected to a page as follows:
+From this page the users are able to:
+Manage People with access to this resource
+This section contains a list of people with access to this resource. Users are allowed to revoke access by clicking on the
+Revoke
+button or by removing a specificPermission
+.Share the resource with others
+By typing the username or e-mail of another user, the user is able to share the resource and select the permissions he wants to grant access.
+8.4. Protection API
+The Protection API provides a UMA-compliant set of endpoints providing:
+Resource Management
+With this endpoint, resource servers can manage their resources remotely and enable policy enforcers to query the server for the resources that need protection.
+Permission Management
+In the UMA protocol, resource servers access this endpoint to create permission tickets. Red Hat Single Sign-On also provides endpoints to manage the state of permissions and query permissions.
+Policy API
+Red Hat Single Sign-On leverages the UMA Protection API to allow resource servers to manage permissions for their users. In addition to the Resource and Permission APIs, Red Hat Single Sign-On provides a Policy API from where permissions can be set to resources by resource servers on behalf of their users.
+An important requirement for this API is that only resource servers are allowed to access its endpoints using a special OAuth2 access token called a protection API token (PAT). In UMA, a PAT is a token with the scope uma_protection.
+8.4.1. What is a PAT and How to Obtain It
+A protection API token (PAT) is a special OAuth2 access token with a scope defined as uma_protection. When you create a resource server, Red Hat Single Sign-On automatically creates a role, uma_protection, for the corresponding client application and associates it with the client’s service account.
+Service Account granted with uma_protection role
+Resource servers can obtain a PAT from Red Hat Single Sign-On like any other OAuth2 access token. For example, using curl:
+curl -X POST \
+-H "Content-Type: application/x-www-form-urlencoded" \
+-d 'grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}' \
+"http://localhost:8080/auth/realms/${realm_name}/protocol/openid-connect/token"
+The example above is using the client_credentials grant type to obtain a PAT from the server. As a result, the server returns a response similar to the following:
+{
+"access_token": ${PAT},
+"expires_in": 300,
+"refresh_expires_in": 1800,
+"refresh_token": ${refresh_token},
+"token_type": "bearer",
+"id_token": ${id_token},
+"not-before-policy": 0,
+"session_state": "ccea4a55-9aec-4024-b11c-44f6f168439e"
+}
+Red Hat Single Sign-On can authenticate your client application in different ways. For simplicity, the client_credentials grant type is used here, which requires a client_id and a client_secret. You can choose to use any supported authentication method.
+8.4.2. Managing Resources
+Resource servers can manage their resources remotely using a UMA-compliant endpoint.
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set
+This endpoint provides operations outlined as follows (entire path omitted for clarity):
+- Create resource set description: POST /resource_set
+- Read resource set description: GET /resource_set/{_id}
+- Update resource set description: PUT /resource_set/{_id}
+- Delete resource set description: DELETE /resource_set/{_id}
+- List resource set descriptions: GET /resource_set
+For more information about the contract for each of these operations, see UMA Resource Registration API.
+8.4.2.1. Creating a Resource
+To create a resource you must send an HTTP POST request as follows:
+curl -v -X POST \
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set \
+-H 'Authorization: Bearer '$pat \
+-H 'Content-Type: application/json' \
+-d '{
+"name":"Tweedl Social Service",
+"type":"http://www.example.com/rsrcs/socialstream/140-compatible",
+"icon_uri":"http://www.example.com/icons/sharesocial.png",
+"resource_scopes":[
+"read-public",
+"post-updates",
+"read-private",
+"http://www.example.com/scopes/all"
+]
+}'
+By default, the owner of a resource is the resource server. If you want to define a different owner, such as an specific user, you can send a request as follows:
+curl -v -X POST \
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set \
+-H 'Authorization: Bearer '$pat \
+-H 'Content-Type: application/json' \
+-d '{
+"name":"Alice Resource",
+"owner": "alice"
+}'
+Where the property owner
+can be set with the username or the identifier of the user.
+8.4.2.2. Creating User-Managed Resources
+By default, resources created via Protection API can not be managed by resource owners through the User Account Service.
+To create resources and allow resource owners to manage these resources, you must set ownerManagedAccess
+property as follows:
+curl -v -X POST \
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set \
+-H 'Authorization: Bearer '$pat \
+-H 'Content-Type: application/json' \
+-d '{
+"name":"Alice Resource",
+"owner": "alice",
+"ownerManagedAccess": true
+}'
+8.4.2.3. Updating Resources
+To update an existing resource, send an HTTP PUT request as follows:
+curl -v -X PUT \
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set/{resource_id} \
+-H 'Authorization: Bearer '$pat \
+-H 'Content-Type: application/json' \
+-d '{
+"_id": "Alice Resource",
+"name":"Alice Resource",
+"resource_scopes": [
+"read"
+]
+}'
+8.4.2.4. Deleting Resources
+To delete an existing resource, send an HTTP DELETE request as follows:
+curl -v -X DELETE \
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set/{resource_id} \
+-H 'Authorization: Bearer '$pat
+8.4.2.5. Querying Resources
+To query the resources by id
+, send an HTTP GET request as follows:
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set/{resource_id}
+To query resources given a name
+, send an HTTP GET request as follows:
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set?name=Alice Resource
+To query resources given an uri
+, send an HTTP GET request as follows:
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set?uri=/api/alice
+To query resources given an owner
+, send an HTTP GET request as follows:
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set?owner=alice
+To query resources given an type
+, send an HTTP GET request as follows:
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set?type=albums
+To query resources given an scope
+, send an HTTP GET request as follows:
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/resource_set?scope=read
+When querying the server for permissions use parameters first
+and max
+results to limit the result.
+8.4.3. Managing Permission Requests
+Resource servers using the UMA protocol can use a specific endpoint to manage permission requests. This endpoint provides a UMA-compliant flow for registering permission requests and obtaining a permission ticket.
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/permission
+A permission ticket is a special security token type representing a permission request. Per the UMA specification, a permission ticket is:
+A correlation handle that is conveyed from an authorization server to a resource server, from a resource server to a client, and ultimately from a client back to an authorization server, to enable the authorization server to assess the correct policies to apply to a request for authorization data.
+In most cases, you won’t need to deal with this endpoint directly. Red Hat Single Sign-On provides a policy enforcer that enables UMA for your resource server so it can obtain a permission ticket from the authorization server, return this ticket to client application, and enforce authorization decisions based on a final requesting party token (RPT).
+The process of obtaining permission tickets from Red Hat Single Sign-On is performed by resource servers and not regular client applications, where permission tickets are obtained when a client tries to access a protected resource without the necessary grants to access the resource. The issuance of permission tickets is an important aspects when using UMA as it allows resource servers to:
+- Abstract from clients the data associated with the resources protected by the resource server
+- Register in the Red Hat Single Sign-On authorization requests which in turn can be used later in workflows to grant access based on the resource’s owner consent
+- Decouple resource servers from authorization servers and allow them to protect and manage their resources using different authorization servers
+Client wise, a permission ticket has also important aspects that its worthy to highlight:
+- Clients don’t need to know about how authorization data is associated with protected resources. A permission ticket is completely opaque to clients.
+- Clients can have access to resources on different resource servers and protected by different authorization servers
+These are just some of the benefits brought by UMA where other aspects of UMA are strongly based on permission tickets, specially regarding privacy and user controlled access to their resources.
+8.4.3.1. Creating Permission Ticket
+To create a permission ticket, send an HTTP POST request as follows:
+curl -X POST \
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/permission \
+-H 'Authorization: Bearer '$pat \
+-H 'Content-Type: application/json' \
+-d '[
+{
+"resource_id": "{resource_id}",
+"resource_scopes": [
+"view"
+]
+}
+]'
+When creating tickets you can also push arbitrary claims and associate these claims with the ticket:
+curl -X POST \
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/permission \
+-H 'Authorization: Bearer '$pat \
+-H 'Content-Type: application/json' \
+-d '[
+{
+"resource_id": "{resource_id}",
+"resource_scopes": [
+"view"
+],
+"claims": {
+"organization": ["acme"]
+}
+}
+]'
+Where these claims will be available to your policies when evaluating permissions for the resource and scope(s) associated with the permission ticket.
+8.4.3.2. Other non UMA-compliant endpoints
+8.4.3.2.1. Creating permission ticket
+To grant permissions for a specific resource with id {resource_id} to a user with id {user_id}, as an owner of the resource send an HTTP POST request as follows:
+curl -X POST \
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/permission/ticket \
+-H 'Authorization: Bearer '$access_token \
+-H 'Content-Type: application/json' \
+-d '{
+"resource": "{resource_id}",
+"requester": "{user_id}",
+"granted": true,
+"scopeName": "view"
+}'
+8.4.3.2.2. Getting permission tickets
+curl http://${host}:${port}/auth/realms/${realm_name}/authz/protection/permission/ticket \
+-H 'Authorization: Bearer '$access_token
+You can use any of these query parameters:
+-
+scopeId
+-
+resourceId
+-
+owner
+-
+requester
+-
+granted
+-
+returnNames
+-
+first
+-
+max
+8.4.3.2.3. Updating permission ticket
+curl -X PUT \
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/permission/ticket \
+-H 'Authorization: Bearer '$access_token \
+-H 'Content-Type: application/json' \
+-d '{
+"id": "{ticket_id}"
+"resource": "{resource_id}",
+"requester": "{user_id}",
+"granted": false,
+"scopeName": "view"
+}'
+8.4.3.2.4. Deleting permission ticket
+curl -X DELETE http://${host}:${port}/auth/realms/${realm_name}/authz/protection/permission/ticket/{ticket_id} \
+-H 'Authorization: Bearer '$access_token
+8.4.4. Managing Resource Permissions using the Policy API
+Red Hat Single Sign-On leverages the UMA Protection API to allow resource servers to manage permissions for their users. In addition to the Resource and Permission APIs, Red Hat Single Sign-On provides a Policy API from where permissions can be set to resources by resource servers on behalf of their users.
+The Policy API is available at:
+http://${host}:${port}/auth/realms/${realm_name}/authz/protection/uma-policy/{resource_id}
+This API is protected by a bearer token that must represent a consent granted by the user to the resource server to manage permissions on his behalf. The bearer token can be a regular access token obtained from the token endpoint using:
+- Resource Owner Password Credentials Grant Type
+- Token Exchange, in order to exchange an access token granted to some client (public client) for a token where audience is the resource server
+8.4.4.1. Associating a Permission with a Resource
+To associate a permission with a specific resource you must send a HTTP POST request as follows:
+curl -X POST \
+http://localhost:8180/auth/realms/photoz/authz/protection/uma-policy/{resource_id} \
+-H 'Authorization: Bearer '$access_token \
+-H 'Cache-Control: no-cache' \
+-H 'Content-Type: application/json' \
+-d '{
+"name": "Any people manager",
+"description": "Allow access to any people manager",
+"scopes": ["read"],
+"roles": ["people-manager"]
+}'
+In the example above we are creating and associating a new permission to a resource represented by resource_id
+where any user with a role people-manager
+should be granted with the read
+scope.
+You can also create policies using other access control mechanisms, such as using groups:
+curl -X POST \
+http://localhost:8180/auth/realms/photoz/authz/protection/uma-policy/{resource_id} \
+-H 'Authorization: Bearer '$access_token \
+-H 'Cache-Control: no-cache' \
+-H 'Content-Type: application/json' \
+-d '{
+"name": "Any people manager",
+"description": "Allow access to any people manager",
+"scopes": ["read"],
+"groups": ["/Managers/People Managers"]
+}'
+Or a specific client:
+curl -X POST \
+http://localhost:8180/auth/realms/photoz/authz/protection/uma-policy/{resource_id} \
+-H 'Authorization: Bearer '$access_token \
+-H 'Cache-Control: no-cache' \
+-H 'Content-Type: application/json' \
+-d '{
+"name": "Any people manager",
+"description": "Allow access to any people manager",
+"scopes": ["read"],
+"clients": ["my-client"]
+}'
+Or even using a custom policy using JavaScript:
+Upload Scripts is Deprecated and will be removed in future releases. This feature is disabled by default.
+To enable start the server with -Dkeycloak.profile.feature.upload_scripts=enabled
+. For more details see Profiles.
+curl -X POST \
+http://localhost:8180/auth/realms/photoz/authz/protection/uma-policy/{resource_id} \
+-H 'Authorization: Bearer '$access_token \
+-H 'Cache-Control: no-cache' \
+-H 'Content-Type: application/json' \
+-d '{
+"name": "Any people manager",
+"description": "Allow access to any people manager",
+"scopes": ["read"],
+"condition": "if (isPeopleManager()) {$evaluation.grant()}"
+}'
+It is also possible to set any combination of these access control mechanisms.
+To update an existing permission, send an HTTP PUT request as follows:
+curl -X PUT \
+http://localhost:8180/auth/realms/photoz/authz/protection/uma-policy/{permission_id} \
+-H 'Authorization: Bearer '$access_token \
+-H 'Content-Type: application/json' \
+-d '{
+"id": "21eb3fed-02d7-4b5a-9102-29f3f09b6de2",
+"name": "Any people manager",
+"description": "Allow access to any people manager",
+"type": "uma",
+"scopes": [
+"album:view"
+],
+"logic": "POSITIVE",
+"decisionStrategy": "UNANIMOUS",
+"owner": "7e22131a-aa57-4f5f-b1db-6e82babcd322",
+"roles": [
+"user"
+]
+}'
+8.4.4.2. Removing a Permission
+To remove a permission associated with a resource, send an HTTP DELETE request as follows:
+curl -X DELETE \
+http://localhost:8180/auth/realms/photoz/authz/protection/uma-policy/{permission_id} \
+-H 'Authorization: Bearer '$access_token
+8.4.4.3. Querying Permission
+To query the permissions associated with a resource, send an HTTP GET request as follows:
+http://${host}:${port}/auth/realms/${realm}/authz/protection/uma-policy?resource={resource_id}
+To query the permissions given its name, send an HTTP GET request as follows:
+http://${host}:${port}/auth/realms/${realm}/authz/protection/uma-policy?name=Any people manager
+To query the permissions associated with a specific scope, send an HTTP GET request as follows:
+http://${host}:${port}/auth/realms/${realm}/authz/protection/uma-policy?scope=read
+To query all permissions, send an HTTP GET request as follows:
+http://${host}:${port}/auth/realms/${realm}/authz/protection/uma-policy
+When querying the server for permissions use parameters first
+and max
+results to limit the result.
+8.5. Requesting Party Token
+A requesting party token (RPT) is a JSON web token (JWT) digitally signed using JSON web signature (JWS). The token is built based on the OAuth2 access token previously issued by Red Hat Single Sign-On to a specific client acting on behalf of a user or on its own behalf.
+When you decode an RPT, you see a payload similar to the following:
+{
+"authorization": {
+"permissions": [
+{
+"resource_set_id": "d2fe9843-6462-4bfc-baba-b5787bb6e0e7",
+"resource_set_name": "Hello World Resource"
+}
+]
+},
+"jti": "d6109a09-78fd-4998-bf89-95730dfd0892-1464906679405",
+"exp": 1464906971,
+"nbf": 0,
+"iat": 1464906671,
+"sub": "f1888f4d-5172-4359-be0c-af338505d86c",
+"typ": "kc_ett",
+"azp": "hello-world-authz-service"
+}
+From this token you can obtain all permissions granted by the server from the permissions claim.
+Also note that permissions are directly related with the resources/scopes you are protecting and completely decoupled from the access control methods that were used to actually grant and issue these same permissions.
+8.5.1. Introspecting a Requesting Party Token
+Sometimes you might want to introspect a requesting party token (RPT) to check its validity or obtain the permissions within the token to enforce authorization decisions on the resource server side.
+There are two main use cases where token introspection can help you:
+- When client applications need to query the token validity to obtain a new one with the same or additional permissions
+- When enforcing authorization decisions at the resource server side, especially when none of the built-in policy enforcers fits your application
+8.5.2. Obtaining Information about an RPT
+The token introspection is essentially a OAuth2 token introspection-compliant endpoint from which you can obtain information about an RPT.
+http://${host}:${port}/auth/realms/${realm_name}/protocol/openid-connect/token/introspect
+To introspect an RPT using this endpoint, you can send a request to the server as follows:
+curl -X POST \
+-H "Authorization: Basic aGVsbG8td29ybGQtYXV0aHotc2VydmljZTpzZWNyZXQ=" \
+-H "Content-Type: application/x-www-form-urlencoded" \
+-d 'token_type_hint=requesting_party_token&token=${RPT}' \
+"http://localhost:8080/auth/realms/hello-world-authz/protocol/openid-connect/token/introspect"
+The request above is using HTTP BASIC and passing the client’s credentials (client ID and secret) to authenticate the client attempting to introspect the token, but you can use any other client authentication method supported by Red Hat Single Sign-On.
+The introspection endpoint expects two parameters:
+token_type_hint
+Use requesting_party_token as the value for this parameter, which indicates that you want to introspect an RPT.
+token
+Use the token string as it was returned by the server during the authorization process as the value for this parameter.
+As a result, the server response is:
+{
+"permissions": [
+{
+"resource_id": "90ccc6fc-b296-4cd1-881e-089e1ee15957",
+"resource_name": "Hello World Resource"
+}
+],
+"exp": 1465314139,
+"nbf": 0,
+"iat": 1465313839,
+"aud": "hello-world-authz-service",
+"active": true
+}
+If the RPT is not active, this response is returned instead:
+{
+"active": false
+}
+8.5.3. Do I Need to Invoke the Server Every Time I Want to Introspect an RPT?
+No. Just like a regular access token issued by a Red Hat Single Sign-On server, RPTs also use the JSON web token (JWT) specification as the default format.
+If you want to validate these tokens without a call to the remote introspection endpoint, you can decode the RPT and query for its validity locally. Once you decode the token, you can also use the permissions within the token to enforce authorization decisions.
+This is essentially what the policy enforcers do. Be sure to:
+- Validate the signature of the RPT (based on the realm’s public key)
+- Query for token validity based on its exp, iat, and aud claims
+8.6. Authorization Client Java API
+Depending on your requirements, a resource server should be able to manage resources remotely or even check for permissions programmatically. If you are using Java, you can access the Red Hat Single Sign-On Authorization Services using the Authorization Client API.
+It is targeted for resource servers that want to access the different endpoints provided by the server such as the Token Endpoint, Resource, and Permission management endpoints.
+8.6.1. Maven Dependency
+<dependencies>
+<dependency>
+<groupId>org.keycloak</groupId>
+<artifactId>keycloak-authz-client</artifactId>
+<version>${KEYCLOAK_VERSION}</version>
+</dependency>
+</dependencies>
+8.6.2. Configuration
+The client configuration is defined in a keycloak.json
+file as follows:
+{
+"realm": "hello-world-authz",
+"auth-server-url" : "http://localhost:8080/auth",
+"resource" : "hello-world-authz-service",
+"credentials": {
+"secret": "secret"
+}
+}
+realm (required)
+The name of the realm.
+auth-server-url (required)
+The base URL of the Red Hat Single Sign-On server. All other Red Hat Single Sign-On pages and REST service endpoints are derived from this. It is usually in the form https://host:port/auth.
+resource (required)
+The client-id of the application. Each application has a client-id that is used to identify the application.
+credentials (required)
+Specifies the credentials of the application. This is an object notation where the key is the credential type and the value is the value of the credential type.
+The configuration file is usually located in your application’s classpath, the default location from where the client is going to try to find a
+file.
+keycloak.json
+8.6.3. Creating the Authorization Client
+Considering you have a
+file in your classpath, you can create a new keycloak.json
+instance as follows:
+AuthzClient
+// create a new instance based on the configuration defined in a keycloak.json located in your classpath
+AuthzClient authzClient = AuthzClient.create();
+8.6.4. Obtaining User Entitlements
+Here is an example illustrating how to obtain user entitlements:
+// create a new instance based on the configuration defined in keycloak.json
+AuthzClient authzClient = AuthzClient.create();
+// create an authorization request
+AuthorizationRequest request = new AuthorizationRequest();
+// send the entitlement request to the server in order to
+// obtain an RPT with all permissions granted to the user
+AuthorizationResponse response = authzClient.authorization("alice", "alice").authorize(request);
+String rpt = response.getToken();
+System.out.println("You got an RPT: " + rpt);
+// now you can use the RPT to access protected resources on the resource server
+Here is an example illustrating how to obtain user entitlements for a set of one or more resources:
+// create a new instance based on the configuration defined in keycloak.json
+AuthzClient authzClient = AuthzClient.create();
+// create an authorization request
+AuthorizationRequest request = new AuthorizationRequest();
+// add permissions to the request based on the resources and scopes you want to check access
+request.addPermission("Default Resource");
+// send the entitlement request to the server in order to
+// obtain an RPT with permissions for a single resource
+AuthorizationResponse response = authzClient.authorization("alice", "alice").authorize(request);
+String rpt = response.getToken();
+System.out.println("You got an RPT: " + rpt);
+// now you can use the RPT to access protected resources on the resource server
+8.6.5. Creating a Resource Using the Protection API
+// create a new instance based on the configuration defined in keycloak.json
+AuthzClient authzClient = AuthzClient.create();
+// create a new resource representation with the information we want
+ResourceRepresentation newResource = new ResourceRepresentation();
+newResource.setName("New Resource");
+newResource.setType("urn:hello-world-authz:resources:example");
+newResource.addScope(new ScopeRepresentation("urn:hello-world-authz:scopes:view"));
+ProtectedResource resourceClient = authzClient.protection().resource();
+ResourceRepresentation existingResource = resourceClient.findByName(newResource.getName());
+if (existingResource != null) {
+resourceClient.delete(existingResource.getId());
+}
+// create the resource on the server
+ResourceRepresentation response = resourceClient.create(newResource);
+String resourceId = response.getId();
+// query the resource using its newly generated id
+ResourceRepresentation resource = resourceClient.findById(resourceId);
+System.out.println(resource);
+8.6.6. Introspecting an RPT
+// create a new instance based on the configuration defined in keycloak.json
+AuthzClient authzClient = AuthzClient.create();
+// send the authorization request to the server in order to
+// obtain an RPT with all permissions granted to the user
+AuthorizationResponse response = authzClient.authorization("alice", "alice").authorize();
+String rpt = response.getToken();
+// introspect the token
+TokenIntrospectionResponse requestingPartyToken = authzClient.protection().introspectRequestingPartyToken(rpt);
+System.out.println("Token status is: " + requestingPartyToken.getActive());
+System.out.println("Permissions granted by the server: ");
+for (Permission granted : requestingPartyToken.getPermissions()) {
+System.out.println(granted);
+}

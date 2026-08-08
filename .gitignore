@@ -38,3 +38,30 @@ _meta/.venv-*
 deep-research-*.log
 
 # Obsidian per-machine session state (app.json/core-plugins/graph are kept)
+
+# Local runtime config (secrets, host paths) — the committed template is .env.example
+.env
+.env.local
+
+# Rebuildable vault-adjacent state (dense index); see .env HOST_STATE_DIR
+.wiki-state/
+
+# Throwaway blank vault + corpora for exercising the scrape feature from empty
+# (.env HOST_VAULT_DIR / WIKIKB_VAULT_ROOT). Not content — delete freely.
+vault-blank/
+corpora-blank/
+
+# Runtime logs + captured stderr/stdout (serve.err, serve.err.1, serve.out, *.log …).
+# These are per-run process output, never content.
+*.log
+*.log.*
+*.err
+*.err.*
+*.out
+*.out.*
+logs/
+log/
+
+# ...EXCEPT the committed eval goldens, which happen to use the .out extension and are
+# asserted byte-identical by _meta/tests/selftest.py. Never ignore these.
+!_meta/eval/*.out

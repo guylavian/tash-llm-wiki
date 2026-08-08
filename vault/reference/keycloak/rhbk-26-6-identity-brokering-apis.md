@@ -1,0 +1,134 @@
+---
+title: "Chapter 3. Identity Brokering APIs - Red Hat build of Keycloak 26.6 Server Developer Guide"
+type: reference
+domain: keycloak
+slug: rhbk-26-6-identity-brokering-apis
+tier: reference
+source: https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6/html/server_developer_guide/identity-brokering-apis
+guide: server_developer_guide
+version: 26.6
+family: rhbk
+documentKind: "Documentation"
+primary: true
+abstract: "Red Hat build of Keycloak can delegate authentication to a parent IDP for login. A typical example of this is the case where you want users to be able to log in through a social provider such as Facebook or Google. You can also link existing accounts to a brokered IDP. This section describes some APIs that your applications can use as it pertains to identity brokering. 3.1. Retrieving external IDP…"
+---
+
+# Chapter 3. Identity Brokering APIs - Red Hat build of Keycloak 26.6 Server Developer Guide
+
+Chapter 3. Identity Brokering APIs
+Red Hat build of Keycloak can delegate authentication to a parent IDP for login. A typical example of this is the case where you want users to be able to log in through a social provider such as Facebook or Google. You can also link existing accounts to a brokered IDP. This section describes some APIs that your applications can use as it pertains to identity brokering.
+3.1. Retrieving external IDP tokens
+Red Hat build of Keycloak allows you to store tokens and responses from the authentication process with the external IDP. There are two versions of this feature that are slightly different in their behavior.
+3.1.1. Identity brokering API V1
+Version 1 or V1 is the old feature and enabled by default. In a future Red Hat build of Keycloak release V1 will be deprecated and substituted by V2.
+You can use the Store Tokens
+configuration option in the Advanced settings
+section of the IDP’s settings page. Once this option is enabled, when a user authenticates using a external Identity provider, the returned token will be stored inside the database for each user and IDP.
+Application code can retrieve these tokens and responses to pull in extra user information, or to securely invoke requests on the external IDP. For example, an application might want to use the Google token to invoke on other Google services and REST APIs. To retrieve a token for a particular identity provider you need to send a request as follows:
+GET /realms/{realm-name}/broker/{provider_alias}/token HTTP/1.1
+Host: localhost:8080
+Authorization: Bearer <KEYCLOAK ACCESS TOKEN>
+An application must have authenticated with Red Hat build of Keycloak and have received an access token. This access token will need to have the broker
+client-level role read-token
+set. This means that the user must have a role mapping for this role and the client application must have that role within its scope. In this case, given that you are accessing a protected service in Red Hat build of Keycloak, you need to send the access token issued by Red Hat build of Keycloak during the user authentication. In the broker configuration page you can automatically assign this role to newly imported users by turning on the Stored Tokens Readable
+switch.
+These external tokens can be re-established by either logging in again through the provider, or using the client initiated account linking API.
+3.1.2. Identity brokering API V2
+Identity Brokering API V2 is Technology Preview and is not fully supported. This feature is disabled by default.
+To enable start the server with --features=preview
+or --features=identity-brokering-api:v2
+Version 2 or V2 is the new feature that is now in preview status. The new feature manages two different configuration options in the same Identity Provider page.
+- Store token in session: New option that stores the returned token in the user session associated to the login.
+- Store tokens: Same option used in V1 and with the same meaning. The store token returned by the external provider is stored in the database after a successful login.
+Figure 3.1. Configuration options for store tokens at Identity Provider
+The application continues accessing the same endpoint inside the REST API to retrieve the brokering token, but in V2 the call uses POST
+and requires client authentication. It is then restricted to confidential clients only. Besides, instead of using the read-token
+role for the user, the client should be enabled to retrieve tokens for the specified IDP alias. In the client configuration, Settings, section Capability config, there are two new configuration options.
+- Allow retrieve external tokens: Flag that allows the client to retrieve tokens via the brokering API.
+- Allowed Identity Providers for External Tokens: List of identity provider aliases from which the client can retrieve external tokens.
+Figure 3.2. Configuration options to retrieve external tokens in the client
+This behavior is more aligned with other features and supported OAuth grants. The access token is passed using the token
+parameter.
+POST /realms/{realm-name}/broker/{provider_alias}/token HTTP/1.1
+Host: localhost:8080
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+client_id=test-client&
+client_secret=XXXXX&
+token=ey...
+The endpoint tries to obtain the external token from the user session associated to the access token. The database is only used as a fallback in case the token is not present or expired in the session.
+The response in V2 is always a JSON access token response, in which the parameter access_token
+is present for a successful request, and parameter error
+is added in case of a problem. Version V2 follows OAuth 2.0 specification in this regard.
+V2 also applies client policies when calling the external token endpoint. This way, administrators can configure them to enforce extra security to the client and the Identity provider involved in the call.
+Some applications want to integrate with social providers like Facebook, but do not want to provide an option to login via these social providers. Red Hat build of Keycloak offers a browser-based API that applications can use to link an existing user account to a specific external IDP. This is called client-initiated account linking. Account linking can only be initiated by OIDC applications.
+The way it works is that the application forwards the user’s browser to a URL on the Red Hat build of Keycloak server requesting that it wants to link the user’s account to a specific external provider (i.e. Facebook). The server initiates a login with the external provider. The browser logs in at the external provider and is redirected back to the server. The server establishes the link and redirects back to the application with a confirmation.
+There are some preconditions that must be met by the client application before it can initiate this protocol:
+- The desired identity provider must be configured and enabled for the user’s realm in the admin console.
+-
+The user must have an
+account.manage-account
+oraccount.manage-account-links
+role mapping. - The application must be granted the scope for those roles within its access token
+The protocol is realized by the Application-initiated action (AIA). If you want the user, who is authenticated in your client application, to link to the identity provider, attach the parameter kc_action
+with the value idp_link:<identity-provider-alias>
+to the OIDC authentication URL and redirect the user to this URL. For example, to request linking to the identity provider with the alias my-oidc-provider
+, attach the parameter such as:
+kc_action=idp_link:my-oidc-provider
+1. Refreshing external tokens
+If you use the external token generated by logging into the provider (such as a Facebook or GitHub token), you can refresh this token by re-initiating the account linking API.
+2. Legacy client initiated account linking
+The legacy client initiated account linking is using a custom protocol that is not based on AIA. If you are use this protocol, consider migrating your client application to the AIA based protocol described above because legacy client initiated account linking might be removed in the future Red Hat build of Keycloak versions.
+In addition to the preconditions above, the legacy client initiated account linking has another precondition:
+- The user account must already be logged in as an existing user via the OIDC protocol
+- The application must have access to its access token as it needs information within it to generate the redirect URL.
+To initiate the login, the application must fabricate a URL and redirect the user’s browser to this URL. The URL looks like this:
+/{auth-server-root}/realms/{realm-name}/broker/{provider}/link?client_id={id}&redirect_uri={uri}&nonce={nonce}&hash={hash}
+Here’s a description of each path and query param:
+- provider
+-
+This is the provider alias of the external IDP that you defined in the
+Identity Provider
+section of the admin console. - client_id
+- This is the OIDC client id of your application. When you registered the application as a client in the admin console, you had to specify this client id.
+- redirect_uri
+- This is the application callback URL you want to redirect to after the account link is established. It must be a valid client redirect URI pattern. In other words, it must match one of the valid URL patterns you defined when you registered the client in the admin console.
+- nonce
+- This is a random string that your application must generate
+- hash
+-
+This is a Base64 URL encoded hash. This hash is generated by Base64 URL encoding a SHA_256 hash of
+nonce
++token.getSessionState()
++token.getIssuedFor()
++provider
+. The token variable are obtained from the OIDC access token. Basically you are hashing the random nonce, the user session id, the client id, and the identity provider alias you want to access.
+Here’s an example of Java Servlet code that generates the URL to establish the account link.
+KeycloakSecurityContext session = (KeycloakSecurityContext) httpServletRequest.getAttribute(KeycloakSecurityContext.class.getName());
+AccessToken token = session.getToken();
+String clientId = token.getIssuedFor();
+String nonce = UUID.randomUUID().toString();
+MessageDigest md = null;
+try {
+md = MessageDigest.getInstance("SHA-256");
+} catch (NoSuchAlgorithmException e) {
+throw new RuntimeException(e);
+}
+String input = nonce + token.getSessionState() + clientId + provider;
+byte[] check = md.digest(input.getBytes(StandardCharsets.UTF_8));
+String hash = Base64Url.encode(check);
+request.getSession().setAttribute("hash", hash);
+String redirectUri = ...;
+String accountLinkUrl = KeycloakUriBuilder.fromUri(authServerRootUrl)
+.path("/realms/{realm-name}/broker/{provider}/link")
+.queryParam("nonce", nonce)
+.queryParam("hash", hash)
+.queryParam("client_id", clientId)
+.queryParam("redirect_uri", redirectUri).build(realm, provider).toString();
+Why is this hash included? We do this so that the auth server is guaranteed to know that the client application initiated the request and no other rogue app just randomly asked for a user account to be linked to a specific provider. The auth server will first check to see if the user is logged in by checking the SSO cookie set at login. It will then try to regenerate the hash based on the current login and match it up to the hash sent by the application.
+After the account has been linked, the auth server will redirect back to the redirect_uri
+. If there is a problem servicing the link request, the auth server may or may not redirect back to the redirect_uri
+. The browser may just end up at an error page instead of being redirected back to the application. If there is an error condition and the auth server deems it safe enough to redirect back to the client app, an additional error
+query parameter will be appended to the redirect_uri
+.
+While this API guarantees that the application initiated the request, it does not completely prevent CSRF attacks for this operation. The application is still responsible for guarding against CSRF attacks target at itself.

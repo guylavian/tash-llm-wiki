@@ -136,7 +136,7 @@ def main():
                          f"WindowsServerDocs/identity folder)")
 
     recs, bodies = build(src, args.domain, args.url_base)
-    outdir = os.path.join(ROOT, "corpora", args.domain)
+    outdir = os.path.join(str(paths.CORPORA), args.domain)
     rel = os.path.relpath(outdir, ROOT)
     fams = {}
     for r in recs:
