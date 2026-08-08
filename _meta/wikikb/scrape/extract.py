@@ -48,6 +48,14 @@ BLOCKS = {"p", "div", "section", "article", "main", "ul", "ol", "li", "table", "
 # decrement one it never raised), and the subtree boundary would land in the wrong place.
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param",
         "source", "track", "wbr"}
+# Elements that CANNOT be chrome, whatever their class says, because they CONTAIN the document.
+# Discovered 2026-08-07 on Check Point's MadCap Flare docs, whose skin puts
+# `class="_Skins_Skin_HTML5_Side_Navigation_new"` on <html> itself: CHROME_RE matched
+# `_Navigation_`, the drop counter went up on the first tag of the file and never came down, and
+# every one of those pages extracted to ZERO characters — reported as `too-thin` (a JS-rendered
+# page) when the archived HTML was in fact complete. A false positive on a leaf costs a paragraph;
+# a false positive on the root costs the document, so the root is exempt by construction.
+NEVER_CHROME = {"html", "body", "main", "article"}
 
 MAX_CHARS = int(os.environ.get("WIKIKB_SCRAPE_MAX_CHARS") or 400_000)
 
@@ -112,7 +120,7 @@ class _Reader(HTMLParser):
             if tag not in VOID:
                 self._drop += 1
             return
-        if tag in DROP_TREES or self._is_chrome(attrs):
+        if tag not in NEVER_CHROME and (tag in DROP_TREES or self._is_chrome(attrs)):
             self._drop = 1
             return
         if tag == "title":

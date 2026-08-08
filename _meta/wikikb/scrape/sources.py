@@ -15,7 +15,10 @@ THE FILE (`vault/scrape-sources.json`, override with `WIKIKB_SCRAPE_SOURCES`):
          "label": "Keycloak Server Administration Guide (upstream)",
          "match": "exact",          # or "prefix" — harvest every indexed page under this path
          "enabled": true,
-         "direct": false,           # allow a live fetch when Common Crawl has no capture
+         "direct": false,           # allow a live fetch when NO archive has a capture
+         "archives": null,          # null = the process default (WIKIKB_SCRAPE_ARCHIVES);
+                                    #   ["wayback"] etc. pins which web indexes this site is
+                                    #   looked up in — see archives.py
          "added": "2026-08-05"}
       ]
     }
@@ -227,17 +230,33 @@ def _known_domains():
     return set(tags.load_domains())
 
 
-def add(url, domain, label=None, match="exact", enabled=True, direct=False, today=None, path=None):
+def _validate_archives(selection):
+    """Canonicalize an `archives` list through the registry, re-raising as SourceError.
+
+    Same write-time rule as the domain, one level down: an entry naming an archive this build does
+    not have would sit on the watchlist and be silently ignored on every tick, so the source would
+    look configured while being checked against fewer indexes than its owner believes.
+    """
+    from wikikb.scrape import archives as archmod        # lazy: keeps this module import-light
+    try:
+        return archmod.validate(selection)
+    except archmod.ArchiveError as e:
+        raise SourceError(str(e))
+
+
+def add(url, domain, label=None, match="exact", enabled=True, direct=False, today=None, path=None,
+        archives=None):
     """Add one source. Returns the stored entry. Raises SourceError on anything invalid.
 
     The domain is validated against `vault/taxonomy.md` HERE rather than at harvest time on purpose:
     an entry naming a domain that does not exist would pass config, sit on the watchlist, and then
     fail every cron tick from then on with an error nobody is watching. Fail at write time, where a
-    human is present to read the message.
+    human is present to read the message. `archives` follows the same rule.
     """
     canon = normalize(url)
     if match not in MATCH_MODES:
         raise SourceError("match must be one of %s" % ", ".join(MATCH_MODES))
+    archives = _validate_archives(archives)
     known = _known_domains()
     if domain not in known:
         raise SourceError("unknown domain %r — declare it in vault/taxonomy.md first (known: %s)"
@@ -254,6 +273,10 @@ def add(url, domain, label=None, match="exact", enabled=True, direct=False, toda
         raise SourceError("watchlist full (%d sources); remove some before adding more" % MAX_SOURCES)
     entry = {"url": canon, "domain": domain, "label": (label or "").strip() or None,
              "match": match, "enabled": bool(enabled), "direct": bool(direct),
+             # None, not the resolved default list: a source that inherits the default must KEEP
+             # inheriting it. Freezing today's default into every entry would mean turning an
+             # archive on later silently applied to nothing already on the watchlist.
+             "archives": archives,
              "added": today or time.strftime("%Y-%m-%d")}
     doc["sources"].append(entry)
     save(doc, path)
@@ -306,7 +329,7 @@ def update(url, path=None, **fields):
     harvested — the caller is told so rather than left to assume either behaviour.
     """
     canon = normalize(url)
-    unknown = sorted(set(fields) - {"domain", "label", "match", "enabled", "direct"})
+    unknown = sorted(set(fields) - {"domain", "label", "match", "enabled", "direct", "archives"})
     if unknown:
         # A rename attempt gets the REASON, not just "unknown field". `url` is the selector (the
         # caller passes it positionally), so a client trying to rename reaches for `new_url` — and
@@ -317,10 +340,17 @@ def update(url, path=None, **fields):
                 "the url is a source's identity and cannot be patched — it names the harvested note "
                 "and the kb: token citing pages use, so patching it would strand the harvested file "
                 "under the old slug. Remove %s and add the new url instead." % canon)
-        raise SourceError("not updatable: %s (allowed: domain, label, match, enabled, direct)"
-                          % ", ".join(unknown))
+        raise SourceError("not updatable: %s (allowed: domain, label, match, enabled, direct, "
+                          "archives)" % ", ".join(unknown))
     if "match" in fields and fields["match"] not in MATCH_MODES:
         raise SourceError("match must be one of %s" % ", ".join(MATCH_MODES))
+    if "archives" in fields:
+        # Widening this is the edit to make deliberately: it does NOT re-check indexes already
+        # recorded done for the archives already on the list — those rows stay valid, which is the
+        # point of the ledger. A newly added archive simply has no rows yet and is walked from
+        # scratch. (Unlike `match`, which invalidates the whole history because it changes what
+        # every index would have yielded.)
+        fields["archives"] = _validate_archives(fields["archives"])
     if "domain" in fields:
         known = _known_domains()
         if fields["domain"] not in known:

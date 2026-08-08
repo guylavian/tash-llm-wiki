@@ -477,28 +477,43 @@ def parse_warc_response(record):
     except (IndexError, ValueError):
         http_status = 0
     http_headers = _headers(text, skip_first=True)
-    enc = (http_headers.get("content-encoding") or "").lower().strip()
+    body = decode_content_encoding(body, http_headers.get("content-encoding"))
+    return warc_headers, http_status, http_headers, body
+
+
+def decode_content_encoding(body, encoding):
+    """Undo `Content-Encoding` on an archived body. Shared by the WARC path and `archives.py`.
+
+    An archive stores the payload exactly as it came off the wire, so a page served gzipped is
+    stored gzipped — through a WARC record OR through a Wayback `id_` replay, which returns the
+    original headers and body untouched. Both routes therefore need this, and one copy is the
+    difference between "the extractor got binary noise" being fixed once or twice.
+
+    A mislabelled body is served RAW rather than dropped: a wrong header should cost a garbled note
+    a human can see, not a silently missing document.
+    """
+    enc = (encoding or "").lower().strip()
     if enc in ("gzip", "x-gzip"):
         try:
-            body = gzip.decompress(body)
+            return gzip.decompress(body)
         except (OSError, EOFError, gzip.BadGzipFile):
-            pass                       # a mislabelled body is better served raw than not at all
-    elif enc == "deflate":
+            return body
+    if enc == "deflate":
         import zlib
         try:
-            body = zlib.decompress(body)
+            return zlib.decompress(body)
         except zlib.error:
             try:
-                body = zlib.decompress(body, -zlib.MAX_WBITS)
+                return zlib.decompress(body, -zlib.MAX_WBITS)
             except zlib.error:
-                pass
-    elif enc == "br":
+                return body
+    if enc == "br":
         try:
             import brotli                                        # optional; absent on a stdlib box
-            body = brotli.decompress(body)
+            return brotli.decompress(body)
         except Exception:                                        # noqa: BLE001
             raise CrawlError("capture is brotli-encoded and the `brotli` module is not installed")
-    return warc_headers, http_status, http_headers, body
+    return body
 
 
 def _headers(text, skip_first=False):

@@ -146,11 +146,18 @@ def _src(doc, url, match):
 
 
 def done_indexes(doc, url, match):
-    """Crawl ids already processed for this source — the set the harvest loop skips."""
+    """Index ids already processed for this source — the set the harvest loop skips.
+
+    A row flagged `provisional` does NOT count as done. That flag exists because the ledger's
+    immutability argument holds for a published Common Crawl index and NOT for a replay archive's
+    current-year bucket (`IA-2026`): the Internet Archive is still adding captures to it, so
+    "checked" is true for a day. Closed years (`IA-2025`) are recorded normally and skipped forever,
+    which is what keeps the walk affordable. See `archives.ReplayArchive.is_provisional`.
+    """
     row = doc["sources"].get(url)
     if row is None or row.get("match") != match:
         return set()                 # match changed ⇒ nothing counts as done any more
-    return set(row.get("indexes") or {})
+    return {i for i, e in (row.get("indexes") or {}).items() if not (e or {}).get("provisional")}
 
 
 def record(doc, url, match, index_id, stats, today=None):

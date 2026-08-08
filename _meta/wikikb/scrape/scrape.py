@@ -4,6 +4,7 @@
     python3 -m wikikb scrape --domain keycloak --all             # everything on the watchlist
     python3 -m wikikb scrape --domain keycloak --url https://…   # one URL, watchlist or not
     python3 -m wikikb scrape --domain keycloak --url … --dry-run # look it up, write nothing
+    python3 -m wikikb scrape --all --archive wayback             # one web index only, this run
 
     # watchlist CRUD — the same operations as GET/POST/PATCH/DELETE /scrape/sources, available on a
     # box where nothing is serving. These edit a JSON file and open no socket, so unlike a harvest
@@ -13,13 +14,19 @@
     python3 -m wikikb scrape --update https://… --disable        # partial: only what you pass
     python3 -m wikikb scrape --remove https://…                  # harvested notes are KEPT
 
-WHAT IT DOES, AND WHERE IT STOPS. A harvest resolves the newest Common Crawl index, asks whether
-the URL is in it, pulls that capture, extracts Markdown, and writes ONE file plus ONE sidecar into
+WHAT IT DOES, AND WHERE IT STOPS. A harvest asks EVERY enabled web index (`archives.py`:
+Common Crawl, the Internet Archive, arquivo.pt, vefsafn.is) whether the URL is captured, pulls the
+captures, extracts Markdown, and writes ONE file plus ONE sidecar per URL into
 `vault/_sources/<domain>/_raw/web/`. It does not write a corpus record, a reference note, or a
 synthesis page — those are the next three commands (`web_to_corpus` -> `corpus_to_vault` ->
 `build`), which is exactly the chain the PDF upload path already runs. Keeping the fetch separate
 from the fold-in is what lets a failed extraction be retried without regenerating the vault, and
 what lets several harvests share one `build`.
+
+SEVERAL ARCHIVES, ONE NOTE PER URL. Two archives holding the same page do NOT produce two notes:
+the note is named from the URL, and `_write_note`'s never-overwrite-a-newer-capture rule decides
+which archive's capture the note holds — the newest, regardless of which archive was walked last.
+That is what makes taking the union of four indexes safe rather than a source of duplicates.
 
 THREE RULES THIS MODULE ENFORCES, EACH BECAUSE THE ALTERNATIVE IS SILENTLY WRONG:
 
@@ -29,11 +36,13 @@ THREE RULES THIS MODULE ENFORCES, EACH BECAUSE THE ALTERNATIVE IS SILENTLY WRONG
   2. UNCHANGED CAPTURES ARE SKIPPED, NOT REWRITTEN. The sidecar stores the extracted body's digest;
      a re-run that computes the same digest leaves the file alone. Rewriting it would bump mtimes
      across the raw tier every night and make "what actually changed" unanswerable.
-  3. COMMON CRAWL FIRST; A LIVE FETCH IS OPT-IN. `"direct": true` on a source (or `--direct`) lets
-     a URL with no capture be fetched from the origin. It is off by default because the point of
-     harvesting from the archive is not to hit other people's servers on a cron, and because a
-     direct fetch is the only path here that can be aimed at an arbitrary host — which is why it
-     also carries the address guard in `_guard_direct()`.
+  3. THE ARCHIVES FIRST; A LIVE FETCH IS OPT-IN. `"direct": true` on a source (or `--direct`) lets
+     a URL that NO archive captured be fetched from the origin. It is off by default because the
+     point of harvesting from an archive is not to hit other people's servers on a cron, and
+     because a direct fetch is the only path here that can be aimed at an arbitrary host — which is
+     why it also carries the address guard in `_guard_direct()`. Adding archives makes this hatch
+     needed less often, not more: a page missing from Common Crawl is frequently in the Wayback
+     Machine, and a capture costs the origin nothing.
 
 PROVENANCE. Each harvested note is cited as `web:<url> (<label>, fetched YYYY-MM-DD)` where the
 date is the CAPTURE date, not today's — the document is what the crawler saw then. Per CLAUDE.md's
@@ -54,6 +63,7 @@ from urllib.parse import urlsplit
 
 from wikikb import modes
 from wikikb import paths
+from wikikb.scrape import archives as archmod
 from wikikb.scrape import commoncrawl as cc
 from wikikb.scrape import extract as extractor
 from wikikb.scrape import sources as srcmod
@@ -153,7 +163,8 @@ def _write_note(domain, url, title, markdown, meta, label=None, dry_run=False):
             prior = None
     if prior and prior.get("body_sha256") == digest and os.path.isfile(md_path):
         return {"url": url, "domain": domain, "status": "unchanged", "file": stem + ".md",
-                "chars": len(markdown), "captured": prior.get("captured")}
+                "chars": len(markdown), "captured": prior.get("captured"),
+                "archive": meta.get("archive")}
     # NEVER LET AN OLDER CAPTURE OVERWRITE A NEWER ONE. Harvesting across many crawls means the same
     # URL is captured repeatedly, and every capture maps to the SAME note (the slug is derived from
     # the URL). Without this, walking the crawl history would leave each note holding whichever
@@ -166,9 +177,15 @@ def _write_note(domain, url, title, markdown, meta, label=None, dry_run=False):
     if not old_ts and prior:                       # notes written before captured_ts existed
         old_ts = str(prior.get("captured") or "").replace("-", "")
     if prior and old_ts and new_ts and new_ts[:len(old_ts)] < old_ts:
+        # This guard now also arbitrates BETWEEN archives, which is the whole reason several may
+        # harvest the same URL safely: whichever archive holds the newest capture wins, regardless
+        # of which one ran last. Without it, adding Wayback beside Common Crawl would mean the note
+        # ended up holding whichever archive happened to be processed second.
         return {"url": url, "domain": domain, "status": "older-capture", "file": stem + ".md",
                 "chars": len(markdown), "captured": prior.get("captured"),
-                "hint": "kept the newer capture already on disk (%s)" % prior.get("captured")}
+                "archive": meta.get("archive"),
+                "hint": "kept the newer capture already on disk (%s, via %s)"
+                        % (prior.get("captured"), prior.get("archive") or "commoncrawl")}
     sidecar = {
         "url": url,
         "domain": domain,
@@ -179,6 +196,12 @@ def _write_note(domain, url, title, markdown, meta, label=None, dry_run=False):
         # never-overwrite-newer comparison above needs more precision than a day: two crawls can
         # capture the same URL on the same date.
         "captured_ts": str(meta.get("timestamp") or ""),
+        # WHICH archive and which of its generations this body came from. `cc_index` is kept beside
+        # the generic pair because sidecars written before the multi-archive registry carry it, and
+        # a field that silently changes name makes "where did this note come from?" unanswerable for
+        # everything harvested before today.
+        "archive": meta.get("archive") or meta.get("source") or "commoncrawl",
+        "index_id": meta.get("index_id") or meta.get("cc_index"),
         "cc_index": meta.get("cc_index"),
         "warc_file": meta.get("warc_file"),
         "warc_digest": meta.get("digest"),
@@ -193,7 +216,7 @@ def _write_note(domain, url, title, markdown, meta, label=None, dry_run=False):
     if dry_run:
         return {"url": url, "domain": domain, "status": "would-write", "file": stem + ".md",
                 "chars": len(markdown), "captured": sidecar["captured"],
-                "extractor": sidecar["extractor"]}
+                "extractor": sidecar["extractor"], "archive": sidecar["archive"]}
     os.makedirs(d, exist_ok=True)
     # Containment assert before any write — the same belt-and-braces check `do_upload` does. The
     # slug is shape-safe by construction, but a planted symlink in the path chain is not shape.
@@ -207,36 +230,41 @@ def _write_note(domain, url, title, markdown, meta, label=None, dry_run=False):
         fh.write("\n")
     return {"url": url, "domain": domain, "status": "updated" if prior else "new",
             "file": stem + ".md", "chars": len(markdown), "captured": sidecar["captured"],
-            "extractor": sidecar["extractor"]}
+            "extractor": sidecar["extractor"], "archive": sidecar["archive"]}
 
 
 # --- the public entry points ----------------------------------------------------------------------
 
 def fetch(url, domain=None, match="exact", direct=False, index_id=None, label=None,
-          dry_run=False, limit=None):
-    """Harvest ONE source (one URL, or every indexed page under it when `match="prefix"`).
+          dry_run=False, limit=None, archive="commoncrawl"):
+    """Harvest ONE source from ONE index generation of ONE archive.
 
-    ONLINE MODE ONLY — `require_online()` is reached inside `cc.lookup` / `fetch_direct`, i.e. at
-    the socket, so no caller can route around it.
+    `archive` names an entry in the registry (`archives.py`): `commoncrawl` walks crawls,
+    `wayback`/`arquivo`/`vefsafn` walk year buckets. `index_id` is that archive's generation id —
+    `CC-MAIN-2026-30`, `IA-2019`. The two always travel together, because an id only means anything
+    to the archive that minted it.
+
+    ONLINE MODE ONLY — `require_online()` is reached inside the archive's lookup / `fetch_direct`,
+    i.e. at the socket, so no caller can route around it.
 
     Returns a LIST of result rows (one per document written or skipped). It does not raise for the
     ordinary "not in the index" case: that is an ANSWER, reported as `status: "not-indexed"`,
-    because a run over a watchlist must not abort on the first site the archive happens not to
-    cover.
+    because a run over a watchlist must not abort on the first site an archive happens not to cover.
     """
     modes.require_online("web scraping")
     if not domain:
         raise ValueError("--domain is required (which knowledge domain does this source feed?)")
     canon = srcmod.normalize(url)
-    index_id = index_id or cc.latest_index()
+    arch = archmod.get(archive) if not hasattr(archive, "lookup") else archive
+    index_id = index_id or (cc.latest_index() if arch.name == "commoncrawl" else arch.indexes()[0])
     limit = limit or (PREFIX_LIMIT if match == "prefix" else 1)
 
     try:
-        recs = cc.lookup(canon, index_id=index_id, match=match, limit=limit)
-    except cc.CrawlError as e:
+        recs = arch.lookup(canon, index_id=index_id, match=match, limit=limit)
+    except archmod.ArchiveError as e:
         if not direct:
             return [{"url": canon, "domain": domain, "status": "lookup-failed", "error": str(e),
-                     "cc_index": index_id}]
+                     "archive": arch.name, "index_id": index_id}]
         recs = []
 
     rows = []
@@ -244,7 +272,8 @@ def fetch(url, domain=None, match="exact", direct=False, index_id=None, label=No
         if not direct:
             # The documented outcome of the archive-first design: consult the index, and when the
             # URL is not there, say so rather than quietly reaching for the origin server.
-            return [{"url": canon, "domain": domain, "status": "not-indexed", "cc_index": index_id}]
+            return [{"url": canon, "domain": domain, "status": "not-indexed",
+                     "archive": arch.name, "index_id": index_id}]
         try:
             body, meta = fetch_direct(canon)
         except (ValueError, urllib.error.URLError, OSError, TimeoutError) as e:
@@ -254,13 +283,16 @@ def fetch(url, domain=None, match="exact", direct=False, index_id=None, label=No
         captures = []
         for rec in recs[:limit]:
             try:
-                body, meta = cc.fetch_capture(rec)
-            except cc.CrawlError as e:
+                body, meta = arch.fetch_capture(rec)
+            except archmod.ArchiveError as e:
                 rows.append({"url": rec.get("url"), "domain": domain, "status": "capture-failed",
-                             "error": str(e)})
+                             "archive": arch.name, "error": str(e)})
                 continue
-            meta["cc_index"] = index_id
-            meta["source"] = "commoncrawl"
+            meta["index_id"] = index_id
+            meta["archive"] = arch.name
+            meta["source"] = arch.name
+            if arch.name == "commoncrawl":
+                meta["cc_index"] = index_id      # kept: the field name already on disk in sidecars
             captures.append((rec.get("url") or canon, body, meta))
 
     for got_url, body, meta in captures:
@@ -270,9 +302,16 @@ def fetch(url, domain=None, match="exact", direct=False, index_id=None, label=No
         if len(markdown) < MIN_CHARS:
             # A near-empty extraction is the JS-rendered-page case. Reporting it beats writing a
             # 40-character note into the IMMUTABLE tier, where it would then be cited as ground truth.
+            # NO ARCHIVE FIXES THIS, which is why the hint says so: every index here stores the HTML
+            # as SERVED, and a client-rendered page serves a shell. Measured 2026-08-07 on a Check
+            # Point SK article — 287 visible characters live to a crawler UA, 129 from the Wayback
+            # capture. Adding archives widens coverage of static docs; it cannot conjure a body the
+            # server never sent.
             rows.append({"url": got_url, "domain": domain, "status": "too-thin",
-                         "chars": len(markdown), "extractor": used,
-                         "hint": "page is likely JS-rendered; Common Crawl stores the served HTML only"})
+                         "chars": len(markdown), "extractor": used, "archive": arch.name,
+                         "hint": "page is likely JS-rendered; every web index stores the HTML as "
+                                 "served, so no archive will hold this body — harvest the site's "
+                                 "static doc portal instead"})
             continue
         rows.append(_write_note(domain, got_url, title, markdown, meta, label=label, dry_run=dry_run))
     return rows
@@ -285,76 +324,116 @@ def _tally_rows(rows):
     return out
 
 
-def scrape_source(source, dry_run=False, index_id=None, max_indexes=None, progress=None,
-                  state_path=None):
-    """Harvest ONE watchlist source across every crawl it has not been harvested against yet.
+def plan_indexes(archs, done, max_indexes=None):
+    """The (archive, index_id) work list for one source, INTERLEAVED across archives.
 
-    THE POINT OF WALKING ALL CRAWLS: Common Crawl samples the web rather than exhaustively
+    Round-robin, not archive-by-archive, and that is the point: a queued run is bounded
+    (`WIKIKB_SCRAPE_MAX_INDEXES_PER_RUN`, 12 by default, so the step finishes inside its timeout).
+    Draining Common Crawl's 126 crawls first would mean a nightly run never reached the Internet
+    Archive at all for the first eleven days — the archive that, measured on vendor doc sites,
+    holds one to two orders of magnitude more pages. Interleaving makes a bounded budget buy
+    progress everywhere.
+
+    Each archive contributes its own list newest-first, so the first documents written are the most
+    current whichever archive they come from.
+    """
+    queues = []
+    for a in archs:
+        try:
+            queues.append((a, [i for i in a.indexes() if i not in done]))
+        except archmod.ArchiveError:
+            continue            # an unreachable crawl list must not stop the archives that answer
+    plan = []
+    for depth in range(max((len(q) for _, q in queues), default=0)):
+        for a, q in queues:
+            if depth < len(q):
+                plan.append((a, q[depth]))
+    if max_indexes and max_indexes > 0:
+        plan = plan[:max_indexes]
+    return plan
+
+
+def scrape_source(source, dry_run=False, index_id=None, max_indexes=None, progress=None,
+                  state_path=None, archives=None):
+    """Harvest ONE watchlist source across every index generation, of every archive, not yet done.
+
+    THE POINT OF WALKING GENERATIONS: Common Crawl samples the web rather than exhaustively
     recrawling it, so which pages of a site appear varies enormously per crawl — measured on
     `support.checkpoint.com`, 3 of 4 harvested pages appear in ONLY the newest crawl. Harvesting
-    just the newest index therefore captures a thin, arbitrary slice. Walking the history and
-    accumulating is how a site's coverage actually gets built.
+    just the newest index therefore captures a thin, arbitrary slice.
 
-    THE LEDGER MAKES IT AFFORDABLE. A published crawl is immutable, so a crawl already processed for
-    this source is done forever — including one that held NOTHING, which is recorded too so it is
-    never re-checked. The first run is long (126 crawls today); every later run touches only the
-    crawls published since, which is typically one a month.
+    THE POINT OF WALKING SEVERAL ARCHIVES: the same argument one level up. Different archives made
+    different sampling decisions, so their coverage of a vendor doc site differs by orders of
+    magnitude (see `archives.py` for the measurements). The union is what a knowledge base wants;
+    the ledger and the never-overwrite-a-newer-capture rule are what make taking the union safe.
 
-    State is saved after EVERY crawl, so an interrupted run resumes instead of restarting.
-    `index_id` pins a single crawl and bypasses the walk entirely (the reproducibility path).
+    THE LEDGER MAKES IT AFFORDABLE — with one asterisk this function is responsible for. A
+    published CC crawl is immutable, so a processed one is done forever, including one that held
+    NOTHING. A replay archive's CURRENT-YEAR bucket is not immutable, so it is recorded
+    `provisional` and re-checked every run; closed years are recorded normally. That asterisk is
+    why `record()` is passed the archive's own verdict instead of a blanket "done".
+
+    State is saved after EVERY generation, so an interrupted run resumes instead of restarting.
+    `index_id` pins one generation and bypasses the walk entirely (the reproducibility path); it
+    needs `archive` too, since an id only means something to the archive that minted it.
     """
     url, domain = source["url"], source.get("domain")
     match = source.get("match", "exact")
+    archs = [archmod.get(a) for a in archives] if archives else archmod.for_source(source)
     rows = []
 
-    if index_id:                                   # pinned: one crawl, no ledger involvement
+    if index_id:                                   # pinned: one generation, no ledger involvement
         return fetch(url, domain, match=match, direct=bool(source.get("direct")),
-                     index_id=index_id, label=source.get("label"), dry_run=dry_run)
+                     index_id=index_id, label=source.get("label"), dry_run=dry_run,
+                     archive=archs[0].name)
 
     try:
         done = statemod.done_indexes(statemod.load(state_path), url, match)
     except ValueError as e:
         return [{"url": url, "domain": domain, "status": "invalid", "error": str(e)}]
-    # all_indexes() may itself write the collinfo cache, so the ledger is never held across it —
-    # every write below goes through state.update(), which re-reads first.
-    todo = [i for i in cc.all_indexes() if i not in done]
-    if max_indexes and max_indexes > 0:
-        todo = todo[:max_indexes]
-    if not todo:
+    # An archive's indexes() may itself write the collinfo cache, so the ledger is never held across
+    # it — every write below goes through state.update(), which re-reads first.
+    plan = plan_indexes(archs, done, max_indexes)
+    if not plan:
         return [{"url": url, "domain": domain, "status": "up-to-date",
-                 "hint": "all %d published crawls already harvested for this source" % len(done)}]
+                 "hint": "every published index of %s already harvested for this source (%d done)"
+                         % ("/".join(a.name for a in archs), len(done))}]
 
-    for n, cid in enumerate(todo, 1):
+    for n, (arch, cid) in enumerate(plan, 1):
         if progress:
-            progress("  [%d/%d] %s  %s" % (n, len(todo), cid, url))
+            progress("  [%d/%d] %-11s %-16s %s" % (n, len(plan), arch.name, cid, url))
         try:
             got = fetch(url, domain, match=match, direct=bool(source.get("direct")),
-                        index_id=cid, label=source.get("label"), dry_run=dry_run)
+                        index_id=cid, label=source.get("label"), dry_run=dry_run, archive=arch)
         except (ValueError, srcmod.SourceError) as e:
             rows.append({"url": url, "domain": domain, "status": "invalid", "error": str(e)})
-            break                                  # a bad source is bad for every crawl
-        except cc.CrawlError as e:
+            break                                  # a bad source is bad for every archive
+        except archmod.ArchiveError as e:
             rows.append({"url": url, "domain": domain, "status": "lookup-failed",
-                         "cc_index": cid, "error": str(e)})
-            continue                               # one unreachable crawl must not end the walk
+                         "archive": arch.name, "index_id": cid, "error": str(e)})
+            continue                               # one unreachable index must not end the walk
         rows.extend(got)
         t = _tally_rows(got)
-        # A crawl is recorded ONLY when it was actually answered. A lookup failure is transient
-        # (the CDX API 503s for long stretches), and recording it as done would permanently skip a
-        # crawl this source was never really checked against.
+        # A generation is recorded ONLY when it was actually answered. A lookup failure is transient
+        # (the CDX API 503s for long stretches; the IA rate-limits), and recording it as done would
+        # permanently skip an index this source was never really checked against.
         if not dry_run and not t.get("lookup-failed"):
             stats = {"new": t.get("new", 0), "updated": t.get("updated", 0),
                      "unchanged": t.get("unchanged", 0), "too_thin": t.get("too-thin", 0),
-                     "older": t.get("older-capture", 0), "empty": bool(t.get("not-indexed"))}
-            # After EVERY crawl — the run must be resumable. update() re-reads first, so this
-            # cannot clobber the collinfo cache all_indexes() may have written above.
+                     "older": t.get("older-capture", 0), "empty": bool(t.get("not-indexed")),
+                     "archive": arch.name,
+                     # The asterisk from the docstring: a still-growing bucket is recorded so the
+                     # run's progress is visible, but flagged so `done_indexes` does not skip it.
+                     "provisional": bool(arch.is_provisional(cid))}
+            # After EVERY generation — the run must be resumable. update() re-reads first, so this
+            # cannot clobber the collinfo cache the index list may have written above.
             statemod.update(lambda d, c=cid, s=stats: statemod.record(d, url, match, c, s),
                             state_path)
     return rows
 
 
 def scrape_all(domain=None, dry_run=False, index_id=None, path=None, max_indexes=None,
-               progress=None, state_path=None):
+               progress=None, state_path=None, archives=None):
     """Harvest every ENABLED watchlist source (optionally just one domain's).
 
     One source's failure never stops the run — each row carries its own status, and the caller (CLI,
@@ -368,7 +447,7 @@ def scrape_all(domain=None, dry_run=False, index_id=None, path=None, max_indexes
         try:
             rows.extend(scrape_source(s, dry_run=dry_run, index_id=index_id,
                                       max_indexes=max_indexes, progress=progress,
-                                      state_path=state_path))
+                                      state_path=state_path, archives=archives))
         except (ValueError, srcmod.SourceError) as e:
             rows.append({"url": s.get("url"), "domain": s.get("domain"), "status": "invalid",
                          "error": str(e)})
@@ -396,12 +475,17 @@ def sources():
     # watching a long first run is actually asking.
     for s in srcs:
         s["state"] = statemod.summary(doc, s.get("url"))
+        # What this source will ACTUALLY be checked against — the per-source override resolved
+        # against the process default. An operator reading the watchlist should not have to
+        # replay `archives.for_source()` in their head to answer "is Wayback on for this one?".
+        s["archives_effective"] = [a.name for a in archmod.for_source(s)]
     cached = statemod.collinfo_get(doc, max_age=float("inf")) or []
     return {
         "file": str(paths.SCRAPE_SOURCES),
         "exists": os.path.isfile(str(paths.SCRAPE_SOURCES)),
         "sources": srcs,
         "extractor": extractor.available(),
+        "archives": archmod.describe(),
         "lookup_backend": cc.LOOKUP_BACKEND,
         "index_pin": cc.INDEX_PIN or None,
         "state_file": str(paths.SCRAPE_STATE),
@@ -421,7 +505,7 @@ def _tally(rows):
 
 def _print_rows(rows):
     for r in rows:
-        line = "  %-14s %s" % (r["status"], r.get("url"))
+        line = "  %-14s %-11s %s" % (r["status"], r.get("archive") or "", r.get("url"))
         if r.get("chars"):
             line += "  (%d chars%s)" % (r["chars"], ", %s" % r["extractor"] if r.get("extractor") else "")
         if r.get("error"):
@@ -467,13 +551,19 @@ def main():
                     help="allow a LIVE fetch from the origin when Common Crawl has no capture "
                          "(off by default — the archive-first rule)")
     ap.add_argument("--index",
-                    help="pin ONE crawl id, e.g. CC-MAIN-2026-30, and skip the ledger entirely "
-                         "(the reproducible path). Default: walk every crawl not yet harvested "
-                         "for the source, newest first.")
+                    help="pin ONE index id — CC-MAIN-2026-30, IA-2019 — and skip the ledger "
+                         "entirely (the reproducible path). Default: walk every index not yet "
+                         "harvested for the source, newest first, across every enabled archive.")
+    ap.add_argument("--archive", action="append", default=[], metavar="NAME",
+                    help="query only this web index (repeatable): %s. Default: the source's own "
+                         "`archives` list, else WIKIKB_SCRAPE_ARCHIVES (%s). With --add/--update "
+                         "this SETS the source's list instead."
+                         % (", ".join(archmod.names()), ",".join(archmod.DEFAULT_ARCHIVES)))
     ap.add_argument("--max-indexes", type=int, default=None,
-                    help="process at most N not-yet-harvested crawls this run. The full history is "
-                         "126 crawls; use this to bound a first run and let later runs continue "
-                         "(the ledger makes it resumable).")
+                    help="process at most N not-yet-harvested indexes this run, interleaved across "
+                         "archives. The history is ~126 Common Crawl crawls plus ~31 year buckets "
+                         "per replay archive; use this to bound a first run and let later runs "
+                         "continue (the ledger makes it resumable).")
     ap.add_argument("--forget", metavar="URL",
                     help="drop URL's harvest ledger so its crawls are reprocessed (use after an "
                          "extractor fix); with --index, forget just that one crawl")
@@ -490,14 +580,17 @@ def main():
             print("watchlist: %s%s" % (info["file"], "" if info["exists"] else "  (not created yet)"))
             print("extractor: %s   lookup: %s   index: %s"
                   % (info["extractor"], info["lookup_backend"], info["index_pin"] or "latest"))
+            print("archives:  default %s   available %s"
+                  % (",".join(info["archives"]["default"]), ",".join(info["archives"]["known"])))
             for s in info["sources"]:
                 st = s.get("state") or {}
                 print("  [%s] %-16s %s%s" % ("x" if s.get("enabled", True) else " ",
                                              s.get("domain"), s.get("url"),
                                              "  (%s)" % s["match"] if s.get("match") != "exact" else ""))
-                print("      crawls harvested: %s/%s   documents: %s   last: %s"
-                      % (st.get("indexes_done", 0), info.get("crawls_published") or "?",
-                         st.get("documents", 0), st.get("last_index") or "—"))
+                print("      archives: %s   indexes harvested: %s   documents: %s   last: %s"
+                      % (",".join(s.get("archives_effective") or []),
+                         st.get("indexes_done", 0), st.get("documents", 0),
+                         st.get("last_index") or "—"))
             if not info["sources"]:
                 print("  (empty — add one: --add <URL> --domain <d>, POST /scrape/sources, "
                       "or edit the file)")
@@ -532,9 +625,11 @@ def main():
                 if not args.domain:
                     raise SystemExit("scrape ▸ --add requires --domain")
                 e = srcmod.add(args.add, args.domain, label=args.label, match=args.match,
-                               direct=bool(args.direct))
-                print("added   %s  [%s]%s" % (e["url"], e["domain"],
-                                              "  (%s)" % e["match"] if e["match"] != "exact" else ""))
+                               direct=bool(args.direct), archives=args.archive or None)
+                print("added   %s  [%s]%s\n        archives: %s"
+                      % (e["url"], e["domain"],
+                         "  (%s)" % e["match"] if e["match"] != "exact" else "",
+                         ",".join(e.get("archives") or archmod.DEFAULT_ARCHIVES)))
             elif args.remove:
                 e = srcmod.remove(args.remove)
                 print("removed %s  [%s]\n        already-harvested notes are KEPT (the raw tier is "
@@ -554,9 +649,11 @@ def main():
                     fields["enabled"] = args.enabled
                 if args.direct is not None:
                     fields["direct"] = args.direct
+                if args.archive:
+                    fields["archives"] = args.archive
                 if not fields:
                     raise SystemExit("scrape ▸ --update needs at least one of --domain/--label/"
-                                     "--match/--enable/--disable/--direct/--no-direct")
+                                     "--match/--archive/--enable/--disable/--direct/--no-direct")
                 e, changed = srcmod.update(args.update, **fields)
                 print("updated %s  [%s]  changed: %s"
                       % (e["url"], e.get("domain"), ", ".join(changed) or "nothing (already set)"))
@@ -579,31 +676,45 @@ def main():
     # captured in a job log, so an operator (or a stalled-job diagnosis) needs to see WHICH crawl it
     # is on rather than a silent process for twenty minutes.
     progress = None if args.json else (lambda line: print(line, flush=True))
+    # A pinned --index implies its archive: `IA-2019` handed to the Common Crawl adapter is not an
+    # empty result, it is a mid-run parse error. An explicit --archive still wins.
+    if args.index and not args.archive:
+        owner = archmod.archive_for_index(args.index)
+        if owner is None:
+            raise SystemExit("scrape ▸ --index %s: no archive mints ids of that shape "
+                             "(expected CC-MAIN-YYYY-NN, or one of %s with a -YYYY suffix)"
+                             % (args.index, ", ".join(archmod.names())))
+        args.archive = [owner.name]
     try:
         if args.all:
             rows = scrape_all(domain=args.domain, dry_run=args.dry_run, index_id=args.index,
-                              max_indexes=args.max_indexes, progress=progress)
+                              max_indexes=args.max_indexes, progress=progress,
+                              archives=args.archive or None)
         else:
             if not args.domain:
                 raise SystemExit("scrape ▸ --url requires --domain")
             rows = []
+            # An ad-hoc --url is NOT on the watchlist, so it has no ledger row and walking the full
+            # history for a one-off lookup would be a surprise. It stays single-generation per
+            # archive: pinned by --index, else each archive's newest. It DOES still ask every
+            # enabled archive — "is this page anywhere" is the question being asked.
             for u in args.url:
-                # An ad-hoc --url is NOT on the watchlist, so it has no ledger row and walking the
-                # full history for a one-off lookup would be a surprise. It stays single-crawl:
-                # pinned by --index, else the newest.
-                rows.extend(fetch(u, args.domain, match=args.match, direct=args.direct,
-                                  index_id=args.index, dry_run=args.dry_run, limit=args.limit))
+                for a in (args.archive or archmod.DEFAULT_ARCHIVES):
+                    rows.extend(fetch(u, args.domain, match=args.match, direct=args.direct,
+                                      index_id=args.index, dry_run=args.dry_run, limit=args.limit,
+                                      archive=a))
     except (srcmod.SourceError, ValueError) as e:
         raise SystemExit("scrape ▸ %s" % e)
-    except cc.CrawlError as e:
-        raise SystemExit("scrape ▸ Common Crawl: %s" % e)
+    except archmod.ArchiveError as e:
+        raise SystemExit("scrape ▸ archive lookup: %s" % e)
 
     if args.json:
         print(json.dumps(rows, indent=2, ensure_ascii=False))
         tally = _tally(rows)
     else:
-        print("scrape ▸ crawls=%s  domain=%s" % (
+        print("scrape ▸ indexes=%s  archives=%s  domain=%s" % (
             args.index or ("all not-yet-harvested" if args.all else "newest"),
+            ",".join(args.archive) if args.archive else "per-source/default",
             args.domain or "(all)"))
         tally = _print_rows(rows)
         if not args.dry_run and (tally.get("new") or tally.get("updated")):

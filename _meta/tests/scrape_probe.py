@@ -44,6 +44,7 @@ sys.path.insert(0, META)  # test bootstrap: make `import wikikb` importable
 
 from wikikb import modes                                  # noqa: E402
 from wikikb import paths                                  # noqa: E402
+from wikikb.scrape import archives as archmod             # noqa: E402
 from wikikb.scrape import commoncrawl as cc               # noqa: E402
 from wikikb.scrape import cron as cronmod                 # noqa: E402
 from wikikb.scrape import extract as extractor            # noqa: E402
@@ -308,6 +309,19 @@ def case_extract():
     check("a JS-only page extracts to (near) nothing — the too-thin case the harvester refuses",
           len(empty) < 200, repr(empty[:80]))
     check("available() reports which extractor is live", extractor.available() in ("stdlib", "trafilatura"))
+    # REGRESSION (2026-08-07): a chrome-looking class on a STRUCTURAL ROOT dropped the whole
+    # document. Check Point's MadCap Flare skin puts `_Skins_Skin_HTML5_Side_Navigation_new` on
+    # <html>; CHROME_RE matched `_Navigation_`, the drop counter went up on the first tag and never
+    # came down, and every one of those pages extracted to ZERO characters — then got reported as
+    # `too-thin`, i.e. "this page is JS-rendered", when the archived HTML was complete. A false
+    # positive on a leaf costs a paragraph; on the root it costs the document.
+    for root in ('<html class="_Skins_Skin_HTML5_Side_Navigation_new">',
+                 '<html><body class="site-header-menu">'):
+        _, body, _ = extractor.to_markdown(
+            root + "<head><title>T</title></head><body><h1>Real</h1>"
+                   "<p>Body text that must survive.</p></body></html>")
+        check("a chrome-looking class on %s does not delete the document" % root.split()[0][1:],
+              "Body text that must survive." in body, repr(body[:120]))
 
 
 # --- E. the cron parser ------------------------------------------------------------------------------
@@ -551,9 +565,149 @@ def case_ledger():
         shutil.rmtree(vault, ignore_errors=True)
 
 
+# --- I. the multi-archive registry ------------------------------------------------------------------
+
+def case_archives():
+    print("\nI. the archive registry (several web indexes behind one interface)")
+    check("commoncrawl is always available and is in the default set",
+          "commoncrawl" in archmod.names() and "commoncrawl" in archmod.DEFAULT_ARCHIVES)
+    check("the Internet Archive is wired in (the coverage win this exists for)",
+          "wayback" in archmod.names())
+
+    # Three CDX dialects, one record shape. Getting this wrong is silent: a mis-parsed record has no
+    # timestamp, so the note's `fetched` date falls back to today and an immutable note claims to be
+    # fresher than it is.
+    ia = ('[["urlkey","timestamp","original","mimetype","statuscode","digest","length"],'
+          '["com,x)/a","20200102030405","https://x.com/a","text/html","200","D","9"]]')
+    pywb = '{"urlkey":"com,x)/b","timestamp":"20110102030405","url":"https://x.com/b",' \
+           '"mime":"text/html","status":"200"}'
+    cdxj = 'com,x)/c 20040102030405 {"url":"https://x.com/c","mime":"text/html","status":"200"}'
+    for name, text, want in (("web.archive.org array-of-arrays", ia, "20200102030405"),
+                             ("pywb NDJSON (arquivo.pt)", pywb, "20110102030405"),
+                             ("OpenWayback CDXJ (vefsafn.is)", cdxj, "20040102030405")):
+        recs = archmod.parse_cdx(text)
+        check("parse_cdx reads %s and keeps the timestamp" % name,
+              len(recs) == 1 and recs[0].get("timestamp") == want
+              and recs[0].get("url", "").startswith("https://x.com/")
+              and recs[0].get("status") == "200" and recs[0].get("mime") == "text/html",
+              recs)
+    check("parse_cdx normalizes IA's field names to CC's (so _keep/_newest_per_url are REUSED)",
+          archmod.parse_cdx(ia)[0].get("url") == "https://x.com/a")
+
+    # Year buckets, and the immutability line the ledger depends on.
+    w = archmod.get("wayback")
+    ix = w.indexes()
+    year = time.gmtime().tm_year
+    check("a replay archive partitions into year buckets, newest first",
+          ix[0] == "IA-%d" % year and ix[-1] == "IA-%d" % archmod.FIRST_YEAR and len(ix) > 20, ix[:3])
+    check("the CURRENT year is provisional (the archive is still writing to it)",
+          w.is_provisional("IA-%d" % year))
+    check("a CLOSED year is immutable and may be recorded done forever",
+          not w.is_provisional("IA-%d" % (year - 1)))
+    check("Common Crawl is never provisional (a published crawl never changes)",
+          not archmod.get("commoncrawl").is_provisional("CC-MAIN-2026-30"))
+
+    # An index id implies its archive: `IA-2019` handed to the CC adapter is a parse error mid-run,
+    # not an empty result.
+    check("--index CC-MAIN-… routes to commoncrawl",
+          archmod.archive_for_index("CC-MAIN-2026-30").name == "commoncrawl")
+    check("--index IA-2019 routes to wayback",
+          archmod.archive_for_index("IA-2019").name == "wayback")
+    check("an id no archive mints is refused, not guessed",
+          archmod.archive_for_index("nonsense") is None)
+
+    check("validate() dedups and canonicalizes a selection",
+          archmod.validate(["wayback", "commoncrawl", "wayback"]) == ["wayback", "commoncrawl"])
+    check("validate(None) means 'inherit the default', not 'none'", archmod.validate(None) is None)
+    try:
+        archmod.validate(["no-such-archive"])
+        check("an unknown archive is refused at WRITE time", False, "accepted")
+    except archmod.ArchiveError as e:
+        check("an unknown archive is refused at WRITE time, with the known list", "known" in str(e))
+    check("a source with no `archives` inherits the default (back-compat with old entries)",
+          [a.name for a in archmod.for_source({"url": "x"})] == list(archmod.DEFAULT_ARCHIVES))
+    check("a per-source override wins over the process default",
+          [a.name for a in archmod.for_source({"archives": ["vefsafn"]})] == ["vefsafn"])
+    check("a hand-edited unknown name is skipped, not fatal to the others",
+          [a.name for a in archmod.for_source({"archives": ["wayback", "typo"]})] == ["wayback"])
+
+    # The bounded-run rule: a queued tick may walk only N indexes, and draining archive #1 first
+    # would mean archive #2 was never reached on the first eleven nights.
+    class _Stub:
+        def __init__(self, n, ids):
+            self.name, self._ids = n, ids
+
+        def indexes(self):
+            return self._ids
+
+        def is_provisional(self, i):
+            return False
+
+    a, b = _Stub("cc", ["C1", "C2", "C3", "C4"]), _Stub("ia", ["I1", "I2"])
+    plan = [(x.name, i) for x, i in scrapemod.plan_indexes([a, b], done=set(), max_indexes=4)]
+    check("a bounded run INTERLEAVES archives instead of draining the first",
+          plan == [("cc", "C1"), ("ia", "I1"), ("cc", "C2"), ("ia", "I2")], plan)
+    plan2 = [(x.name, i) for x, i in scrapemod.plan_indexes([a, b], done={"C2", "I1"},
+                                                            max_indexes=None)]
+    check("indexes already recorded done are skipped, per archive",
+          plan2 == [("cc", "C1"), ("ia", "I2"), ("cc", "C3"), ("cc", "C4")], plan2)
+
+    # The ledger's provisional flag: recorded (so progress is visible) but NOT counted as done.
+    tmp = tempfile.mkdtemp(prefix="wikikb-prov-probe-")
+    p = os.path.join(tmp, ".scrape-state.json")
+    U = "https://example.com/docs/"
+    try:
+        statemod.update(lambda d: statemod.record(d, U, "prefix", "IA-2025", {"new": 3}), p)
+        statemod.update(lambda d: statemod.record(d, U, "prefix", "IA-2026",
+                                                  {"new": 1, "provisional": True}), p)
+        done = statemod.done_indexes(statemod.load(p), U, "prefix")
+        check("a provisional (current-year) bucket is recorded but re-checked every run",
+              done == {"IA-2025"}, done)
+        check("both rows are still on file, so progress stays visible",
+              set(statemod.load(p)["sources"][U]["indexes"]) == {"IA-2025", "IA-2026"})
+        check("ids from different archives coexist in ONE ledger (no schema change needed)",
+              statemod.update(lambda d: statemod.record(d, U, "prefix", "CC-MAIN-2026-30", {"new": 2}),
+                              p) is not None
+              and statemod.done_indexes(statemod.load(p), U, "prefix") == {"IA-2025",
+                                                                           "CC-MAIN-2026-30"})
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    # A watchlist entry can pin its archives, and the field is validated where it is WRITTEN.
+    tmp = tempfile.mkdtemp(prefix="wikikb-src-arch-probe-")
+    path = os.path.join(tmp, "scrape-sources.json")
+    try:
+        doms = sorted(srcmod._known_domains())
+        if doms:
+            e = srcmod.add("https://a.example/", doms[0], archives=["wayback"], path=path)
+            check("add stores a canonical archives list", e["archives"] == ["wayback"], e)
+            e2 = srcmod.add("https://b.example/", doms[0], path=path)
+            check("add with no archives stores null, so the entry keeps INHERITING the default",
+                  e2["archives"] is None, e2)
+            _, changed = srcmod.update("https://b.example/", path=path, archives="commoncrawl,wayback")
+            check("archives is patchable (a string is accepted and split)", changed == ["archives"])
+            try:
+                srcmod.add("https://c.example/", doms[0], archives=["nope"], path=path)
+                check("an unknown archive is refused by the watchlist too", False, "accepted")
+            except srcmod.SourceError:
+                check("an unknown archive is refused by the watchlist too (write-time, as with domain)",
+                      True)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    # The job chain must forward the selection, or a POST /scrape {"archives":[…]} would silently
+    # harvest from whatever the default happened to be.
+    steps = dict((n, argv) for n, argv in jobsmod.scrape_steps("keycloak", archives=["wayback"]))
+    check("the job chain forwards --archive to the scrape step",
+          "--archive" in steps["scrape"] and "wayback" in steps["scrape"], steps["scrape"])
+    plain = dict((n, argv) for n, argv in jobsmod.scrape_steps("keycloak"))
+    check("with no selection the chain passes NO --archive (per-source config wins)",
+          "--archive" not in plain["scrape"], plain["scrape"])
+
+
 def main():
     print("=" * 78)
-    print("SCRAPE PROBE — watchlist, Common Crawl plumbing, extraction, cron, job chain")
+    print("SCRAPE PROBE — watchlist, archive registry, CC plumbing, extraction, cron, job chain")
     print("=" * 78)
     # Belt-and-braces: nothing here should reach the network, and the mode default is the airgapped
     # one, so an accidental socket call would raise ModeError rather than quietly going out.
@@ -566,6 +720,7 @@ def main():
     case_job_chain()
     case_web_to_corpus()
     case_ledger()
+    case_archives()
     print("-" * 78)
     print("%d/%d passed" % (sum(checks), len(checks)))
     return 0 if all(checks) else 1

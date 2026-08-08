@@ -786,7 +786,7 @@ The web sibling of the PDF path, and deliberately the *same* chain with the firs
 describes the CONTENT: "this KB tracks these upstream pages"), **config-only**, and hand-editable
 in Obsidian. Each entry is a URL + the `domain:` it feeds (validated against `taxonomy.md` at WRITE
 time, so a bad entry fails where a human is watching rather than on every unattended cron tick) +
-`match: exact|prefix`, `enabled`, `direct`. Per-URL fetch STATE (capture date, body digest) is
+`match: exact|prefix`, `enabled`, `direct`, `archives` (which web indexes to consult — see below). Per-URL fetch STATE (capture date, body digest) is
 **not** in this file — it lives in the raw-tier sidecar next to what was fetched, so the scraper
 never rewrites a file a human may be editing.
 
@@ -821,7 +821,8 @@ Crawl *samples* the web rather than exhaustively recrawling it, so a site's capt
 hard between crawls — measured on `support.checkpoint.com`, 3 of 4 pages appear in ONLY the newest
 crawl, and four crawls produced 81 documents where the newest alone produced 21. Harvesting one
 index therefore captures a thin, arbitrary slice. So each watchlist source is processed against
-every crawl it has not been processed against yet, newest first, and the results accumulate.
+every index generation — of every enabled archive — it has not been processed against yet, newest
+first, and the results accumulate.
 
 `vault/.scrape-state.json` (hidden, like `.manifest.json`) records every **(source, crawl)** pair —
 including crawls that held **nothing**. That negative is safe to persist because **a published crawl
@@ -838,13 +839,54 @@ instead of being killed with nothing folded in. **All writes go through `state.u
 re-reads before writing — a load-once-save-later caller rolled the collinfo cache back to `None` on
 the first real multi-index run, because the ledger has two independently-written halves.
 
-**Common Crawl first, always.** `collinfo.json` → the crawl list; the CDX index says whether the
-URL is captured in a given crawl and where; a `Range:` GET pulls that one WARC record out of a ~1 GB
-archive. Not indexed ⇒ the run reports `not-indexed` and **fetches nothing**. A live origin fetch is the
-per-source opt-in `"direct": true` (address-guarded: any host resolving to a private/loopback/
-link-local address is refused, because `POST /scrape` lets a caller name any host). Harvesting the
-archive means no robots budget spent, no origin server hit on a cron, and a real capture date to
-put in the `web:` token.
+**The archives first, always — and there are FOUR of them** (`wikikb/scrape/archives.py`, one
+interface over all of them). Not indexed *anywhere* ⇒ the run reports `not-indexed` and **fetches
+nothing**. A live origin fetch is the per-source opt-in `"direct": true` (address-guarded: any host
+resolving to a private/loopback/link-local address is refused, because `POST /scrape` lets a caller
+name any host). Harvesting archives means no robots budget spent, no origin server hit on a cron,
+and a real capture date to put in the `web:` token.
+
+| archive | index | body | default |
+|---|---|---|---|
+| `commoncrawl` | `collinfo.json` → per-crawl CDX; a `Range:` GET pulls one WARC record out of a ~1 GB archive | WARC | ✅ |
+| `wayback` | Internet Archive CDX server | `…/{ts}id_/{url}` raw replay | ✅ |
+| `arquivo` | arquivo.pt (pywb) | same | opt-in |
+| `vefsafn` | vefsafn.is (OpenWayback) | same | opt-in |
+
+- **Why more than one.** Common Crawl *samples* the web; the Internet Archive keeps what it chose to
+  save, and for vendor documentation the difference is one to two orders of magnitude. Measured
+  2026-08-07: `support.checkpoint.com/results/sk` — CC newest crawl 1,757 captures vs Wayback 4,382
+  URLs; `sc1.checkpoint.com/documents` — CC thin vs Wayback **30,788** HTML pages; `access.redhat.com/
+  solutions` and `cisco.com/c/en/us/td` both exceeded a 50,000-row cap on Wayback. The union is what a
+  KB wants. Archives that cannot be queried without a browser challenge (Library of Congress,
+  Archive-It `/all`, UK Web Archive, the Memento aggregator, archive.today) were probed and are
+  deliberately **absent** — an index you cannot script is not an index this can use.
+- **Several archives, ONE note per URL.** The note is named from the URL, and `_write_note`'s
+  never-overwrite-a-newer-capture rule arbitrates: the newest capture wins whichever archive was
+  walked last. That rule is what makes taking the union safe instead of a duplicate factory.
+- **The ledger's immutability argument had to be re-earned.** A published CC crawl never changes, so
+  a processed one is done forever. A replay archive has no such partition, so it is split into YEAR
+  BUCKETS (`IA-2019`, queried with the CDX `from`/`to` range). A **closed** year is recorded done; the
+  **current** year is recorded `provisional` and re-checked every run (`state.done_indexes` skips
+  provisional rows). Without that split the scraper would either re-scan three decades nightly or
+  record "2026: done" in January and never look again. Index ids are globally unique across archives,
+  so one ledger holds four histories with no schema change.
+- **A bounded run INTERLEAVES archives** (`scrape.plan_indexes`, round-robin, each archive
+  newest-first). Draining CC's 126 crawls first would mean a nightly `WIKIKB_SCRAPE_MAX_INDEXES_PER_RUN`
+  = 12 tick never reached the Internet Archive for eleven days — the archive holding most of the win.
+- **Selection**: `WIKIKB_SCRAPE_ARCHIVES` (default `commoncrawl,wayback`) · per-source `"archives":
+  [...]` on a watchlist entry (validated at WRITE time like `domain`; `null` = keep inheriting the
+  default, so turning an archive on later applies to entries already on the list) · `--archive NAME`
+  (repeatable) or `POST /scrape {"archives":[…]}` for one run. `--index IA-2019` implies its archive.
+- **Every socket is still `commoncrawl._http`** — `archives.py` opens none of its own, so four
+  archives add zero new ways out of a sealed box and the egress guard stays one chokepoint.
+- **No archive fixes a client-rendered page.** Every index stores the HTML *as served*; measured on a
+  Check Point SK article, 287 visible characters live to a crawler UA and 129 from the Wayback
+  capture. That is the `too-thin` refusal working, not a gap to route around — harvest the vendor's
+  static doc portal instead. (Conversely: a chrome-looking class on a STRUCTURAL ROOT used to delete
+  the whole document — Check Point's MadCap skin puts `_Skins_…_Navigation_new` on `<html>`, and those
+  pages extracted to ZERO characters and were reported as JS-rendered when the HTML was complete.
+  `extract.NEVER_CHROME` exempts `html`/`body`/`main`/`article`; regression-tested in `scrape_probe.py`.)
 
 - **Two index-lookup backends, and that is the load-bearing decision.** `index.commoncrawl.org` is
   free and heavily loaded; it answered `504` continuously across four crawls while this was being

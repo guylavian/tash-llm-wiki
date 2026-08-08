@@ -9,6 +9,236 @@
       "enabled": true,
       "direct": false,
       "added": "2026-08-05"
+    },
+    {
+      "url": "https://sc1.checkpoint.com/documents/",
+      "domain": "checkpoint",
+      "label": "Check Point product documentation portal (admin guides, static WebHelp)",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/",
+      "domain": "cisco-ios-xe",
+      "label": "Cisco IOS / IOS XE configuration guides",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://www.cisco.com/c/en/us/support/docs/",
+      "domain": "cisco-ios-xe",
+      "label": "Cisco support tech notes & troubleshooting docs",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/windows-server/",
+      "domain": "windows-server",
+      "label": "Microsoft Learn — Windows Server documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/",
+      "domain": "active-directory",
+      "label": "Microsoft Learn — Active Directory Domain Services",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/mem/configmgr/",
+      "domain": "sccm",
+      "label": "Microsoft Learn — Configuration Manager documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/powershell/",
+      "domain": "powershell",
+      "label": "Microsoft Learn — PowerShell documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/exchange/",
+      "domain": "exchange",
+      "label": "Microsoft Learn — Exchange Server documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/sharepoint/",
+      "domain": "sharepoint",
+      "label": "Microsoft Learn — SharePoint Server documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://docs.openshift.com/container-platform/",
+      "domain": "openshift",
+      "label": "OpenShift Container Platform documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://docs.vmware.com/en/VMware-vSphere/",
+      "domain": "vmware-vsphere",
+      "label": "VMware vSphere documentation (docs.vmware.com)",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/",
+      "domain": "vmware-vsphere",
+      "label": "Broadcom TechDocs — VMware vSphere",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://docs.vmware.com/en/VMware-NSX-T-Data-Center/",
+      "domain": "vmware-nsx",
+      "label": "VMware NSX-T Data Center documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://docs.vmware.com/en/VMware-NSX/",
+      "domain": "vmware-nsx",
+      "label": "VMware NSX documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://docs.paloaltonetworks.com/pan-os/",
+      "domain": "palo-alto",
+      "label": "Palo Alto Networks PAN-OS documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://www.juniper.net/documentation/us/en/software/junos/",
+      "domain": "juniper-junos",
+      "label": "Juniper Junos OS documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://docs.fortinet.com/document/fortigate/",
+      "domain": "fortinet",
+      "label": "Fortinet FortiGate / FortiOS documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://techdocs.f5.com/",
+      "domain": "f5-big-ip",
+      "label": "F5 BIG-IP TechDocs",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://support.f5.com/csp/knowledge-center/",
+      "domain": "f5-big-ip",
+      "label": "F5 legacy AskF5 knowledge center",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://documentation.commvault.com/",
+      "domain": "commvault",
+      "label": "Commvault product documentation",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html-single/",
+      "domain": "rhel",
+      "label": "RHEL 9 documentation (html-single)",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/",
+      "domain": "rhel",
+      "label": "RHEL 8 documentation (html-single)",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
+    },
+    {
+      "url": "https://access.redhat.com/documentation/en-us/red_hat_build_of_keycloak/",
+      "domain": "keycloak",
+      "label": "Red Hat build of Keycloak documentation (html-single)",
+      "match": "prefix",
+      "enabled": true,
+      "direct": false,
+      "archives": null,
+      "added": "2026-08-07"
     }
   ]
 }

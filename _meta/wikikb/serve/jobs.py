@@ -320,7 +320,7 @@ def submit_ingest(domain, detail=None):
 MAX_INDEXES_PER_RUN = int(os.environ.get("WIKIKB_SCRAPE_MAX_INDEXES_PER_RUN") or 12)
 
 
-def scrape_steps(domain, urls=None, match="exact", direct=False, max_indexes=None):
+def scrape_steps(domain, urls=None, match="exact", direct=False, max_indexes=None, archives=None):
     """The web-harvest chain: the SAME shape as `ingest_steps`, with the web pair swapped in for the
     PDF pair. `scrape` fetches into `_sources/<domain>/_raw/web/`, `web_to_corpus` turns that into
     corpus records, and the last two steps are literally the same tools the PDF path ends with.
@@ -344,8 +344,14 @@ def scrape_steps(domain, urls=None, match="exact", direct=False, max_indexes=Non
         if direct:
             argv.append("--direct")
     else:
-        # A watchlist run walks the crawl history, bounded per run (see MAX_INDEXES_PER_RUN).
+        # A watchlist run walks the index history, bounded per run (see MAX_INDEXES_PER_RUN). The
+        # budget is now shared across archives and spent round-robin (scrape.plan_indexes), so a
+        # bounded tick makes progress on every web index rather than draining the first one.
         argv += ["--all", "--max-indexes", str(max_indexes or MAX_INDEXES_PER_RUN)]
+    # Forwarded ONLY when the caller named archives: absent, each source falls back to its own
+    # `archives` field and then the process default — a run must not freeze a per-source choice.
+    for a in (archives or []):
+        argv += ["--archive", a]
     src = str(paths.WIKI / "_sources" / domain / "_raw" / "web")
     return [
         ("scrape", argv),
@@ -355,7 +361,8 @@ def scrape_steps(domain, urls=None, match="exact", direct=False, max_indexes=Non
     ]
 
 
-def submit_scrape(domain, urls=None, match="exact", direct=False, detail=None, max_indexes=None):
+def submit_scrape(domain, urls=None, match="exact", direct=False, detail=None, max_indexes=None,
+                  archives=None):
     """Queue the scrape chain for `domain`. Returns (job, coalesced).
 
     Only a WATCHLIST run (urls=None) coalesces, and for the same reason the ingest chain does: it
@@ -363,6 +370,7 @@ def submit_scrape(domain, urls=None, match="exact", direct=False, detail=None, m
     per-URL run never coalesces — folding "scrape example.com/a" into a pending "scrape everything"
     job would look like it succeeded while quietly harvesting a different set of URLs.
     """
-    return RUNNER.submit(Job("scrape", scrape_steps(domain, urls, match, direct, max_indexes),
+    return RUNNER.submit(Job("scrape",
+                             scrape_steps(domain, urls, match, direct, max_indexes, archives),
                              domain=domain, detail=detail,
                              coalesce_key=("scrape", domain) if not urls else None))

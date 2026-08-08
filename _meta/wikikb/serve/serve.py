@@ -138,6 +138,7 @@ from wikikb.serve import jobs as jobsmod  # background runner for the ingest cha
 # itself (modes.py, property 2). Importing it only in online mode would make the module graph differ
 # between postures — which is exactly the kind of difference that makes an airgapped bug reproduce
 # only in production.
+from wikikb.scrape import archives as archmod
 from wikikb.scrape import scrape as scrapemod
 from wikikb.scrape import sources as srcmod
 from wikikb.scrape import cron as cronmod
@@ -752,7 +753,8 @@ def do_scrape_sources_add(body):
     try:
         entry = srcmod.add(url=body.get("url"), domain=body.get("domain"),
                            label=body.get("label"), match=(body.get("match") or "exact"),
-                           enabled=body.get("enabled", True), direct=bool(body.get("direct")))
+                           enabled=body.get("enabled", True), direct=bool(body.get("direct")),
+                           archives=body.get("archives"))
     except srcmod.SourceError as e:
         return 400, {"error": str(e)}
     return 201, {"added": entry, "file": str(paths.SCRAPE_SOURCES),
@@ -776,7 +778,7 @@ def do_scrape_sources_update(body):
     fields = {k: v for k, v in body.items() if k != "url"}
     if not fields:
         return 400, {"error": "nothing to update — send at least one of: domain, label, match, "
-                              "enabled, direct"}
+                              "enabled, direct, archives"}
     try:
         entry, changed = srcmod.update(body["url"], **fields)
     except srcmod.SourceError as e:
@@ -832,6 +834,12 @@ def do_scrape_run(body):
         max_indexes = int(body["max_indexes"]) if body.get("max_indexes") is not None else None
     except (TypeError, ValueError):
         return 400, {"error": "max_indexes must be an integer"}
+    # Which web indexes this RUN consults. Omitted = each source's own `archives`, else the process
+    # default — the run does not freeze a choice the watchlist is entitled to make per source.
+    try:
+        run_archives = archmod.validate(body.get("archives"))
+    except archmod.ArchiveError as e:
+        return 400, {"error": str(e)}
     known = tags.load_domains()
 
     if urls:
@@ -848,13 +856,15 @@ def do_scrape_run(body):
                 return 400, {"error": str(e)}
         try:
             job, coalesced = jobsmod.submit_scrape(domain, urls=canon, match=match, direct=direct,
+                                                   archives=run_archives,
                                                    detail={"trigger": "POST /scrape",
                                                            "urls": canon})
         except RuntimeError as e:
             return 429, {"error": str(e)}
         return 202, {"queued": [{"domain": domain, "job_id": job.id, "coalesced": coalesced,
                                  "status_url": "/jobs/%s" % job.id}],
-                     "urls": canon, "steps": [n for n, _ in job.steps]}
+                     "urls": canon, "archives": run_archives or archmod.describe()["default"],
+                     "steps": [n for n, _ in job.steps]}
 
     try:
         doms = srcmod.domains(enabled_only=True)
@@ -872,7 +882,7 @@ def do_scrape_run(body):
             continue
         try:
             job, coalesced = jobsmod.submit_scrape(d, detail={"trigger": "POST /scrape"},
-                                                   max_indexes=max_indexes)
+                                                   max_indexes=max_indexes, archives=run_archives)
             queued.append({"domain": d, "job_id": job.id, "coalesced": coalesced,
                            "status_url": "/jobs/%s" % job.id})
         except RuntimeError as e:

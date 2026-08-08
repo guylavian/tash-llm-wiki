@@ -88,6 +88,44 @@ tags: [federation, concept, v26.6]
 - `cp-policy` — access-control & threat-prevention policy, layers, rulebase, install-policy
 - `cp-vpn` — site-to-site and remote-access VPN, communities, IKE/IPsec, Mobile Access
 - `cp-clustering` — ClusterXL, VRRP, VSX, high availability, load sharing, sync network
+<!-- rhel areas -->
+- `rhel-system` — RHEL base OS: systemd units/targets, boot & GRUB, dnf/rpm packaging, subscription-manager, users & sudo
+- `rhel-storage` — RHEL storage stack: LVM, filesystems (XFS/ext4), Stratis, VDO, multipath, NFS/Samba clients
+- `rhel-networking` — RHEL networking: NetworkManager/nmcli, firewalld/nftables, bonding & teaming, chrony, hostname/DNS resolution
+- `selinux` — SELinux: enforcing/permissive modes, contexts & labels, booleans, policy modules, audit2allow denials
+- `rhel-kernel` — kernel & performance: sysctl tuning, tuned profiles, cgroups, kdump/crash, kernel modules, live patching
+<!-- vmware-vsphere areas -->
+- `vsphere-compute` — ESXi hosts, virtual machines, VM hardware & tools, DRS, vMotion, resource pools, clusters
+- `vsphere-storage` — datastores, VMFS/NFS, vSAN, storage policies (SPBM), VMDK & disk modes, storage vMotion
+- `vsphere-networking` — standard & distributed switches, port groups, VMkernel adapters, NIC teaming, VLANs on vSphere
+- `vsphere-lifecycle` — vCenter Server, vLCM/Update Manager, upgrades & patching, certificates, SSO & permissions
+<!-- vmware-nsx areas -->
+- `nsx-switching` — NSX logical switching: segments, overlay/Geneve encapsulation, transport zones, VNIs, MAC/ARP tables
+- `nsx-routing` — NSX logical routing: Tier-0/Tier-1 gateways, edge nodes & clusters, BGP/OSPF peering, NAT, service interfaces
+- `nsx-security` — distributed firewall, gateway firewall, groups & tags, IDS/IPS, micro-segmentation policy
+- `nsx-platform` — NSX Managers, transport nodes, host preparation, install/upgrade, backup & restore, federation
+<!-- palo-alto areas -->
+- `panos-policy` — PAN-OS security & NAT policy, App-ID, User-ID, security profiles, policy evaluation order
+- `panos-networking` — interfaces & zones, virtual routers, VLAN/Layer-3 deployments, HA pairs, GlobalProtect & IPsec VPN
+- `panos-threat` — threat prevention: antivirus, anti-spyware, vulnerability protection, WildFire, URL filtering, DNS security
+- `panos-panorama` — Panorama management: device groups, templates & stacks, commit/push workflow, log collectors
+<!-- juniper-junos areas -->
+- `junos-platform` — Junos OS fundamentals: configuration hierarchy, candidate config & commit model, CLI operational mode, software upgrades, ZTP
+- `junos-security` — SRX security: zones & security policies, screens, source/destination NAT, IPsec VPN, UTM
+<!-- fortinet areas -->
+- `fortios-policy` — FortiOS firewall policies, virtual IPs & NAT, security profiles (AV/IPS/web filter), policy lookup order
+- `fortios-networking` — FortiGate interfaces & VDOMs, static/dynamic routing, SD-WAN rules, HA clusters (FGCP/FGSP)
+- `fortios-vpn` — IPsec site-to-site and dial-up VPN, SSL-VPN portals & tunnels, ADVPN
+- `fortios-platform` — FortiManager/FortiAnalyzer, firmware upgrade paths, licensing & entitlement, configuration backup
+<!-- f5-big-ip areas -->
+- `bigip-ltm` — BIG-IP LTM: virtual servers, pools & members, health monitors, persistence, SNAT, iRules, SSL profiles
+- `bigip-apm-asm` — BIG-IP APM access policies & SSO, and ASM/Advanced WAF policies, signatures, learning & blocking modes
+- `bigip-platform` — TMOS platform: HA device groups & traffic groups, config sync, upgrades & UCS archives, licensing, vCMP
+<!-- commvault areas -->
+- `backup-policy` — protection plans & storage policies, retention rules, schedules, SLA, auxiliary copy
+- `backup-agents` — iDataAgents & the Virtual Server Agent: file system, database and hypervisor backups, application-aware protection
+- `backup-infrastructure` — CommServe, MediaAgents, deduplication databases, disk & cloud libraries, index servers, network topologies
+- `backup-restore` — restore & recovery: in-place/out-of-place restores, granular recovery, DR of the CommServe, replication & failover
 
 ## Kinds
 - `concept` — broad synthesis / how-something-works (usually topics/)
@@ -210,6 +248,70 @@ tier* — the failure `provenance_*` counts cannot see.
                                 # content lands: a support-kb/scenarios claim here would be the
                                 # Confidence gate's H1 arm silently NOT firing on break-fix
                                 # questions the vault cannot actually answer.
+
+### rhel
+- domain: rhel
+- areas: [rhel-system, rhel-storage, rhel-networking, selinux, rhel-kernel, security, troubleshooting, migration]
+- shape: notes-first
+- sources: [_sources/rhel/]
+- review-moc: rhel-implementation-review
+- tiers-covered: [conceptual]
+
+### vmware-vsphere
+- domain: vmware-vsphere
+- areas: [vsphere-compute, vsphere-storage, vsphere-networking, vsphere-lifecycle, ha, security, troubleshooting, migration]
+- shape: notes-first
+- sources: [_sources/vmware-vsphere/]
+- review-moc: vmware-vsphere-implementation-review
+- tiers-covered: [conceptual]
+
+### vmware-nsx
+- domain: vmware-nsx
+- areas: [nsx-switching, nsx-routing, nsx-security, nsx-platform, ha, security, troubleshooting, migration]
+- shape: notes-first
+- sources: [_sources/vmware-nsx/]
+- review-moc: vmware-nsx-implementation-review
+- tiers-covered: [conceptual]
+
+### palo-alto
+- domain: palo-alto
+- areas: [panos-policy, panos-networking, panos-threat, panos-panorama, security, troubleshooting, migration]
+- shape: notes-first
+- sources: [_sources/palo-alto/]
+- review-moc: palo-alto-implementation-review
+- tiers-covered: [conceptual]
+
+### juniper-junos
+- domain: juniper-junos
+- areas: [junos-platform, junos-security, routing-protocols, ip-routing, lan-switching, security, troubleshooting]
+- shape: notes-first
+- sources: [_sources/juniper-junos/]
+- review-moc: juniper-junos-implementation-review
+- tiers-covered: [conceptual]
+
+### fortinet
+- domain: fortinet
+- areas: [fortios-policy, fortios-networking, fortios-vpn, fortios-platform, security, troubleshooting]
+- shape: notes-first
+- sources: [_sources/fortinet/]
+- review-moc: fortinet-implementation-review
+- tiers-covered: [conceptual]
+
+### f5-big-ip
+- domain: f5-big-ip
+- areas: [bigip-ltm, bigip-apm-asm, bigip-platform, security, troubleshooting, migration]
+- shape: notes-first
+- sources: [_sources/f5-big-ip/]
+- review-moc: f5-big-ip-implementation-review
+- tiers-covered: [conceptual]
+
+### commvault
+- domain: commvault
+- areas: [backup-policy, backup-agents, backup-infrastructure, backup-restore, security, troubleshooting]
+- shape: notes-first
+- sources: [_sources/commvault/]
+- review-moc: commvault-implementation-review
+- tiers-covered: [conceptual]
 
 <!-- Template — copy per new technology (placeholders are ignored by lint/index):
 ### <domain>
